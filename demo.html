@@ -1,0 +1,2292 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CALOFIC Media Tracker Bot - Dashboard</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary-color: #2E8B57;
+            --secondary-color: #FFD700;
+            --background-color: #1a1a1a;
+            --card-background: #2d2d2d;
+            --text-color: #ffffff;
+            --text-muted: #b0b0b0;
+            --border-color: #404040;
+            --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            --gradient-primary: linear-gradient(135deg, #2E8B57 0%, #20B2AA 100%);
+            --hover-color: rgba(46, 139, 87, 0.1);
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+        }
+
+        .navbar {
+            background: var(--gradient-primary);
+            box-shadow: var(--card-shadow);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: white !important;
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.9) !important;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: white !important;
+        }
+
+        .hero-section {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.1;
+        }
+
+        .hero-logo {
+            width: 60px;
+            height: 60px;
+            background: var(--secondary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            font-weight: bold;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card {
+            background-color: var(--card-background);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--card-shadow);
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .card-header {
+            background: var(--gradient-primary);
+            color: white;
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 600;
+            padding: 1rem 1.5rem;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+            color: var(--text-color);
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-running {
+            background: linear-gradient(45deg, #f39c12, #e67e22);
+            color: white;
+            animation: pulse 2s infinite;
+        }
+
+        .status-completed {
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
+            color: white;
+        }
+
+        .status-failed {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+        }
+
+        .status-idle {
+            background: linear-gradient(45deg, #95a5a6, #7f8c8d);
+            color: white;
+        }
+
+        .status-stopping {
+            background: linear-gradient(45deg, #e67e22, #d35400);
+            color: white;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.7;
+            }
+        }
+
+        .progress-custom {
+            height: 10px;
+            border-radius: 10px;
+            overflow: hidden;
+            background-color: var(--border-color);
+        }
+
+        .progress-bar-custom {
+            background: var(--gradient-primary);
+            transition: width 0.6s ease;
+            height: 100%;
+            border-radius: 10px;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            border: none;
+            border-radius: 25px;
+            padding: 0.7rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(46, 139, 87, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-outline-primary {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+            border-radius: 25px;
+            padding: 0.7rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-primary:hover {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            transform: translateY(-1px);
+        }
+
+        .btn-outline-danger {
+            color: #e74c3c;
+            border-color: #e74c3c;
+            border-radius: 25px;
+            padding: 0.7rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-danger:hover {
+            background: #e74c3c;
+            border-color: #e74c3c;
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        /* TABLE IMPROVEMENTS - FIX BLACK TEXT ISSUE */
+        .table {
+            color: var(--text-color) !important;
+            background-color: transparent;
+        }
+
+        .table-dark {
+            background-color: var(--primary-color) !important;
+            color: white !important;
+        }
+
+        .table-dark th {
+            background-color: var(--primary-color) !important;
+            color: white !important;
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .table tbody tr {
+            background-color: var(--card-background);
+            border-color: var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .table tbody tr:hover {
+            background-color: var(--hover-color) !important;
+            transform: scale(1.01);
+        }
+
+        .table tbody td {
+            color: var(--text-color) !important;
+            border-color: var(--border-color);
+            padding: 1rem 0.75rem;
+            vertical-align: middle;
+        }
+
+        .table tbody td strong {
+            color: var(--primary-color) !important;
+        }
+
+        .text-muted {
+            color: var(--text-muted) !important;
+        }
+
+        .industry-pill {
+            display: inline-block;
+            padding: 0.4rem 0.8rem;
+            margin: 0.2rem;
+            background: var(--gradient-primary);
+            color: white;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .industry-pill:hover {
+            transform: scale(1.05);
+            box-shadow: 0 2px 8px rgba(46, 139, 87, 0.3);
+        }
+
+        .metric-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .metric-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin: 1rem 0;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .modal-content {
+            background-color: var(--card-background);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+        }
+
+        .modal-header {
+            background: var(--gradient-primary);
+            color: white;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .modal-body {
+            background-color: var(--card-background);
+        }
+
+        .modal-footer {
+            background-color: var(--card-background);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .timeline-item {
+            padding: 1rem;
+            border-left: 3px solid var(--primary-color);
+            margin-left: 1rem;
+            position: relative;
+            background: rgba(46, 139, 87, 0.05);
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 0.5rem;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 1.5rem;
+            width: 12px;
+            height: 12px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            box-shadow: 0 0 0 3px var(--card-background);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* FORM IMPROVEMENTS */
+        .form-control,
+        .form-select {
+            background-color: var(--card-background);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            border-radius: 8px;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            background-color: var(--card-background);
+            border-color: var(--primary-color);
+            color: var(--text-color);
+            box-shadow: 0 0 0 0.2rem rgba(46, 139, 87, 0.25);
+        }
+
+        .form-control::placeholder {
+            color: var(--text-muted);
+        }
+
+        .form-label {
+            color: var(--text-color);
+            font-weight: 500;
+        }
+
+        .form-text {
+            color: var(--text-muted);
+        }
+
+        /* ALERT IMPROVEMENTS */
+        .alert {
+            border-radius: 10px;
+            border: none;
+            padding: 1rem 1.5rem;
+        }
+
+        .alert-info {
+            background: rgba(52, 152, 219, 0.1);
+            color: #3498db;
+            border-left: 4px solid #3498db;
+        }
+
+        .alert-success {
+            background: rgba(39, 174, 96, 0.1);
+            color: #27ae60;
+            border-left: 4px solid #27ae60;
+        }
+
+        .alert-danger {
+            background: rgba(231, 76, 60, 0.1);
+            color: #e74c3c;
+            border-left: 4px solid #e74c3c;
+        }
+
+        .alert-warning {
+            background: rgba(243, 156, 18, 0.1);
+            color: #f39c12;
+            border-left: 4px solid #f39c12;
+        }
+
+        /* PAGINATION IMPROVEMENTS */
+        .pagination .page-link {
+            background-color: var(--card-background);
+            border-color: var(--border-color);
+            color: var(--text-color);
+        }
+
+        .pagination .page-link:hover {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+        }
+
+        .pagination .page-item.active .page-link {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        /* RESPONSIVE IMPROVEMENTS */
+        @media (max-width: 768px) {
+            .hero-section {
+                padding: 1rem 0;
+            }
+
+            .metric-number {
+                font-size: 2rem;
+            }
+
+            .chart-container {
+                height: 250px;
+            }
+
+            .card-body {
+                padding: 1rem;
+            }
+
+            .table-responsive {
+                font-size: 0.9rem;
+            }
+        }
+
+        /* BADGE IMPROVEMENTS */
+        .badge {
+            font-size: 0.8rem;
+            padding: 0.5rem 0.8rem;
+            border-radius: 12px;
+        }
+
+        .bg-primary {
+            background: var(--gradient-primary) !important;
+        }
+
+        /* LOADING STATE */
+        .loading-state {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            color: var(--text-muted);
+        }
+
+        .loading-state i {
+            margin-right: 0.5rem;
+            animation: spin 1s linear infinite;
+        }
+
+        /* SCROLLBAR IMPROVEMENTS */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--card-background);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #20B2AA;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-search-dollar me-2"></i>
+                CALOFIC Media Tracker
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#dashboard">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#reports">Reports</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#settings">Settings</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-2 text-center">
+                    <div class="hero-logo mx-auto">
+                        <i class="fas fa-oil-can"></i>
+                    </div>
+                </div>
+                <div class="col-md-10">
+                    <h1 class="display-6 fw-bold mb-2">COMPETITOR REPORT</h1>
+                    <h2 class="h4 mb-3">PR & SOCIAL MONTHLY REPORT</h2>
+                    <p class="lead mb-0">Hệ thống tracking truyền thông tự động cho ngành FMCG Việt Nam</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container">
+        <!-- Status & Controls -->
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-tachometer-alt me-2"></i>
+                            Bot Status
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center mb-3">
+                                    <span class="me-3">Trạng thái:</span>
+                                    <span id="statusBadge" class="status-badge status-idle">
+                                        <i class="fas fa-circle"></i>
+                                        Idle
+                                    </span>
+                                </div>
+                                <div class="d-flex align-items-center mb-3">
+                                    <span class="me-3">Task hiện tại:</span>
+                                    <span id="currentTask" class="fw-bold">Chờ khởi động</span>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <span class="me-3">Tiến độ:</span>
+                                    <div class="flex-grow-1">
+                                        <div class="progress-custom">
+                                            <div id="progressBar" class="progress-bar-custom" style="width: 0%"></div>
+                                        </div>
+                                    </div>
+                                    <span id="progressText" class="ms-2 fw-bold">0%</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="row text-center">
+                                    <div class="col-4">
+                                        <div class="metric-number" id="totalSources">445</div>
+                                        <div class="metric-label">Total Sources</div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="metric-number" id="completedSources">0</div>
+                                        <div class="metric-label">Completed</div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="metric-number" id="failedSources">0</div>
+                                        <div class="metric-label">Failed</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-play me-2"></i>
+                            Controls
+                        </h5>
+                    </div>
+                    <div class="card-body text-center">
+                        <button id="runBtn" class="btn btn-primary btn-lg mb-2 w-100">
+                            <i class="fas fa-play me-2"></i>
+                            Run Pipeline
+                        </button>
+                        <button id="configBtn" class="btn btn-outline-primary mb-2 w-100" onclick="showConfigModal()">
+                            <i class="fas fa-cog me-2"></i>
+                            Configure Pipeline
+                        </button>
+                        <button id="stopBtn" class="btn btn-outline-danger mb-3 w-100" disabled>
+                            <i class="fas fa-stop me-2"></i>
+                            Stop
+                        </button>
+                        <div class="small text-muted">
+                            <i class="fas fa-clock me-1"></i>
+                            Lần chạy cuối: <span id="lastRun">Chưa có</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Overview -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-chart-bar me-2"></i>
+                            Summary - Overall
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <p class="mb-2"><strong>Thời gian trích xuất dữ liệu:</strong> <span id="dateRange">Đang
+                                        tải...</span></p>
+                            </div>
+                            <div class="col-md-6 text-end">
+                                <button class="btn btn-outline-primary btn-sm me-2" onclick="downloadReport('json')">
+                                    <i class="fas fa-download me-1"></i>JSON
+                                </button>
+                                <button class="btn btn-outline-primary btn-sm" onclick="downloadReport('excel')">
+                                    <i class="fas fa-file-excel me-1"></i>Excel
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Ngành hàng</th>
+                                        <th>Nhãn hàng</th>
+                                        <th>Các đầu báo</th>
+                                        <th>Số lượng bài</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="summaryTableBody">
+                                    <tr>
+                                        <td colspan="5" class="text-center loading-state">
+                                            <i class="fas fa-spinner fa-spin me-2"></i>
+                                            Đang tải dữ liệu...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-chart-pie me-2"></i>
+                            Phân bố theo Ngành hàng
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="industryChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-chart-line me-2"></i>
+                            Top Media Sources
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="mediaChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Articles Detail -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-newspaper me-2"></i>
+                            Chi tiết bài báo
+                        </h5>
+                        <div class="d-flex gap-2">
+                            <select id="industryFilter" class="form-select form-select-sm" style="width: auto;">
+                                <option value="">Tất cả ngành</option>
+                            </select>
+                            <input type="text" id="searchInput" class="form-control form-control-sm"
+                                placeholder="Tìm kiếm..." style="width: 200px;">
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>STT</th>
+                                        <th>Ngày</th>
+                                        <th>Đầu báo</th>
+                                        <th>Cụm nội dung</th>
+                                        <th>Tóm tắt</th>
+                                        <th>Ngành hàng</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="articlesTableBody">
+                                    <tr>
+                                        <td colspan="7" class="text-center loading-state">
+                                            <i class="fas fa-spinner fa-spin me-2"></i>
+                                            Đang tải dữ liệu...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        <nav>
+                            <ul class="pagination justify-content-center" id="pagination">
+                                <!-- Pagination will be generated here -->
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity Log -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-history me-2"></i>
+                            Activity Log
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="activityLog" class="timeline">
+                            <div class="timeline-item">
+                                <div class="fw-bold">System Started</div>
+                                <div class="text-muted small">Media Tracker Bot đã khởi động</div>
+                                <div class="text-muted small"><i class="fas fa-clock me-1"></i><span
+                                        id="startTime"></span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Article Detail Modal -->
+    <div class="modal fade" id="articleModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Chi tiết bài báo</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="articleContent">
+                        <!-- Article content will be loaded here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <a id="articleLink" href="#" target="_blank" class="btn btn-primary">Xem bài gốc</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Configure Modal -->
+    <div class="modal fade" id="configModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-filter me-2"></i>
+                        Configure Pipeline
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Date Range Filter -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h6 class="card-title mb-0">
+                                <i class="fas fa-calendar me-2"></i>
+                                Date Range Filter
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label class="form-label">Start Date</label>
+                                    <input type="date" class="form-control" id="startDate">
+                                    <div class="form-text">Leave empty for default (30 days ago)</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">End Date</label>
+                                    <input type="date" class="form-control" id="endDate">
+                                    <div class="form-text">Leave empty for today</div>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <button type="button" class="btn btn-sm btn-outline-primary me-2"
+                                    onclick="setDateRange('today')">Today</button>
+                                <button type="button" class="btn btn-sm btn-outline-primary me-2"
+                                    onclick="setDateRange('week')">Last 7 days</button>
+                                <button type="button" class="btn btn-sm btn-outline-primary me-2"
+                                    onclick="setDateRange('month')">Last 30 days</button>
+                                <button type="button" class="btn btn-sm btn-outline-primary"
+                                    onclick="setDateRange('quarter')">Last 90 days</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Custom Keywords -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h6 class="card-title mb-0">
+                                <i class="fas fa-tags me-2"></i>
+                                Custom Keywords
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-info">
+                                <small>
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Customize keywords for each industry. Leave empty to use default keywords.
+                                </small>
+                            </div>
+
+                            <div id="keywordContainer">
+                                <!-- Industry keyword sections will be generated here -->
+                            </div>
+
+                            <div class="mt-3">
+                                <button type="button" class="btn btn-sm btn-outline-success me-2"
+                                    onclick="addIndustry()">
+                                    <i class="fas fa-plus me-1"></i>Add Industry
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-warning" onclick="resetKeywords()">
+                                    <i class="fas fa-undo me-1"></i>Reset to Default
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="runWithConfig()">
+                        <i class="fas fa-play me-1"></i>Run with Config
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal fade" id="settingsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Cài đặt hệ thống</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- API Keys Section -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h6 class="card-title mb-0">
+                                <i class="fas fa-key me-2"></i>
+                                API Keys Configuration
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-info">
+                                <small>
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Cần ít nhất 1 API key để hệ thống hoạt động.
+                                    <a href="https://platform.openai.com/api-keys" target="_blank">Get OpenAI Key</a> |
+                                    <a href="https://console.groq.com/keys" target="_blank">Get Groq Key</a>
+                                </small>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">OpenAI API Key</label>
+                                        <div class="input-group">
+                                            <input type="password" class="form-control" id="openaiApiKey"
+                                                placeholder="sk-...">
+                                            <button class="btn btn-outline-secondary" type="button"
+                                                onclick="togglePassword('openaiApiKey')">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </div>
+                                        <div id="openaiStatus" class="form-text">
+                                            <i class="fas fa-circle text-secondary me-1"></i>Not configured
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Groq API Key</label>
+                                        <div class="input-group">
+                                            <input type="password" class="form-control" id="groqApiKey"
+                                                placeholder="gsk_...">
+                                            <button class="btn btn-outline-secondary" type="button"
+                                                onclick="togglePassword('groqApiKey')">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </div>
+                                        <div id="groqStatus" class="form-text">
+                                            <i class="fas fa-circle text-secondary me-1"></i>Not configured
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Default Provider</label>
+                                <select class="form-select" id="defaultProvider">
+                                    <option value="openai">OpenAI (Recommended)</option>
+                                    <option value="groq">Groq (Free tier available)</option>
+                                </select>
+                            </div>
+
+                            <div class="d-grid">
+                                <button type="button" class="btn btn-primary" onclick="updateApiKeys()">
+                                    <i class="fas fa-save me-2"></i>
+                                    Update API Keys
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Crawler Settings -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h6 class="card-title mb-0">
+                                <i class="fas fa-cog me-2"></i>
+                                Crawler Settings
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <form id="settingsForm">
+                                <div class="mb-3">
+                                    <label class="form-label">Khoảng thời gian crawl (ngày)</label>
+                                    <input type="number" class="form-control" id="dateRangeDays" min="1" max="365"
+                                        value="30">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Số bài tối đa mỗi source</label>
+                                    <input type="number" class="form-control" id="maxArticlesPerSource" min="1"
+                                        max="1000" value="50">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Timeout (giây)</label>
+                                    <input type="number" class="form-control" id="crawlTimeout" min="5" max="300"
+                                        value="30">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Keywords (JSON format)</label>
+                                    <textarea class="form-control" id="keywordsConfig" rows="8"></textarea>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" onclick="saveSettings()">Lưu cài đặt</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Custom JavaScript -->
+    <script>
+        // Global variables
+        let currentReport = null;
+        let currentArticles = [];
+        let filteredArticles = [];
+        let currentPage = 1;
+        let articlesPerPage = 20;
+        let industryChart = null;
+        let mediaChart = null;
+        let statusInterval = null;
+        let currentSessionId = null;
+        let currentConfig = null;
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function () {
+            initializeDashboard();
+            loadInitialData();
+            setupEventListeners();
+            startStatusPolling();
+
+            // Set start time
+            document.getElementById('startTime').textContent = new Date().toLocaleString('vi-VN');
+        });
+
+        function initializeDashboard() {
+            console.log('🚀 Initializing Media Tracker Dashboard...');
+            addActivityLog('Dashboard Initialized', 'Giao diện điều khiển đã sẵn sàng');
+        }
+
+        function setupEventListeners() {
+            // Run button
+            document.getElementById('runBtn').addEventListener('click', runPipeline);
+
+            // Stop button - FIXED
+            document.getElementById('stopBtn').addEventListener('click', stopPipeline);
+
+            // Search and filter
+            document.getElementById('searchInput').addEventListener('input', debounce(filterArticles, 300));
+            document.getElementById('industryFilter').addEventListener('change', filterArticles);
+
+            // Settings modal
+            document.querySelector('a[href="#settings"]').addEventListener('click', function (e) {
+                e.preventDefault();
+                loadSettings();
+                new bootstrap.Modal(document.getElementById('settingsModal')).show();
+            });
+        }
+
+        // Debounce function for search input
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        async function loadInitialData() {
+            try {
+                showLoadingState();
+                await loadLatestReport();
+                await loadStatus();
+                await loadCurrentConfig(); // ADDED
+                addActivityLog('Data Loaded', 'Dữ liệu ban đầu đã được tải');
+            } catch (error) {
+                console.error('Error loading initial data:', error);
+                addActivityLog('Error', 'Lỗi khi tải dữ liệu ban đầu', 'error');
+            }
+        }
+
+        // ADDED: Load current config từ backend
+        async function loadCurrentConfig() {
+            try {
+                const response = await fetch('/api/config');
+                const config = await response.json();
+                currentConfig = config;
+                console.log('✅ Config loaded:', config);
+            } catch (error) {
+                console.error('Error loading config:', error);
+            }
+        }
+
+        function showLoadingState() {
+            const elements = ['summaryTableBody', 'articlesTableBody'];
+            elements.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.innerHTML = `
+                        <tr>
+                            <td colspan="7" class="text-center loading-state">
+                                <i class="fas fa-spinner fa-spin me-2"></i>
+                                Đang tải dữ liệu...
+                            </td>
+                        </tr>
+                    `;
+                }
+            });
+        }
+
+        async function loadLatestReport() {
+            try {
+                const response = await fetch('/api/reports/latest');
+                const data = await response.json();
+
+                if (data && data.articles) {
+                    currentReport = data;
+                    currentArticles = data.articles;
+                    filteredArticles = [...currentArticles];
+
+                    updateSummaryTable();
+                    updateArticlesTable();
+                    updateCharts();
+                    updateDateRange();
+
+                    console.log('✅ Report loaded:', data.total_articles, 'articles');
+                } else {
+                    console.log('📄 No report data available');
+                    showSampleData();
+                }
+            } catch (error) {
+                console.error('Error loading report:', error);
+                showSampleData();
+            }
+        }
+
+        function showSampleData() {
+            // Show sample data for demo
+            const sampleData = {
+                overall_summary: {
+                    thoi_gian_trich_xuat: "Từ ngày 01/12/2024 đến ngày 31/12/2024",
+                    industries: [
+                        {
+                            nganh_hang: "Dầu ăn",
+                            nhan_hang: ["Tường An", "Coba", "Nortalic"],
+                            so_luong_bai: 7,
+                            cac_dau_bao: ["Vietnam Biz", "VnExpress", "Thanh Nien"]
+                        }
+                    ],
+                    tong_so_bai: 7
+                },
+                articles: [
+                    {
+                        stt: 1,
+                        ngay_phat_hanh: "2024-12-04",
+                        dau_bao: "Vietnam Biz",
+                        cum_noi_dung: "Hoạt động doanh nghiệp và thông tin sản phẩm",
+                        tom_tat_noi_dung: "Tường An dẫn đầu thị trường thực phẩm mùa Tết 2025",
+                        link_bai_bao: "https://vietnambiz.vn/sample-article",
+                        nganh_hang: "Dầu ăn",
+                        nhan_hang: ["Tường An"],
+                        keywords_found: ["Tường An", "dầu ăn", "Tết 2025"]
+                    }
+                ],
+                total_articles: 1
+            };
+
+            currentReport = sampleData;
+            currentArticles = sampleData.articles;
+            filteredArticles = [...currentArticles];
+
+            updateSummaryTable();
+            updateArticlesTable();
+            updateCharts();
+            updateDateRange();
+        }
+
+        async function loadStatus() {
+            try {
+                const response = await fetch('/api/status');
+                const status = await response.json();
+
+                updateStatusDisplay(status);
+            } catch (error) {
+                console.error('Error loading status:', error);
+                // Show offline status
+                updateStatusDisplay({
+                    is_running: false,
+                    api_keys: { openai_configured: false, groq_configured: false },
+                    team_status: { progress: 0 }
+                });
+            }
+        }
+
+        function updateStatusDisplay(status) {
+            const statusBadge = document.getElementById('statusBadge');
+            const currentTask = document.getElementById('currentTask');
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+
+            // Check API keys status first
+            if (status.api_keys && (!status.api_keys.openai_configured && !status.api_keys.groq_configured)) {
+                statusBadge.className = 'status-badge status-failed';
+                statusBadge.innerHTML = '<i class="fas fa-exclamation-triangle me-1"></i>API Keys Required';
+                currentTask.innerHTML = '<a href="#" onclick="openSettings()" class="text-decoration-none">⚠️ Cần cấu hình API keys để hoạt động</a>';
+
+                document.getElementById('runBtn').disabled = true;
+                document.getElementById('runBtn').innerHTML = '<i class="fas fa-key me-2"></i>Setup API Keys First';
+                return;
+            }
+
+            if (status.is_running) {
+                statusBadge.className = 'status-badge status-running';
+                statusBadge.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Running';
+                currentTask.textContent = status.team_status.current_task || 'Processing...';
+
+                const progress = status.team_status.progress || 0;
+                progressBar.style.width = progress + '%';
+                progressText.textContent = Math.round(progress) + '%';
+
+                document.getElementById('runBtn').disabled = true;
+                document.getElementById('runBtn').innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Running...';
+                document.getElementById('stopBtn').disabled = false;
+                document.getElementById('configBtn').disabled = true;
+
+                // Store session ID
+                currentSessionId = status.session_id;
+            } else {
+                statusBadge.className = 'status-badge status-idle';
+                statusBadge.innerHTML = '<i class="fas fa-check me-1"></i>Ready';
+                currentTask.textContent = 'Sẵn sàng chạy pipeline';
+
+                document.getElementById('runBtn').disabled = false;
+                document.getElementById('runBtn').innerHTML = '<i class="fas fa-play me-2"></i>Run Pipeline';
+                document.getElementById('stopBtn').disabled = true;
+                document.getElementById('configBtn').disabled = false;
+
+                // Clear session ID
+                currentSessionId = null;
+            }
+
+            // Update metrics
+            document.getElementById('totalSources').textContent = status.total_media_sources || 445;
+            document.getElementById('completedSources').textContent = status.team_status.completed_sources || 0;
+            document.getElementById('failedSources').textContent = status.team_status.failed_sources || 0;
+
+            // Update last run
+            if (status.team_status && status.team_status.last_run) {
+                document.getElementById('lastRun').textContent = new Date(status.team_status.last_run).toLocaleString('vi-VN');
+            }
+
+            // Show API key status in activity log if not configured
+            if (status.api_keys && (!status.api_keys.openai_configured && !status.api_keys.groq_configured)) {
+                addActivityLog('API Keys Required', 'Vui lòng cấu hình API keys trong Settings', 'error');
+            }
+        }
+
+        function openSettings() {
+            loadSettings();
+            new bootstrap.Modal(document.getElementById('settingsModal')).show();
+        }
+
+        // Event handlers
+        async function runPipeline() {
+            try {
+                // Check if we have session conflict
+                if (currentSessionId) {
+                    addActivityLog('Warning', 'Another session is running. Please wait...', 'warning');
+                    return;
+                }
+
+                const response = await fetch('/api/run', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        session_id: generateSessionId()
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    currentSessionId = result.session_id;
+                    addActivityLog('Pipeline Started', 'Quá trình crawling đã bắt đầu');
+
+                    // Update UI
+                    document.getElementById('runBtn').disabled = true;
+                    document.getElementById('stopBtn').disabled = false;
+                    document.getElementById('configBtn').disabled = true;
+
+                    // Start intensive polling
+                    startIntensivePolling();
+                } else {
+                    throw new Error(result.detail || 'Failed to start pipeline');
+                }
+            } catch (error) {
+                console.error('Error starting pipeline:', error);
+                addActivityLog('Error', 'Lỗi khi khởi động pipeline: ' + error.message, 'error');
+
+                // Show error alert
+                showAlert('danger', 'Lỗi!', error.message);
+            }
+        }
+
+        // FIXED: Stop pipeline function
+        async function stopPipeline() {
+            try {
+                if (!currentSessionId) {
+                    addActivityLog('Warning', 'No active session to stop', 'warning');
+                    return;
+                }
+
+                // Update UI immediately
+                const statusBadge = document.getElementById('statusBadge');
+                const currentTask = document.getElementById('currentTask');
+
+                statusBadge.className = 'status-badge status-stopping';
+                statusBadge.innerHTML = '<i class="fas fa-stop me-1"></i>Stopping...';
+                currentTask.textContent = 'Đang dừng pipeline...';
+
+                document.getElementById('stopBtn').disabled = true;
+                document.getElementById('stopBtn').innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Stopping...';
+
+                const response = await fetch('/api/stop', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        session_id: currentSessionId
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    addActivityLog('Pipeline Stopped', 'Quá trình crawling đã được dừng');
+
+                    // Clear session
+                    currentSessionId = null;
+
+                    // Reset UI
+                    setTimeout(() => {
+                        document.getElementById('runBtn').disabled = false;
+                        document.getElementById('runBtn').innerHTML = '<i class="fas fa-play me-2"></i>Run Pipeline';
+                        document.getElementById('stopBtn').disabled = true;
+                        document.getElementById('stopBtn').innerHTML = '<i class="fas fa-stop me-2"></i>Stop';
+                        document.getElementById('configBtn').disabled = false;
+
+                        statusBadge.className = 'status-badge status-idle';
+                        statusBadge.innerHTML = '<i class="fas fa-check me-1"></i>Ready';
+                        currentTask.textContent = 'Sẵn sàng chạy pipeline';
+                    }, 1000);
+
+                } else {
+                    throw new Error(result.detail || 'Failed to stop pipeline');
+                }
+
+            } catch (error) {
+                console.error('Error stopping pipeline:', error);
+                addActivityLog('Error', 'Lỗi khi dừng pipeline: ' + error.message, 'error');
+
+                // Reset stop button
+                document.getElementById('stopBtn').disabled = false;
+                document.getElementById('stopBtn').innerHTML = '<i class="fas fa-stop me-2"></i>Stop';
+            }
+        }
+
+        function generateSessionId() {
+            return 'session_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+        }
+
+        function showAlert(type, title, message) {
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type} alert-dismissible fade show`;
+            alert.innerHTML = `
+                <strong>${title}</strong> ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.querySelector('.container').insertBefore(alert, document.querySelector('.container').firstChild);
+
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (alert.parentNode) {
+                    alert.remove();
+                }
+            }, 5000);
+        }
+
+        function updateSummaryTable() {
+            const tbody = document.getElementById('summaryTableBody');
+
+            if (!currentReport || !currentReport.overall_summary) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Chưa có dữ liệu</td></tr>';
+                return;
+            }
+
+            const industries = currentReport.overall_summary.industries || [];
+
+            if (industries.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Chưa có dữ liệu ngành hàng</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = industries.map(industry => `
+                <tr class="fade-in">
+                    <td><strong>${industry.nganh_hang}</strong></td>
+                    <td>
+                        ${industry.nhan_hang.map(brand => `<span class="industry-pill">${brand}</span>`).join('')}
+                    </td>
+                    <td>
+                        <small class="text-muted">${industry.cac_dau_bao.slice(0, 3).join(', ')}${industry.cac_dau_bao.length > 3 ? '...' : ''}</small>
+                    </td>
+                    <td>
+                        <span class="badge bg-primary">${industry.so_luong_bai}</span>
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary" onclick="filterByIndustry('${industry.nganh_hang}')">
+                            <i class="fas fa-filter me-1"></i>Xem
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+
+            // Update industry filter dropdown
+            const industryFilter = document.getElementById('industryFilter');
+            industryFilter.innerHTML = '<option value="">Tất cả ngành</option>' +
+                industries.map(industry => `<option value="${industry.nganh_hang}">${industry.nganh_hang}</option>`).join('');
+        }
+
+        function updateArticlesTable() {
+            const tbody = document.getElementById('articlesTableBody');
+
+            if (!filteredArticles || filteredArticles.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">Chưa có bài báo</td></tr>';
+                updatePagination(0);
+                return;
+            }
+
+            // Pagination
+            const startIndex = (currentPage - 1) * articlesPerPage;
+            const endIndex = startIndex + articlesPerPage;
+            const pageArticles = filteredArticles.slice(startIndex, endIndex);
+
+            tbody.innerHTML = pageArticles.map(article => `
+                <tr class="fade-in">
+                    <td><strong>${article.stt}</strong></td>
+                    <td>${formatDate(article.ngay_phat_hanh)}</td>
+                    <td><strong>${article.dau_bao}</strong></td>
+                    <td><small class="text-muted">${article.cum_noi_dung}</small></td>
+                    <td>
+                        <div class="text-truncate" style="max-width: 200px;" title="${article.tom_tat_noi_dung}">
+                            ${article.tom_tat_noi_dung}
+                        </div>
+                    </td>
+                    <td><span class="industry-pill">${article.nganh_hang}</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary" onclick="showArticleDetail(${article.stt})">
+                            <i class="fas fa-eye me-1"></i>Xem
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+
+            updatePagination(filteredArticles.length);
+        }
+
+        function updatePagination(totalItems) {
+            const pagination = document.getElementById('pagination');
+            const totalPages = Math.ceil(totalItems / articlesPerPage);
+
+            if (totalPages <= 1) {
+                pagination.innerHTML = '';
+                return;
+            }
+
+            let paginationHTML = '';
+
+            // Previous button
+            paginationHTML += `
+                <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'tabindex="-1"' : ''}>
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
+            `;
+
+            // Page numbers
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === currentPage || i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+                    paginationHTML += `
+                        <li class="page-item ${i === currentPage ? 'active' : ''}">
+                            <a class="page-link" href="#" onclick="changePage(${i})">${i}</a>
+                        </li>
+                    `;
+                } else if (i === currentPage - 3 || i === currentPage + 3) {
+                    paginationHTML += '<li class="page-item disabled"><span class="page-link">...</span></li>';
+                }
+            }
+
+            // Next button
+            paginationHTML += `
+                <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'tabindex="-1"' : ''}>
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+            `;
+
+            pagination.innerHTML = paginationHTML;
+        }
+
+        function updateCharts() {
+            updateIndustryChart();
+            updateMediaChart();
+        }
+
+        function updateIndustryChart() {
+            const ctx = document.getElementById('industryChart').getContext('2d');
+
+            if (industryChart) {
+                industryChart.destroy();
+            }
+
+            if (!currentReport || !currentReport.overall_summary || !currentReport.overall_summary.industries) {
+                return;
+            }
+
+            const industries = currentReport.overall_summary.industries;
+            const labels = industries.map(industry => industry.nganh_hang);
+            const data = industries.map(industry => industry.so_luong_bai);
+
+            industryChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: [
+                            '#2E8B57', '#20B2AA', '#32CD32', '#3CB371',
+                            '#66CDAA', '#98FB98', '#90EE90', '#00FA9A'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#404040'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true,
+                                color: '#ffffff'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateMediaChart() {
+            const ctx = document.getElementById('mediaChart').getContext('2d');
+
+            if (mediaChart) {
+                mediaChart.destroy();
+            }
+
+            if (!currentArticles || currentArticles.length === 0) {
+                return;
+            }
+
+            // Count articles by media source
+            const mediaCounts = {};
+            currentArticles.forEach(article => {
+                mediaCounts[article.dau_bao] = (mediaCounts[article.dau_bao] || 0) + 1;
+            });
+
+            // Get top 10 media sources
+            const sortedMedia = Object.entries(mediaCounts)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 10);
+
+            const labels = sortedMedia.map(item => item[0]);
+            const data = sortedMedia.map(item => item[1]);
+
+            mediaChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Số bài báo',
+                        data: data,
+                        backgroundColor: '#2E8B57',
+                        borderColor: '#20B2AA',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0,
+                                color: '#ffffff'
+                            },
+                            grid: {
+                                color: '#404040'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                maxRotation: 45,
+                                minRotation: 45,
+                                color: '#ffffff'
+                            },
+                            grid: {
+                                color: '#404040'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateDateRange() {
+            const dateRangeElement = document.getElementById('dateRange');
+            if (currentReport && currentReport.overall_summary) {
+                dateRangeElement.textContent = currentReport.overall_summary.thoi_gian_trich_xuat;
+            }
+        }
+
+        function showConfigModal() {
+            loadKeywordConfiguration();
+            new bootstrap.Modal(document.getElementById('configModal')).show();
+        }
+
+        // FIXED: Load keywords từ backend
+        async function loadKeywordConfiguration() {
+            try {
+                // Set default date range (last 30 days)
+                const today = new Date();
+                const thirtyDaysAgo = new Date(today.getTime() - (30 * 24 * 60 * 60 * 1000));
+
+                document.getElementById('endDate').value = today.toISOString().split('T')[0];
+                document.getElementById('startDate').value = thirtyDaysAgo.toISOString().split('T')[0];
+
+                // Load keywords từ backend
+                const response = await fetch('/api/keywords');
+                const keywords = await response.json();
+
+                renderKeywordInputs(keywords);
+
+            } catch (error) {
+                console.error('Error loading keywords:', error);
+                // Fallback to default
+                const defaultKeywords = {
+                    "Dầu ăn": ["Tường An", "Coba", "Nortalic", "dầu ăn", "cooking oil"],
+                    "Gia vị": ["gia vị", "seasoning", "spices", "condiment", "nước mắm"],
+                    "Gạo & Ngũ cốc": ["gạo", "rice", "ngũ cốc", "cereals", "yến mạch"],
+                    "Sữa (UHT)": ["sữa", "milk", "UHT", "sữa tươi", "sữa bột"],
+                    "Baby Food": ["thức ăn trẻ em", "baby food", "sữa bột trẻ em"],
+                    "Home Care": ["nước rửa chén", "nước giặt", "chăm sóc nhà cửa"]
+                };
+                renderKeywordInputs(defaultKeywords);
+            }
+        }
+
+        function renderKeywordInputs(industries) {
+            const container = document.getElementById('keywordContainer');
+            container.innerHTML = '';
+
+            Object.entries(industries).forEach(([industry, keywords]) => {
+                const industryDiv = document.createElement('div');
+                industryDiv.className = 'mb-3 border rounded p-3';
+                industryDiv.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <label class="form-label fw-bold mb-0">${industry}</label>
+                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeIndustry(this)">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                    <input type="text" class="form-control industry-name" value="${industry}" placeholder="Industry name">
+                    <textarea class="form-control mt-2 industry-keywords" rows="2" placeholder="Keywords separated by commas">${keywords.join(', ')}</textarea>
+                `;
+                container.appendChild(industryDiv);
+            });
+        }
+
+        function setDateRange(range) {
+            const today = new Date();
+            let startDate = new Date();
+
+            switch (range) {
+                case 'today':
+                    startDate = new Date(today);
+                    break;
+                case 'week':
+                    startDate = new Date(today.getTime() - (7 * 24 * 60 * 60 * 1000));
+                    break;
+                case 'month':
+                    startDate = new Date(today.getTime() - (30 * 24 * 60 * 60 * 1000));
+                    break;
+                case 'quarter':
+                    startDate = new Date(today.getTime() - (90 * 24 * 60 * 60 * 1000));
+                    break;
+            }
+
+            document.getElementById('startDate').value = startDate.toISOString().split('T')[0];
+            document.getElementById('endDate').value = today.toISOString().split('T')[0];
+        }
+
+        function addIndustry() {
+            const container = document.getElementById('keywordContainer');
+            const industryDiv = document.createElement('div');
+            industryDiv.className = 'mb-3 border rounded p-3';
+            industryDiv.innerHTML = `
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <label class="form-label fw-bold mb-0">New Industry</label>
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeIndustry(this)">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+                <input type="text" class="form-control industry-name" placeholder="Industry name">
+                <textarea class="form-control mt-2 industry-keywords" rows="2" placeholder="Keywords separated by commas"></textarea>
+            `;
+            container.appendChild(industryDiv);
+        }
+
+        function removeIndustry(button) {
+            button.closest('.mb-3').remove();
+        }
+
+        // FIXED: Reset keywords từ backend
+        async function resetKeywords() {
+            try {
+                // Load default keywords từ backend
+                await loadKeywordConfiguration();
+                addActivityLog('Keywords Reset', 'Keywords đã được reset về mặc định');
+            } catch (error) {
+                console.error('Error resetting keywords:', error);
+                addActivityLog('Error', 'Lỗi khi reset keywords', 'error');
+            }
+        }
+
+        function collectKeywordConfiguration() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+
+            const customKeywords = {};
+            const industryContainers = document.querySelectorAll('#keywordContainer .mb-3');
+
+            industryContainers.forEach(container => {
+                const nameInput = container.querySelector('.industry-name');
+                const keywordsTextarea = container.querySelector('.industry-keywords');
+
+                if (nameInput.value.trim() && keywordsTextarea.value.trim()) {
+                    const keywords = keywordsTextarea.value
+                        .split(',')
+                        .map(k => k.trim())
+                        .filter(k => k);
+
+                    if (keywords.length > 0) {
+                        customKeywords[nameInput.value.trim()] = keywords;
+                    }
+                }
+            });
+
+            return {
+                start_date: startDate || null,
+                end_date: endDate || null,
+                custom_keywords: Object.keys(customKeywords).length > 0 ? customKeywords : null
+            };
+        }
+
+        async function runWithConfig() {
+            try {
+                const config = collectKeywordConfiguration();
+
+                // Validate dates
+                if (config.start_date && config.end_date) {
+                    const start = new Date(config.start_date);
+                    const end = new Date(config.end_date);
+
+                    if (start > end) {
+                        showAlert('warning', 'Invalid Date Range', 'Start date must be before end date');
+                        return;
+                    }
+
+                    // Check if date range is too long (more than 6 months)
+                    const diffTime = Math.abs(end - start);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                    if (diffDays > 180) {
+                        showAlert('warning', 'Date Range Too Long', 'Please select a date range of 6 months or less for better performance');
+                        return;
+                    }
+                }
+
+                // Check if we have session conflict
+                if (currentSessionId) {
+                    addActivityLog('Warning', 'Another session is running. Please wait...', 'warning');
+                    return;
+                }
+
+                config.session_id = generateSessionId();
+
+                // FIXED: Save keywords if provided
+                if (config.custom_keywords) {
+                    await fetch('/api/keywords', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(config.custom_keywords)
+                    });
+                }
+
+                const response = await fetch('/api/run', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(config)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    currentSessionId = result.session_id;
+
+                    // Close modal
+                    bootstrap.Modal.getInstance(document.getElementById('configModal')).hide();
+
+                    // Show config summary
+                    let configSummary = 'Pipeline started with custom configuration:\n';
+                    if (config.start_date && config.end_date) {
+                        configSummary += `Date range: ${config.start_date} to ${config.end_date}\n`;
+                    }
+                    if (config.custom_keywords) {
+                        const industryCount = Object.keys(config.custom_keywords).length;
+                        configSummary += `Custom keywords: ${industryCount} industries`;
+                    }
+
+                    addActivityLog('Pipeline Started', configSummary);
+
+                    // Update UI
+                    document.getElementById('runBtn').disabled = true;
+                    document.getElementById('stopBtn').disabled = false;
+                    document.getElementById('configBtn').disabled = true;
+
+                    // Start intensive polling
+                    startIntensivePolling();
+
+                } else {
+                    throw new Error(result.detail || 'Failed to start pipeline');
+                }
+
+            } catch (error) {
+                console.error('Error starting pipeline with config:', error);
+                addActivityLog('Error', 'Lỗi khi khởi động pipeline: ' + error.message, 'error');
+                showAlert('danger', 'Lỗi!', error.message);
+            }
+        }
+
+        function filterArticles() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const industryFilter = document.getElementById('industryFilter').value;
+
+            filteredArticles = currentArticles.filter(article => {
+                const matchesSearch = !searchTerm ||
+                    article.tom_tat_noi_dung.toLowerCase().includes(searchTerm) ||
+                    article.dau_bao.toLowerCase().includes(searchTerm) ||
+                    article.nhan_hang.some(brand => brand.toLowerCase().includes(searchTerm));
+
+                const matchesIndustry = !industryFilter || article.nganh_hang === industryFilter;
+
+                return matchesSearch && matchesIndustry;
+            });
+
+            currentPage = 1;
+            updateArticlesTable();
+        }
+
+        function filterByIndustry(industry) {
+            document.getElementById('industryFilter').value = industry;
+            filterArticles();
+
+            // Scroll to articles section
+            document.querySelector('#articlesTableBody').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function changePage(page) {
+            const totalPages = Math.ceil(filteredArticles.length / articlesPerPage);
+
+            if (page >= 1 && page <= totalPages) {
+                currentPage = page;
+                updateArticlesTable();
+
+                // Scroll to top of table
+                document.querySelector('#articlesTableBody').scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        function showArticleDetail(stt) {
+            const article = currentArticles.find(a => a.stt === stt);
+            if (!article) return;
+
+            const content = document.getElementById('articleContent');
+            content.innerHTML = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>STT:</strong> ${article.stt}</p>
+                        <p><strong>Ngày phát hành:</strong> ${formatDate(article.ngay_phat_hanh)}</p>
+                        <p><strong>Đầu báo:</strong> ${article.dau_bao}</p>
+                        <p><strong>Ngành hàng:</strong> <span class="industry-pill">${article.nganh_hang}</span></p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Cụm nội dung:</strong> ${article.cum_noi_dung}</p>
+                        <p><strong>Nhãn hàng:</strong> ${article.nhan_hang.map(brand => `<span class="industry-pill">${brand}</span>`).join(' ')}</p>
+                        <p><strong>Keywords:</strong> ${article.keywords_found.join(', ')}</p>
+                    </div>
+                </div>
+                <hr>
+                <div>
+                    <h6>Tóm tắt nội dung:</h6>
+                    <p>${article.tom_tat_noi_dung}</p>
+                </div>
+            `;
+
+            document.getElementById('articleLink').href = article.link_bai_bao;
+
+            new bootstrap.Modal(document.getElementById('articleModal')).show();
+        }
+
+        async function downloadReport(format) {
+            try {
+                const response = await fetch(`/api/reports/download/latest?format=${format}`);
+
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `competitor_report.${format === 'excel' ? 'xlsx' : 'json'}`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+
+                    addActivityLog('Download', `Đã tải xuống báo cáo định dạng ${format.toUpperCase()}`);
+                } else {
+                    throw new Error('Failed to download report');
+                }
+            } catch (error) {
+                console.error('Error downloading report:', error);
+                addActivityLog('Error', 'Lỗi khi tải xuống báo cáo', 'error');
+            }
+        }
+
+        // FIXED: Load settings với proper field mapping
+        async function loadSettings() {
+            try {
+                // Load API keys status
+                const apiResponse = await fetch('/api/api-keys/status');
+                const apiStatus = await apiResponse.json();
+
+                // Update API key status indicators
+                updateApiKeyStatus('openai', apiStatus.openai_configured);
+                updateApiKeyStatus('groq', apiStatus.groq_configured);
+                document.getElementById('defaultProvider').value = apiStatus.default_provider;
+
+                // Load crawler config
+                const response = await fetch('/api/config');
+                const config = await response.json();
+
+                // FIXED: Map config fields properly
+                document.getElementById('dateRangeDays').value = config.date_range_days;
+                document.getElementById('maxArticlesPerSource').value = config.max_articles_per_source;
+                document.getElementById('crawlTimeout').value = config.crawl_timeout;
+                document.getElementById('keywordsConfig').value = JSON.stringify(config.keywords, null, 2);
+            } catch (error) {
+                console.error('Error loading settings:', error);
+            }
+        }
+
+        function updateApiKeyStatus(provider, configured) {
+            const statusEl = document.getElementById(provider + 'Status');
+            if (configured) {
+                statusEl.innerHTML = '<i class="fas fa-circle text-success me-1"></i>Configured';
+            } else {
+                statusEl.innerHTML = '<i class="fas fa-circle text-danger me-1"></i>Not configured';
+            }
+        }
+
+        function togglePassword(fieldId) {
+            const field = document.getElementById(fieldId);
+            const button = field.nextElementSibling.querySelector('i');
+
+            if (field.type === 'password') {
+                field.type = 'text';
+                button.className = 'fas fa-eye-slash';
+            } else {
+                field.type = 'password';
+                button.className = 'fas fa-eye';
+            }
+        }
+
+        async function updateApiKeys() {
+            try {
+                const apiKeys = {
+                    openai_api_key: document.getElementById('openaiApiKey').value,
+                    groq_api_key: document.getElementById('groqApiKey').value,
+                    default_provider: document.getElementById('defaultProvider').value
+                };
+
+                // Only send non-empty keys
+                if (!apiKeys.openai_api_key) delete apiKeys.openai_api_key;
+                if (!apiKeys.groq_api_key) delete apiKeys.groq_api_key;
+
+                const response = await fetch('/api/api-keys/update', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(apiKeys)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    addActivityLog('API Keys Updated', 'API keys đã được cập nhật thành công');
+
+                    // Update status indicators
+                    updateApiKeyStatus('openai', result.status.openai_configured);
+                    updateApiKeyStatus('groq', result.status.groq_configured);
+
+                    // Clear input fields for security
+                    document.getElementById('openaiApiKey').value = '';
+                    document.getElementById('groqApiKey').value = '';
+
+                    // Show success message
+                    const alertDiv = document.createElement('div');
+                    alertDiv.className = 'alert alert-success alert-dismissible fade show mt-3';
+                    alertDiv.innerHTML = `
+                        <i class="fas fa-check-circle me-2"></i>
+                        <strong>Thành công!</strong> API keys đã được cập nhật.
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    `;
+
+                    const cardBody = document.querySelector('#settingsModal .card-body');
+                    cardBody.insertBefore(alertDiv, cardBody.firstChild);
+
+                    // Auto remove alert after 5 seconds
+                    setTimeout(() => {
+                        if (alertDiv.parentNode) {
+                            alertDiv.remove();
+                        }
+                    }, 5000);
+
+                } else {
+                    throw new Error(result.detail || 'Failed to update API keys');
+                }
+            } catch (error) {
+                console.error('Error updating API keys:', error);
+                addActivityLog('Error', 'Lỗi khi cập nhật API keys: ' + error.message, 'error');
+
+                // Show error message
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
+                alertDiv.innerHTML = `
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Lỗi!</strong> ${error.message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+
+                const cardBody = document.querySelector('#settingsModal .card-body');
+                cardBody.insertBefore(alertDiv, cardBody.firstChild);
+            }
+        }
+
+        // FIXED: Save settings với proper field mapping
+        async function saveSettings() {
+            try {
+                const config = {
+                    date_range_days: parseInt(document.getElementById('dateRangeDays').value),
+                    max_articles_per_source: parseInt(document.getElementById('maxArticlesPerSource').value),
+                    crawl_timeout: parseInt(document.getElementById('crawlTimeout').value),
+                    keywords: JSON.parse(document.getElementById('keywordsConfig').value)
+                };
+
+                const response = await fetch('/api/config', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(config)
+                });
+
+                if (response.ok) {
+                    addActivityLog('Settings Updated', 'Cài đặt đã được cập nhật');
+                    bootstrap.Modal.getInstance(document.getElementById('settingsModal')).hide();
+
+                    // Reload current config
+                    await loadCurrentConfig();
+                } else {
+                    throw new Error('Failed to save settings');
+                }
+            } catch (error) {
+                console.error('Error saving settings:', error);
+                addActivityLog('Error', 'Lỗi khi lưu cài đặt', 'error');
+            }
+        }
+
+        // Status polling
+        function startStatusPolling() {
+            statusInterval = setInterval(loadStatus, 5000); // Poll every 5 seconds
+        }
+
+        function startIntensivePolling() {
+            if (statusInterval) {
+                clearInterval(statusInterval);
+            }
+
+            statusInterval = setInterval(async () => {
+                await loadStatus();
+
+                // Check if pipeline completed
+                const statusResponse = await fetch('/api/status');
+                const status = await statusResponse.json();
+
+                if (!status.is_running && status.team_status && status.team_status.last_run) {
+                    // Pipeline completed, reload report
+                    await loadLatestReport();
+                    addActivityLog('Pipeline Completed', 'Quá trình crawling đã hoàn thành');
+
+                    // Clear current session
+                    currentSessionId = null;
+
+                    // Return to normal polling
+                    clearInterval(statusInterval);
+                    startStatusPolling();
+                }
+            }, 2000); // Poll every 2 seconds during run
+        }
+
+        // Utility functions
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('vi-VN');
+        }
+
+        function addActivityLog(title, message, type = 'info') {
+            const log = document.getElementById('activityLog');
+            const timestamp = new Date().toLocaleString('vi-VN');
+
+            const logItem = document.createElement('div');
+            logItem.className = 'timeline-item fade-in';
+            logItem.innerHTML = `
+                <div class="fw-bold ${type === 'error' ? 'text-danger' : type === 'warning' ? 'text-warning' : ''}">${title}</div>
+                <div class="text-muted small">${message}</div>
+                <div class="text-muted small"><i class="fas fa-clock me-1"></i>${timestamp}</div>
+            `;
+
+            log.insertBefore(logItem, log.firstChild);
+
+            // Keep only last 10 log items
+            while (log.children.length > 10) {
+                log.removeChild(log.lastChild);
+            }
+        }
+
+        // Handle page visibility change
+        document.addEventListener('visibilitychange', function () {
+            if (document.hidden) {
+                // Page is hidden, reduce polling frequency
+                if (statusInterval) {
+                    clearInterval(statusInterval);
+                    statusInterval = setInterval(loadStatus, 30000); // Poll every 30 seconds
+                }
+            } else {
+                // Page is visible, resume normal polling
+                if (statusInterval) {
+                    clearInterval(statusInterval);
+                    startStatusPolling();
+                }
+            }
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function (e) {
+            if (e.ctrlKey || e.metaKey) {
+                switch (e.key) {
+                    case 'r':
+                        e.preventDefault();
+                        if (!document.getElementById('runBtn').disabled) {
+                            runPipeline();
+                        }
+                        break;
+                    case 'f':
+                        e.preventDefault();
+                        document.getElementById('searchInput').focus();
+                        break;
+                    case 's':
+                        e.preventDefault();
+                        openSettings();
+                        break;
+                }
+            }
+        });
+
+        console.log('✅ Media Tracker Dashboard loaded successfully!');
+    </script>
+</body>
+
+</html>

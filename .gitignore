@@ -1,4 +1,6 @@
 __pycache__/
 *.pyc
-
+logs/media_tracker.log
 .env
+htmlcov/
+.coverage

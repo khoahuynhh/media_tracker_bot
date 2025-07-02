@@ -30,7 +30,6 @@ from threading import Thread
 import pandas as pd
 from dotenv import load_dotenv
 import uuid
-import signal
 import threading
 
 # Load environment variables
@@ -93,7 +92,7 @@ class MediaTrackerOrchestrator:
         self.config = self._load_configuration()
 
         # Initialize team
-        self.team: Optional[MediaTrackerTeam] = None
+        self.session_teams: Dict[str, MediaTrackerTeam] = {}
         self.is_running = False
         self.current_session_id = None
         self.stop_event = threading.Event()
@@ -675,6 +674,15 @@ LOG_LEVEL=INFO
                         "dầu hướng dương",
                         "dầu cọ",
                         "dầu oliu",
+                        "chiên",
+                        "rán",
+                        "xào",
+                        "nấu ăn",
+                        "thực phẩm chiên",
+                        "chế biến món ăn",
+                        "omega-3",
+                        "axit béo",
+                        "vitamin E",
                     ],
                     "Gia vị": [
                         "gia vị",
@@ -813,60 +821,57 @@ LOG_LEVEL=INFO
         custom_keywords: Dict[str, List[str]] = None,
         session_id: str = None,
     ) -> Optional[CompetitorReport]:
-        """Chạy toàn bộ tracking pipeline"""
-        if not self.team:
-            logger.error("Team not initialized")
+        """Chạy toàn bộ tracking pipeline cho từng session riêng biệt"""
+        if not session_id:
+            logger.error("Session ID is required")
             return None
 
-        if self.is_running:
-            logger.warning("Pipeline is already running")
+        if (
+            session_id in active_sessions
+            and active_sessions[session_id]["status"] == "running"
+        ):
+            logger.warning(f"Session {session_id} is already running")
             return None
 
         try:
-            self.is_running = True
-            self.current_session_id = session_id
-            self.stop_event.clear()
+            self.stop_event = asyncio.Event()
+            active_sessions[session_id] = {
+                "start_time": datetime.now(),
+                "status": "running",
+                "stop_event": self.stop_event,
+            }
 
-            # Store session info
-            if session_id:
-                active_sessions[session_id] = {
-                    "start_time": datetime.now(),
-                    "status": "running",
-                    "stop_event": self.stop_event,
-                }
+            logger.info(f"[{session_id}] Starting media tracking pipeline...")
 
-            logger.info("Starting media tracking pipeline...")
+            # Clone config riêng cho session
+            session_config = self.config.copy()
 
-            # Update config if custom parameters provided
             if custom_keywords:
-                self.config.keywords = custom_keywords
+                session_config.keywords = custom_keywords
 
             if start_date and end_date:
-                # Calculate date range
                 start_dt = datetime.strptime(start_date, "%Y-%m-%d")
                 end_dt = datetime.strptime(end_date, "%Y-%m-%d")
-                days_diff = (end_dt - start_dt).days
-                self.config.date_range_days = days_diff
+                session_config.date_range_days = (end_dt - start_dt).days
 
-            # Run pipeline with stop event monitoring
-            report = await self.run_pipeline_with_stop_check()
+            # Tạo team riêng cho session
+            team = MediaTrackerTeam(config=session_config, model_provider="openai")
+
+            # Chạy pipeline
+            report = await team.run_full_pipeline()
 
             if report:
-                # Save report
                 await self._save_report(report)
-                logger.info("Pipeline completed successfully")
+                logger.info(f"[{session_id}] Pipeline completed successfully")
 
             return report
 
         except Exception as e:
-            logger.error(f"Pipeline failed: {str(e)}")
+            logger.error(f"[{session_id}] Pipeline failed: {str(e)}")
             return None
-        finally:
-            self.is_running = False
-            self.current_session_id = None
 
-            # Clean up session
-            if session_id and session_id in active_sessions:
+        finally:
+            if session_id in active_sessions:
                 active_sessions[session_id]["status"] = "completed"
                 del active_sessions[session_id]
 
@@ -1153,9 +1158,6 @@ async def update_api_keys(api_keys: dict):
 async def run_pipeline(
     background_tasks: BackgroundTasks, request_data: dict = {}, resume: bool = False
 ):
-    """Trigger pipeline run với parameters"""
-    if orchestrator.is_running:
-        raise HTTPException(status_code=409, detail="Pipeline is already running")
 
     # Extract parameters
     start_date = request_data.get("start_date")

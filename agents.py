@@ -202,13 +202,18 @@ class CrawlerAgent:
     ) -> Optional[Article]:
         """Tạo Article object từ dictionary"""
         try:
+            link = data.get("link_bai_bao", "").strip()
+
+            if not link.startswith("http"):
+                return None
+
             return Article(
                 stt=data.get("stt", 1),
                 ngay_phat_hanh=data.get("ngay_phat_hanh", datetime.now().date()),
                 dau_bao=media_source.name,
                 cum_noi_dung=data.get("cum_noi_dung", ContentCluster.OTHER),
                 tom_tat_noi_dung=data.get("tom_tat_noi_dung", ""),
-                link_bai_bao=data.get("link_bai_bao", "https://example.com"),
+                link_bai_bao=link,
                 nganh_hang=data.get("nganh_hang", IndustryType.DAU_AN),
                 nhan_hang=data.get("nhan_hang", []),
                 keywords_found=data.get("keywords_found", []),
@@ -300,6 +305,24 @@ class ProcessorAgent:
             add_datetime_to_instructions=True,
         )
 
+    def _filter_by_industry_keywords(
+        article: Article, keywords_config: Dict[str, List[str]]
+    ) -> bool:
+        """Kiểm tra xem bài viết có thật sự liên quan đến ngành"""
+        for industry, kw_list in keywords_config.items():
+            if any(kw.lower() in article.tom_tat_noi_dung.lower() for kw in kw_list):
+                return True
+        return False
+
+    def _extract_possible_brands(keywords_config: Dict[str, List[str]]) -> List[str]:
+        brand_candidates = []
+        for industry, keywords in keywords_config.items():
+            for kw in keywords:
+                # Brand thường được viết hoa chữ đầu
+                if kw.istitle():
+                    brand_candidates.append(kw)
+        return list(set(brand_candidates))  # Loại trùng lặp
+
     async def process_articles(
         self, raw_articles: List[Article], keywords_config: Dict[str, List[str]]
     ) -> List[Article]:
@@ -313,27 +336,48 @@ class ProcessorAgent:
         Returns:
             List articles đã được xử lý và phân loại
         """
+
+        brand_list = self._extract_possible_brands(keywords_config)
+
         if not raw_articles:
             return []
 
         try:
             # Tạo prompt cho việc phân tích
             analysis_prompt = f"""
+
+            Danh sách các nhãn hàng đối thủ cần xác định:
+            {json.dumps(brand_list, ensure_ascii=False, indent=2)}
+
             Phân tích và phân loại {len(raw_articles)} bài báo sau đây:
             
             Keywords config:
             {json.dumps(keywords_config, ensure_ascii=False, indent=2)}
             
             Raw articles:
-            {json.dumps([article.dict() for article in raw_articles], ensure_ascii=False, indent=2)}
+            {json.dumps([article.model_dump() for article in raw_articles], ensure_ascii=False, indent=2)}
             
+            Mục tiêu: Loại bỏ các bài không thuộc ngành hàng, đặc biệt là tránh nhầm các bài chứa tên thương hiệu nhưng không liên quan đến sản phẩm ngành đó.
+
             Yêu cầu:
             1. Phân loại chính xác ngành hàng cho từng bài
-            2. Xác định nhãn hàng competitors được đề cập
-            3. Phân loại cụm nội dung (Hoạt động doanh nghiệp, CSR, Marketing, etc.)
+            2. Với mỗi bài viết, xác định các nhãn hàng competitors nào được đề cập trong nội dung từ danh sách các nhãn hàng (không thêm nếu không thấy rõ nội dung).
+            3. Phân loại cụm nội dung (Hoạt động doanh nghiệp, chương trình CSR, chiến dịch Marketing, ra mắt sản phẩm, thông tin sản phẩm, hợp tác, báo cáo tài chính, etc.):
+                3.1 Hoạt động doanh nghiệp: bài viết về hoạt động sản xuất, vận hành, mở rộng nhà máy, tuyển dụng, tổ chức nội bộ,...
+                3.2 Chương trình CSR: bài viết nói về hoạt động vì cộng đồng, tài trợ học bổng, từ thiện, bảo vệ môi trường,...
+                3.3 Chiến dịch Marketing: bài viết về chiến dịch quảng bá, truyền thông, KOLs, sự kiện, khuyến mãi, quảng cáo,...
+                3.4 Ra mắt sản phẩm hoặc thông tin sản phẩm: bài viết giới thiệu sản phẩm mới, cải tiến sản phẩm, đóng gói mới,...
+                3.5 Hợp tác: bài viết nói về các hợp đồng hợp tác, MOU, liên doanh, liên kết,...
+                3.6 Báo cáo tài chính: bài viết nêu kết quả kinh doanh, lợi nhuận, chi phí, tăng trưởng,...
+                Nếu không xác định được, mới chọn là: Khác.
+                Lưu ý: Không được gán nhầm tất cả vào “Khác”. Chỉ sử dụng “Khác” khi bài viết thực sự không thuộc bất kỳ loại nào ở trên.
             4. Trích xuất keywords tìm thấy
             5. Cải thiện tóm tắt nội dung
             6. Loại bỏ các bài không liên quan
+            7. Với mỗi bài báo, xác định ngành hàng thực sự liên quan dựa trên ngữ cảnh – không chỉ sự xuất hiện từ khóa.
+
+            Ghi nhớ:
+            1. Nếu chỉ đề cập thương hiệu mà không nói về sản phẩm ngành liên quan thì loại bỏ.
             
             Trả về list Article objects đã được xử lý đầy đủ.
             """
@@ -345,6 +389,13 @@ class ProcessorAgent:
                 processed_articles = self._parse_processed_articles(
                     response.content, raw_articles
                 )
+
+                processed_articles = [
+                    a
+                    for a in processed_articles
+                    if self._filter_by_industry_keywords(a, keywords_config)
+                ]
+
                 logger.info(
                     f"Processed {len(processed_articles)} articles successfully"
                 )
@@ -536,7 +587,12 @@ class ReportAgent:
 class MediaTrackerTeam:
     """Main coordinator team cho toàn bộ workflow"""
 
-    def __init__(self, config: CrawlConfig, model_provider: str = "openai"):
+    def __init__(
+        self,
+        config: CrawlConfig,
+        model_provider: str = "openai",
+        stop_event: Optional[asyncio.Event] = None,
+    ):
         """
         Initialize MediaTrackerTeam
 
@@ -546,6 +602,7 @@ class MediaTrackerTeam:
         """
         self.config = config
         self.model_provider = model_provider
+        self.stop_event = stop_event
 
         # Initialize individual agents
         self.crawler = CrawlerAgent(model_provider=model_provider)
@@ -585,12 +642,6 @@ class MediaTrackerTeam:
         )
 
     async def run_full_pipeline(self) -> CompetitorReport:
-        """
-        Chạy toàn bộ pipeline: Crawl -> Process -> Report
-
-        Returns:
-            CompetitorReport object
-        """
         self.status.is_running = True
         self.status.current_task = "Initializing pipeline"
         self.status.total_sources = len(self.config.media_sources)
@@ -605,11 +656,13 @@ class MediaTrackerTeam:
             all_articles = []
 
             for i, media_source in enumerate(self.config.media_sources):
+                if self.stop_event and self.stop_event.is_set():
+                    logger.warning("🛑 Pipeline stopped during crawling.")
+                    raise Exception("Pipeline was stopped by user.")
+
                 try:
-                    # Determine keywords for this source
                     relevant_keywords = self._get_relevant_keywords(media_source)
 
-                    # Crawl source
                     result = await self.crawler.crawl_media_source(
                         media_source=media_source,
                         keywords=relevant_keywords,
@@ -625,16 +678,18 @@ class MediaTrackerTeam:
                             f"Failed to crawl {media_source.name}: {result.error_message}"
                         )
 
-                    # Update progress
-                    self.status.progress = (
-                        (i + 1) / self.status.total_sources * 30
-                    )  # 30% for crawling
+                    self.status.progress = (i + 1) / self.status.total_sources * 30
 
                 except Exception as e:
                     logger.error(f"Error crawling {media_source.name}: {str(e)}")
                     self.status.failed_sources += 1
 
             logger.info(f"Crawling completed. Found {len(all_articles)} articles")
+
+            # Stop check trước processing
+            if self.stop_event and self.stop_event.is_set():
+                logger.warning("🛑 Pipeline stopped before processing.")
+                raise Exception("Pipeline was stopped by user.")
 
             # Phase 2: Processing
             self.status.current_task = "Processing and analyzing content"
@@ -648,6 +703,11 @@ class MediaTrackerTeam:
             logger.info(
                 f"Processing completed. {len(processed_articles)} articles processed"
             )
+
+            # Stop check trước report
+            if self.stop_event and self.stop_event.is_set():
+                logger.warning("🛑 Pipeline stopped before report generation.")
+                raise Exception("Pipeline was stopped by user.")
 
             # Phase 3: Report Generation
             self.status.current_task = "Generating report"

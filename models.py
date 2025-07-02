@@ -6,7 +6,7 @@ Structured data models phù hợp với template report hiện tại
 from typing import List, Optional, Dict, Any
 from datetime import datetime, date
 from enum import Enum
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 
 
 class MediaType(str, Enum):
@@ -70,7 +70,7 @@ class Article(BaseModel):
         default_factory=datetime.now, description="Thời gian crawl"
     )
 
-    @validator("link_bai_bao", pre=True)
+    @field_validator("link_bai_bao", pre=True)
     def validate_url(cls, v):
         if isinstance(v, str):
             # Basic URL validation
@@ -79,7 +79,7 @@ class Article(BaseModel):
             return v
         return str(v) if v else "https://example.com"
 
-    @validator("ngay_phat_hanh", pre=True)
+    @field_validator("ngay_phat_hanh", pre=True)
     def parse_date(cls, v):
         if isinstance(v, str):
             # Xử lý format DD/MM/YYYY từ template
@@ -127,7 +127,7 @@ class OverallSummary(BaseModel):
     )
     tong_so_bai: int = Field(..., description="Tổng số bài báo toàn bộ")
 
-    @validator("thoi_gian_trich_xuat", pre=True)
+    @field_validator("thoi_gian_trich_xuat", pre=True)
     def format_time_range(cls, v):
         if not v:
             end_date = datetime.now()
@@ -162,7 +162,7 @@ class CompetitorReport(BaseModel):
     total_articles: int = Field(..., description="Tổng số bài báo")
     date_range: str = Field(..., description="Khoảng thời gian crawl")
 
-    @validator("total_articles", pre=True, always=True)
+    @field_validator("total_articles", pre=True, always=True)
     def calculate_total_articles(cls, v, values):
         if "articles" in values:
             return len(values["articles"])

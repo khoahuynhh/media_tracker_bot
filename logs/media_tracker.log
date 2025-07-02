@@ -1,0 +1,56 @@
+2025-07-02 17:12:52,214 - config - INFO - Directories setup verified.
+2025-07-02 17:12:52,214 - config - WARNING - Created .env template at /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/.env. Please update it with your API keys.
+2025-07-02 17:12:52,215 - config - ERROR - FATAL: No valid API keys found in .env file. The application cannot run.
+2025-07-02 17:12:52,215 - config - WARNING - /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/media_sources.csv not found. No media sources will be loaded.
+2025-07-02 17:12:52,216 - config - INFO - Crawl config saved to /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/crawl_config.json
+2025-07-02 17:12:52,217 - config - INFO - Configuration loaded with 0 media sources and 1 keyword categories.
+2025-07-02 17:20:39,576 - config - INFO - Directories setup verified.
+2025-07-02 17:20:39,578 - config - ERROR - FATAL: No valid API keys found in .env file. The application cannot run.
+2025-07-02 17:20:39,607 - config - WARNING - /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/media_sources.csv not found. No media sources will be loaded.
+2025-07-02 17:20:39,608 - config - INFO - Crawl config saved to /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/crawl_config.json
+2025-07-02 17:20:39,608 - config - INFO - Configuration loaded with 0 media sources and 1 keyword categories.
+2025-07-02 17:24:12,013 - config - INFO - Directories setup verified.
+2025-07-02 17:24:12,014 - config - ERROR - FATAL: No valid API keys found in .env file. The application cannot run.
+2025-07-02 17:24:12,014 - config - WARNING - /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/media_sources.csv not found. No media sources will be loaded.
+2025-07-02 17:24:12,014 - config - INFO - Crawl config saved to /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/crawl_config.json
+2025-07-02 17:24:12,014 - config - INFO - Configuration loaded with 0 media sources and 1 keyword categories.
+2025-07-02 17:25:56,041 - config - INFO - Directories setup verified.
+2025-07-02 17:25:56,042 - config - ERROR - FATAL: No valid API keys found in .env file. The application cannot run.
+2025-07-02 17:25:56,043 - config - WARNING - /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/media_sources.csv not found. No media sources will be loaded.
+2025-07-02 17:25:56,043 - config - INFO - Crawl config saved to /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/crawl_config.json
+2025-07-02 17:25:56,043 - config - INFO - Configuration loaded with 0 media sources and 1 keyword categories.
+2025-07-02 17:27:34,867 - config - INFO - Directories setup verified.
+2025-07-02 17:27:34,868 - config - ERROR - FATAL: No valid API keys found in .env file. The application cannot run.
+2025-07-02 17:27:34,868 - config - WARNING - /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/media_sources.csv not found. No media sources will be loaded.
+2025-07-02 17:27:34,868 - config - INFO - Crawl config saved to /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/crawl_config.json
+2025-07-02 17:27:34,868 - config - INFO - Configuration loaded with 0 media sources and 1 keyword categories.
+2025-07-02 17:27:36,330 - agents - ERROR - Crawl thất bại cho Báo Mẫu: object MagicMock can't be used in 'await' expression
+Traceback (most recent call last):
+  File "/home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/src/agents.py", line 86, in crawl_media_source
+    response = await self.agent.arun(crawl_query, session_id=session_id)
+  File "/home/linh/anaconda3/envs/AI/lib/python3.9/site-packages/agno/agent/agent.py", line 1487, in arun
+    return await self._arun(
+  File "/home/linh/anaconda3/envs/AI/lib/python3.9/site-packages/agno/agent/agent.py", line 1156, in _arun
+    model_response: ModelResponse = await self.model.aresponse(
+TypeError: object MagicMock can't be used in 'await' expression
+2025-07-02 17:27:36,762 - config - INFO - Directories setup verified.
+2025-07-02 17:27:36,763 - config - ERROR - FATAL: No valid API keys found in .env file. The application cannot run.
+2025-07-02 17:27:36,763 - config - WARNING - /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/media_sources.csv not found. No media sources will be loaded.
+2025-07-02 17:27:36,764 - config - INFO - Crawl config saved to /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/crawl_config.json
+2025-07-02 17:27:36,764 - config - INFO - Configuration loaded with 0 media sources and 1 keyword categories.
+2025-07-02 17:27:36,769 - config - INFO - Directories setup verified.
+2025-07-02 17:27:36,770 - config - ERROR - FATAL: No valid API keys found in .env file. The application cannot run.
+2025-07-02 17:27:36,770 - config - WARNING - /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/media_sources.csv not found. No media sources will be loaded.
+2025-07-02 17:27:36,770 - config - INFO - Crawl config saved to /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/crawl_config.json
+2025-07-02 17:27:36,770 - config - INFO - Configuration loaded with 0 media sources and 1 keyword categories.
+2025-07-02 17:27:36,772 - config - INFO - Directories setup verified.
+2025-07-02 17:27:36,773 - config - ERROR - FATAL: No valid API keys found in .env file. The application cannot run.
+2025-07-02 17:27:36,773 - config - WARNING - /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/media_sources.csv not found. No media sources will be loaded.
+2025-07-02 17:27:36,784 - config - INFO - Crawl config saved to /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/crawl_config.json
+2025-07-02 17:27:36,784 - config - INFO - Configuration loaded with 0 media sources and 1 keyword categories.
+2025-07-02 17:27:36,788 - parsing - INFO - Response is not a direct JSON list, attempting text-based parsing.
+2025-07-02 17:27:36,790 - parsing - WARNING - Content looks like an object but failed to parse as JSON. Falling back to text parsing.
+2025-07-02 17:27:36,791 - parsing - INFO - Response is not a direct JSON list, attempting text-based parsing.
+2025-07-02 17:27:36,796 - parsing - INFO - Response is not a direct JSON list, attempting text-based parsing.
+2025-07-02 17:27:36,805 - services - INFO - [test-session] Starting media tracking pipeline...
+2025-07-02 17:27:36,880 - services - WARNING - [test-session] Pipeline finished without generating a report.

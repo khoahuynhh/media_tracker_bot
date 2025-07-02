@@ -36,7 +36,7 @@ import threading
 load_dotenv()
 
 # Import our modules
-from models import (
+from src.models import (
     MediaSource,
     CrawlConfig,
     CompetitorReport,

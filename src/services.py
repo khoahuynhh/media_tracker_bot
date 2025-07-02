@@ -50,7 +50,7 @@ class PipelineService:
             logger.info(f"[{session_id}] Starting media tracking pipeline...")
 
             # Create a session-specific configuration
-            session_config = self.settings.crawl_config.copy(deep=True)
+            session_config = self.settings.crawl_config.model_copy(deep=True)
             if custom_keywords:
                 session_config.keywords = custom_keywords
             if start_date and end_date:

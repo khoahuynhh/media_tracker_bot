@@ -6,7 +6,7 @@ Structured data models phù hợp với template report hiện tại
 from typing import List, Optional, Dict, Any
 from datetime import datetime, date
 from enum import Enum
-from pydantic import BaseModel, Field, model_validator, field_validator
+from pydantic import BaseModel, Field, model_validator, field_validator, ConfigDict
 
 
 class MediaType(str, Enum):
@@ -43,19 +43,22 @@ class ContentCluster(str, Enum):
 
 class MediaSource(BaseModel):
     """Model cho nguồn media từ danh sách gốc"""
-
+    # Sử dụng ConfigDict thay cho class Config
+    model_config = ConfigDict(use_enum_values=True)
+    
     stt: int = Field(..., description="Số thứ tự")
     name: str = Field(..., description="Tên media source")
     type: MediaType = Field(..., description="Loại media")
     domain: Optional[str] = Field(None, description="Domain cho website")
     reference_name: Optional[str] = Field(None, description="Tên tham chiếu cho TV")
 
-    class Config:
-        use_enum_values = True
+
 
 
 class Article(BaseModel):
     """Model cho bài báo được crawl"""
+    # Sử dụng ConfigDict thay cho class Config
+    model_config = ConfigDict(use_enum_values=True)
 
     stt: int = Field(..., description="Số thứ tự")
     ngay_phat_hanh: date = Field(..., description="Ngày phát hành bài báo")
@@ -99,12 +102,11 @@ class Article(BaseModel):
                         return datetime.now().date()
         return v
 
-    class Config:
-        use_enum_values = True
-
 
 class IndustrySummary(BaseModel):
     """Model cho tóm tắt theo ngành hàng"""
+    # Sử dụng ConfigDict thay cho class Config
+    model_config = ConfigDict(use_enum_values=True)
 
     nganh_hang: IndustryType = Field(..., description="Ngành hàng")
     nhan_hang: List[str] = Field(..., description="Danh sách nhãn hàng competitors")
@@ -113,9 +115,6 @@ class IndustrySummary(BaseModel):
     )
     so_luong_bai: int = Field(..., description="Tổng số lượng bài báo")
     cac_dau_bao: List[str] = Field(default=[], description="Các đầu báo có đăng tin")
-
-    class Config:
-        use_enum_values = True
 
 
 class OverallSummary(BaseModel):
@@ -171,6 +170,29 @@ class CompetitorReport(BaseModel):
 
 class CrawlConfig(BaseModel):
     """Model cho cấu hình crawling - ENHANCED"""
+    model_config = ConfigDict(
+        json_schema_extra = {
+            "example": {
+                "keywords": {
+                    "Dầu ăn": ["Tường An", "Coba", "Nortalic", "dầu ăn", "cooking oil"],
+                    "Gia vị": ["gia vị", "seasoning", "spices", "condiment"],
+                },
+                "media_sources": [
+                    {
+                        "stt": 1,
+                        "name": "VietnamBiz",
+                        "type": "Website",
+                        "domain": "vietnambiz.vn"
+                    }
+                ],
+                "date_range_days": 30,
+                "max_articles_per_source": 50,
+                "crawl_timeout": 30,
+                "enable_parallel_crawling": True,
+                "max_concurrent_sources": 5,
+            }
+        }
+    )
 
     keywords: Dict[str, List[str]] = Field(..., description="Keywords theo ngành hàng")
     media_sources: List[MediaSource] = Field(..., description="Danh sách media sources")
@@ -195,24 +217,10 @@ class CrawlConfig(BaseModel):
     use_cache: bool = Field(default=True, description="Use caching for crawled data")
     cache_duration_hours: int = Field(default=24, description="Cache duration in hours")
 
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "keywords": {
-                    "Dầu ăn": ["Tường An", "Coba", "Nortalic", "dầu ăn", "cooking oil"],
-                    "Gia vị": ["gia vị", "seasoning", "spices", "condiment"],
-                },
-                "date_range_days": 30,
-                "max_articles_per_source": 50,
-                "crawl_timeout": 30,
-                "enable_parallel_crawling": True,
-                "max_concurrent_sources": 5,
-            }
-        }
-
 
 class CrawlResult(BaseModel):
     """Model cho kết quả crawling từ một source"""
+    model_config = ConfigDict(use_enum_values=True)
 
     source_name: str = Field(..., description="Tên media source")
     source_type: MediaType = Field(..., description="Loại media source")
@@ -229,9 +237,6 @@ class CrawlResult(BaseModel):
         default_factory=datetime.now, description="Thời gian crawl"
     )
     retry_count: int = Field(default=0, description="Số lần retry")
-
-    class Config:
-        use_enum_values = True
 
 
 class ReportTemplate(BaseModel):

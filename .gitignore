@@ -4,3 +4,4 @@ logs/media_tracker.log
 .env
 htmlcov/
 .coverage
+setup_test.py

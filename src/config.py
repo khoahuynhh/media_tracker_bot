@@ -14,13 +14,13 @@ import pandas as pd
 from dotenv import load_dotenv
 from pydantic import BaseModel
 
+# Import models sau để tránh lỗi import vòng tròn nếu có
 from models import CrawlConfig, MediaSource
 
 # Setup logging
 logger = logging.getLogger(__name__)
 
 # Define root and config paths
-# This makes the script runnable from any directory
 PROJECT_ROOT = Path(__file__).parent.parent
 CONFIG_DIR = PROJECT_ROOT / "config"
 DATA_DIR = PROJECT_ROOT / "data"
@@ -39,7 +39,7 @@ class AppSettings:
         return cls._instance
 
     def __init__(self):
-        if self._initialized:
+        if self._initialized and hasattr(self, 'crawl_config'):
             return
         
         self.project_root = PROJECT_ROOT
@@ -64,18 +64,15 @@ class AppSettings:
         """Load .env file and validate API keys."""
         env_file = self.project_root / ".env"
         if not env_file.exists():
-            # Create a template .env file
             env_template = """# API Keys for Media Tracker Bot
 OPENAI_API_KEY=your_openai_api_key_here
 GROQ_API_KEY=your_groq_api_key_here
-DEFAULT_MODEL_PROVIDER=openai
-OPENAI_MODEL=gpt-4o-mini
-GROQ_MODEL=llama-3.1-70b-versatile
 """
             env_file.write_text(env_template, encoding="utf-8")
             logger.warning(f"Created .env template at {env_file}. Please update it with your API keys.")
         
-        load_dotenv(dotenv_path=env_file)
+        # SỬA LỖI: Thêm override=True để đảm bảo test có thể ghi đè biến môi trường
+        load_dotenv(dotenv_path=env_file, override=True)
         self._validate_api_keys()
 
     def _validate_api_keys(self) -> bool:
@@ -92,39 +89,17 @@ GROQ_MODEL=llama-3.1-70b-versatile
         logger.info(f"API Key Status: OpenAI {'Configured' if has_openai else 'Not Configured'}, Groq {'Configured' if has_groq else 'Not Configured'}")
         return True
 
-    def get_api_key_status(self) -> Dict[str, Any]:
-        """Get the current status of API key configurations."""
-        openai_key = os.getenv("OPENAI_API_KEY")
-        groq_key = os.getenv("GROQ_API_KEY")
-        return {
-            "openai_configured": bool(openai_key and "your_openai_api_key_here" not in openai_key),
-            "groq_configured": bool(groq_key and "your_groq_api_key_here" not in groq_key),
-            "default_provider": os.getenv("DEFAULT_MODEL_PROVIDER", "openai"),
-            "openai_model": os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
-            "groq_model": os.getenv("GROQ_MODEL", "llama-3.1-70b-versatile"),
-        }
-
     def _load_crawl_config(self) -> CrawlConfig:
         """Load the main crawling configuration by combining components."""
         try:
             media_sources = self._parse_media_list()
             keywords = self._load_keywords_config()
-
-            # Create a CrawlConfig object from the loaded components
-            config = CrawlConfig(
-                keywords=keywords,
-                media_sources=media_sources,
-                date_range_days=30,  # Default values, can be overridden
-                max_articles_per_source=50,
-                crawl_timeout=30,
-                exclude_domains=["facebook.com", "twitter.com", "instagram.com"],
-            )
-            self.save_crawl_config(config) # Save the unified config
+            config = CrawlConfig(keywords=keywords, media_sources=media_sources)
+            self.save_crawl_config(config)
             logger.info(f"Configuration loaded with {len(media_sources)} media sources and {len(keywords)} keyword categories.")
             return config
         except Exception as e:
             logger.error(f"Could not load configuration: {e}")
-            # Return a default empty config to avoid crashing
             return CrawlConfig(keywords={}, media_sources=[])
 
     def _parse_media_list(self) -> List[MediaSource]:
@@ -133,14 +108,9 @@ GROQ_MODEL=llama-3.1-70b-versatile
         if not media_file.exists():
             logger.warning(f"{media_file} not found. No media sources will be loaded.")
             return []
-        
         try:
             df = pd.read_csv(media_file).where(pd.notnull, None)
-            media_sources = [
-                MediaSource(stt=i + 1, **row)
-                for i, row in enumerate(df.to_dict('records'))
-            ]
-            return media_sources
+            return [MediaSource(stt=i + 1, **row) for i, row in enumerate(df.to_dict('records'))]
         except Exception as e:
             logger.error(f"Failed to parse {media_file}: {e}")
             return []
@@ -149,19 +119,13 @@ GROQ_MODEL=llama-3.1-70b-versatile
         """Load keywords from config/keywords.json."""
         keywords_file = self.config_dir / "keywords.json"
         if not keywords_file.exists():
-            logger.warning(f"{keywords_file} not found. Creating a default one.")
-            default_keywords = {
-                "Dầu ăn": ["Tường An", "Coba", "dầu ăn"],
-                "Gia vị": ["gia vị", "nước mắm", "hạt nêm"],
-            }
+            default_keywords = {"Dầu ăn": ["Tường An"]}
             self.save_keywords_config(default_keywords)
             return default_keywords
-        
         try:
             with open(keywords_file, "r", encoding="utf-8") as f:
                 return json.load(f)
-        except json.JSONDecodeError as e:
-            logger.error(f"Error decoding {keywords_file}: {e}. Returning empty keywords.")
+        except json.JSONDecodeError:
             return {}
 
     def save_crawl_config(self, config: CrawlConfig):
@@ -180,13 +144,11 @@ GROQ_MODEL=llama-3.1-70b-versatile
         try:
             with open(keywords_file, "w", encoding="utf-8") as f:
                 json.dump(keywords, f, ensure_ascii=False, indent=2)
-            # Update the main config object as well
-            if self.crawl_config:
+            if hasattr(self, 'crawl_config'):
                 self.crawl_config.keywords = keywords
                 self.save_crawl_config(self.crawl_config)
             logger.info(f"Keywords saved to {keywords_file}")
         except Exception as e:
             logger.error(f"Failed to save keywords: {e}")
 
-# Create a single, globally accessible instance of the settings
 settings = AppSettings()

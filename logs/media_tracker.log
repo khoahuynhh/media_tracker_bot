@@ -54,3 +54,117 @@ TypeError: object MagicMock can't be used in 'await' expression
 2025-07-02 17:27:36,796 - parsing - INFO - Response is not a direct JSON list, attempting text-based parsing.
 2025-07-02 17:27:36,805 - services - INFO - [test-session] Starting media tracking pipeline...
 2025-07-02 17:27:36,880 - services - WARNING - [test-session] Pipeline finished without generating a report.
+2025-07-02 18:10:28,485 - config - INFO - Directories setup verified.
+2025-07-02 18:10:28,487 - config - ERROR - FATAL: No valid API keys found in .env file. The application cannot run.
+2025-07-02 18:10:28,487 - config - WARNING - /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/media_sources.csv not found. No media sources will be loaded.
+2025-07-02 18:10:28,488 - config - INFO - Crawl config saved to /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/crawl_config.json
+2025-07-02 18:10:28,488 - config - INFO - Configuration loaded with 0 media sources and 1 keyword categories.
+2025-07-02 18:10:31,128 - agents - ERROR - Crawl thất bại cho Báo Mẫu: object MagicMock can't be used in 'await' expression
+Traceback (most recent call last):
+  File "/home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/src/agents.py", line 86, in crawl_media_source
+    response = await self.agent.arun(crawl_query, session_id=session_id)
+  File "/home/linh/anaconda3/envs/AI/lib/python3.9/site-packages/agno/agent/agent.py", line 1487, in arun
+    return await self._arun(
+  File "/home/linh/anaconda3/envs/AI/lib/python3.9/site-packages/agno/agent/agent.py", line 1156, in _arun
+    model_response: ModelResponse = await self.model.aresponse(
+TypeError: object MagicMock can't be used in 'await' expression
+2025-07-02 18:10:31,567 - config - INFO - Directories setup verified.
+2025-07-02 18:10:31,568 - config - ERROR - FATAL: No valid API keys found in .env file. The application cannot run.
+2025-07-02 18:10:31,568 - config - WARNING - /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/media_sources.csv not found. No media sources will be loaded.
+2025-07-02 18:10:31,569 - config - INFO - Crawl config saved to /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/crawl_config.json
+2025-07-02 18:10:31,569 - config - INFO - Configuration loaded with 0 media sources and 1 keyword categories.
+2025-07-02 18:10:31,575 - config - INFO - Directories setup verified.
+2025-07-02 18:10:31,576 - config - ERROR - FATAL: No valid API keys found in .env file. The application cannot run.
+2025-07-02 18:10:31,576 - config - WARNING - /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/media_sources.csv not found. No media sources will be loaded.
+2025-07-02 18:10:31,577 - config - INFO - Crawl config saved to /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/crawl_config.json
+2025-07-02 18:10:31,577 - config - INFO - Configuration loaded with 0 media sources and 1 keyword categories.
+2025-07-02 18:10:31,580 - config - INFO - Directories setup verified.
+2025-07-02 18:10:31,580 - config - ERROR - FATAL: No valid API keys found in .env file. The application cannot run.
+2025-07-02 18:10:31,580 - config - WARNING - /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/media_sources.csv not found. No media sources will be loaded.
+2025-07-02 18:10:31,581 - config - INFO - Crawl config saved to /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/crawl_config.json
+2025-07-02 18:10:31,581 - config - INFO - Configuration loaded with 0 media sources and 1 keyword categories.
+2025-07-02 18:10:31,586 - parsing - INFO - Response is not a direct JSON list, attempting text-based parsing.
+2025-07-02 18:10:31,590 - parsing - WARNING - Content looks like an object but failed to parse as JSON. Falling back to text parsing.
+2025-07-02 18:10:31,591 - parsing - INFO - Response is not a direct JSON list, attempting text-based parsing.
+2025-07-02 18:10:31,596 - parsing - INFO - Response is not a direct JSON list, attempting text-based parsing.
+2025-07-02 18:10:31,606 - services - INFO - [test-session] Starting media tracking pipeline...
+2025-07-02 18:10:31,608 - services - WARNING - [test-session] Pipeline finished without generating a report.
+2025-07-02 21:14:16,362 - config - INFO - Directories setup verified.
+2025-07-02 21:14:16,366 - config - INFO - API Key Status: OpenAI Configured, Groq Not Configured
+2025-07-02 21:14:16,366 - config - WARNING - /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/media_sources.csv not found. No media sources will be loaded.
+2025-07-02 21:14:16,371 - config - INFO - Crawl config saved to /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/crawl_config.json
+2025-07-02 21:14:16,371 - config - INFO - Configuration loaded with 0 media sources and 1 keyword categories.
+2025-07-02 21:14:21,599 - agents - ERROR - Crawl thất bại cho Báo Mẫu: object MagicMock can't be used in 'await' expression
+Traceback (most recent call last):
+  File "/home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/src/agents.py", line 86, in crawl_media_source
+    response = await self.agent.arun(crawl_query, session_id=session_id)
+  File "/home/linh/anaconda3/envs/AI/lib/python3.9/site-packages/agno/agent/agent.py", line 1487, in arun
+    return await self._arun(
+  File "/home/linh/anaconda3/envs/AI/lib/python3.9/site-packages/agno/agent/agent.py", line 1156, in _arun
+    model_response: ModelResponse = await self.model.aresponse(
+TypeError: object MagicMock can't be used in 'await' expression
+2025-07-02 21:14:22,131 - config - INFO - Directories setup verified.
+2025-07-02 21:14:22,132 - config - INFO - API Key Status: OpenAI Configured, Groq Not Configured
+2025-07-02 21:14:22,133 - config - WARNING - /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/media_sources.csv not found. No media sources will be loaded.
+2025-07-02 21:14:22,133 - config - INFO - Crawl config saved to /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/crawl_config.json
+2025-07-02 21:14:22,133 - config - INFO - Configuration loaded with 0 media sources and 1 keyword categories.
+2025-07-02 21:14:22,138 - config - INFO - Directories setup verified.
+2025-07-02 21:14:22,139 - config - INFO - API Key Status: OpenAI Configured, Groq Not Configured
+2025-07-02 21:14:22,139 - config - WARNING - /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/media_sources.csv not found. No media sources will be loaded.
+2025-07-02 21:14:22,140 - config - INFO - Crawl config saved to /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/crawl_config.json
+2025-07-02 21:14:22,140 - config - INFO - Configuration loaded with 0 media sources and 1 keyword categories.
+2025-07-02 21:14:22,148 - config - INFO - Directories setup verified.
+2025-07-02 21:14:22,149 - config - INFO - API Key Status: OpenAI Configured, Groq Not Configured
+2025-07-02 21:14:22,149 - config - WARNING - /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/media_sources.csv not found. No media sources will be loaded.
+2025-07-02 21:14:22,149 - config - INFO - Crawl config saved to /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/crawl_config.json
+2025-07-02 21:14:22,149 - config - INFO - Configuration loaded with 0 media sources and 1 keyword categories.
+2025-07-02 21:14:22,155 - parsing - INFO - Response is not a direct JSON list, attempting text-based parsing.
+2025-07-02 21:14:22,164 - parsing - WARNING - Content looks like an object but failed to parse as JSON. Falling back to text parsing.
+2025-07-02 21:14:22,164 - parsing - INFO - Response is not a direct JSON list, attempting text-based parsing.
+2025-07-02 21:14:22,171 - parsing - INFO - Response is not a direct JSON list, attempting text-based parsing.
+2025-07-02 21:14:22,186 - services - INFO - [test-session] Starting media tracking pipeline...
+2025-07-02 21:14:22,195 - services - WARNING - [test-session] Pipeline finished without generating a report.
+2025-07-02 21:22:23,811 - config - INFO - Directories setup verified.
+2025-07-02 21:22:23,812 - config - INFO - API Key Status: OpenAI Configured, Groq Not Configured
+2025-07-02 21:22:23,812 - config - WARNING - /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/media_sources.csv not found. No media sources will be loaded.
+2025-07-02 21:22:23,812 - config - INFO - Crawl config saved to /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/crawl_config.json
+2025-07-02 21:22:23,812 - config - INFO - Configuration loaded with 0 media sources and 1 keyword categories.
+2025-07-02 21:22:25,648 - httpx - INFO - HTTP Request: GET http://testserver/api/status "HTTP/1.1 200 OK"
+2025-07-02 21:22:25,660 - httpx - INFO - HTTP Request: POST http://testserver/api/run "HTTP/1.1 202 Accepted"
+2025-07-02 21:22:25,666 - httpx - INFO - HTTP Request: POST http://testserver/api/run "HTTP/1.1 409 Conflict"
+2025-07-02 21:22:25,669 - config - INFO - Directories setup verified.
+2025-07-02 21:22:25,670 - config - INFO - API Key Status: OpenAI Configured, Groq Not Configured
+2025-07-02 21:22:25,698 - config - INFO - Crawl config saved to /tmp/pytest-of-linh/pytest-1/test_load_config_success0/config/crawl_config.json
+2025-07-02 21:22:25,698 - config - INFO - Configuration loaded with 1 media sources and 1 keyword categories.
+2025-07-02 21:22:25,701 - config - INFO - Directories setup verified.
+2025-07-02 21:22:25,701 - config - ERROR - FATAL: No valid API keys found in .env file. The application cannot run.
+2025-07-02 21:22:25,702 - config - ERROR - Failed to parse /tmp/pytest-of-linh/pytest-1/test_init_without_api_keys0/config/media_sources.csv: No columns to parse from file
+2025-07-02 21:22:25,702 - config - INFO - Crawl config saved to /tmp/pytest-of-linh/pytest-1/test_init_without_api_keys0/config/crawl_config.json
+2025-07-02 21:22:25,703 - config - INFO - Configuration loaded with 0 media sources and 0 keyword categories.
+2025-07-02 21:22:25,709 - parsing - INFO - Response is not a direct JSON list, attempting text-based parsing.
+2025-07-02 21:22:25,713 - parsing - WARNING - Content looks like an object but failed to parse as JSON. Falling back to text parsing.
+2025-07-02 21:22:25,713 - parsing - INFO - Response is not a direct JSON list, attempting text-based parsing.
+2025-07-02 21:22:25,722 - services - INFO - [test-session] Starting media tracking pipeline...
+2025-07-02 21:22:25,723 - services - WARNING - [test-session] Pipeline finished without generating a report.
+2025-07-02 21:43:49,404 - config - INFO - Directories setup verified.
+2025-07-02 21:43:49,405 - config - INFO - API Key Status: OpenAI Configured, Groq Not Configured
+2025-07-02 21:43:49,405 - config - WARNING - /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/media_sources.csv not found. No media sources will be loaded.
+2025-07-02 21:43:49,405 - config - INFO - Crawl config saved to /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/crawl_config.json
+2025-07-02 21:43:49,405 - config - INFO - Configuration loaded with 0 media sources and 1 keyword categories.
+2025-07-02 21:43:51,070 - httpx - INFO - HTTP Request: GET http://testserver/api/status "HTTP/1.1 200 OK"
+2025-07-02 21:43:51,082 - httpx - INFO - HTTP Request: POST http://testserver/api/run "HTTP/1.1 202 Accepted"
+2025-07-02 21:43:51,090 - httpx - INFO - HTTP Request: POST http://testserver/api/run "HTTP/1.1 409 Conflict"
+2025-07-02 21:43:51,095 - config - INFO - Directories setup verified.
+2025-07-02 21:43:51,095 - config - INFO - API Key Status: OpenAI Configured, Groq Not Configured
+2025-07-02 21:43:51,100 - config - INFO - Crawl config saved to /tmp/pytest-of-linh/pytest-2/test_load_config_success0/config/crawl_config.json
+2025-07-02 21:43:51,100 - config - INFO - Configuration loaded with 1 media sources and 1 keyword categories.
+2025-07-02 21:43:51,102 - config - INFO - Directories setup verified.
+2025-07-02 21:43:51,103 - config - ERROR - FATAL: No valid API keys found in .env file. The application cannot run.
+2025-07-02 21:43:51,103 - config - ERROR - Failed to parse /tmp/pytest-of-linh/pytest-2/test_init_without_api_keys0/config/media_sources.csv: No columns to parse from file
+2025-07-02 21:43:51,109 - config - INFO - Crawl config saved to /tmp/pytest-of-linh/pytest-2/test_init_without_api_keys0/config/crawl_config.json
+2025-07-02 21:43:51,109 - config - INFO - Configuration loaded with 0 media sources and 0 keyword categories.
+2025-07-02 21:43:51,113 - parsing - INFO - Response is not a direct JSON list, attempting text-based parsing.
+2025-07-02 21:43:51,117 - parsing - WARNING - Content looks like an object but failed to parse as JSON. Falling back to text parsing.
+2025-07-02 21:43:51,118 - parsing - INFO - Response is not a direct JSON list, attempting text-based parsing.
+2025-07-02 21:43:51,126 - services - INFO - [test-session] Starting media tracking pipeline...
+2025-07-02 21:43:51,126 - services - WARNING - [test-session] Pipeline finished without generating a report.

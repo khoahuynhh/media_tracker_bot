@@ -1,13 +1,13 @@
 # --- Core Application Dependencies ---
 # Framework chính cho việc xây dựng API
-fastapi
+fastapi~=0.111.0
 
 # Server để chạy ứng dụng FastAPI, [standard] bao gồm các tối ưu hiệu năng
 uvicorn[standard]
 
 # Thư viện để định nghĩa và xác thực các model dữ liệu
 pydantic
-
+python-multipart
 # Đọc các biến môi trường từ file .env
 python-dotenv
 
@@ -33,7 +33,6 @@ groq
 # Pandas 2.1.x tương thích với Numpy 1.26.x
 pandas~=2.1.3
 numpy~=1.26.4
-
 # Engine mà pandas sử dụng để làm việc với file .xlsx
 openpyxl
 

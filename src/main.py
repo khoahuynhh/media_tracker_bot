@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 
 # Import refactored components
 from models import CrawlConfig, create_sample_report
-from config import settings
+from configs import settings
 from services import pipeline_service
 
 @asynccontextmanager

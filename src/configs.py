@@ -1,4 +1,4 @@
-# src/config.py
+# src/configs.py
 """
 Module to handle all application configuration.
 Loads settings from .env and config files.

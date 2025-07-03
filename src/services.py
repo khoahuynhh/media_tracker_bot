@@ -13,7 +13,7 @@ import threading
 import pandas as pd
 from models import CompetitorReport, CrawlConfig
 from agents import MediaTrackerTeam
-from config import AppSettings, settings  # Import the global settings instance
+from configs import AppSettings, settings  # Import the global settings instance
 
 logger = logging.getLogger(__name__)
 

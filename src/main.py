@@ -13,6 +13,7 @@ import json
 
 import uvicorn
 from fastapi import FastAPI, Request, HTTPException, BackgroundTasks
+from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
@@ -59,15 +60,40 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+# SỬA LỖI: Mount thư mục static để phục vụ frontend
+# Dòng này sẽ phục vụ tất cả các file trong thư mục 'static' của bạn.
+# Ví dụ: file 'static/css/style.css' sẽ có thể được truy cập qua '/static/css/style.css'.
+# Chúng ta sử dụng settings.project_root để đảm bảo đường dẫn luôn đúng.
+static_dir = settings.project_root / "static"
+if static_dir.exists() and static_dir.is_dir():
+    app.mount("/static", StaticFiles(directory=static_dir), name="static")
+else:
+    logger.warning(f"Thư mục static không được tìm thấy tại: {static_dir}. Frontend sẽ không được phục vụ.")
 # --- API Endpoints ---
 
 @app.get("/", response_class=HTMLResponse, include_in_schema=False)
 async def get_frontend():
-    """Serve the main frontend HTML file."""
+    """Serve the main frontend HTML file (index.html)."""
     frontend_file = settings.project_root / "static" / "index.html"
     if frontend_file.exists():
         return FileResponse(frontend_file)
-    return HTMLResponse("<h1>Media Tracker Bot</h1><p>Frontend file not found.</p><a href='/docs'>API Docs</a>", status_code=404)
+    
+    # Fallback nếu không tìm thấy file
+    return HTMLResponse(
+        """
+        <html>
+            <head><title>Media Tracker Bot</title></head>
+            <body>
+                <h1>Media Tracker Bot</h1>
+                <p><b>Lỗi:</b> Không tìm thấy file <code>static/index.html</code>.</p>
+                <p>Vui lòng tạo thư mục <code>static</code> ở thư mục gốc của dự án và đặt file frontend của bạn vào đó với tên là <code>index.html</code>.</p>
+                <p>Truy cập <a href='/docs'>/docs</a> để xem tài liệu API.</p>
+            </body>
+        </html>
+        """,
+        status_code=404
+    )
 
 @app.get("/api/status")
 async def get_status():

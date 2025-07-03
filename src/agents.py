@@ -1,8 +1,9 @@
 # src/agents.py
 """
 Multi-Agent System for the Media Tracker Bot.
-Refactored to use dependency injection and a dedicated parsing module.
-This version uses Vietnamese prompts for better localization and context understanding.
+Phiên bản này khôi phục lại các prompt chi tiết của phiên bản gốc
+để đảm bảo chất lượng phân tích, đồng thời giữ lại yêu cầu output dạng JSON
+để hệ thống hoạt động bền bỉ.
 """
 
 import asyncio
@@ -39,16 +40,14 @@ class CrawlerAgent:
     def __init__(self, model: Any, parser: ArticleParser):
         self.agent = Agent(
             name="MediaCrawler",
-            role="Chuyên gia thu thập và trích xuất nội dung web",
+            role="Web Crawler và Content Extractor",
             model=model,
             tools=[Crawl4aiTools(max_length=2000), GoogleSearchTools()],
             instructions=[
                 "Bạn là một chuyên gia crawl web để theo dõi truyền thông tại Việt Nam.",
                 "Nhiệm vụ: Crawl các website báo chí để tìm bài viết về các đối thủ cạnh tranh dựa trên keywords.",
-                "Ưu tiên các tin tức mới nhất trong khoảng thời gian được chỉ định.",
-                "Tập trung vào việc crawl trực tiếp website thay vì dùng máy tìm kiếm.",
-                # YÊU CẦU QUAN TRỌNG: Bắt buộc output là JSON để đảm bảo sự ổn định.
-                "Bạn BẮT BUỘC phải trả về kết quả dưới dạng một danh sách JSON (JSON list) hợp lệ. Mỗi bài báo trong danh sách là một đối tượng JSON với các key: 'title', 'summary', 'date', 'link'."
+                "Ưu tiên tin tức mới nhất trong khoảng thời gian được chỉ định.",
+                "Trả về kết quả dưới dạng text có cấu trúc rõ ràng.",
             ],
             show_tool_calls=True,
             markdown=True,
@@ -75,18 +74,23 @@ class CrawlerAgent:
 
             keywords_str = ", ".join(keywords[:5])
             
-            crawl_query = (
-                f"Crawl trang web: {domain_url or media_source.name}\n"
-                f"Tìm các bài báo chứa từ khóa: {keywords_str}\n"
-                f"Khoảng thời gian: {date_filter}\n"
-                "Yêu cầu: Trích xuất tiêu đề, tóm tắt, ngày đăng, và link gốc cho mỗi bài báo tìm thấy."
-            )
+            # KHÔI PHỤC PROMPT GỐC: Yêu cầu output theo format text cụ thể
+            crawl_query = f"""
+            Crawl website: {domain_url or media_source.name}
+            Tìm các bài báo có chứa từ khóa: {keywords_str}
+            Thời gian: {date_filter}
+            Yêu cầu:
+            - Trích xuất tiêu đề, tóm tắt, ngày đăng, link gốc.
+            - Chỉ lấy bài viết liên quan đến keywords.
+            - Format: Tiêu đề | Ngày | Tóm tắt | Link
+            """
 
             session_id = f"crawler-{media_source.name}-{datetime.now().strftime('%Y%m%d%H%M%S')}"
             response = await self.agent.arun(crawl_query, session_id=session_id)
             duration = (datetime.now() - start_time).total_seconds()
 
             if response and response.content:
+                # Trình phân tích mới sẽ tự động xử lý cả JSON và text
                 articles = self.parser.parse(response.content, media_source)
                 return CrawlResult(
                     source_name=media_source.name, source_type=media_source.type, url=media_source.domain,
@@ -107,7 +111,7 @@ class CrawlerAgent:
             )
 
 class ProcessorAgent:
-    """Agent chuyên xử lý và phân tích nội dung, sử dụng prompt tiếng Việt."""
+    """Agent chuyên xử lý và phân tích nội dung, sử dụng prompt tiếng Việt chi tiết."""
     def __init__(self, model: Any):
         self.agent = Agent(
             name="ContentProcessor",
@@ -116,8 +120,6 @@ class ProcessorAgent:
             instructions=[
                 "Bạn là chuyên gia phân tích nội dung truyền thông cho ngành FMCG tại Việt Nam.",
                 "Nhiệm vụ của bạn: Phân tích và phân loại các bài báo theo ngành hàng và nhãn hiệu.",
-                "Xác định chính xác: Ngành hàng, Nhãn hàng, và Cụm nội dung chính.",
-                # YÊU CẦU QUAN TRỌNG: Bắt buộc output là JSON để đảm bảo sự ổn định.
                 "Bạn BẮT BUỘC phải trả về kết quả dưới dạng một danh sách JSON (JSON list) hợp lệ của các đối tượng Article đã được xử lý đầy đủ."
             ],
             markdown=True,
@@ -127,30 +129,37 @@ class ProcessorAgent:
         if not raw_articles:
             return []
         try:
+            brand_list = list(set(kw for kws in keywords_config.values() for kw in kws if kw[0].isupper()))
+
+            # KHÔI PHỤC PROMPT GỐC: Đưa lại toàn bộ logic phân loại chi tiết của bạn
             analysis_prompt = f"""
-            Phân tích và phân loại {len(raw_articles)} bài báo dưới đây dựa trên danh sách từ khóa và hướng dẫn phân loại.
+            Phân tích và phân loại {len(raw_articles)} bài báo sau đây.
+
+            Danh sách các nhãn hàng đối thủ cần xác định:
+            {json.dumps(brand_list, ensure_ascii=False, indent=2)}
             
-            **Hướng dẫn phân loại 'cum_noi_dung' (Cụm nội dung):**
-            - **"{ContentCluster.HOAT_DONG_DOANH_NGHIEP.value}"**: Các bài viết về hoạt động sản xuất, vận hành, mở rộng nhà máy, tuyển dụng, tổ chức nội bộ.
-            - **"{ContentCluster.CHUONG_TRINH_CSR.value}"**: Các bài viết về hoạt động vì cộng đồng, tài trợ học bổng, từ thiện, bảo vệ môi trường.
-            - **"{ContentCluster.MARKETING_CAMPAIGN.value}"**: Các bài viết về chiến dịch quảng bá, truyền thông, KOLs, sự kiện, khuyến mãi.
-            - **"{ContentCluster.PRODUCT_LAUNCH.value}"**: Các bài viết giới thiệu sản phẩm mới, cải tiến sản phẩm, bao bì mới.
-            - **"{ContentCluster.PARTNERSHIP.value}"**: Các bài viết về hợp đồng hợp tác, ký kết MOU, liên doanh.
-            - **"{ContentCluster.FINANCIAL_REPORT.value}"**: Các bài viết về kết quả kinh doanh, lợi nhuận, chi phí, tăng trưởng.
-            - **"{ContentCluster.OTHER.value}"**: CHỈ sử dụng mục này khi bài viết thực sự không thuộc bất kỳ loại nào ở trên.
+            Keywords config:
+            {json.dumps(keywords_config, ensure_ascii=False, indent=2)}
+            
+            Raw articles:
+            {json.dumps([a.model_dump(mode='json') for a in raw_articles], ensure_ascii=False, indent=2)}
+            
+            Yêu cầu:
+            1. Phân loại chính xác ngành hàng cho từng bài.
+            2. Với mỗi bài viết, xác định các nhãn hàng competitors nào được đề cập trong nội dung từ danh sách các nhãn hàng.
+            3. Phân loại cụm nội dung theo hướng dẫn chi tiết sau:
+                - 3.1 Hoạt động doanh nghiệp: bài viết về hoạt động sản xuất, vận hành, mở rộng nhà máy, tuyển dụng, tổ chức nội bộ,...
+                - 3.2 Chương trình CSR: bài viết nói về hoạt động vì cộng đồng, tài trợ học bổng, từ thiện, bảo vệ môi trường,...
+                - 3.3 Chiến dịch Marketing: bài viết về chiến dịch quảng bá, truyền thông, KOLs, sự kiện, khuyến mãi, quảng cáo,...
+                - 3.4 Ra mắt sản phẩm hoặc thông tin sản phẩm: bài viết giới thiệu sản phẩm mới, cải tiến sản phẩm, đóng gói mới,...
+                - 3.5 Hợp tác: bài viết nói về các hợp đồng hợp tác, MOU, liên doanh, liên kết,...
+                - 3.6 Báo cáo tài chính: bài viết nêu kết quả kinh doanh, lợi nhuận, chi phí, tăng trưởng,...
+                - Nếu không xác định được, mới chọn là: Khác.
+            4. Trích xuất keywords tìm thấy trong bài.
+            5. Cải thiện tóm tắt nội dung cho súc tích, đầy đủ.
+            6. Loại bỏ các bài không liên quan (ví dụ: chỉ đề cập thương hiệu mà không nói về sản phẩm ngành liên quan).
 
-            **Yêu cầu nhiệm vụ:**
-            1. Với mỗi bài báo, xác định chính xác 'nganh_hang' (ngành hàng) dựa trên ngữ cảnh và từ khóa.
-            2. Xác định tất cả các nhãn hàng đối thủ được đề cập từ danh sách từ khóa.
-            3. Phân loại mỗi bài báo vào một trong các cụm nội dung đã được hướng dẫn ở trên.
-            4. Tinh chỉnh lại 'tom_tat_noi_dung' (tóm tắt) để trở nên súc tích và đầy đủ thông tin.
-            5. Loại bỏ bất kỳ bài báo nào không liên quan đến các ngành hàng đã chỉ định, ngay cả khi tên thương hiệu được đề cập ngoài ngữ cảnh.
-
-            **Dữ liệu đầu vào:**
-            - Cấu hình từ khóa: {json.dumps(keywords_config, ensure_ascii=False, indent=2)}
-            - Danh sách bài báo thô: {json.dumps([a.model_dump(mode='json') for a in raw_articles], ensure_ascii=False, indent=2)}
-
-            **Định dạng đầu ra:**
+            Định dạng đầu ra:
             Trả về một danh sách JSON hợp lệ chứa các đối tượng Article đã được xử lý. Cấu trúc JSON của mỗi đối tượng phải khớp với Pydantic model.
             """
             response = await self.agent.arun(analysis_prompt)
@@ -177,7 +186,6 @@ class ReportAgent:
             instructions=[
                 "Bạn là chuyên gia tạo báo cáo phân tích truyền thông cho ngành FMCG.",
                 "Nhiệm vụ: Tạo một báo cáo phân tích đối thủ cạnh tranh từ dữ liệu các bài báo đã được cung cấp.",
-                # YÊU CẦU QUAN TRỌNG: Bắt buộc output là JSON để đảm bảo sự ổn định.
                 "Bạn BẮT BUỘC phải trả về kết quả dưới dạng một đối tượng JSON (JSON object) duy nhất, hợp lệ và tuân thủ nghiêm ngặt theo cấu trúc của Pydantic model 'CompetitorReport'."
             ],
             markdown=True,
@@ -188,16 +196,22 @@ class ReportAgent:
             report_prompt = f"""
             Tạo một báo cáo phân tích đối thủ cạnh tranh từ {len(articles)} bài báo sau đây cho khoảng thời gian: {date_range}.
             
-            **Dữ liệu đầu vào:**
+            Dữ liệu đầu vào:
             - Danh sách bài báo: {json.dumps([a.model_dump(mode='json') for a in articles], ensure_ascii=False, indent=2)}
 
-            **Yêu cầu nhiệm vụ:**
+            Yêu cầu nhiệm vụ:
             1. Tạo một 'overall_summary' (tóm tắt tổng quan) với các thống kê chung.
             2. Tạo một danh sách 'industry_summaries' (tóm tắt theo ngành), mỗi ngành một mục.
             3. Bao gồm các phân tích về đối thủ cạnh tranh hàng đầu, các nhận định về thị trường và xu hướng.
             
-            **Định dạng đầu ra:**
-            Trả về một đối tượng JSON duy nhất, hợp lệ và tuân thủ nghiêm ngặt cấu trúc của model CompetitorReport.
+            Định dạng đầu ra:
+            Trả về một đối tượng JSON duy nhất, hợp lệ và tuân thủ nghiêm ngặt cấu trúc của model 
+            CompetitorReport(
+            overall_summary=overall_summary,
+            industry_summaries=industry_summaries,
+            articles=articles,
+            total_articles=len(articles),
+            date_range=date_range,).
             """
             response = await self.agent.arun(report_prompt)
             if response and response.content:
@@ -212,7 +226,6 @@ class ReportAgent:
             return self._create_basic_report(articles, date_range)
 
     def _create_basic_report(self, articles: List[Article], date_range: str) -> CompetitorReport:
-        # Phương thức dự phòng khi LLM thất bại
         industry_groups = {}
         for article in articles:
             industry = article.nganh_hang
@@ -264,7 +277,6 @@ class MediaTrackerTeam:
         all_articles = []
 
         try:
-            # Giai đoạn 1: Thu thập dữ liệu (Crawling)
             self.status.current_task = "Đang thu thập dữ liệu từ các nguồn"
             logger.info(f"Bắt đầu crawl {self.status.total_sources} nguồn.")
             
@@ -303,7 +315,6 @@ class MediaTrackerTeam:
             if self.stop_event.is_set():
                 raise InterruptedError("Quy trình bị dừng bởi người dùng sau khi crawl.")
 
-            # Giai đoạn 2: Xử lý và phân tích
             self.status.current_task = "Đang xử lý và phân tích bài báo"
             self.status.progress = 60
             processed_articles = await self.processor.process_articles(all_articles, self.config.keywords)
@@ -313,7 +324,6 @@ class MediaTrackerTeam:
             if self.stop_event.is_set():
                 raise InterruptedError("Quy trình bị dừng bởi người dùng sau khi xử lý.")
 
-            # Giai đoạn 3: Tạo báo cáo
             self.status.current_task = "Đang tạo báo cáo tổng hợp"
             end_date = datetime.now()
             start_date = end_date - timedelta(days=self.config.date_range_days)

@@ -198,3 +198,61 @@ TypeError: object MagicMock can't be used in 'await' expression
 2025-07-03 16:12:26,318 - src.configs - INFO - Configuration loaded with 0 media sources and 1 keyword categories.
 2025-07-03 16:12:27,630 - src.main - INFO - --- Media Tracker Bot Server is starting up ---
 2025-07-03 16:12:32,795 - src.main - WARNING - Latest report not found, returning a sample report.
+2025-07-03 16:13:59,019 - src.main - WARNING - Latest report not found, returning a sample report.
+2025-07-03 16:14:05,965 - src.main - WARNING - Latest report not found, returning a sample report.
+2025-07-03 16:14:21,332 - src.main - WARNING - Latest report not found, returning a sample report.
+2025-07-03 16:14:27,095 - src.main - INFO - --- Media Tracker Bot Server is shutting down ---
+2025-07-03 16:14:29,276 - src.configs - INFO - Directories setup verified.
+2025-07-03 16:14:29,277 - src.configs - ERROR - FATAL: No valid API keys found in .env file. The application cannot run.
+2025-07-03 16:14:29,277 - src.configs - WARNING - /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/media_sources.csv not found. No media sources will be loaded.
+2025-07-03 16:14:29,278 - src.configs - INFO - Crawl config saved to /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/crawl_config.json
+2025-07-03 16:14:29,279 - src.configs - INFO - Configuration loaded with 0 media sources and 1 keyword categories.
+2025-07-03 16:14:30,541 - src.main - INFO - --- Media Tracker Bot Server is starting up ---
+2025-07-03 16:14:32,039 - src.main - WARNING - Latest report not found, returning a sample report.
+2025-07-03 16:14:54,060 - src.main - WARNING - Latest report not found, returning a sample report.
+2025-07-03 16:14:56,297 - src.main - WARNING - Latest report not found, returning a sample report.
+2025-07-03 16:14:56,924 - src.main - WARNING - Latest report not found, returning a sample report.
+2025-07-03 16:14:57,375 - src.main - WARNING - Latest report not found, returning a sample report.
+2025-07-03 16:15:01,128 - src.main - WARNING - Latest report not found, returning a sample report.
+2025-07-03 16:15:15,137 - src.main - WARNING - Latest report not found, returning a sample report.
+2025-07-03 16:15:53,168 - src.main - INFO - --- Media Tracker Bot Server is shutting down ---
+2025-07-03 16:15:57,755 - src.configs - INFO - Directories setup verified.
+2025-07-03 16:15:57,757 - src.configs - INFO - API Key Status: OpenAI Configured, Groq Not Configured
+2025-07-03 16:15:57,757 - src.configs - WARNING - /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/media_sources.csv not found. No media sources will be loaded.
+2025-07-03 16:15:57,757 - src.configs - INFO - Crawl config saved to /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/crawl_config.json
+2025-07-03 16:15:57,758 - src.configs - INFO - Configuration loaded with 0 media sources and 1 keyword categories.
+2025-07-03 16:15:59,325 - src.main - INFO - --- Media Tracker Bot Server is starting up ---
+2025-07-03 16:15:59,944 - src.main - WARNING - Latest report not found, returning a sample report.
+2025-07-03 16:17:41,924 - src.main - INFO - --- Media Tracker Bot Server is shutting down ---
+2025-07-03 16:17:44,710 - src.configs - INFO - Directories setup verified.
+2025-07-03 16:17:44,711 - src.configs - ERROR - FATAL: No valid API keys found in .env file. The application cannot run.
+2025-07-03 16:17:44,711 - src.configs - WARNING - /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/media_sources.csv not found. No media sources will be loaded.
+2025-07-03 16:17:44,715 - src.configs - INFO - Crawl config saved to /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/crawl_config.json
+2025-07-03 16:17:44,715 - src.configs - INFO - Configuration loaded with 0 media sources and 1 keyword categories.
+2025-07-03 16:17:46,482 - src.main - INFO - --- Media Tracker Bot Server is starting up ---
+2025-07-03 16:17:47,144 - src.main - WARNING - Latest report not found, returning a sample report.
+2025-07-03 16:18:50,966 - src.main - INFO - --- Media Tracker Bot Server is shutting down ---
+2025-07-03 16:18:54,233 - src.configs - INFO - Directories setup verified.
+2025-07-03 16:18:54,234 - src.configs - INFO - API Key Status: OpenAI Configured, Groq Not Configured
+2025-07-03 16:18:54,234 - src.configs - WARNING - /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/media_sources.csv not found. No media sources will be loaded.
+2025-07-03 16:18:54,235 - src.configs - INFO - Crawl config saved to /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/crawl_config.json
+2025-07-03 16:18:54,235 - src.configs - INFO - Configuration loaded with 0 media sources and 1 keyword categories.
+2025-07-03 16:18:55,433 - src.main - INFO - --- Media Tracker Bot Server is starting up ---
+2025-07-03 16:18:57,227 - src.main - WARNING - Latest report not found, returning a sample report.
+2025-07-03 16:21:44,431 - src.main - INFO - --- Media Tracker Bot Server is shutting down ---
+2025-07-03 16:21:47,319 - src.configs - INFO - Directories setup verified.
+2025-07-03 16:21:47,321 - src.configs - ERROR - FATAL: No valid API keys found in .env file. The application cannot run.
+2025-07-03 16:21:47,321 - src.configs - WARNING - /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/media_sources.csv not found. No media sources will be loaded.
+2025-07-03 16:21:47,322 - src.configs - INFO - Crawl config saved to /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/crawl_config.json
+2025-07-03 16:21:47,322 - src.configs - INFO - Configuration loaded with 0 media sources and 1 keyword categories.
+2025-07-03 16:21:48,822 - src.main - INFO - --- Media Tracker Bot Server is starting up ---
+2025-07-03 16:21:56,676 - src.main - WARNING - Latest report not found, returning a sample report.
+2025-07-03 16:24:22,305 - src.configs - INFO - API Key Status: OpenAI Configured, Groq Not Configured
+2025-07-03 16:37:10,790 - src.main - INFO - --- Media Tracker Bot Server is shutting down ---
+2025-07-03 23:15:44,120 - src.configs - INFO - Directories setup verified.
+2025-07-03 23:15:44,122 - src.configs - INFO - API Key Status: OpenAI Configured, Groq Not Configured
+2025-07-03 23:15:44,123 - src.configs - WARNING - /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/media_sources.csv not found. No media sources will be loaded.
+2025-07-03 23:15:44,123 - src.configs - INFO - Crawl config saved to /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/crawl_config.json
+2025-07-03 23:15:44,123 - src.configs - INFO - Configuration loaded with 0 media sources and 1 keyword categories.
+2025-07-03 23:15:45,352 - src.main - INFO - --- Media Tracker Bot Server is starting up ---
+2025-07-03 23:15:46,321 - src.main - WARNING - Latest report not found, returning a sample report.

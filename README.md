@@ -20,7 +20,7 @@ Dự án được cấu trúc theo mô hình tách biệt các mối quan tâm �
     -   `services.py`: Tầng dịch vụ, chứa logic điều phối chính của pipeline.
     -   `agents.py`: Định nghĩa các agent (Crawler, Processor, Reporter).
     -   `parsing.py`: Module chuyên xử lý và phân tích dữ liệu thô từ LLM.
-    -   `config.py`: Module quản lý việc tải cấu hình từ các file.
+    -   `configs.py`: Module quản lý việc tải cấu hình từ các file.
     -   `models.py`: Định nghĩa các cấu trúc dữ liệu bằng Pydantic.
 -   `config/`: Chứa các file cấu hình có thể chỉnh sửa bởi người dùng.
 -   `static/`: Chứa các file tĩnh cho frontend (HTML, CSS, JS).

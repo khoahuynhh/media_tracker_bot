@@ -10,6 +10,13 @@ import os
 import uuid
 from pathlib import Path
 import json
+import sys
+import asyncio # Thêm import asyncio
+
+# SỬA LỖI: Thêm đoạn code này để giải quyết lỗi "NotImplementedError" của asyncio trên Windows
+# Lỗi này xảy ra khi Playwright cố gắng tạo một tiến trình con.
+if sys.platform == "win32" and sys.version_info >= (3, 8):
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 import uvicorn
 from fastapi import FastAPI, Request, HTTPException, BackgroundTasks
@@ -17,14 +24,16 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
+import subprocess
 
+subprocess.run(["playwright", "install"], check=False)
 # Setup logging before other imports
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[
-        logging.FileHandler("logs/media_tracker.log"),
-        logging.StreamHandler(),
+        logging.FileHandler("logs/media_tracker.log", encoding='utf-8'),
+        logging.StreamHandler(sys.stdout)
     ],
 )
 logger = logging.getLogger(__name__)
@@ -66,11 +75,29 @@ if static_dir.exists() and static_dir.is_dir():
 
 @app.get("/", response_class=HTMLResponse, include_in_schema=False)
 async def get_frontend():
-    """Serve the main frontend HTML file (index.html)."""
-    frontend_file = settings.project_root / "static" / "index.html"
-    if frontend_file.exists():
-        return FileResponse(frontend_file)
-    return HTMLResponse("<h1>Lỗi: Không tìm thấy file static/index.html</h1>", status_code=404)
+    """Serve index.html page"""
+    try:
+        frontend_file = settings.project_root / "static" / "index.html"
+        if frontend_file.exists():
+            return HTMLResponse(content=frontend_file.read_text(encoding="utf-8"))
+        else:
+            return HTMLResponse(
+                content="""
+            <html>
+                <head><title>Media Tracker Bot</title></head>
+                <body>
+                    <h1>Media Tracker Bot</h1>
+                    <p>Demo page not found. Please create demo.html file.</p>
+                    <p><a href="/api/docs">API Documentation</a></p>
+                </body>
+            </html>
+            """
+            )
+    except Exception as e:
+        logger.error(f"Error serving demo page: {str(e)}")
+        return HTMLResponse(
+            content=f"<html><body><h1>Error: {str(e)}</h1></body></html>"
+        )
 
 @app.get("/api/status")
 async def get_status():

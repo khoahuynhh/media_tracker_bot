@@ -11,8 +11,7 @@ from datetime import datetime
 from typing import Dict, List, Optional
 import threading
 
-# SỬA LỖI: Sử dụng import tương đối
-from .models import CompetitorReport, CrawlConfig, BotStatus
+from .models import CompetitorReport, CrawlConfig, BotStatus, MediaType
 from .agents import MediaTrackerTeam
 from .configs import AppSettings, settings
 
@@ -52,6 +51,14 @@ class PipelineService:
 
             session_config = self.settings.crawl_config.model_copy(deep=True)
             
+            website_sources = [
+                source for source in session_config.media_sources 
+                if source.type == MediaType.WEBSITE
+            ]
+            session_config.media_sources = website_sources
+            logger.info(f"Filtered for website sources only. Total to crawl: {len(website_sources)}")
+
+
             if custom_keywords:
                 session_config.keywords = custom_keywords
             if start_date and end_date:
@@ -99,19 +106,22 @@ class PipelineService:
 
     def get_status(self) -> Dict:
         """Gets the current status of the service and the running team."""
-        # SỬA LỖI: Luôn trả về một đối tượng BotStatus hợp lệ
         if self.is_running and self.team:
             team_status = self.team.get_status()
         else:
-            # Nếu không chạy, tạo một đối tượng BotStatus mặc định
             team_status = BotStatus(is_running=False, current_task="Idle")
         
+        website_sources_count = len([
+            source for source in self.settings.crawl_config.media_sources 
+            if source.type == MediaType.WEBSITE
+        ])
+
         status_data = {
             "is_running": self.is_running,
-            "session_id": self.current_session_id, # Đổi tên từ current_session_id
+            "session_id": self.current_session_id,
             "team_status": team_status.model_dump(),
             "api_keys": self.settings.get_api_key_status(),
-            "total_media_sources": len(self.settings.crawl_config.media_sources)
+            "total_media_sources": website_sources_count
         }
         
         return status_data
@@ -125,18 +135,45 @@ class PipelineService:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         
         try:
+            # Save JSON
             json_file = reports_dir / f"report_{timestamp}.json"
             with open(json_file, "w", encoding="utf-8") as f:
                 f.write(report.model_dump_json(indent=2))
 
+            # KHÔI PHỤC LOGIC GỐC: Xuất file Excel chi tiết
             excel_file = reports_dir / f"report_{timestamp}.xlsx"
-            articles_df = pd.DataFrame([a.model_dump() for a in report.articles])
-            summary_df = pd.DataFrame([s.model_dump() for s in report.industry_summaries])
-            
             with pd.ExcelWriter(excel_file, engine="openpyxl") as writer:
-                summary_df.to_excel(writer, sheet_name="Summary", index=False)
-                articles_df.to_excel(writer, sheet_name="Articles", index=False)
+                # Sheet 1: Summary
+                summary_data = []
+                for industry_summary in report.industry_summaries:
+                    summary_data.append({
+                        "Ngành hàng": industry_summary.nganh_hang.value,
+                        "Nhãn hàng": ", ".join(industry_summary.nhan_hang),
+                        "Cụm nội dung": ", ".join(c.value for c in industry_summary.cum_noi_dung),
+                        "Số lượng bài": industry_summary.so_luong_bai,
+                        "Các đầu báo": ", ".join(industry_summary.cac_dau_bao),
+                    })
+                df_summary = pd.DataFrame(summary_data)
+                df_summary.to_excel(writer, sheet_name="Summary", index=False)
 
+                # Sheet 2: Articles
+                articles_data = []
+                for article in report.articles:
+                    articles_data.append({
+                        "STT": article.stt,
+                        "Ngày phát hành": article.ngay_phat_hanh.strftime("%d/%m/%Y"),
+                        "Đầu báo": article.dau_bao,
+                        "Cụm nội dung": article.cum_noi_dung.value,
+                        "Tóm tắt nội dung": article.tom_tat_noi_dung,
+                        "Link bài báo": str(article.link_bai_bao),
+                        "Ngành hàng": article.nganh_hang.value,
+                        "Nhãn hàng": ", ".join(article.nhan_hang),
+                        "Keywords": ", ".join(article.keywords_found),
+                    })
+                df_articles = pd.DataFrame(articles_data)
+                df_articles.to_excel(writer, sheet_name="Articles", index=False)
+
+            # Update latest symlinks
             for ext in ["json", "xlsx"]:
                 latest_path = reports_dir / f"latest_report.{ext}"
                 target_file = reports_dir / f"report_{timestamp}.{ext}"

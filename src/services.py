@@ -10,10 +10,11 @@ import logging
 from datetime import datetime
 from typing import Dict, List, Optional
 import threading
-import pandas as pd
-from models import CompetitorReport, CrawlConfig
-from agents import MediaTrackerTeam
-from configs import AppSettings, settings  # Import the global settings instance
+
+# SỬA LỖI: Sử dụng import tương đối
+from .models import CompetitorReport, CrawlConfig, BotStatus
+from .agents import MediaTrackerTeam
+from .configs import AppSettings, settings
 
 logger = logging.getLogger(__name__)
 
@@ -49,8 +50,8 @@ class PipelineService:
         try:
             logger.info(f"[{session_id}] Starting media tracking pipeline...")
 
-            # Create a session-specific configuration
             session_config = self.settings.crawl_config.model_copy(deep=True)
+            
             if custom_keywords:
                 session_config.keywords = custom_keywords
             if start_date and end_date:
@@ -61,10 +62,8 @@ class PipelineService:
                 except ValueError:
                     logger.error(f"[{session_id}] Invalid date format. Using default date range.")
 
-            # Initialize the agent team for this run
             self.team = MediaTrackerTeam(config=session_config, stop_event=self.stop_event)
             
-            # Execute the pipeline
             report = await self.team.run_full_pipeline()
 
             if report:
@@ -81,7 +80,6 @@ class PipelineService:
                 self.team.status.current_task = f"Failed: {e}"
             return None
         finally:
-            # Reset state after completion or failure
             self.is_running = False
             self.current_session_id = None
             if self.team:
@@ -101,37 +99,36 @@ class PipelineService:
 
     def get_status(self) -> Dict:
         """Gets the current status of the service and the running team."""
-        team_status = self.team.get_status() if self.team else None
+        # SỬA LỖI: Luôn trả về một đối tượng BotStatus hợp lệ
+        if self.is_running and self.team:
+            team_status = self.team.get_status()
+        else:
+            # Nếu không chạy, tạo một đối tượng BotStatus mặc định
+            team_status = BotStatus(is_running=False, current_task="Idle")
         
         status_data = {
             "is_running": self.is_running,
-            "current_session_id": self.current_session_id,
-            "team_status": team_status.model_dump() if team_status else None,
+            "session_id": self.current_session_id, # Đổi tên từ current_session_id
+            "team_status": team_status.model_dump(),
             "api_keys": self.settings.get_api_key_status(),
             "total_media_sources": len(self.settings.crawl_config.media_sources)
         }
         
-        if not self.is_running and team_status:
-            team_status.is_running = False
-            if "stopping" not in str(team_status.current_task).lower() and "failed" not in str(team_status.current_task).lower():
-                team_status.current_task = "Idle"
-            team_status.progress = 0
-            status_data["team_status"] = team_status.model_dump()
-
         return status_data
 
     async def _save_report(self, report: CompetitorReport):
         """Saves the report to JSON and Excel files."""
+        import pandas as pd
+        from pathlib import Path
+        
         reports_dir = self.settings.reports_dir
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         
         try:
-            # Save JSON
             json_file = reports_dir / f"report_{timestamp}.json"
             with open(json_file, "w", encoding="utf-8") as f:
                 f.write(report.model_dump_json(indent=2))
 
-            # Save Excel
             excel_file = reports_dir / f"report_{timestamp}.xlsx"
             articles_df = pd.DataFrame([a.model_dump() for a in report.articles])
             summary_df = pd.DataFrame([s.model_dump() for s in report.industry_summaries])
@@ -140,7 +137,6 @@ class PipelineService:
                 summary_df.to_excel(writer, sheet_name="Summary", index=False)
                 articles_df.to_excel(writer, sheet_name="Articles", index=False)
 
-            # Update latest symlinks
             for ext in ["json", "xlsx"]:
                 latest_path = reports_dir / f"latest_report.{ext}"
                 target_file = reports_dir / f"report_{timestamp}.{ext}"
@@ -152,5 +148,5 @@ class PipelineService:
         except Exception as e:
             logger.error(f"Failed to save report: {e}", exc_info=True)
 
-# Create a single, globally accessible instance of the service
+
 pipeline_service = PipelineService(app_settings=settings)

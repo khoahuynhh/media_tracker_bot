@@ -30,9 +30,9 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Import refactored components
-from models import CrawlConfig, create_sample_report
-from configs import settings
-from services import pipeline_service
+from .models import CrawlConfig, create_sample_report
+from .configs import settings
+from .services import pipeline_service
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

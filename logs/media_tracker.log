@@ -168,3 +168,33 @@ TypeError: object MagicMock can't be used in 'await' expression
 2025-07-02 21:43:51,118 - parsing - INFO - Response is not a direct JSON list, attempting text-based parsing.
 2025-07-02 21:43:51,126 - services - INFO - [test-session] Starting media tracking pipeline...
 2025-07-02 21:43:51,126 - services - WARNING - [test-session] Pipeline finished without generating a report.
+2025-07-03 16:09:17,349 - src.configs - INFO - Directories setup verified.
+2025-07-03 16:09:17,352 - src.configs - INFO - API Key Status: OpenAI Configured, Groq Not Configured
+2025-07-03 16:09:17,353 - src.configs - WARNING - /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/media_sources.csv not found. No media sources will be loaded.
+2025-07-03 16:09:17,355 - src.configs - INFO - Crawl config saved to /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/crawl_config.json
+2025-07-03 16:09:17,356 - src.configs - INFO - Configuration loaded with 0 media sources and 1 keyword categories.
+2025-07-03 16:09:43,771 - src.configs - INFO - Directories setup verified.
+2025-07-03 16:09:43,773 - src.configs - INFO - API Key Status: OpenAI Configured, Groq Not Configured
+2025-07-03 16:09:43,773 - src.configs - WARNING - /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/media_sources.csv not found. No media sources will be loaded.
+2025-07-03 16:09:43,774 - src.configs - INFO - Crawl config saved to /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/crawl_config.json
+2025-07-03 16:09:43,774 - src.configs - INFO - Configuration loaded with 0 media sources and 1 keyword categories.
+2025-07-03 16:09:45,467 - src.main - INFO - --- Media Tracker Bot Server is starting up ---
+2025-07-03 16:09:48,964 - src.main - WARNING - Latest report not found, returning a sample report.
+2025-07-03 16:12:08,528 - src.main - INFO - --- Media Tracker Bot Server is shutting down ---
+2025-07-03 16:12:10,512 - src.configs - INFO - Directories setup verified.
+2025-07-03 16:12:10,513 - src.configs - INFO - API Key Status: OpenAI Configured, Groq Not Configured
+2025-07-03 16:12:10,514 - src.configs - WARNING - /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/media_sources.csv not found. No media sources will be loaded.
+2025-07-03 16:12:10,515 - src.configs - INFO - Crawl config saved to /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/crawl_config.json
+2025-07-03 16:12:10,515 - src.configs - INFO - Configuration loaded with 0 media sources and 1 keyword categories.
+2025-07-03 16:12:14,131 - src.configs - INFO - Directories setup verified.
+2025-07-03 16:12:14,133 - src.configs - INFO - API Key Status: OpenAI Configured, Groq Not Configured
+2025-07-03 16:12:14,133 - src.configs - WARNING - /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/media_sources.csv not found. No media sources will be loaded.
+2025-07-03 16:12:14,133 - src.configs - INFO - Crawl config saved to /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/crawl_config.json
+2025-07-03 16:12:14,133 - src.configs - INFO - Configuration loaded with 0 media sources and 1 keyword categories.
+2025-07-03 16:12:26,316 - src.configs - INFO - Directories setup verified.
+2025-07-03 16:12:26,317 - src.configs - INFO - API Key Status: OpenAI Configured, Groq Not Configured
+2025-07-03 16:12:26,318 - src.configs - WARNING - /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/media_sources.csv not found. No media sources will be loaded.
+2025-07-03 16:12:26,318 - src.configs - INFO - Crawl config saved to /home/linh/Documents/teamAIOT/TagSolution/media_tracker_bot/config/crawl_config.json
+2025-07-03 16:12:26,318 - src.configs - INFO - Configuration loaded with 0 media sources and 1 keyword categories.
+2025-07-03 16:12:27,630 - src.main - INFO - --- Media Tracker Bot Server is starting up ---
+2025-07-03 16:12:32,795 - src.main - WARNING - Latest report not found, returning a sample report.

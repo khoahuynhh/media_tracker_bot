@@ -8,7 +8,7 @@ import json
 import logging
 from typing import List, Dict, Optional
 
-from models import Article, MediaSource, ContentCluster, IndustryType
+from .models import Article, MediaSource, ContentCluster, IndustryType
 from datetime import datetime
 
 logger = logging.getLogger(__name__)

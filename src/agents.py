@@ -19,11 +19,11 @@ from agno.tools.crawl4ai import Crawl4aiTools
 from agno.tools.googlesearch import GoogleSearchTools
 from agno.team import Team
 
-from models import (
+from .models import (
     MediaSource, Article, IndustrySummary, OverallSummary,
     CompetitorReport, CrawlResult, CrawlConfig, BotStatus, ContentCluster
 )
-from parsing import ArticleParser
+from .parsing import ArticleParser
 
 logger = logging.getLogger(__name__)
 

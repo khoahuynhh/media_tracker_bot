@@ -17,7 +17,7 @@ from dotenv import load_dotenv, set_key
 from pydantic import BaseModel
 
 # Import models sau để tránh lỗi import vòng tròn nếu có
-from models import CrawlConfig, MediaSource
+from .models import CrawlConfig, MediaSource
 
 # Setup logging
 logger = logging.getLogger(__name__)

@@ -1,8 +1,8 @@
 # src/main.py
 """
 Main entry point for the Media Tracker Bot.
-This file sets up the FastAPI application and its endpoints.
-It delegates all business logic to the PipelineService.
+Phiên bản này đã được điều chỉnh để tương thích ngược với file index.html gốc,
+bằng cách thêm lại các API endpoint đã được refactor trước đó.
 """
 
 import logging
@@ -38,20 +38,17 @@ from services import pipeline_service
 async def lifespan(app: FastAPI):
     """Handles application startup and shutdown events."""
     logger.info("--- Media Tracker Bot Server is starting up ---")
-    # The pipeline_service is already initialized, so we can use it directly.
-    # Any async setup for the service could go here.
     yield
     logger.info("--- Media Tracker Bot Server is shutting down ---")
 
 # Initialize FastAPI app
 app = FastAPI(
     title="Media Tracker Bot API",
-    description="API for Vietnamese Media Tracking and Competitor Analysis (Refactored)",
-    version="2.0.0",
+    description="API for Vietnamese Media Tracking and Competitor Analysis (Retro-compatible)",
+    version="2.1.0",
     lifespan=lifespan,
 )
 
-# Add CORS middleware to allow all origins
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -60,16 +57,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-# SỬA LỖI: Mount thư mục static để phục vụ frontend
-# Dòng này sẽ phục vụ tất cả các file trong thư mục 'static' của bạn.
-# Ví dụ: file 'static/css/style.css' sẽ có thể được truy cập qua '/static/css/style.css'.
-# Chúng ta sử dụng settings.project_root để đảm bảo đường dẫn luôn đúng.
+# Mount thư mục static để phục vụ frontend
 static_dir = settings.project_root / "static"
 if static_dir.exists() and static_dir.is_dir():
     app.mount("/static", StaticFiles(directory=static_dir), name="static")
-else:
-    logger.warning(f"Thư mục static không được tìm thấy tại: {static_dir}. Frontend sẽ không được phục vụ.")
+
 # --- API Endpoints ---
 
 @app.get("/", response_class=HTMLResponse, include_in_schema=False)
@@ -78,22 +70,7 @@ async def get_frontend():
     frontend_file = settings.project_root / "static" / "index.html"
     if frontend_file.exists():
         return FileResponse(frontend_file)
-    
-    # Fallback nếu không tìm thấy file
-    return HTMLResponse(
-        """
-        <html>
-            <head><title>Media Tracker Bot</title></head>
-            <body>
-                <h1>Media Tracker Bot</h1>
-                <p><b>Lỗi:</b> Không tìm thấy file <code>static/index.html</code>.</p>
-                <p>Vui lòng tạo thư mục <code>static</code> ở thư mục gốc của dự án và đặt file frontend của bạn vào đó với tên là <code>index.html</code>.</p>
-                <p>Truy cập <a href='/docs'>/docs</a> để xem tài liệu API.</p>
-            </body>
-        </html>
-        """,
-        status_code=404
-    )
+    return HTMLResponse("<h1>Lỗi: Không tìm thấy file static/index.html</h1>", status_code=404)
 
 @app.get("/api/status")
 async def get_status():
@@ -102,11 +79,11 @@ async def get_status():
     return JSONResponse(content=status)
 
 @app.post("/api/run")
-async def run_pipeline(background_tasks: BackgroundTasks, request: Request):
+async def run_pipeline_endpoint(background_tasks: BackgroundTasks, request: Request):
     """Start a new media tracking pipeline run in the background."""
     if pipeline_service.is_running:
         raise HTTPException(
-            status_code=409,  # Conflict
+            status_code=409,
             detail=f"A pipeline is already running with session ID: {pipeline_service.current_session_id}"
         )
     
@@ -126,7 +103,7 @@ async def run_pipeline(background_tasks: BackgroundTasks, request: Request):
     )
     return JSONResponse(
         content={"message": "Pipeline started in background.", "session_id": session_id},
-        status_code=202  # Accepted
+        status_code=202
     )
 
 @app.post("/api/stop")
@@ -171,15 +148,29 @@ async def download_latest_report(format: str = "excel"):
         return FileResponse(path=file_path, media_type=media_type, filename=f"competitor_report_latest.{file_ext}")
     raise HTTPException(status_code=404, detail="Latest report file not found.")
 
+# --- Các Endpoint được thêm lại để tương thích với Frontend ---
+
 @app.get("/api/config")
 async def get_config():
     """Get the current full configuration."""
     return JSONResponse(content=settings.crawl_config.model_dump(mode='json'))
 
 @app.post("/api/config")
-async def update_config(new_config: CrawlConfig):
-    """Update and save the entire configuration."""
+async def update_config(config_update: dict):
+    """
+    Update and save parts of the configuration.
+    This handles partial updates from the frontend's settings modal.
+    """
     try:
+        # Lấy config hiện tại
+        current_config = settings.crawl_config.model_dump()
+        # Cập nhật các trường từ request
+        current_config.update(config_update)
+        
+        # Validate lại với Pydantic model
+        new_config = CrawlConfig(**current_config)
+        
+        # Lưu lại config mới
         settings.crawl_config = new_config
         settings.save_crawl_config(new_config)
         return JSONResponse(content={"message": "Configuration updated successfully."})
@@ -187,12 +178,79 @@ async def update_config(new_config: CrawlConfig):
         logger.error(f"Error updating config: {e}", exc_info=True)
         raise HTTPException(status_code=400, detail=str(e))
 
+@app.get("/api/keywords")
+async def get_keywords():
+    """Get the current keywords configuration."""
+    return JSONResponse(content=settings.crawl_config.keywords)
+
+@app.post("/api/keywords")
+async def update_keywords(keywords_data: dict):
+    """Update the keywords configuration."""
+    try:
+        if not isinstance(keywords_data, dict):
+            raise ValueError("Keywords must be a dictionary.")
+        
+        settings.save_keywords_config(keywords_data)
+        return JSONResponse(content={"message": "Keywords updated successfully.", "keywords": keywords_data})
+    except Exception as e:
+        logger.error(f"Error updating keywords: {e}", exc_info=True)
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.get("/api/api-keys/status")
+async def get_api_keys_status():
+    """Get the configuration status of API keys."""
+    return JSONResponse(content=settings.get_api_key_status())
+
+@app.post("/api/api-keys/update")
+async def update_api_keys(api_keys: dict):
+    """
+    Update API keys in the .env file.
+    WARNING: This is a potential security risk in a production environment.
+    It's included for compatibility with the existing frontend.
+    """
+    try:
+        env_file = settings.project_root / ".env"
+        
+        # Đọc file .env hiện tại
+        env_content = {}
+        if env_file.exists():
+            with open(env_file, "r", encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith("#") and "=" in line:
+                        key, value = line.split("=", 1)
+                        env_content[key.strip()] = value.strip()
+        
+        # Cập nhật với các giá trị mới
+        if "openai_api_key" in api_keys:
+            env_content["OPENAI_API_KEY"] = api_keys["openai_api_key"]
+        if "groq_api_key" in api_keys:
+            env_content["GROQ_API_KEY"] = api_keys["groq_api_key"]
+        if "default_provider" in api_keys:
+            env_content["DEFAULT_MODEL_PROVIDER"] = api_keys["default_provider"]
+
+        # Ghi lại vào file .env
+        with open(env_file, "w", encoding="utf-8") as f:
+            for key, value in env_content.items():
+                f.write(f"{key}={value}\n")
+        
+        # Tải lại biến môi trường
+        settings._setup_environment()
+
+        return JSONResponse(content={
+            "message": "API keys updated successfully. The application might need a restart to use new keys.",
+            "status": settings.get_api_key_status()
+        })
+    except Exception as e:
+        logger.error(f"Error updating API keys: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 if __name__ == "__main__":
-    # This block allows running the server directly for development
     uvicorn.run(
         "main:app",
         host="0.0.0.0",
         port=8000,
         reload=True,
-        reload_dirs=["src"] # Reload when any file in src changes
+        reload_dirs=["src"]
     )

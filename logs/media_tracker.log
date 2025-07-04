@@ -256,3 +256,4 @@ TypeError: object MagicMock can't be used in 'await' expression
 2025-07-03 23:15:44,123 - src.configs - INFO - Configuration loaded with 0 media sources and 1 keyword categories.
 2025-07-03 23:15:45,352 - src.main - INFO - --- Media Tracker Bot Server is starting up ---
 2025-07-03 23:15:46,321 - src.main - WARNING - Latest report not found, returning a sample report.
+2025-07-04 07:07:17,622 - src.main - INFO - --- Media Tracker Bot Server is shutting down ---

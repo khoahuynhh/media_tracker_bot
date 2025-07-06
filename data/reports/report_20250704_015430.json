@@ -1,0 +1,127 @@
+{
+  "title": "CALOFIC COMPETITOR REPORT",
+  "subtitle": "PR & SOCIAL MONTHLY REPORT",
+  "overall_summary": {
+    "thoi_gian_trich_xuat": "Từ ngày 04/06/2025 đến ngày 04/07/2025",
+    "industries": [
+      {
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "cum_noi_dung": [
+          "Khác"
+        ],
+        "so_luong_bai": 7,
+        "cac_dau_bao": [
+          "BAOMOI",
+          "BAODAUTU",
+          "1THEGIOI"
+        ]
+      }
+    ],
+    "tong_so_bai": 7
+  },
+  "industry_summaries": [
+    {
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "cum_noi_dung": [
+        "Khác"
+      ],
+      "so_luong_bai": 7,
+      "cac_dau_bao": [
+        "BAOMOI",
+        "BAODAUTU",
+        "1THEGIOI"
+      ]
+    }
+  ],
+  "articles": [
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-04",
+      "dau_bao": "1THEGIOI",
+      "cum_noi_dung": "Khác",
+      "tom_tat_noi_dung": "** Trong một hội nghị được tổ chức, Thứ trưởng Bộ GD-ĐT đã đưa ra các chính sách mới nhằm thu hút sinh viên vào các ngành công nghệ cao, trong đó có ứng dụng các sản phẩm như dầu hướng dương trong chế biến thực phẩm.",
+      "link_bai_bao": "https://** [Xem bài viết](https://1thegioi.vn/thu-truong-bo-gd-dt-se-co-uu-dai-rat-noi-troi-de-thu-hut-sinh-vien-nganh-cong-nghe-cao-20250703.html)",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-04T01:52:17.939028"
+    },
+    {
+      "stt": 2,
+      "ngay_phat_hanh": "2025-07-04",
+      "dau_bao": "1THEGIOI",
+      "cum_noi_dung": "Khác",
+      "tom_tat_noi_dung": "** Giá dầu ăn, đặc biệt là các thương hiệu lớn như Nakydaco và Ranee, có sự biến động trong tháng này, ảnh hưởng đến thị trường thực phẩm nói chung.",
+      "link_bai_bao": "https://** [Xem bài viết](https://1thegioi.vn/cap-nhat-gia-dau-an-trong-thang-7-20250625.html)",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-04T01:52:17.940028"
+    },
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-04",
+      "dau_bao": "BAOMOI",
+      "cum_noi_dung": "Khác",
+      "tom_tat_noi_dung": "** Trong bài viết này, Bộ Công an đã có thông tin liên quan đến vụ việc sữa giả Hiup và dầu ăn được sử dụng trong chăn nuôi nhưng lại được bán cho người tiêu dùng.",
+      "link_bai_bao": "https://** [Đọc thêm](https://baomoi.com/bo-cong-an-thong-tin-vu-sua-gia-hiup-va-dau-an-chan-nuoi-dung-cho-nguoi/c52666067.epi)",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-04T01:52:35.165812"
+    },
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-04",
+      "dau_bao": "BAODAUTU",
+      "cum_noi_dung": "Khác",
+      "tom_tat_noi_dung": "** Dự báo rằng nhu cầu tiêu thụ dầu ăn, đặc biệt là dầu hướng dương, sẽ tăng cao vào mùa hè sắp tới, trong bối cảnh giá dầu nguyên liệu trên thế giới có xu hướng giảm.",
+      "link_bai_bao": "https://** [Xem bài viết](https://baodautu.vn/)",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-04T01:53:46.921600"
+    },
+    {
+      "stt": 2,
+      "ngay_phat_hanh": "2025-07-04",
+      "dau_bao": "BAODAUTU",
+      "cum_noi_dung": "Khác",
+      "tom_tat_noi_dung": "** Nakydaco đã công bố chiến lược phát triển bền vững cho năm 2025, chú trọng đến việc mở rộng thị trường tiêu thụ sản phẩm dầu thực vật.",
+      "link_bai_bao": "https://** [Xem bài viết](https://baodautu.vn/)",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-04T01:53:46.921600"
+    },
+    {
+      "stt": 3,
+      "ngay_phat_hanh": "2025-07-04",
+      "dau_bao": "BAODAUTU",
+      "cum_noi_dung": "Khác",
+      "tom_tat_noi_dung": "** Ranee đã chính thức ra mắt thị trường sản phẩm dầu hướng dương mới, hứa hẹn mang lại sự lựa chọn tốt cho người tiêu dùng.",
+      "link_bai_bao": "https://** [Xem bài viết](https://baodautu.vn/)",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-04T01:53:46.921600"
+    },
+    {
+      "stt": 4,
+      "ngay_phat_hanh": "2025-07-04",
+      "dau_bao": "BAODAUTU",
+      "cum_noi_dung": "Khác",
+      "tom_tat_noi_dung": "** Sự gia nhập của Zachia vào thị trường dầu thực vật được kỳ vọng sẽ tạo ra sức cạnh tranh mới, thúc đẩy cải tiến chất lượng sản phẩm dầu ăn.",
+      "link_bai_bao": "https://** [Xem bài viết](https://baodautu.vn/)",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-04T01:53:46.921600"
+    }
+  ],
+  "generated_at": "2025-07-04T01:54:30.213777",
+  "total_articles": 7,
+  "date_range": "Từ ngày 04/06/2025 đến ngày 04/07/2025"
+}

@@ -19,7 +19,176 @@
       "dầu oliu"
     ]
   },
-  "media_sources": [],
+  "media_sources": [
+    {
+      "stt": 1,
+      "name": "VNEXPRESS",
+      "type": "Website",
+      "domain": "vnexpress.net",
+      "reference_name": "vnexpress"
+    },
+    {
+      "stt": 2,
+      "name": "DANTRI",
+      "type": "Website",
+      "domain": "dantri.com.vn",
+      "reference_name": "dantri"
+    },
+    {
+      "stt": 3,
+      "name": "TUOITREONLINE",
+      "type": "Website",
+      "domain": "tuoitre.vn",
+      "reference_name": "tuoitre"
+    },
+    {
+      "stt": 4,
+      "name": "THANHNIENONLINE",
+      "type": "Website",
+      "domain": "thanhnien.vn",
+      "reference_name": "thanhnien"
+    },
+    {
+      "stt": 5,
+      "name": "ZNEWS",
+      "type": "Website",
+      "domain": "znews.vn",
+      "reference_name": "zingnews"
+    },
+    {
+      "stt": 6,
+      "name": "VIETNAMNET",
+      "type": "Website",
+      "domain": "vietnamnet.vn",
+      "reference_name": "vietnamnet"
+    },
+    {
+      "stt": 7,
+      "name": "KENH14",
+      "type": "Website",
+      "domain": "kenh14.vn",
+      "reference_name": "kenh14"
+    },
+    {
+      "stt": 8,
+      "name": "24H",
+      "type": "Website",
+      "domain": "24h.com.vn",
+      "reference_name": "24h"
+    },
+    {
+      "stt": 9,
+      "name": "EVA",
+      "type": "Website",
+      "domain": "eva.vn",
+      "reference_name": "eva"
+    },
+    {
+      "stt": 10,
+      "name": "ALOBACSI",
+      "type": "Website",
+      "domain": "alobacsi.com",
+      "reference_name": "alobacsi"
+    },
+    {
+      "stt": 11,
+      "name": "SUCKHOEDOISONG",
+      "type": "Website",
+      "domain": "suckhoedoisong.vn",
+      "reference_name": "suckhoedoisong"
+    },
+    {
+      "stt": 12,
+      "name": "NGOISAONET",
+      "type": "Website",
+      "domain": "ngoisao.vnexpress.net",
+      "reference_name": "ngoisao"
+    },
+    {
+      "stt": 13,
+      "name": "AFAMILY",
+      "type": "Website",
+      "domain": "afamily.vn",
+      "reference_name": "afamily"
+    },
+    {
+      "stt": 14,
+      "name": "SOHA",
+      "type": "Website",
+      "domain": "soha.vn",
+      "reference_name": "soha"
+    },
+    {
+      "stt": 15,
+      "name": "TRETHO",
+      "type": "Website",
+      "domain": "webtretho.com",
+      "reference_name": "tretho"
+    },
+    {
+      "stt": 16,
+      "name": "PHUNU",
+      "type": "Website",
+      "domain": "phunuonline.com.vn",
+      "reference_name": "phunuonline"
+    },
+    {
+      "stt": 17,
+      "name": "SAIGONTIMESONLINE",
+      "type": "Website",
+      "domain": "thesaigontimes.vn",
+      "reference_name": "saigontimes"
+    },
+    {
+      "stt": 18,
+      "name": "NHIPCAUDAUTU",
+      "type": "Website",
+      "domain": "nhipcaudautu.vn",
+      "reference_name": "nhipcaudautu"
+    },
+    {
+      "stt": 19,
+      "name": "DOANHNHANSAIGON",
+      "type": "Website",
+      "domain": "doanhnhansaigon.vn",
+      "reference_name": "doanhnhansaigon"
+    },
+    {
+      "stt": 20,
+      "name": "CAFEF",
+      "type": "Website",
+      "domain": "cafef.vn",
+      "reference_name": "cafef"
+    },
+    {
+      "stt": 21,
+      "name": "CAFEBIZ",
+      "type": "Website",
+      "domain": "cafebiz.vn",
+      "reference_name": "cafebiz"
+    },
+    {
+      "stt": 22,
+      "name": "BRANDSVIETNAM",
+      "type": "Website",
+      "domain": "brandsvietnam.com",
+      "reference_name": "brandsvietnam"
+    },
+    {
+      "stt": 23,
+      "name": "ADVERTISINGSVIETNAM",
+      "type": "Website",
+      "domain": "advertisingvietnam.com",
+      "reference_name": "advertisingvietnam"
+    },
+    {
+      "stt": 24,
+      "name": "NONGNGHIEPONLINE",
+      "type": "Website",
+      "domain": "nongnghiepmoitruong.vn",
+      "reference_name": "nongnghiepmoitruong"
+    }
+  ],
   "date_range_days": 30,
   "max_articles_per_source": 50,
   "crawl_timeout": 30,

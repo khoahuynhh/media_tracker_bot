@@ -1,0 +1,181 @@
+{
+  "title": "CALOFIC COMPETITOR REPORT",
+  "subtitle": "PR & SOCIAL MONTHLY REPORT",
+  "overall_summary": {
+    "thoi_gian_trich_xuat": "Từ ngày 04/06/2025 đến ngày 04/07/2025",
+    "industries": [
+      {
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "cum_noi_dung": [
+          "Khác"
+        ],
+        "so_luong_bai": 11,
+        "cac_dau_bao": [
+          "NHIPCAUDAUTU",
+          "TRETHO",
+          "EVA",
+          "SUCKHOEDOISONG",
+          "ZNEWS",
+          "CAFEF"
+        ]
+      }
+    ],
+    "tong_so_bai": 11
+  },
+  "industry_summaries": [
+    {
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "cum_noi_dung": [
+        "Khác"
+      ],
+      "so_luong_bai": 11,
+      "cac_dau_bao": [
+        "NHIPCAUDAUTU",
+        "TRETHO",
+        "EVA",
+        "SUCKHOEDOISONG",
+        "ZNEWS",
+        "CAFEF"
+      ]
+    }
+  ],
+  "articles": [
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-04",
+      "dau_bao": "ZNEWS",
+      "cum_noi_dung": "Khác",
+      "tom_tat_noi_dung": "...",
+      "link_bai_bao": "https://...",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-04T10:47:16.669374"
+    },
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-04",
+      "dau_bao": "EVA",
+      "cum_noi_dung": "Khác",
+      "tom_tat_noi_dung": "** Phân tích về sự tăng đột biến trong hóa đơn tiền điện tháng 6 do các nguyên nhân từ thời tiết, tiêu thụ điện và các yếu tố khác.",
+      "link_bai_bao": "https://** [Xem bài viết](https://eva.vn/tin-tuc/vi-sao-tien-dien-thang-6-tang-dot-bien-c73a639505.html)",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-04T10:47:26.675678"
+    },
+    {
+      "stt": 2,
+      "ngay_phat_hanh": "2025-07-04",
+      "dau_bao": "EVA",
+      "cum_noi_dung": "Khác",
+      "tom_tat_noi_dung": "** Khám phá tầm quan trọng của hệ miễn dịch ở trẻ nhỏ và sự quan tâm của các bậc phụ huynh đối với sức khỏe của con cái.",
+      "link_bai_bao": "https://** [Xem bài viết](https://eva.vn/ba-bau/khong-ai-nhin-thay-mien-dich-cua-mot-dua-tre-nhung-ai-cung-nhin-thay-su-an-tam-cua-mot-nguoi-me-c85a639478.html)",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-04T10:47:26.675678"
+    },
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-04",
+      "dau_bao": "TRETHO",
+      "cum_noi_dung": "Khác",
+      "tom_tat_noi_dung": "** Bài viết nói về các hoạt chất giúp chăm sóc tóc, bao gồm cả nguồn gốc và cách sử dụng. Tác giả cung cấp thông tin chi tiết về những thành phần dưỡng tóc hiệu quả.",
+      "link_bai_bao": "https://** [Đọc thêm](https://www.webtretho.com/f/trang-diem/8-hoat-chat-vang-giup-cham-soc-toc-hieu-qua-an-toan)",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-04T10:47:36.782417"
+    },
+    {
+      "stt": 2,
+      "ngay_phat_hanh": "2025-07-04",
+      "dau_bao": "TRETHO",
+      "cum_noi_dung": "Khác",
+      "tom_tat_noi_dung": "** Bài viết thể hiện cảm xúc về vấn đề tài chính trong mối quan hệ, kèm theo một số suy nghĩ cá nhân của tác giả.",
+      "link_bai_bao": "https://** [Đọc thêm](https://www.webtretho.com/f/tam-su-chuyen-doi/dan-ong-ma-khong-kiem-ra-tien-thi-nguoi-ta-goi-la-cai-loai-vut-di)",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-04T10:47:36.783445"
+    },
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-04",
+      "dau_bao": "NHIPCAUDAUTU",
+      "cum_noi_dung": "Khác",
+      "tom_tat_noi_dung": "** Bài viết phân tích sự phát triển của ngành xây dựng trong bối cảnh đầu tư công và đô thị hóa. Cùng với đó, bài viết cũng đề cập đến các loại dầu thực phẩm như dầu hướng dương và dầu oliu trong ngành chế biến thực phẩm.",
+      "link_bai_bao": "https://** [Xem bài viết](https://nhipcaudautu.vn/kinh-doanh/nganh-xay-dung-trong-ky-nguyen-dau-tu-cong-va-do-thi-hoa-3362679/)",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-04T10:47:45.317586"
+    },
+    {
+      "stt": 2,
+      "ngay_phat_hanh": "2025-07-04",
+      "dau_bao": "NHIPCAUDAUTU",
+      "cum_noi_dung": "Khác",
+      "tom_tat_noi_dung": "** Bài viết cập nhật thông tin về thị trường dầu ăn, bao gồm các loại dầu hướng dương và dầu oliu, phân tích xu hướng tiêu thụ và giá cả trên thế giới.",
+      "link_bai_bao": "https://** [Xem bài viết](https://nhipcaudautu.vn/tai-chinh/cap-nhat-thi-truong-dau-an-va-nhung-du-doan-cho-tuong-lai-3293323/)",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-04T10:47:45.318587"
+    },
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-04",
+      "dau_bao": "SUCKHOEDOISONG",
+      "cum_noi_dung": "Khác",
+      "tom_tat_noi_dung": "** Bài viết này tập trung vào các lợi ích sức khỏe của dầu hướng dương và cách sử dụng hiệu quả trong chế biến món ăn hàng ngày.",
+      "link_bai_bao": "https://** [Xem thêm](https://suckhoedoisong.vn/dau-huong-duong-loi-ich-va-cach-su-dung-n230329.html)",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-04T10:48:00.195435"
+    },
+    {
+      "stt": 2,
+      "ngay_phat_hanh": "2025-07-04",
+      "dau_bao": "SUCKHOEDOISONG",
+      "cum_noi_dung": "Khác",
+      "tom_tat_noi_dung": "** Trong bài viết này, chúng tôi sẽ khám phá những lợi ích của dầu ô liu đối với sức khỏe và những lưu ý khi sử dụng.",
+      "link_bai_bao": "https://** [Xem thêm](https://suckhoedoisong.vn/tim-hieu-ve-dau-o-liu-n230420.html)",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-04T10:48:00.196436"
+    },
+    {
+      "stt": 3,
+      "ngay_phat_hanh": "2025-07-04",
+      "dau_bao": "SUCKHOEDOISONG",
+      "cum_noi_dung": "Khác",
+      "tom_tat_noi_dung": "** Bài viết cung cấp thông tin về các loại dầu ăn trên thị trường và cách lựa chọn loại dầu ăn tốt nhất cho sức khỏe gia đình.",
+      "link_bai_bao": "https://** [Xem thêm](https://suckhoedoisong.vn/cooking-oil-lua-chon-tot-nhat-cho-gia-dinh-n230850.html)",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-04T10:48:00.197445"
+    },
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-04",
+      "dau_bao": "CAFEF",
+      "cum_noi_dung": "Khác",
+      "tom_tat_noi_dung": "Tình hình giá dầu ăn tăng cao khiến nhiều người tiêu dùng lo lắng. Các chuyên gia dự báo rằng giá dầu thực phẩm sẽ tiếp tục biến động trong thời gian tới. |",
+      "link_bai_bao": "https://[Xem chi tiết](https://cafef.vn/khung-hoang-gia-dau-thuc-pham-20250615.chn)",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-04T10:48:44.890860"
+    }
+  ],
+  "generated_at": "2025-07-04T10:49:14.161383",
+  "total_articles": 11,
+  "date_range": "Từ ngày 04/06/2025 đến ngày 04/07/2025"
+}

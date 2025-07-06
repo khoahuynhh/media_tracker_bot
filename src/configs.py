@@ -32,6 +32,7 @@ class AppSettings:
     """
     Singleton class to hold all application settings.
     """
+
     _instance = None
 
     def __new__(cls):
@@ -41,24 +42,30 @@ class AppSettings:
         return cls._instance
 
     def __init__(self):
-        if self._initialized and hasattr(self, 'crawl_config'):
+        if self._initialized and hasattr(self, "crawl_config"):
             return
-        
+
         self.project_root = PROJECT_ROOT
         self.config_dir = CONFIG_DIR
         self.data_dir = DATA_DIR
         self.reports_dir = self.data_dir / "reports"
         self.cache_dir = self.data_dir / "cache"
-        
+
         self._setup_directories()
         self._setup_environment()
-        
+
         self.crawl_config = self._load_crawl_config()
         self._initialized = True
 
     def _setup_directories(self):
         """Create necessary directories if they don't exist."""
-        for directory in [self.config_dir, self.data_dir, self.reports_dir, self.cache_dir, PROJECT_ROOT / "logs"]:
+        for directory in [
+            self.config_dir,
+            self.data_dir,
+            self.reports_dir,
+            self.cache_dir,
+            PROJECT_ROOT / "logs",
+        ]:
             directory.mkdir(parents=True, exist_ok=True)
         logger.info("Directories setup verified.")
 
@@ -72,8 +79,10 @@ GROQ_API_KEY=your_groq_api_key_here
 DEFAULT_MODEL_PROVIDER=openai
 """
             env_file.write_text(env_template, encoding="utf-8")
-            logger.warning(f"Created .env template at {env_file}. Please update it with your API keys.")
-        
+            logger.warning(
+                f"Created .env template at {env_file}. Please update it with your API keys."
+            )
+
         load_dotenv(dotenv_path=env_file, override=True)
         self._validate_api_keys()
 
@@ -81,10 +90,14 @@ DEFAULT_MODEL_PROVIDER=openai
         """Check if at least one API key is configured."""
         status = self.get_api_key_status()
         if not status["openai_configured"] and not status["groq_configured"]:
-            logger.error("FATAL: No valid API keys found in .env file. The application cannot run.")
+            logger.error(
+                "FATAL: No valid API keys found in .env file. The application cannot run."
+            )
             return False
-        
-        logger.info(f"API Key Status: OpenAI {'Configured' if status['openai_configured'] else 'Not Configured'}, Groq {'Configured' if status['groq_configured'] else 'Not Configured'}")
+
+        logger.info(
+            f"API Key Status: OpenAI {'Configured' if status['openai_configured'] else 'Not Configured'}, Groq {'Configured' if status['groq_configured'] else 'Not Configured'}"
+        )
         return True
 
     def get_api_key_status(self) -> Dict[str, Any]:
@@ -113,23 +126,26 @@ DEFAULT_MODEL_PROVIDER=openai
         if "groq_api_key" in api_keys:
             set_key(env_file_path, "GROQ_API_KEY", api_keys["groq_api_key"] or "")
         if "default_provider" in api_keys:
-            set_key(env_file_path, "DEFAULT_MODEL_PROVIDER", api_keys["default_provider"] or "openai")
+            set_key(
+                env_file_path,
+                "DEFAULT_MODEL_PROVIDER",
+                api_keys["default_provider"] or "openai",
+            )
 
         # Tải lại các biến môi trường từ file .env đã được cập nhật
         load_dotenv(dotenv_path=env_file_path, override=True)
-        
+
         logger.info("API keys in .env file have been updated.")
-        
+
         # Trả về trạng thái mới nhất
         return self.get_api_key_status()
-
 
     def _load_crawl_config(self) -> CrawlConfig:
         """Load the main crawling configuration by combining components."""
         try:
             media_sources = self._parse_media_list()
             keywords = self._load_keywords_config()
-            
+
             config_file = self.config_dir / "crawl_config.json"
             other_configs = {}
             if config_file.exists():
@@ -143,12 +159,16 @@ DEFAULT_MODEL_PROVIDER=openai
                 keywords=keywords,
                 media_sources=media_sources,
                 date_range_days=other_configs.get("date_range_days", 30),
-                max_articles_per_source=other_configs.get("max_articles_per_source", 50),
+                max_articles_per_source=other_configs.get(
+                    "max_articles_per_source", 50
+                ),
                 crawl_timeout=other_configs.get("crawl_timeout", 30),
-                exclude_domains=other_configs.get("exclude_domains", [])
+                exclude_domains=other_configs.get("exclude_domains", []),
             )
             self.save_crawl_config(config)
-            logger.info(f"Configuration loaded with {len(media_sources)} media sources and {len(keywords)} keyword categories.")
+            logger.info(
+                f"Configuration loaded with {len(media_sources)} media sources and {len(keywords)} keyword categories."
+            )
             return config
         except Exception as e:
             logger.error(f"Could not load configuration: {e}")
@@ -156,13 +176,17 @@ DEFAULT_MODEL_PROVIDER=openai
 
     def _parse_media_list(self) -> List[MediaSource]:
         """Parse media list from config/media_sources.csv."""
-        media_file = self.config_dir / "media_sources.csv"
+        media_file = self.config_dir / "media_sources_sl.csv"
         if not media_file.exists():
             logger.warning(f"{media_file} not found. No media sources will be loaded.")
             return []
         try:
             df = pd.read_csv(media_file).where(pd.notnull, None)
-            return [MediaSource(stt=i + 1, **row) for i, row in enumerate(df.to_dict('records'))]
+            df = df.fillna("")
+            return [
+                MediaSource(stt=i + 1, **row)
+                for i, row in enumerate(df.to_dict("records"))
+            ]
         except Exception as e:
             logger.error(f"Failed to parse {media_file}: {e}")
             return []
@@ -196,13 +220,14 @@ DEFAULT_MODEL_PROVIDER=openai
         try:
             with open(keywords_file, "w", encoding="utf-8") as f:
                 json.dump(keywords, f, ensure_ascii=False, indent=2)
-            
-            if hasattr(self, 'crawl_config'):
+
+            if hasattr(self, "crawl_config"):
                 self.crawl_config.keywords = keywords
                 self.save_crawl_config(self.crawl_config)
 
             logger.info(f"Keywords saved to {keywords_file}")
         except Exception as e:
             logger.error(f"Failed to save keywords: {e}")
+
 
 settings = AppSettings()

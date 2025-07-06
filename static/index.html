@@ -601,20 +601,27 @@
                     </div>
                     <div class="card-body">
                         <div class="row align-items-center">
+                            <style>
+                                .label-fixed {
+                                    width: 65px;
+                                    /* đủ cho chữ "Progress:" không bị wrap */
+                                    flex-shrink: 0;
+                                }
+                            </style>
                             <div class="col-md-6">
                                 <div class="d-flex align-items-center mb-3">
-                                    <span class="me-3">Trạng thái:</span>
+                                    <span class="me-3 label-fixed">Status:</span>
                                     <span id="statusBadge" class="status-badge status-idle">
                                         <i class="fas fa-circle"></i>
                                         Idle
                                     </span>
                                 </div>
                                 <div class="d-flex align-items-center mb-3">
-                                    <span class="me-3">Task hiện tại:</span>
+                                    <span class="me-3 label-fixed">Task:</span>
                                     <span id="currentTask" class="fw-bold">Chờ khởi động</span>
                                 </div>
                                 <div class="d-flex align-items-center">
-                                    <span class="me-3">Tiến độ:</span>
+                                    <span class="me-3 label-fixed">Progress:</span>
                                     <div class="flex-grow-1">
                                         <div class="progress-custom">
                                             <div id="progressBar" class="progress-bar-custom" style="width: 0%"></div>
@@ -626,7 +633,7 @@
                             <div class="col-md-6">
                                 <div class="row text-center">
                                     <div class="col-4">
-                                        <div class="metric-number" id="totalSources">445</div>
+                                        <div class="metric-number" id="totalSources">0</div>
                                         <div class="metric-label">Total Sources</div>
                                     </div>
                                     <div class="col-4">
@@ -693,7 +700,7 @@
                                 <button class="btn btn-outline-primary btn-sm me-2" onclick="downloadReport('json')">
                                     <i class="fas fa-download me-1"></i>JSON
                                 </button>
-                                <button class="btn btn-outline-primary btn-sm" onclick="downloadReport('excel')">
+                                <button class="btn btn-outline-primary btn-sm me-2" onclick="downloadReport('excel')">
                                     <i class="fas fa-file-excel me-1"></i>Excel
                                 </button>
                             </div>
@@ -928,6 +935,9 @@
                                 <button type="button" class="btn btn-sm btn-outline-success me-2"
                                     onclick="addIndustry()">
                                     <i class="fas fa-plus me-1"></i>Add Industry
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-light me-2" onclick="addFile()">
+                                    <i class="fas fa-plus me-1"></i>Add File (.csv)
                                 </button>
                                 <button type="button" class="btn btn-sm btn-outline-warning" onclick="resetKeywords()">
                                     <i class="fas fa-undo me-1"></i>Reset to Default
@@ -1266,8 +1276,8 @@
             // Check API keys status first
             if (status.api_keys && (!status.api_keys.openai_configured && !status.api_keys.groq_configured)) {
                 statusBadge.className = 'status-badge status-failed';
-                statusBadge.innerHTML = '<i class="fas fa-exclamation-triangle me-1"></i>API Keys Required';
-                currentTask.innerHTML = '<a href="#" onclick="openSettings()" class="text-decoration-none">⚠️ Cần cấu hình API keys để hoạt động</a>';
+                statusBadge.innerHTML = '<span class="btn btn-sm text-white text-nowrap"> <i class="fas fa-exclamation-triangle me-1"></i> API Keys Required</span>';
+                currentTask.innerHTML = '<a href="#" onclick="openSettings()" class="btn btn-sm btn-outline-primary text-nowrap"> <i class="fas fa-cog me-1"></i> Add API keys </a>';
 
                 document.getElementById('runBtn').disabled = true;
                 document.getElementById('runBtn').innerHTML = '<i class="fas fa-key me-2"></i>Setup API Keys First';
@@ -1305,9 +1315,9 @@
             }
 
             // Update metrics
-            document.getElementById('totalSources').textContent = status.total_media_sources || 445;
-            document.getElementById('completedSources').textContent = status.team_status.completed_sources || 0;
-            document.getElementById('failedSources').textContent = status.team_status.failed_sources || 0;
+            document.getElementById('totalSources').textContent = status.total_media_sources || 0;
+            document.getElementById('completedSources').textContent = status.team_status?.completed_sources || 0;
+            document.getElementById('failedSources').textContent = status.team_status?.failed_sources || 0;
 
             // Update last run
             if (status.team_status && status.team_status.last_run) {

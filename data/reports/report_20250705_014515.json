@@ -1,0 +1,105 @@
+{
+  "title": "CALOFIC COMPETITOR REPORT",
+  "subtitle": "PR & SOCIAL MONTHLY REPORT",
+  "overall_summary": {
+    "thoi_gian_trich_xuat": "Từ ngày 05/06/2025 đến ngày 05/07/2025",
+    "industries": [
+      {
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "cum_noi_dung": [
+          "Khác"
+        ],
+        "so_luong_bai": 5,
+        "cac_dau_bao": [
+          "SAIGONTIMESONLINE",
+          "DOANHNHANSAIGON",
+          "CAFEF",
+          "SOHA"
+        ]
+      }
+    ],
+    "tong_so_bai": 5
+  },
+  "industry_summaries": [
+    {
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "cum_noi_dung": [
+        "Khác"
+      ],
+      "so_luong_bai": 5,
+      "cac_dau_bao": [
+        "SAIGONTIMESONLINE",
+        "DOANHNHANSAIGON",
+        "CAFEF",
+        "SOHA"
+      ]
+    }
+  ],
+  "articles": [
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-05",
+      "dau_bao": "SAIGONTIMESONLINE",
+      "cum_noi_dung": "Khác",
+      "tom_tat_noi_dung": "1. **Truy cập website:** Vào trực tiếp trang [Thời báo Saigon](). 2. **Sử dụng chức năng tìm kiếm:** Tìm kiếm các từ khóa liên quan như: \"dầu ăn\", \"dầu oliu\", \"Ranee\", \"Tường An\", vv. 3. **Kiểm tra thời gian đăng bài:** Xem ngày đăng của từng bài viết và lọc ra những bài viết trong khoảng thời gian từ ngày 5 tháng 6 năm 2025 đến hết ngày 5 tháng 7 năm 2025.",
+      "link_bai_bao": "https://thesaigontimes.vn",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-05T01:44:00.775239"
+    },
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-05",
+      "dau_bao": "SOHA",
+      "cum_noi_dung": "Khác",
+      "tom_tat_noi_dung": "Hiện tại, tôi không thể tìm thấy bất kỳ bài viết nào trên trang liên quan đến các từ khóa đã chỉ định trong khoảng thời gian từ 2025-06-05 đến 2025-07-05. Việc tìm kiếm thông tin trên Google cũng không khả thi do giới hạn của hệ thống.",
+      "link_bai_bao": "https://soha.vn",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-05T01:44:17.410924"
+    },
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-05",
+      "dau_bao": "DOANHNHANSAIGON",
+      "cum_noi_dung": "Khác",
+      "tom_tat_noi_dung": "Không tìm thấy bài viết liên quan đến các từ khóa mà bạn đã chỉ định trên trang web [Doanh Nhân Sài Gòn]() từ ngày 05/06/2025 đến ngày 05/07/2025.",
+      "link_bai_bao": "https://doanhnhansaigon.vn",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-05T01:44:27.434677"
+    },
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-05",
+      "dau_bao": "CAFEF",
+      "cum_noi_dung": "Khác",
+      "tom_tat_noi_dung": "Đã thực hiện việc crawl trang web để tìm kiếm các bài viết liên quan đến từ khóa được chỉ định trong ngày 05/06/2025 đến 05/07/2025. Dưới đây là kết quả:",
+      "link_bai_bao": "https://cafef.vn",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-05T01:44:48.601001"
+    },
+    {
+      "stt": 2,
+      "ngay_phat_hanh": "2025-07-05",
+      "dau_bao": "CAFEF",
+      "cum_noi_dung": "Khác",
+      "tom_tat_noi_dung": "```json { \"articles\": [ { \"tiêu đề\": \"Bán xe điện ở nước xuất khẩu dầu, giá xăng chỉ 0,6 USD/lít: Nghịch lý tại quốc gia có 60% nguồn thu từ dầu khí nhưng lại muốn phát triển ô tô năng lượng sạch\", \"ngày phát hành\": \"05-07-2025\", \"tóm tắt nội dung\": \"Bài viết phân tích tình hình phát triển ô tô năng lượng sạch ở các quốc gia phụ thuộc vào dầu khí, chỉ ra nghịch lý trong việc tiêu thụ xe điện tại các nước này.\", \"link bài báo\": \" } ] } ```",
+      "link_bai_bao": "https://cafef.vn/ban-xe-dien-o-nuoc-xuat-khau-dau-gia-xang-chi-06-usd-lit-nghich-ly-tai-quoc-gia-co-60-nguon-thu-tu-dau-khi-nhung-lai-muon-phat-trien-o-to-nang-luong-sach-188250704110042654.chn\"",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-05T01:44:48.602004"
+    }
+  ],
+  "generated_at": "2025-07-05T01:45:15.632455",
+  "total_articles": 5,
+  "date_range": "Từ ngày 05/06/2025 đến ngày 05/07/2025"
+}

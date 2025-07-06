@@ -1,8 +1,8 @@
 # src/agents.py
 """
 Multi-Agent System for the Media Tracker Bot.
-Refactored to use dependency injection and a dedicated parsing module.
-This version uses Vietnamese prompts for better localization and context understanding.
+Phiên bản này sẽ cải thiện lại các prompt chi tiết để đảm bảo chất lượng phân tích,
+đồng thời giữ lại yêu cầu output dạng JSON để hệ thống hoạt động bền bỉ.
 """
 
 import asyncio
@@ -20,12 +20,20 @@ from agno.tools.googlesearch import GoogleSearchTools
 from agno.team import Team
 
 from .models import (
-    MediaSource, Article, IndustrySummary, OverallSummary,
-    CompetitorReport, CrawlResult, CrawlConfig, BotStatus, ContentCluster
+    MediaSource,
+    Article,
+    IndustrySummary,
+    OverallSummary,
+    CompetitorReport,
+    CrawlResult,
+    CrawlConfig,
+    BotStatus,
+    ContentCluster,
 )
 from .parsing import ArticleParser
 
 logger = logging.getLogger(__name__)
+
 
 def get_llm_model(provider: str, model_id: str) -> Any:
     """Factory function to get an LLM model instance."""
@@ -33,22 +41,21 @@ def get_llm_model(provider: str, model_id: str) -> Any:
         return Groq(id=model_id)
     return OpenAIChat(id=model_id)
 
+
 class CrawlerAgent:
     """Agent chuyên crawl web, sử dụng prompt tiếng Việt."""
 
     def __init__(self, model: Any, parser: ArticleParser):
         self.agent = Agent(
             name="MediaCrawler",
-            role="Chuyên gia thu thập và trích xuất nội dung web",
+            role="Web Crawler và Content Extractor",
             model=model,
             tools=[Crawl4aiTools(max_length=2000), GoogleSearchTools()],
             instructions=[
                 "Bạn là một chuyên gia crawl web để theo dõi truyền thông tại Việt Nam.",
                 "Nhiệm vụ: Crawl các website báo chí để tìm bài viết về các đối thủ cạnh tranh dựa trên keywords.",
-                "Ưu tiên các tin tức mới nhất trong khoảng thời gian được chỉ định.",
-                "Tập trung vào việc crawl trực tiếp website thay vì dùng máy tìm kiếm.",
-                # YÊU CẦU QUAN TRỌNG: Bắt buộc output là JSON để đảm bảo sự ổn định.
-                "Bạn BẮT BUỘC phải trả về kết quả dưới dạng một danh sách JSON (JSON list) hợp lệ. Mỗi bài báo trong danh sách là một đối tượng JSON với các key: 'title', 'summary', 'date', 'link'."
+                "Ưu tiên tin tức mới nhất trong khoảng thời gian được chỉ định.",
+                "Trả về kết quả dạng JSON hợp lệ chứa danh sách bài báo với các trường: tiêu đề, ngày phát hành (DD-MM-YYYY), tóm tắt nội dung, link bài báo.",
             ],
             show_tool_calls=True,
             markdown=True,
@@ -68,46 +75,71 @@ class CrawlerAgent:
             end_date = datetime.now()
             start_date = end_date - timedelta(days=date_range_days)
             date_filter = f"từ ngày {start_date.strftime('%Y-%m-%d')} đến ngày {end_date.strftime('%Y-%m-%d')}"
-            
+
             domain_url = media_source.domain
             if domain_url and not domain_url.startswith("http"):
                 domain_url = f"https://{domain_url}"
 
-            keywords_str = ", ".join(keywords[:5])
-            
-            crawl_query = (
-                f"Crawl trang web: {domain_url or media_source.name}\n"
-                f"Tìm các bài báo chứa từ khóa: {keywords_str}\n"
-                f"Khoảng thời gian: {date_filter}\n"
-                "Yêu cầu: Trích xuất tiêu đề, tóm tắt, ngày đăng, và link gốc cho mỗi bài báo tìm thấy."
-            )
+            keywords_str = ", ".join(keywords)
 
-            session_id = f"crawler-{media_source.name}-{datetime.now().strftime('%Y%m%d%H%M%S')}"
+            # Yêu cầu output theo format text cụ thể
+            crawl_query = f"""
+            Crawl website: {domain_url or media_source.name}
+            Tìm các bài báo có chứa từ khóa: {keywords_str}
+            Thời gian: {date_filter}
+            Yêu cầu:
+            - Trích xuất tiêu đề, tóm tắt, ngày đăng, link gốc.
+            - Chỉ lấy bài viết liên quan đến ngành FCMG và keywords.
+            - Format: Tiêu đề | Ngày | Tóm tắt | Link
+            - Ngày phải là ngày xuất hiện trong nội dung bài báo.
+            - Bắt buộc có dòng: Ngày: DD/MM/YYYY (hoặc DD-MM-YYYY hoặc D-M-YYYY hoặc D/M/YYYY) thể hiện ngày bài báo được đăng.
+            - Nếu không tìm được ngày rõ ràng từ bài viết, bỏ qua bài đó.
+            """
+            session_id = (
+                f"crawler-{media_source.name}-{datetime.now().strftime('%Y%m%d%H%M%S')}"
+            )
             response = await self.agent.arun(crawl_query, session_id=session_id)
+            await asyncio.sleep(5)
             duration = (datetime.now() - start_time).total_seconds()
 
             if response and response.content:
+                # Trình phân tích mới sẽ tự động xử lý cả JSON và text
                 articles = self.parser.parse(response.content, media_source)
                 return CrawlResult(
-                    source_name=media_source.name, source_type=media_source.type, url=media_source.domain,
-                    articles_found=articles, crawl_status="success", crawl_duration=duration
+                    source_name=media_source.name,
+                    source_type=media_source.type,
+                    url=media_source.domain,
+                    articles_found=articles,
+                    crawl_status="success",
+                    crawl_duration=duration,
                 )
             else:
                 return CrawlResult(
-                    source_name=media_source.name, source_type=media_source.type, url=media_source.domain,
-                    articles_found=[], crawl_status="failed", error_message="Không có phản hồi từ crawler",
-                    crawl_duration=duration
+                    source_name=media_source.name,
+                    source_type=media_source.type,
+                    url=media_source.domain,
+                    articles_found=[],
+                    crawl_status="failed",
+                    error_message="Không có phản hồi từ crawler",
+                    crawl_duration=duration,
                 )
         except Exception as e:
             duration = (datetime.now() - start_time).total_seconds()
             logger.error(f"Crawl thất bại cho {media_source.name}: {e}", exc_info=True)
             return CrawlResult(
-                source_name=media_source.name, source_type=media_source.type, url=media_source.domain,
-                articles_found=[], crawl_status="failed", error_message=str(e), crawl_duration=duration
+                source_name=media_source.name,
+                source_type=media_source.type,
+                url=media_source.domain,
+                articles_found=[],
+                crawl_status="failed",
+                error_message=str(e),
+                crawl_duration=duration,
             )
 
+
 class ProcessorAgent:
-    """Agent chuyên xử lý và phân tích nội dung, sử dụng prompt tiếng Việt."""
+    """Agent chuyên xử lý và phân tích nội dung, sử dụng prompt tiếng Việt chi tiết."""
+
     def __init__(self, model: Any):
         self.agent = Agent(
             name="ContentProcessor",
@@ -116,42 +148,117 @@ class ProcessorAgent:
             instructions=[
                 "Bạn là chuyên gia phân tích nội dung truyền thông cho ngành FMCG tại Việt Nam.",
                 "Nhiệm vụ của bạn: Phân tích và phân loại các bài báo theo ngành hàng và nhãn hiệu.",
-                "Xác định chính xác: Ngành hàng, Nhãn hàng, và Cụm nội dung chính.",
-                # YÊU CẦU QUAN TRỌNG: Bắt buộc output là JSON để đảm bảo sự ổn định.
-                "Bạn BẮT BUỘC phải trả về kết quả dưới dạng một danh sách JSON (JSON list) hợp lệ của các đối tượng Article đã được xử lý đầy đủ."
+                "Bạn BẮT BUỘC phải trả về kết quả dưới dạng một danh sách JSON (JSON list) hợp lệ của các đối tượng Article đã được xử lý đầy đủ.",
             ],
             markdown=True,
         )
 
-    async def process_articles(self, raw_articles: List[Article], keywords_config: Dict[str, List[str]]) -> List[Article]:
+    async def process_articles(
+        self, raw_articles: List[Article], keywords_config: Dict[str, List[str]]
+    ) -> List[Article]:
         if not raw_articles:
             return []
         try:
+            brand_list = list(
+                set(
+                    kw
+                    for kws in keywords_config.values()
+                    for kw in kws
+                    if kw[0].isupper()
+                )
+            )
+
+            industry_keywords = {
+                industry: kws for industry, kws in keywords_config.items()
+            }
+            # Định nghĩa cụm nội dung từ ContentCluster
+            content_clusters = {
+                ContentCluster.HOAT_DONG_DOANH_NGHIEP: [
+                    "sản xuất",
+                    "nhà máy",
+                    "tuyển dụng",
+                    "doanh nghiệp",
+                    "hoạt động",
+                    "đầu tư",
+                ],
+                ContentCluster.CHUONG_TRINH_CSR: [
+                    "tài trợ",
+                    "môi trường",
+                    "cộng đồng",
+                    "CSR",
+                    "từ thiện",
+                ],
+                ContentCluster.MARKETING_CAMPAIGN: [
+                    "truyền thông",
+                    "KOL",
+                    "khuyến mãi",
+                    "quảng cáo",
+                    "chiến dịch",
+                ],
+                ContentCluster.PRODUCT_LAUNCH: [
+                    "sản phẩm mới",
+                    "bao bì",
+                    "công thức",
+                    "ra mắt",
+                    "phát hành",
+                ],
+                ContentCluster.PARTNERSHIP: [
+                    "MOU",
+                    "liên doanh",
+                    "ký kết",
+                    "hợp tác",
+                    "đối tác",
+                ],
+                ContentCluster.FINANCIAL_REPORT: [
+                    "lợi nhuận",
+                    "doanh thu",
+                    "tăng trưởng",
+                    "báo cáo tài chính",
+                    "kết quả kinh doanh",
+                ],
+                ContentCluster.OTHER: [],
+            }
+
+            # KHÔI PHỤC PROMPT GỐC: Đưa lại toàn bộ logic phân loại chi tiết của bạn
             analysis_prompt = f"""
-            Phân tích và phân loại {len(raw_articles)} bài báo dưới đây dựa trên danh sách từ khóa và hướng dẫn phân loại.
+            Phân tích và phân loại {len(raw_articles)} bài báo sau đây.
+
+            Danh sách các nhãn hàng đối thủ cần xác định:
+            {json.dumps(brand_list, ensure_ascii=False, indent=2)}
             
-            **Hướng dẫn phân loại 'cum_noi_dung' (Cụm nội dung):**
-            - **"{ContentCluster.HOAT_DONG_DOANH_NGHIEP.value}"**: Các bài viết về hoạt động sản xuất, vận hành, mở rộng nhà máy, tuyển dụng, tổ chức nội bộ.
-            - **"{ContentCluster.CHUONG_TRINH_CSR.value}"**: Các bài viết về hoạt động vì cộng đồng, tài trợ học bổng, từ thiện, bảo vệ môi trường.
-            - **"{ContentCluster.MARKETING_CAMPAIGN.value}"**: Các bài viết về chiến dịch quảng bá, truyền thông, KOLs, sự kiện, khuyến mãi.
-            - **"{ContentCluster.PRODUCT_LAUNCH.value}"**: Các bài viết giới thiệu sản phẩm mới, cải tiến sản phẩm, bao bì mới.
-            - **"{ContentCluster.PARTNERSHIP.value}"**: Các bài viết về hợp đồng hợp tác, ký kết MOU, liên doanh.
-            - **"{ContentCluster.FINANCIAL_REPORT.value}"**: Các bài viết về kết quả kinh doanh, lợi nhuận, chi phí, tăng trưởng.
-            - **"{ContentCluster.OTHER.value}"**: CHỈ sử dụng mục này khi bài viết thực sự không thuộc bất kỳ loại nào ở trên.
+            Keywords config:
+            {json.dumps(keywords_config, ensure_ascii=False, indent=2)}
+            
+            Raw articles:
+            {json.dumps([a.model_dump(mode='json') for a in raw_articles], ensure_ascii=False, indent=2)}
+            
+            Yêu cầu:
+            1. Phân loại chính xác ngành hàng cho từng bài (dựa theo bối cảnh bài và danh sách nhãn hàng ngành hàng tương ứng).
+            2. Với mỗi bài viết, xác định các nhãn hàng competitors nào được đề cập trong nội dung từ danh sách các nhãn hàng.
+            3. Phân loại cụm nội dung (`cum_noi_dung`)**: Dựa trên nội dung bài viết và từ khóa tương ứng:
+               {json.dumps({k.value: v for k, v in content_clusters.items()}, ensure_ascii=False, indent=2)}
+               - Nếu không khớp với cụm nào, chọn '{ContentCluster.OTHER}'.
+            4. Trích xuất keywords tìm thấy trong bài.
+            5. Tóm tắt nội dung (`tom_tat_noi_dung`): Tạo tóm tắt ngắn gọn (dưới 100 từ), rõ ràng, tập trung vào nội dung FMCG.
+            6. Chỉ giữ bài viết liên quan đến ngành FMCG (Dầu ăn, Gia vị, Sữa, v.v.) dựa trên từ khóa trong `keywords_config`. Loại bỏ bài không liên quan (e.g., chính trị, sức khỏe không liên quan).
+            7. Ngày đăng (`ngay_phat_hanh`): Đảm bảo định dạng DD-MM-YYYY. Nếu không có, để trống.
 
-            **Yêu cầu nhiệm vụ:**
-            1. Với mỗi bài báo, xác định chính xác 'nganh_hang' (ngành hàng) dựa trên ngữ cảnh và từ khóa.
-            2. Xác định tất cả các nhãn hàng đối thủ được đề cập từ danh sách từ khóa.
-            3. Phân loại mỗi bài báo vào một trong các cụm nội dung đã được hướng dẫn ở trên.
-            4. Tinh chỉnh lại 'tom_tat_noi_dung' (tóm tắt) để trở nên súc tích và đầy đủ thông tin.
-            5. Loại bỏ bất kỳ bài báo nào không liên quan đến các ngành hàng đã chỉ định, ngay cả khi tên thương hiệu được đề cập ngoài ngữ cảnh.
-
-            **Dữ liệu đầu vào:**
-            - Cấu hình từ khóa: {json.dumps(keywords_config, ensure_ascii=False, indent=2)}
-            - Danh sách bài báo thô: {json.dumps([a.model_dump(mode='json') for a in raw_articles], ensure_ascii=False, indent=2)}
-
-            **Định dạng đầu ra:**
-            Trả về một danh sách JSON hợp lệ chứa các đối tượng Article đã được xử lý. Cấu trúc JSON của mỗi đối tượng phải khớp với Pydantic model.
+            Định dạng đầu ra:
+            Trả về một danh sách JSON hợp lệ chứa các đối tượng Article đã được xử lý. Cấu trúc JSON của mỗi đối tượng phải khớp với Pydantic model:
+            Cấu trúc JSON nên khớp với schema sau:
+            [
+            {
+                "stt": 1,
+                "ngay_phat_hanh": "2025-07-01",
+                "dau_bao": "VNEXPRESS",
+                "cum_noi_dung": "Chiến dịch Marketing",
+                "tom_tat_noi_dung": "Vinamilk tung chiến dịch Tết 2025...",
+                "link_bai_bao": "https://vnexpress.net/...",
+                "nganh_hang": "Sữa",
+                "nhan_hang": ["Vinamilk"],
+                "keywords_found": ["Tết", "TV quảng cáo", "Vinamilk"]
+            }
+            ]
             """
             response = await self.agent.arun(analysis_prompt)
             if response and response.content:
@@ -159,7 +266,9 @@ class ProcessorAgent:
                     processed_data = json.loads(response.content)
                     return [Article(**item) for item in processed_data]
                 except (json.JSONDecodeError, TypeError) as e:
-                    logger.error(f"Không thể phân tích phản hồi từ Processor dưới dạng JSON: {e}")
+                    logger.error(
+                        f"Không thể phân tích phản hồi từ Processor dưới dạng JSON: {e}"
+                    )
                     return raw_articles
             return raw_articles
         except Exception as e:
@@ -169,6 +278,7 @@ class ProcessorAgent:
 
 class ReportAgent:
     """Agent chuyên tạo báo cáo, sử dụng prompt tiếng Việt."""
+
     def __init__(self, model: Any):
         self.agent = Agent(
             name="ReportGenerator",
@@ -177,42 +287,52 @@ class ReportAgent:
             instructions=[
                 "Bạn là chuyên gia tạo báo cáo phân tích truyền thông cho ngành FMCG.",
                 "Nhiệm vụ: Tạo một báo cáo phân tích đối thủ cạnh tranh từ dữ liệu các bài báo đã được cung cấp.",
-                # YÊU CẦU QUAN TRỌNG: Bắt buộc output là JSON để đảm bảo sự ổn định.
-                "Bạn BẮT BUỘC phải trả về kết quả dưới dạng một đối tượng JSON (JSON object) duy nhất, hợp lệ và tuân thủ nghiêm ngặt theo cấu trúc của Pydantic model 'CompetitorReport'."
+                "Bạn BẮT BUỘC phải trả về kết quả dưới dạng một đối tượng JSON (JSON object) duy nhất, hợp lệ và tuân thủ nghiêm ngặt theo cấu trúc của Pydantic model 'CompetitorReport'.",
             ],
             markdown=True,
         )
 
-    async def generate_report(self, articles: List[Article], date_range: str) -> CompetitorReport:
+    async def generate_report(
+        self, articles: List[Article], date_range: str
+    ) -> CompetitorReport:
         try:
             report_prompt = f"""
             Tạo một báo cáo phân tích đối thủ cạnh tranh từ {len(articles)} bài báo sau đây cho khoảng thời gian: {date_range}.
             
-            **Dữ liệu đầu vào:**
+            Dữ liệu đầu vào:
             - Danh sách bài báo: {json.dumps([a.model_dump(mode='json') for a in articles], ensure_ascii=False, indent=2)}
 
-            **Yêu cầu nhiệm vụ:**
+            Yêu cầu nhiệm vụ:
             1. Tạo một 'overall_summary' (tóm tắt tổng quan) với các thống kê chung.
             2. Tạo một danh sách 'industry_summaries' (tóm tắt theo ngành), mỗi ngành một mục.
             3. Bao gồm các phân tích về đối thủ cạnh tranh hàng đầu, các nhận định về thị trường và xu hướng.
             
-            **Định dạng đầu ra:**
-            Trả về một đối tượng JSON duy nhất, hợp lệ và tuân thủ nghiêm ngặt cấu trúc của model CompetitorReport.
+            Định dạng đầu ra:
+            Trả về một đối tượng JSON duy nhất, hợp lệ và tuân thủ nghiêm ngặt cấu trúc của model 
+            CompetitorReport(
+            overall_summary=overall_summary,
+            industry_summaries=industry_summaries,
+            articles=articles,
+            total_articles=len(articles),
+            date_range=date_range,).
             """
             response = await self.agent.arun(report_prompt)
             if response and response.content:
                 try:
                     return CompetitorReport(**json.loads(response.content))
                 except (json.JSONDecodeError, TypeError) as e:
-                    logger.error(f"Không thể phân tích phản hồi từ ReportAgent dưới dạng JSON: {e}. Đang tạo báo cáo cơ bản.")
+                    logger.error(
+                        f"Không thể phân tích phản hồi từ ReportAgent dưới dạng JSON: {e}. Đang tạo báo cáo cơ bản."
+                    )
                     return self._create_basic_report(articles, date_range)
             return self._create_basic_report(articles, date_range)
         except Exception as e:
             logger.error(f"Tạo báo cáo thất bại: {e}", exc_info=True)
             return self._create_basic_report(articles, date_range)
 
-    def _create_basic_report(self, articles: List[Article], date_range: str) -> CompetitorReport:
-        # Phương thức dự phòng khi LLM thất bại
+    def _create_basic_report(
+        self, articles: List[Article], date_range: str
+    ) -> CompetitorReport:
         industry_groups = {}
         for article in articles:
             industry = article.nganh_hang
@@ -223,8 +343,16 @@ class ReportAgent:
         industry_summaries = [
             IndustrySummary(
                 nganh_hang=industry,
-                nhan_hang=list(set(brand for article in industry_articles for brand in article.nhan_hang)),
-                cum_noi_dung=list(set(article.cum_noi_dung for article in industry_articles)),
+                nhan_hang=list(
+                    set(
+                        brand
+                        for article in industry_articles
+                        for brand in article.nhan_hang
+                    )
+                ),
+                cum_noi_dung=list(
+                    set(article.cum_noi_dung for article in industry_articles)
+                ),
                 so_luong_bai=len(industry_articles),
                 cac_dau_bao=list(set(article.dau_bao for article in industry_articles)),
             )
@@ -244,14 +372,17 @@ class ReportAgent:
             date_range=date_range,
         )
 
+
 class MediaTrackerTeam:
     """Đội điều phối chính cho toàn bộ quy trình."""
 
-    def __init__(self, config: CrawlConfig, stop_event: Optional[threading.Event] = None):
+    def __init__(
+        self, config: CrawlConfig, stop_event: Optional[threading.Event] = None
+    ):
         self.config = config
         self.stop_event = stop_event or threading.Event()
         self.status = BotStatus()
-        
+
         parser = ArticleParser()
         self.crawler = CrawlerAgent(get_llm_model("openai", "gpt-4o-mini"), parser)
         self.processor = ProcessorAgent(get_llm_model("openai", "gpt-4o"))
@@ -264,62 +395,77 @@ class MediaTrackerTeam:
         all_articles = []
 
         try:
-            # Giai đoạn 1: Thu thập dữ liệu (Crawling)
             self.status.current_task = "Đang thu thập dữ liệu từ các nguồn"
             logger.info(f"Bắt đầu crawl {self.status.total_sources} nguồn.")
-            
+
             tasks = []
-            all_keywords = list(set(kw for kws in self.config.keywords.values() for kw in kws))
+            all_keywords = list(
+                set(kw for kws in self.config.keywords.values() for kw in kws)
+            )
             for media_source in self.config.media_sources:
                 if self.stop_event.is_set():
-                    raise InterruptedError("Quy trình bị dừng bởi người dùng trong lúc thiết lập.")
-                
+                    raise InterruptedError(
+                        "Quy trình bị dừng bởi người dùng trong lúc thiết lập."
+                    )
+
                 task = self.crawler.crawl_media_source(
                     media_source=media_source,
                     keywords=all_keywords,
-                    date_range_days=self.config.date_range_days
+                    date_range_days=self.config.date_range_days,
                 )
                 tasks.append(task)
-            
+
             for f in asyncio.as_completed(tasks):
                 if self.stop_event.is_set():
                     for t in tasks:
                         if not t.done():
                             t.cancel()
-                    raise InterruptedError("Quy trình bị dừng bởi người dùng trong lúc crawl.")
-                
+                    raise InterruptedError(
+                        "Quy trình bị dừng bởi người dùng trong lúc crawl."
+                    )
+
                 result = await f
                 self.status.completed_sources += 1
-                self.status.progress = self.status.completed_sources / self.status.total_sources * 50
+                self.status.progress = (
+                    self.status.completed_sources / self.status.total_sources * 50
+                )
 
                 if result.crawl_status == "success":
                     all_articles.extend(result.articles_found)
                 else:
                     self.status.failed_sources += 1
-                    logger.warning(f"Crawl thất bại {result.source_name}: {result.error_message}")
+                    logger.warning(
+                        f"Crawl thất bại {result.source_name}: {result.error_message}"
+                    )
 
             logger.info(f"Thu thập hoàn tất. Tìm thấy {len(all_articles)} bài báo thô.")
 
             if self.stop_event.is_set():
-                raise InterruptedError("Quy trình bị dừng bởi người dùng sau khi crawl.")
+                raise InterruptedError(
+                    "Quy trình bị dừng bởi người dùng sau khi crawl."
+                )
 
-            # Giai đoạn 2: Xử lý và phân tích
             self.status.current_task = "Đang xử lý và phân tích bài báo"
             self.status.progress = 60
-            processed_articles = await self.processor.process_articles(all_articles, self.config.keywords)
+            processed_articles = await self.processor.process_articles(
+                all_articles, self.config.keywords
+            )
             logger.info(f"Xử lý hoàn tất. Còn lại {len(processed_articles)} bài báo.")
             self.status.progress = 80
 
             if self.stop_event.is_set():
-                raise InterruptedError("Quy trình bị dừng bởi người dùng sau khi xử lý.")
+                raise InterruptedError(
+                    "Quy trình bị dừng bởi người dùng sau khi xử lý."
+                )
 
-            # Giai đoạn 3: Tạo báo cáo
             self.status.current_task = "Đang tạo báo cáo tổng hợp"
             end_date = datetime.now()
             start_date = end_date - timedelta(days=self.config.date_range_days)
             date_range_str = f"Từ ngày {start_date.strftime('%d/%m/%Y')} đến ngày {end_date.strftime('%d/%m/%Y')}"
-            
-            report = await self.reporter.generate_report(processed_articles, date_range_str)
+
+            report = await self.reporter.generate_report(
+                processed_articles, date_range_str
+            )
             self.status.progress = 100
             self.status.current_task = "Hoàn thành"
             logger.info("Quy trình đã hoàn tất thành công.")

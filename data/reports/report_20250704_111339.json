@@ -1,0 +1,157 @@
+{
+  "title": "CALOFIC COMPETITOR REPORT",
+  "subtitle": "PR & SOCIAL MONTHLY REPORT",
+  "overall_summary": {
+    "thoi_gian_trich_xuat": "Từ ngày 05/04/2025 đến ngày 04/07/2025",
+    "industries": [
+      {
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "cum_noi_dung": [
+          "Khác"
+        ],
+        "so_luong_bai": 9,
+        "cac_dau_bao": [
+          "24H",
+          "TRETHO",
+          "SOHA",
+          "EVA",
+          "TUOITREONLINE",
+          "CAFEBIZ"
+        ]
+      }
+    ],
+    "tong_so_bai": 9
+  },
+  "industry_summaries": [
+    {
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "cum_noi_dung": [
+        "Khác"
+      ],
+      "so_luong_bai": 9,
+      "cac_dau_bao": [
+        "24H",
+        "TRETHO",
+        "SOHA",
+        "EVA",
+        "TUOITREONLINE",
+        "CAFEBIZ"
+      ]
+    }
+  ],
+  "articles": [
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-04",
+      "dau_bao": "SOHA",
+      "cum_noi_dung": "Khác",
+      "tom_tat_noi_dung": "[Tóm tắt ngắn gọn nội dung bài viết]",
+      "link_bai_bao": "https://[Link gốc bài viết]",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-04T11:07:50.440140"
+    },
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-04",
+      "dau_bao": "24H",
+      "cum_noi_dung": "Khác",
+      "tom_tat_noi_dung": "[Tóm tắt nội dung]",
+      "link_bai_bao": "https://[Link đến bài viết]",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-04T11:07:51.013911"
+    },
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-04",
+      "dau_bao": "EVA",
+      "cum_noi_dung": "Khác",
+      "tom_tat_noi_dung": "** N/A",
+      "link_bai_bao": "https://** [Xem chi tiết](https://eva.vn/ba-bau/khong-ai-nhin-thay-mien-dich-cua-mot-dua-tre-nhung-ai-cung-nhin-thay-su-an-tam-cua-mot-nguoi-me-c85a639478.html)",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-04T11:10:26.923339"
+    },
+    {
+      "stt": 2,
+      "ngay_phat_hanh": "2025-07-04",
+      "dau_bao": "EVA",
+      "cum_noi_dung": "Khác",
+      "tom_tat_noi_dung": "** N/A",
+      "link_bai_bao": "https://** [Xem chi tiết](https://eva.vn/tin-tuc/vi-sao-tien-dien-thang-6-tang-dot-bien-c73a639505.html)",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-04T11:10:26.924333"
+    },
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-04",
+      "dau_bao": "CAFEBIZ",
+      "cum_noi_dung": "Khác",
+      "tom_tat_noi_dung": "** Bài viết đề cập đến sự hiện diện của dầu Ofood trong bữa ăn hàng ngày do việc sử dụng thức ăn chăn nuôi.",
+      "link_bai_bao": "https://** [Người phát ngôn Bộ Công an: Dầu Ofood từ thức ăn chăn nuôi đã đi vào các bữa ăn hằng ngày](https://cafebiz.vn/nguoi-phat-ngon-bo-cong-an-dau-ofood-tu-thuc-an-chan-nuoi-da-di-vao-cac-bua-an-hang-ngay-176250704110147153.chn)",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-04T11:11:37.158718"
+    },
+    {
+      "stt": 2,
+      "ngay_phat_hanh": "2025-07-04",
+      "dau_bao": "CAFEBIZ",
+      "cum_noi_dung": "Khác",
+      "tom_tat_noi_dung": "** Bài viết nói về nghịch lý tại những quốc gia xuất khẩu dầu khi giá xăng thấp nhưng vẫn muốn phát triển ô tô điện.",
+      "link_bai_bao": "https://** [Bán xe điện ở nước xuất khẩu dầu, giá xăng chỉ 0,6 USD/lít: Nghịch lý tại quốc gia có 60% nguồn thu từ dầu khí nhưng lại muốn phát triển ô tô năng lượng sạch](https://cafebiz.vn/ban-xe-dien-o-nuoc-xuat-khau-dau-gia-xang-chi-06-usd-lit-nghich-ly-tai-quoc-gia-co-60-nguon-thu-tu-dau-khi-nhung-lai-muon-phat-trien-o-to-nang-luong-sach-176250704095632887.chn)",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-04T11:11:37.158718"
+    },
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-04",
+      "dau_bao": "TRETHO",
+      "cum_noi_dung": "Khác",
+      "tom_tat_noi_dung": "** Bài viết giới thiệu về các hoạt chất tự nhiên có lợi cho việc chăm sóc tóc, không đề cập trực tiếp đến dầu hướng dương hay các sản phẩm cụ thể.",
+      "link_bai_bao": "https://** [Xem bài viết](https://www.webtretho.com/f/trang-diem/8-hoat-chat-vang-giup-cham-soc-toc-hieu-qua-an-toan)",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-04T11:12:49.611753"
+    },
+    {
+      "stt": 2,
+      "ngay_phat_hanh": "2025-07-04",
+      "dau_bao": "TRETHO",
+      "cum_noi_dung": "Khác",
+      "tom_tat_noi_dung": "** Một bài viết tâm sự về quan điểm về người đàn ông trong xã hội hiện đại. Không có nội dung liên quan đến các từ khóa dầu ăn.",
+      "link_bai_bao": "https://** [Xem bài viết](https://www.webtretho.com/f/tam-su-chuyen-doi/dan-ong-ma-khong-kiem-ra-tien-thi-nguoi-ta-goi-la-cai-loai-vut-di)",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-04T11:12:49.612716"
+    },
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-04",
+      "dau_bao": "TUOITREONLINE",
+      "cum_noi_dung": "Khác",
+      "tom_tat_noi_dung": "** N/A",
+      "link_bai_bao": "https://** N/A",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-04T11:13:17.929502"
+    }
+  ],
+  "generated_at": "2025-07-04T11:13:39.423217",
+  "total_articles": 9,
+  "date_range": "Từ ngày 05/04/2025 đến ngày 04/07/2025"
+}

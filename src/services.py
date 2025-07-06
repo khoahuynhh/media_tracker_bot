@@ -6,22 +6,25 @@ It decouples the API (main.py) from the agents.
 """
 
 import asyncio
+import shutil
 import logging
 from datetime import datetime
 from typing import Dict, List, Optional
 import threading
 
 # SỬA LỖI: Sử dụng import tương đối
-from .models import CompetitorReport, CrawlConfig, BotStatus
+from .models import CompetitorReport, CrawlConfig, BotStatus, MediaType
 from .agents import MediaTrackerTeam
 from .configs import AppSettings, settings
 
 logger = logging.getLogger(__name__)
 
+
 class PipelineService:
     """
     Manages the execution and state of the media tracking pipeline.
     """
+
     def __init__(self, app_settings: AppSettings):
         self.settings = app_settings
         self.team: Optional[MediaTrackerTeam] = None
@@ -40,7 +43,9 @@ class PipelineService:
         Runs the full tracking pipeline for a given session.
         """
         if self.is_running:
-            logger.warning(f"Attempted to run pipeline for session {session_id}, but a pipeline is already running for session {self.current_session_id}.")
+            logger.warning(
+                f"Attempted to run pipeline for session {session_id}, but a pipeline is already running for session {self.current_session_id}."
+            )
             return None
 
         self.is_running = True
@@ -51,7 +56,13 @@ class PipelineService:
             logger.info(f"[{session_id}] Starting media tracking pipeline...")
 
             session_config = self.settings.crawl_config.model_copy(deep=True)
-            
+            website_sources = [
+                source
+                for source in session_config.media_sources
+                if source.type == MediaType.WEBSITE
+            ]
+            session_config.media_sources = website_sources
+
             if custom_keywords:
                 session_config.keywords = custom_keywords
             if start_date and end_date:
@@ -60,22 +71,31 @@ class PipelineService:
                     end_dt = datetime.strptime(end_date, "%Y-%m-%d")
                     session_config.date_range_days = (end_dt - start_dt).days
                 except ValueError:
-                    logger.error(f"[{session_id}] Invalid date format. Using default date range.")
+                    logger.error(
+                        f"[{session_id}] Invalid date format. Using default date range."
+                    )
 
-            self.team = MediaTrackerTeam(config=session_config, stop_event=self.stop_event)
-            
+            self.team = MediaTrackerTeam(
+                config=session_config, stop_event=self.stop_event
+            )
+
             report = await self.team.run_full_pipeline()
 
             if report:
                 await self._save_report(report)
                 logger.info(f"[{session_id}] Pipeline completed successfully.")
             else:
-                logger.warning(f"[{session_id}] Pipeline finished without generating a report.")
-            
+                logger.warning(
+                    f"[{session_id}] Pipeline finished without generating a report."
+                )
+
             return report
 
         except Exception as e:
-            logger.error(f"[{session_id}] Pipeline failed with an unhandled exception: {e}", exc_info=True)
+            logger.error(
+                f"[{session_id}] Pipeline failed with an unhandled exception: {e}",
+                exc_info=True,
+            )
             if self.team:
                 self.team.status.current_task = f"Failed: {e}"
             return None
@@ -88,10 +108,14 @@ class PipelineService:
     def stop_pipeline(self, session_id: str) -> bool:
         """Requests a graceful stop of the running pipeline."""
         if not self.is_running or self.current_session_id != session_id:
-            logger.warning(f"Stop request for session {session_id} ignored. Running session is {self.current_session_id}.")
+            logger.warning(
+                f"Stop request for session {session_id} ignored. Running session is {self.current_session_id}."
+            )
             return False
-        
-        logger.info(f"Requesting pipeline stop for session {self.current_session_id}...")
+
+        logger.info(
+            f"Requesting pipeline stop for session {self.current_session_id}..."
+        )
         self.stop_event.set()
         if self.team:
             self.team.status.current_task = "Stopping..."
@@ -105,25 +129,25 @@ class PipelineService:
         else:
             # Nếu không chạy, tạo một đối tượng BotStatus mặc định
             team_status = BotStatus(is_running=False, current_task="Idle")
-        
+
         status_data = {
             "is_running": self.is_running,
-            "session_id": self.current_session_id, # Đổi tên từ current_session_id
+            "session_id": self.current_session_id,  # Đổi tên từ current_session_id
             "team_status": team_status.model_dump(),
             "api_keys": self.settings.get_api_key_status(),
-            "total_media_sources": len(self.settings.crawl_config.media_sources)
+            "total_media_sources": len(self.settings.crawl_config.media_sources),
         }
-        
+
         return status_data
 
     async def _save_report(self, report: CompetitorReport):
         """Saves the report to JSON and Excel files."""
         import pandas as pd
         from pathlib import Path
-        
+
         reports_dir = self.settings.reports_dir
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        
+
         try:
             json_file = reports_dir / f"report_{timestamp}.json"
             with open(json_file, "w", encoding="utf-8") as f:
@@ -131,8 +155,10 @@ class PipelineService:
 
             excel_file = reports_dir / f"report_{timestamp}.xlsx"
             articles_df = pd.DataFrame([a.model_dump() for a in report.articles])
-            summary_df = pd.DataFrame([s.model_dump() for s in report.industry_summaries])
-            
+            summary_df = pd.DataFrame(
+                [s.model_dump() for s in report.industry_summaries]
+            )
+
             with pd.ExcelWriter(excel_file, engine="openpyxl") as writer:
                 summary_df.to_excel(writer, sheet_name="Summary", index=False)
                 articles_df.to_excel(writer, sheet_name="Articles", index=False)
@@ -142,7 +168,7 @@ class PipelineService:
                 target_file = reports_dir / f"report_{timestamp}.{ext}"
                 if latest_path.exists() or latest_path.is_symlink():
                     latest_path.unlink()
-                latest_path.symlink_to(target_file.name)
+                shutil.copy(target_file, latest_path)
 
             logger.info(f"Report saved to {json_file} and {excel_file}")
         except Exception as e:

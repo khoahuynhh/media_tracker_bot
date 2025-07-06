@@ -4,7 +4,7 @@ Structured data models phù hợp với template report hiện tại
 """
 
 from typing import List, Optional, Dict, Any
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from enum import Enum
 from pydantic import BaseModel, Field, model_validator, field_validator, ConfigDict
 
@@ -43,9 +43,10 @@ class ContentCluster(str, Enum):
 
 class MediaSource(BaseModel):
     """Model cho nguồn media từ danh sách gốc"""
+
     # Sử dụng ConfigDict thay cho class Config
     model_config = ConfigDict(use_enum_values=True)
-    
+
     stt: int = Field(..., description="Số thứ tự")
     name: str = Field(..., description="Tên media source")
     type: MediaType = Field(..., description="Loại media")
@@ -53,10 +54,9 @@ class MediaSource(BaseModel):
     reference_name: Optional[str] = Field(None, description="Tên tham chiếu cho TV")
 
 
-
-
 class Article(BaseModel):
     """Model cho bài báo được crawl"""
+
     # Sử dụng ConfigDict thay cho class Config
     model_config = ConfigDict(use_enum_values=True)
 
@@ -73,7 +73,7 @@ class Article(BaseModel):
         default_factory=datetime.now, description="Thời gian crawl"
     )
 
-    @field_validator("link_bai_bao", mode='before')
+    @field_validator("link_bai_bao", mode="before")
     def validate_url(cls, v):
         if isinstance(v, str):
             # Basic URL validation
@@ -82,7 +82,7 @@ class Article(BaseModel):
             return v
         return str(v) if v else "https://example.com"
 
-    @field_validator("ngay_phat_hanh", mode='before')
+    @field_validator("ngay_phat_hanh", mode="before")
     def parse_date(cls, v):
         if isinstance(v, str):
             # Xử lý format DD/MM/YYYY từ template
@@ -105,6 +105,7 @@ class Article(BaseModel):
 
 class IndustrySummary(BaseModel):
     """Model cho tóm tắt theo ngành hàng"""
+
     # Sử dụng ConfigDict thay cho class Config
     model_config = ConfigDict(use_enum_values=True)
 
@@ -126,7 +127,7 @@ class OverallSummary(BaseModel):
     )
     tong_so_bai: int = Field(..., description="Tổng số bài báo toàn bộ")
 
-    @field_validator("thoi_gian_trich_xuat", mode='before')
+    @field_validator("thoi_gian_trich_xuat", mode="before")
     def format_time_range(cls, v):
         if not v:
             end_date = datetime.now()
@@ -161,17 +162,19 @@ class CompetitorReport(BaseModel):
     total_articles: int = Field(..., description="Tổng số bài báo")
     date_range: str = Field(..., description="Khoảng thời gian crawl")
 
-    @model_validator(mode='before')
-    def calculate_total_articles(cls, v, values):
-        if "articles" in values:
-            return len(values["articles"])
-        return v or 0
+    @model_validator(mode="before")
+    def calculate_total_articles(cls, v):
+        if isinstance(v, dict):
+            articles = v.get("articles", [])
+            v["total_articles"] = len(articles)
+        return v
 
 
 class CrawlConfig(BaseModel):
     """Model cho cấu hình crawling - ENHANCED"""
+
     model_config = ConfigDict(
-        json_schema_extra = {
+        json_schema_extra={
             "example": {
                 "keywords": {
                     "Dầu ăn": ["Tường An", "Coba", "Nortalic", "dầu ăn", "cooking oil"],
@@ -182,7 +185,7 @@ class CrawlConfig(BaseModel):
                         "stt": 1,
                         "name": "VietnamBiz",
                         "type": "Website",
-                        "domain": "vietnambiz.vn"
+                        "domain": "vietnambiz.vn",
                     }
                 ],
                 "date_range_days": 30,
@@ -220,6 +223,7 @@ class CrawlConfig(BaseModel):
 
 class CrawlResult(BaseModel):
     """Model cho kết quả crawling từ một source"""
+
     model_config = ConfigDict(use_enum_values=True)
 
     source_name: str = Field(..., description="Tên media source")
@@ -407,7 +411,7 @@ def create_sample_report() -> CompetitorReport:
                 ContentCluster.CHUONG_TRINH_CSR,
                 ContentCluster.PARTNERSHIP,
             ][i % 4],
-            tom_tat_noi_dung=f"Tin tức số {i} về ngành FMCG và các hoạt động marketing",
+            tom_tat_noi_dung=f"Tóm tắt bài báo số {i} về ngành FMCG và các hoạt động marketing",
             link_bai_bao=f"https://example.com/article-{i}",
             nganh_hang=[IndustryType.DAU_AN, IndustryType.GIA_VI, IndustryType.SUA_UHT][
                 i % 3

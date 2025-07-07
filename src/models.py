@@ -213,7 +213,7 @@ class CrawlConfig(BaseModel):
         default=True, description="Enable parallel crawling"
     )
     max_concurrent_sources: int = Field(
-        default=5, description="Max concurrent sources to crawl"
+        default=2, description="Max concurrent sources to crawl"
     )
     retry_failed_sources: bool = Field(default=True, description="Retry failed sources")
     max_retries: int = Field(default=2, description="Max retries for failed sources")
@@ -573,7 +573,7 @@ def create_default_config() -> CrawlConfig:
         crawl_timeout=30,
         exclude_domains=["facebook.com", "twitter.com", "instagram.com"],
         enable_parallel_crawling=True,
-        max_concurrent_sources=5,
+        max_concurrent_sources=2,
         retry_failed_sources=True,
         max_retries=2,
         use_cache=True,

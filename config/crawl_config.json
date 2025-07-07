@@ -194,7 +194,7 @@
   "crawl_timeout": 30,
   "exclude_domains": [],
   "enable_parallel_crawling": true,
-  "max_concurrent_sources": 5,
+  "max_concurrent_sources": 2,
   "retry_failed_sources": true,
   "max_retries": 2,
   "use_cache": true,

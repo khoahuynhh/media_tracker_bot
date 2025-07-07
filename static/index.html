@@ -170,18 +170,32 @@
             }
         }
 
-        .progress-custom {
-            height: 10px;
-            border-radius: 10px;
+        .progress-container {
+            background-color: #e0e0e0;
+            border-radius: 8px;
+            width: 100%;
+            height: 24px;
+            margin-bottom: 10px;
             overflow: hidden;
-            background-color: var(--border-color);
         }
 
-        .progress-bar-custom {
-            background: var(--gradient-primary);
-            transition: width 0.6s ease;
+        .progress-bar {
             height: 100%;
-            border-radius: 10px;
+            background-color: #28a745;
+            color: white;
+            text-align: center;
+            line-height: 24px;
+            transition: width 0.3s ease;
+        }
+
+        .status-running {
+            color: orange;
+            font-weight: bold;
+        }
+
+        .status-done {
+            color: green;
+            font-weight: bold;
         }
 
         .btn-primary {
@@ -623,9 +637,10 @@
                                 <div class="d-flex align-items-center">
                                     <span class="me-3 label-fixed">Progress:</span>
                                     <div class="flex-grow-1">
-                                        <div class="progress-custom">
-                                            <div id="progressBar" class="progress-bar-custom" style="width: 0%"></div>
+                                        <div class="progress-container">
+                                            <div id="progress-bar" class="progress-bar" style="width: 0%">0%</div>
                                         </div>
+                                        <p id="pipeline-status" class="status-running">Đang khởi tạo...</p>
                                     </div>
                                     <span id="progressText" class="ms-2 fw-bold">0%</span>
                                 </div>
@@ -1270,7 +1285,7 @@
         function updateStatusDisplay(status) {
             const statusBadge = document.getElementById('statusBadge');
             const currentTask = document.getElementById('currentTask');
-            const progressBar = document.getElementById('progressBar');
+            const progressBar = document.getElementById('progress-bar');
             const progressText = document.getElementById('progressText');
 
             // Check API keys status first
@@ -2297,6 +2312,37 @@
 
         console.log('✅ Media Tracker Dashboard loaded successfully!');
     </script>
+
+    <script>
+        async function syncPipelineStatus() {
+            try {
+                const response = await fetch('/api/status');
+                if (!response.ok) throw new Error('Failed to fetch pipeline status');
+                const status = await response.json();
+
+                // Cập nhật thanh progress
+                const progressBar = document.getElementById('progress-bar');
+                if (progressBar) {
+                    progressBar.style.width = `${status.progress.toFixed(1)}%`;
+                    progressBar.innerText = `${status.progress.toFixed(1)}%`;
+                }
+
+                // Cập nhật trạng thái pipeline
+                const statusText = document.getElementById('pipeline-status');
+                if (statusText) {
+                    statusText.innerText = status.is_running ? 'Đang chạy...' : 'Đã hoàn tất';
+                    statusText.className = status.is_running ? 'status-running' : 'status-done';
+                }
+            } catch (error) {
+                console.error('Lỗi khi đồng bộ trạng thái pipeline:', error);
+            }
+        }
+
+        // Gọi lặp lại mỗi 5 giây
+        setInterval(syncPipelineStatus, 5000);
+        window.addEventListener("DOMContentLoaded", syncPipelineStatus);
+    </script>
+
 </body>
 
 </html>

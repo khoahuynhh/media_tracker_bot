@@ -31,6 +31,7 @@ class PipelineService:
         self.is_running = False
         self.current_session_id: Optional[str] = None
         self.stop_event = threading.Event()
+        self.status_by_source = {}
 
     async def run_pipeline(
         self,
@@ -154,9 +155,48 @@ class PipelineService:
                 f.write(report.model_dump_json(indent=2))
 
             excel_file = reports_dir / f"report_{timestamp}.xlsx"
-            articles_df = pd.DataFrame([a.model_dump() for a in report.articles])
+            # articles_df = pd.DataFrame([a.model_dump() for a in report.articles])
+            # summary_df = pd.DataFrame(
+            #     [s.model_dump() for s in report.industry_summaries]
+            # )
+
+            # Format Articles
+            articles_df = pd.DataFrame(
+                [
+                    {
+                        "STT": a.stt,
+                        "Ngày phát hành": (
+                            a.ngay_phat_hanh.strftime("%d/%m/%Y")
+                            if isinstance(a.ngay_phat_hanh, datetime)
+                            else str(a.ngay_phat_hanh)
+                        ),
+                        "Đầu báo": a.dau_bao,
+                        "Cụm nội dung": a.cum_noi_dung,
+                        "Tóm tắt": a.tom_tat_noi_dung,
+                        "Link": a.link_bai_bao,
+                        "Ngành hàng": a.nganh_hang,
+                        "Nhãn hàng": ", ".join(a.nhan_hang),
+                        "Keywords": ", ".join(a.keywords_found),
+                    }
+                    for a in report.articles
+                ]
+            )
+
+            # Sequence STT
+            articles_df.insert(0, "STT", range(1, len(articles_df) + 1))
+
+            # Format Summary
             summary_df = pd.DataFrame(
-                [s.model_dump() for s in report.industry_summaries]
+                [
+                    {
+                        "Ngành hàng": s.nganh_hang,
+                        "Số lượng bài": s.so_luong_bai,
+                        "Cụm nội dung": ", ".join([c for c in s.cum_noi_dung]),
+                        "Nhãn hàng": ", ".join(s.nhan_hang),
+                        "Các đầu báo": ", ".join(s.cac_dau_bao),
+                    }
+                    for s in report.industry_summaries
+                ]
             )
 
             with pd.ExcelWriter(excel_file, engine="openpyxl") as writer:

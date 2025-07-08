@@ -66,18 +66,17 @@ class CrawlerAgent:
         self.search_tools = [
             GoogleSearchTools(),
             DDGS(),
-            # ArxivTools(),
-            # BaiduSearchTools(),
-            # HackerNewsTools(),
-            # PubmedTools(),
-            SearxngTools(
-                host="http://localhost:8888",
-                engines=[],
-                fixed_max_results=5,
-                news=True,
-                science=True,
-            ),
-            # WikipediaTools(),
+            ArxivTools(),
+            BaiduSearchTools(),
+            HackerNewsTools(),
+            PubmedTools(),
+            # SearxngTools(
+            #     host="http://localhost:8888",
+            #     engines=["google", "bing"],
+            #     fixed_max_results=5,
+            #     news=True,
+            #     science=True),
+            WikipediaTools(),
         ]
         self.search_tool_index = 0  # Luân phiên
         self.model = model
@@ -181,7 +180,7 @@ class CrawlerAgent:
                                 )
                                 continue
 
-                            parsed_articles = await self.parser.parse(
+                            parsed_articles = self.parser.parse(
                                 response.content, media_source
                             )
                             if parsed_articles:
@@ -281,173 +280,182 @@ class ProcessorAgent:
             markdown=True,
         )
 
+    async def process_articles(
+        self, raw_articles: List[Article], keywords_config: Dict[str, List[str]]
+    ) -> List[Article]:
+        """
+        Processes a list of raw articles to classify industries, brands, content clusters,
+        and extract summaries and keywords. Optimizes memory usage by processing articles in batches.
 
-async def process_articles(
-    self, raw_articles: List[Article], keywords_config: Dict[str, List[str]]
-) -> List[Article]:
-    """
-    Processes a list of raw articles to classify industries, brands, content clusters,
-    and extract summaries and keywords. Optimizes memory usage by processing articles in batches.
+        Args:
+            raw_articles: List of raw Article objects to process.
+            keywords_config: Dictionary mapping industries to lists of keywords.
 
-    Args:
-        raw_articles: List of raw Article objects to process.
-        keywords_config: Dictionary mapping industries to lists of keywords.
+        Returns:
+            List of processed Article objects.
+        """
+        if not raw_articles:
+            logger.info("No articles to process.")
+            return []
 
-    Returns:
-        List of processed Article objects.
-    """
-    if not raw_articles:
-        logger.info("No articles to process.")
-        return []
+        processed_articles = []
+        batch_size = 20  # Process 20 articles per batch to reduce memory usage
 
-    processed_articles = []
-    batch_size = 20  # Process 20 articles per batch to reduce memory usage
-
-    try:
-        # Extract brand list (uppercase keywords) for competitor identification
-        brand_list = list(
-            set(kw for kws in keywords_config.values() for kw in kws if kw[0].isupper())
-        )
-
-        # Define content clusters with associated keywords
-        content_clusters = {
-            ContentCluster.HOAT_DONG_DOANH_NGHIEP: [
-                "sản xuất",
-                "nhà máy",
-                "tuyển dụng",
-                "doanh nghiệp",
-                "hoạt động",
-                "đầu tư",
-            ],
-            ContentCluster.CHUONG_TRINH_CSR: [
-                "tài trợ",
-                "môi trường",
-                "cộng đồng",
-                "CSR",
-                "từ thiện",
-            ],
-            ContentCluster.MARKETING_CAMPAIGN: [
-                "truyền thông",
-                "KOL",
-                "khuyến mãi",
-                "quảng cáo",
-                "chiến dịch",
-            ],
-            ContentCluster.PRODUCT_LAUNCH: [
-                "sản phẩm mới",
-                "bao bì",
-                "công thức",
-                "ra mắt",
-                "phát hành",
-            ],
-            ContentCluster.PARTNERSHIP: [
-                "MOU",
-                "liên doanh",
-                "ký kết",
-                "hợp tác",
-                "đối tác",
-            ],
-            ContentCluster.FINANCIAL_REPORT: [
-                "lợi nhuận",
-                "doanh thu",
-                "tăng trưởng",
-                "báo cáo tài chính",
-                "kết quả kinh doanh",
-            ],
-            ContentCluster.OTHER: [],
-        }
-
-        # Process articles in batches
-        for i in range(0, len(raw_articles), batch_size):
-            batch = raw_articles[i : i + batch_size]
-            logger.info(
-                f"Processing batch {i // batch_size + 1} with {len(batch)} articles"
+        try:
+            # Extract brand list (uppercase keywords) for competitor identification
+            brand_list = list(
+                set(
+                    kw
+                    for kws in keywords_config.values()
+                    for kw in kws
+                    if kw[0].isupper()
+                )
             )
 
-            # Create analysis prompt for the batch
-            analysis_prompt = f"""
-            Phân tích và phân loại {len(batch)} bài báo sau đây.
+            # Define content clusters with associated keywords
+            content_clusters = {
+                ContentCluster.HOAT_DONG_DOANH_NGHIEP: [
+                    "sản xuất",
+                    "nhà máy",
+                    "tuyển dụng",
+                    "doanh nghiệp",
+                    "hoạt động",
+                    "đầu tư",
+                ],
+                ContentCluster.CHUONG_TRINH_CSR: [
+                    "tài trợ",
+                    "môi trường",
+                    "cộng đồng",
+                    "CSR",
+                    "từ thiện",
+                ],
+                ContentCluster.MARKETING_CAMPAIGN: [
+                    "truyền thông",
+                    "KOL",
+                    "khuyến mãi",
+                    "quảng cáo",
+                    "chiến dịch",
+                ],
+                ContentCluster.PRODUCT_LAUNCH: [
+                    "sản phẩm mới",
+                    "bao bì",
+                    "công thức",
+                    "ra mắt",
+                    "phát hành",
+                ],
+                ContentCluster.PARTNERSHIP: [
+                    "MOU",
+                    "liên doanh",
+                    "ký kết",
+                    "hợp tác",
+                    "đối tác",
+                ],
+                ContentCluster.FINANCIAL_REPORT: [
+                    "lợi nhuận",
+                    "doanh thu",
+                    "tăng trưởng",
+                    "báo cáo tài chính",
+                    "kết quả kinh doanh",
+                ],
+                ContentCluster.OTHER: [],
+            }
 
-            Danh sách các nhãn hàng đối thủ cần xác định:
-            {json.dumps(brand_list, ensure_ascii=False, indent=2)}
-            
-            Keywords config:
-            {json.dumps(keywords_config, ensure_ascii=False, indent=2)}
-            
-            Raw articles:
-            {json.dumps([a.model_dump(mode='json') for a in batch], ensure_ascii=False, indent=2)}
-            
-            Yêu cầu:
-            1. Phân loại chính xác ngành hàng cho từng bài (dựa theo bối cảnh bài và danh sách nhãn hàng ngành hàng tương ứng).
-            2. Với mỗi bài viết, xác định các nhãn hàng competitors nào được đề cập trong nội dung từ danh sách các nhãn hàng.
-            3. Phân loại cụm nội dung (`cum_noi_dung`): Dựa trên nội dung bài viết và từ khóa tương ứng:
-               {json.dumps({k.value: v for k, v in content_clusters.items()}, ensure_ascii=False, indent=2)}
-               - Nếu không khớp với cụm nào, chọn '{ContentCluster.OTHER}'.
-            4. Trích xuất keywords tìm thấy trong bài.
-            5. Tóm tắt nội dung (`tom_tat_noi_dung`): Tạo tóm tắt ngắn gọn (dưới 100 từ), rõ ràng, tập trung vào nội dung FMCG.
-            6. Chỉ giữ bài viết liên quan đến ngành FMCG (Dầu ăn, Gia vị, Sữa, v.v.) dựa trên từ khóa trong `keywords_config`. Loại bỏ bài không liên quan (e.g., chính trị, sức khỏe không liên quan).
-            7. Ngày đăng (`ngay_phat_hanh`): Đảm bảo định dạng DD-MM-YYYY. Nếu không có, để trống.
+            # Process articles in batches
+            for i in range(0, len(raw_articles), batch_size):
+                batch = raw_articles[i : i + batch_size]
+                logger.info(
+                    f"Processing batch {i // batch_size + 1} with {len(batch)} articles"
+                )
 
-            Định dạng đầu ra:
-            Trả về một danh sách JSON hợp lệ chứa các đối tượng Article đã được xử lý. Cấu trúc JSON của mỗi đối tượng phải khớp với Pydantic model:
-            [
-                {{
-                    "stt": 1,
-                    "ngay_phat_hanh": "2025-07-01",
-                    "dau_bao": "VNEXPRESS",
-                    "cum_noi_dung": "Chiến dịch Marketing",
-                    "tom_tat_noi_dung": "Vinamilk tung chiến dịch Tết 2025...",
-                    "link_bai_bao": "https://vnexpress.net/...",
-                    "nganh_hang": "Sữa",
-                    "nhan_hang": ["Vinamilk"],
-                    "keywords_found": ["Tết", "TV quảng cáo", "Vinamilk"]
-                }}
-            ]
-            """
+                # Create analysis prompt for the batch
+                analysis_prompt = f"""
+                Phân tích và phân loại {len(batch)} bài báo sau đây.
 
-            try:
-                response = await self.agent.arun(analysis_prompt)
-                if response and response.content:
-                    try:
-                        processed_data = json.loads(response.content)
-                        processed_articles.extend(
-                            [Article(**item) for item in processed_data]
-                        )
-                        logger.info(
-                            f"Batch {i // batch_size + 1} processed: {len(processed_data)} articles"
-                        )
-                    except (json.JSONDecodeError, TypeError) as e:
-                        logger.error(
-                            f"Failed to parse JSON response for batch {i // batch_size + 1}: {e}"
+                Danh sách các nhãn hàng đối thủ cần xác định:
+                {json.dumps(brand_list, ensure_ascii=False, indent=2)}
+                
+                Keywords config:
+                {json.dumps(keywords_config, ensure_ascii=False, indent=2)}
+                
+                Raw articles:
+                {json.dumps([a.model_dump(mode='json') for a in batch], ensure_ascii=False, indent=2)}
+                
+                Yêu cầu:
+                1. Phân loại chính xác ngành hàng cho từng bài (dựa theo bối cảnh bài và danh sách nhãn hàng ngành hàng tương ứng).
+                2. Với mỗi bài viết, xác định các nhãn hàng competitors nào được đề cập trong nội dung từ danh sách các nhãn hàng.
+                3. Phân loại cụm nội dung (`cum_noi_dung`): Dựa trên nội dung bài viết và từ khóa tương ứng:
+                {json.dumps({k.value: v for k, v in content_clusters.items()}, ensure_ascii=False, indent=2)}
+                - Nếu không khớp với cụm nào, chọn '{ContentCluster.OTHER}'.
+                4. Trích xuất keywords tìm thấy trong bài.
+                5. Tóm tắt nội dung (`tom_tat_noi_dung`): Tạo tóm tắt ngắn gọn (dưới 100 từ), rõ ràng, tập trung vào nội dung FMCG.
+                6. Chỉ giữ bài viết liên quan đến ngành FMCG (Dầu ăn, Gia vị, Sữa, v.v.) dựa trên từ khóa trong `keywords_config`. Loại bỏ bài không liên quan (e.g., chính trị, sức khỏe không liên quan).
+                7. Ngày đăng (`ngay_phat_hanh`): Đảm bảo định dạng DD-MM-YYYY. Nếu không có, để trống.
+
+                Định dạng đầu ra:
+                Trả về một danh sách JSON hợp lệ chứa các đối tượng Article đã được xử lý. Cấu trúc JSON của mỗi đối tượng phải khớp với Pydantic model:
+                [
+                    {{
+                        "stt": 1,
+                        "ngay_phat_hanh": "2025-07-01",
+                        "dau_bao": "VNEXPRESS",
+                        "cum_noi_dung": "Chiến dịch Marketing",
+                        "tom_tat_noi_dung": "Vinamilk tung chiến dịch Tết 2025...",
+                        "link_bai_bao": "https://vnexpress.net/...",
+                        "nganh_hang": "Sữa",
+                        "nhan_hang": ["Vinamilk"],
+                        "keywords_found": ["Tết", "TV quảng cáo", "Vinamilk"]
+                    }}
+                ]
+                """
+
+                try:
+                    response = await self.agent.arun(analysis_prompt)
+                    if response and response.content:
+                        try:
+                            processed_data = json.loads(response.content)
+                            processed_articles.extend(
+                                [Article(**item) for item in processed_data]
+                            )
+                            logger.info(
+                                f"Batch {i // batch_size + 1} processed: {len(processed_data)} articles"
+                            )
+                        except (json.JSONDecodeError, TypeError) as e:
+                            logger.error(
+                                f"Failed to parse JSON response for batch {i // batch_size + 1}: {e}"
+                            )
+                            processed_articles.extend(
+                                batch
+                            )  # Keep raw articles if parsing fails
+                    else:
+                        logger.warning(
+                            f"No valid response for batch {i // batch_size + 1}"
                         )
                         processed_articles.extend(
                             batch
-                        )  # Keep raw articles if parsing fails
-                else:
-                    logger.warning(f"No valid response for batch {i // batch_size + 1}")
-                    processed_articles.extend(batch)  # Keep raw articles if no response
+                        )  # Keep raw articles if no response
 
-            except Exception as e:
-                logger.error(
-                    f"Error processing batch {i // batch_size + 1}: {e}", exc_info=True
-                )
-                processed_articles.extend(
-                    batch
-                )  # Keep raw articles if processing fails
+                except Exception as e:
+                    logger.error(
+                        f"Error processing batch {i // batch_size + 1}: {e}",
+                        exc_info=True,
+                    )
+                    processed_articles.extend(
+                        batch
+                    )  # Keep raw articles if processing fails
 
-            # Free memory after each batch
-            gc.collect()
+                # Free memory after each batch
+                gc.collect()
 
-        logger.info(
-            f"Processing completed. Total processed articles: {len(processed_articles)}"
-        )
-        return processed_articles
+            logger.info(
+                f"Processing completed. Total processed articles: {len(processed_articles)}"
+            )
+            return processed_articles
 
-    except Exception as e:
-        logger.error(f"Article processing failed: {e}", exc_info=True)
-        return raw_articles  # Return raw articles if the entire process fails
-    finally:
-        gc.collect()  # Final memory cleanup
+        except Exception as e:
+            logger.error(f"Article processing failed: {e}", exc_info=True)
+            return raw_articles  # Return raw articles if the entire process fails
+        finally:
+            gc.collect()  # Final memory cleanup
 
 
 class ReportAgent:

@@ -50,11 +50,22 @@ class ArticleParser:
         content = content.strip()
 
         try:
-            if content.startswith("[") or content.startswith("{"):
+            if "```json" in content:
+                content = content.split("```json", 1)[1]
+
+            if "```" in content:
+                content = content.split("```", 1)[0]
+
+            if content.strip().startswith("[") or content.strip().startswith("{"):
                 data = json.loads(content)
                 if isinstance(data, list):
                     return self._parse_from_json_list(data, media_source)
                 elif isinstance(data, dict):
+                    # Ưu tiên key "articles" nếu có
+                    if "articles" in data and isinstance(data["articles"], list):
+                        return self._parse_from_json_list(
+                            data["articles"], media_source
+                        )
                     for key in data:
                         if isinstance(data[key], list):
                             return self._parse_from_json_list(data[key], media_source)
@@ -70,12 +81,23 @@ class ArticleParser:
         articles = []
         for i, item in enumerate(data):
             try:
-                raw_link = item.get(
-                    "link", item.get("url", item.get("link_bai_bao", ""))
+                raw_link = (
+                    item.get("link")
+                    or item.get("url")
+                    or item.get("link bài báo")
+                    or item.get("link_bài_báo")
+                    or item.get("link_bai_bao")
+                    or item.get("link bai bao")
+                    or ""
                 )
                 resolved_link = self._resolve_url(media_source.domain, raw_link)
 
-                raw_summary = item.get("summary") or item.get("tom_tat_noi_dung") or ""
+                raw_summary = (
+                    item.get("summary")
+                    or item.get("tóm_tắt_nội_dung")
+                    or item.get("tóm tắt nội dung")
+                    or ""
+                )
                 if (
                     "http" in raw_summary
                     or "Tiêu đề" in raw_summary
@@ -83,13 +105,35 @@ class ArticleParser:
                 ):
                     raw_summary = ""  # loại bỏ nếu có dấu hiệu sai định dạng
 
+                # Chuẩn hóa ngày phát hành thành chuỗi DD-MM-YYYY
+                raw_date = (
+                    item.get("date")
+                    or item.get("ngày_phát_hành")
+                    or item.get("ngày phát hành")
+                )
+                if isinstance(raw_date, str):
+                    try:
+                        dt_obj = datetime.strptime(raw_date, "%d-%m-%Y")
+                    except ValueError:
+                        try:
+                            dt_obj = datetime.strptime(raw_date, "%Y-%m-%d")
+                        except ValueError:
+                            dt_obj = datetime.now()
+                elif isinstance(raw_date, datetime):
+                    dt_obj = raw_date
+                else:
+                    dt_obj = datetime.now()
+
+                ngay_phat_hanh = dt_obj.date()
+
                 article = Article(
                     stt=item.get("stt", i + 1),
-                    ngay_phat_hanh=item.get(
-                        "date", item.get("ngay_phat_hanh", datetime.now().date())
-                    ),
+                    ngay_phat_hanh=ngay_phat_hanh,
                     dau_bao=media_source.name,
-                    cum_noi_dung=item.get("cum_noi_dung", ContentCluster.OTHER),
+                    cum_noi_dung=None,
+                    cum_noi_dung_chi_tiet=item.get("tiêu đề")
+                    or item.get("title")
+                    or "Chưa rõ",
                     tom_tat_noi_dung=raw_summary.strip(),
                     link_bai_bao=resolved_link,
                     nganh_hang=item.get("nganh_hang", IndustryType.DAU_AN),
@@ -153,6 +197,14 @@ class ArticleParser:
         """
         NÂNG CẤP: Phân tích text một cách thông minh hơn bằng regex.
         """
+
+        if (
+            "không tìm thấy bài viết nào"
+            or "chưa có bài viết nào thỏa mãn điều kiện tìm kiếm" in content.lower()
+        ):
+            logger.warning("[Parser] Bỏ qua vì nội dung xác nhận không có bài viết.")
+            return []
+
         articles = []
         # Tách content thành các khối, giả định mỗi khối là một bài báo
         article_blocks = re.split(r"\n---\n|\n\n+", content)
@@ -204,7 +256,7 @@ class ArticleParser:
                     summary_text = summary_text.replace(date_match.group(0), "")
 
                 # Loại bỏ các dấu | thừa và làm sạch
-                summary = re.sub(r"[|]+", " ", summary).strip()
+                summary = re.sub(r"[|]+", " ", summary_text).strip()
 
                 # Nếu vẫn quá ngắn hoặc rác → bỏ
                 if (

@@ -1,0 +1,147 @@
+{
+  "title": "CALOFIC COMPETITOR REPORT",
+  "subtitle": "PR & SOCIAL MONTHLY REPORT",
+  "overall_summary": {
+    "thoi_gian_trich_xuat": "Từ ngày 08/06/2025 đến ngày 08/07/2025",
+    "industries": [
+      {
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "cum_noi_dung": [
+          "Ra mắt sản phẩm",
+          "Khác"
+        ],
+        "so_luong_bai": 8,
+        "cac_dau_bao": [
+          "KINHTENEWS",
+          "KINHTENONGTHON",
+          "KINHTEDOTHI",
+          "KINHTEMOITRUONG",
+          "KINHTEDOISONG",
+          "KINHTEVADUBAO"
+        ]
+      }
+    ],
+    "tong_so_bai": 8
+  },
+  "industry_summaries": [
+    {
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "cum_noi_dung": [
+        "Ra mắt sản phẩm",
+        "Khác"
+      ],
+      "so_luong_bai": 8,
+      "cac_dau_bao": [
+        "KINHTENEWS",
+        "KINHTENONGTHON",
+        "KINHTEDOTHI",
+        "KINHTEMOITRUONG",
+        "KINHTEDOISONG",
+        "KINHTEVADUBAO"
+      ]
+    }
+  ],
+  "articles": [
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-08",
+      "dau_bao": "KINHTEVADUBAO",
+      "cum_noi_dung": "Khác",
+      "tom_tat_noi_dung": "Không tìm thấy bài viết nào liên quan đến từ khóa \"dầu hướng dương\", \"Latino Bella\", \"Metro Chef\", và ngành FMCG trong khoảng thời gian từ 08/06/2025 đến 08/07/2025 trên website https://kinhtevadubao.vn.",
+      "link_bai_bao": "https://kinhtevadubao.vn.",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-08T10:23:11.463255"
+    },
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-08",
+      "dau_bao": "KINHTEMOITRUONG",
+      "cum_noi_dung": "Khác",
+      "tom_tat_noi_dung": "```json\n{\n  \"articles\": [\n    {\n      \"title\": \"Kỳ nguyên vươn mình của dân tộc\",\n      \"date\": \"08-07-2025\",\n      \"summary\": \"Bài viết nêu bật sự phát triển bền vững và tiềm năng của nền kinh tế Việt Nam trong bối cảnh hội nhập quốc tế, nhấn mạnh vào các ngành kinh tế chủ chốt.\",\n      \"link\": \"https://kinhtemoitruong.vn/chu-de/ky-nguyen-vuon-minh-cua-dan-toc-175.topic\"\n    }\n  ]\n}\n```",
+      "link_bai_bao": "https://kinhtemoitruong.vn/chu-de/ky-nguyen-vuon-minh-cua-dan-toc-175.topic\"",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-08T10:24:47.711603"
+    },
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-08",
+      "dau_bao": "KINHTEDOTHI",
+      "cum_noi_dung": "Khác",
+      "tom_tat_noi_dung": "Không tìm thấy bài viết nào liên quan đến từ khóa \"Nortalic\" hoặc ngành FMCG trên trang https://kinhtedothi.vn trong khoảng thời gian từ ngày 2025-06-08 đến ngày 2025-07-08.",
+      "link_bai_bao": "https://kinhtedothi.vn",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-08T10:35:03.247054"
+    },
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-08",
+      "dau_bao": "KINHTENONGTHON",
+      "cum_noi_dung": "Khác",
+      "tom_tat_noi_dung": "Dưới đây là kết quả tìm kiếm các bài báo trên trang web [kinhtenongthon.vn] liên quan đến từ khóa \"dầu hướng dương\", \"Latino Bella\", \"Metro Chef\" trong khoảng thời gian từ ngày 2025-06-08 đến ngày 2025-07-08:",
+      "link_bai_bao": "https://kinhtenongthon.vn",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-08T10:36:37.124653"
+    },
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-08",
+      "dau_bao": "KINHTEDOISONG",
+      "cum_noi_dung": "Khác",
+      "tom_tat_noi_dung": "Không tìm thấy bài viết nào trên trang https://kinhtedoisong.vn liên quan đến các từ khóa \"dầu hướng dương\", \"Latino Bella\", \"Metro Chef\" trong khoảng thời gian từ ngày 2025-06-08 đến ngày 2025-07-08.",
+      "link_bai_bao": "https://kinhtedoisong.vn",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-08T10:37:26.827752"
+    },
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-08",
+      "dau_bao": "KINHTEDOISONG",
+      "cum_noi_dung": "Khác",
+      "tom_tat_noi_dung": "Hiện tại, tôi không thể truy cập được nội dung từ trang web \"https://kinhtedoisong.vn\" để tìm kiếm thông tin theo yêu cầu. Nếu bạn có một trang web cụ thể khác, vui lòng cung cấp và tôi sẽ cố gắng crawl lại.",
+      "link_bai_bao": "https://kinhtedoisong.vn\"",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-08T10:40:03.982276"
+    },
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-08",
+      "dau_bao": "KINHTENEWS",
+      "cum_noi_dung": "Khác",
+      "tom_tat_noi_dung": "Không tìm thấy bài viết nào liên quan đến các từ khóa \"dầu cọ\", \"Zachia\", và \"Nakydaco\" trên trang https://kinhtenews.com trong khoảng thời gian từ 08-06-2025 đến 08-07-2025.",
+      "link_bai_bao": "https://kinhtenews.com",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-08T10:44:37.232947"
+    },
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-08",
+      "dau_bao": "KINHTENEWS",
+      "cum_noi_dung": "Ra mắt sản phẩm",
+      "tom_tat_noi_dung": "```json\n[\n    {\n        \"tiêu đề\": \"Dầu ăn oliu HANOLI chai 5L\",\n        \"ngày phát hành\": \"08-07-2025\",\n        \"tóm tắt nội dung\": \"Còn hàng\",\n        \"link bài báo\": \"https://hanoli.com.vn/san-pham/dau-an-oliu/dau-ran-hanoli-cooking-oil-5-lit/?srsltid=AfmBOopTHKcy40OC2oxGE864_BQ99eN49g523wGb3F7U0hT-CjPpdXKs\"\n    },\n    {\n        \"tiêu đề\": \"Dầu oliu nấu ăn HANOLI Cooking Oil dung tích 1 Lít - Hy Lạp - Shopee\",\n        \"ngày phát hành\": \"08-07-2025\",\n        \"tóm tắt nội dung\": \"Còn hàng Xếp hạng 5,0 (14)\",\n        \"link bài báo\": \"https://shopee.vn/D%E1%BA%A7u-oliu-n%E1%BA%A5u-%C4%83n-HANOLI-Cooking-Oil-dung-t%C3%ADch-1-L%C3%ADt-Hy-L%E1%BA%A1p-i.400531022.3084743514\"\n    },\n    {\n        \"tiêu đề\": \"Dầu Ăn, Dầu Oliu - 3Sach Mart\",\n        \"ngày phát hành\": \"08-07-2025\",\n        \"tóm tắt nội dung\": \"Dầu Ăn Cao Cấp Meizan Gold (Chai 1L). 59,000₫ ; Dầu Ăn Đậu Nành Tường An (Chai 1L). 70,200₫ ; Dầu Ăn Hạt Cải Simply (Chai 1L). 67,800₫\",\n        \"link bài báo\": \"https://3sach.vn/collections/dau-an-dau-oliu\"\n    },\n    {\n        \"tiêu đề\": \"Dầu Rán Hanoli Olive Cooking Oil With Extra Virgin Olive Oil chai 1 lit\",\n        \"ngày phát hành\": \"08-07-2025\",\n        \"tóm tắt nội dung\": \"Dầu Rán Hanoli Olive Cooking Oil With Extra Virgin Olive Oil dùng cho nhiều món ăn, chứa nhiều axit béo không bão hòa.\",\n        \"link bài báo\": \"https://csfood.vn/cuahang/gia-vi/dau-an/dau-ran-hanoli-olive-cooking-oil-with-extra-virgin-olive-oil-chai-1-lit/?srsltid=AfmBOooWhg5E2qYaDq-CsZGqkJekOnH9Z-c34cgX8JLe9qWmX_a4THVY\"\n    },\n    {\n        \"tiêu đề\": \"Dầu nấu ăn Oliu nguyên chất Hanoli Cooking Oil 3 lít\",\n        \"ngày phát hành\": \"08-07-2025\",\n        \"tóm tắt nội dung\": \"Dầu nấu ăn Oliu nguyên chất Hanoli Cooking Oil được nhập khẩu từ Hy Lạp.\",\n        \"link bài báo\": \"http://tinhdau100.vn/dau-nau-an-oliu-nguyen-chat-hanoli-cooking-oil-3-lit.html\"\n    },\n    {\n        \"tiêu đề\": \"Dầu Olive Cooking Oil Giá Tốt T09/2024   Mua tại Lazada.vn\",\n        \"ngày phát hành\": \"08-07-2025\",\n        \"tóm tắt nội dung\": \"Xếp hạng 5,0 (1.797)\",\n        \"link bài báo\": \"https://www.lazada.vn/tag/dau-olive-cooking-oil/?srsltid=AfmBOoqN_mIkWWIQWNiBb8HlCB4YAYUlH9fqUSjKePYF-2mpMedaMPkd\"\n    },\n    {\n        \"tiêu đề\": \"Dầu Ăn Cooking Tường An Nhãn Đỏ Chai 2L - LOTTE Mart\",\n        \"ngày phát hành\": \"08-07-2025\",\n        \"tóm tắt nội dung\": \"Thích hợp dùng để chiên, xào, trộn salad.\",\n        \"link bài báo\": \"https://www.lottemart.vn/en-bdh/product/dau-an-cooking-tuong-an-nhan-do-2l-8936035100045-p165?srsltid=AfmBOorXeZTmVTOaXxtOk2v50-arvj7OxDFC4IB5jZD8cDd1mupi5_Wk\"\n    }\n]\n```",
+      "link_bai_bao": "https://hanoli.com.vn/san-pham/dau-an-oliu/dau-ran-hanoli-cooking-oil-5-lit/?srsltid=AfmBOopTHKcy40OC2oxGE864_BQ99eN49g523wGb3F7U0hT-CjPpdXKs\"",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-08T10:45:24.793131"
+    }
+  ],
+  "generated_at": "2025-07-08T10:46:30.381773",
+  "total_articles": 8,
+  "date_range": "Từ ngày 08/06/2025 đến ngày 08/07/2025"
+}

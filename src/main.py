@@ -8,19 +8,19 @@ bằng cách thêm lại các API endpoint đã được refactor trước đó.
 import logging
 import os
 import uuid
-from pathlib import Path
 import json
 import sys
 import asyncio
-
+import subprocess
 import uvicorn
-from fastapi import FastAPI, Request, HTTPException, BackgroundTasks
+
+from fastapi import FastAPI, Request, HTTPException, BackgroundTasks, Depends
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
-
-import subprocess
+from typing import Dict
+from pathlib import Path
 
 subprocess.run(["playwright", "install"], check=False)
 
@@ -36,12 +36,17 @@ logging.basicConfig(
         logging.StreamHandler(sys.stdout),
     ],
 )
-logger = logging.getLogger(__name__)
+
 
 # Import refactored components
-from .models import CrawlConfig, create_sample_report
+from .models import CrawlConfig, create_sample_report, UserLogin
 from .configs import settings
-from .services import pipeline_service
+from .services import PipelineService, create_access_token, get_current_user
+
+# Save pipeline according to email user
+user_pipelines: Dict[str, PipelineService] = {}
+
+logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
@@ -73,7 +78,23 @@ static_dir = settings.project_root / "static"
 if static_dir.exists() and static_dir.is_dir():
     app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
+
 # --- API Endpoints ---
+@app.post("/api/login")
+def login(user: UserLogin):
+    # Giả sử bạn hardcode tài khoản mẫu
+    if user.email == "admin" and user.password == "123456":
+        token = create_access_token({"sub": user.email})
+        return {"access_token": token, "token_type": "bearer"}
+    raise HTTPException(status_code=401, detail="Invalid credentials")
+
+
+def get_pipeline_for_user(user_email: str) -> PipelineService:
+    if user_email not in user_pipelines:
+        user_pipelines[user_email] = PipelineService(
+            app_settings=settings, user_email=user_email
+        )
+    return user_pipelines[user_email]
 
 
 @app.get("/", response_class=HTMLResponse, include_in_schema=False)
@@ -88,14 +109,22 @@ async def get_frontend():
 
 
 @app.get("/api/status")
-async def get_status():
+async def get_status(current_user: str = Depends(get_current_user)):
     """Get the current status of the bot and any running pipeline."""
+    pipeline_service = get_pipeline_for_user(current_user)
     status = pipeline_service.get_status()
     return JSONResponse(content=status)
 
 
 @app.post("/api/run")
-async def run_pipeline_endpoint(background_tasks: BackgroundTasks, request: Request):
+async def run_pipeline_endpoint(
+    background_tasks: BackgroundTasks,
+    request: Request,
+    current_user: str = Depends(get_current_user),
+):
+    # current_user is login email
+    print(f"Pipeline của user: {current_user}")
+    pipeline_service = get_pipeline_for_user(current_user)
     """Start a new media tracking pipeline run in the background."""
     if pipeline_service.is_running:
         raise HTTPException(
@@ -105,6 +134,7 @@ async def run_pipeline_endpoint(background_tasks: BackgroundTasks, request: Requ
 
     try:
         data = await request.json()
+        logger.info(f"[RUN] 🔍 Received data from FE: {data}")
     except json.JSONDecodeError:
         data = {}
 
@@ -113,6 +143,7 @@ async def run_pipeline_endpoint(background_tasks: BackgroundTasks, request: Requ
     background_tasks.add_task(
         pipeline_service.run_pipeline,
         session_id=session_id,
+        user_email=current_user,
         start_date=data.get("start_date"),
         end_date=data.get("end_date"),
         custom_keywords=data.get("custom_keywords"),
@@ -127,8 +158,11 @@ async def run_pipeline_endpoint(background_tasks: BackgroundTasks, request: Requ
 
 
 @app.post("/api/stop")
-async def stop_pipeline_endpoint(request: Request):
+async def stop_pipeline_endpoint(
+    request: Request, current_user: str = Depends(get_current_user)
+):
     """Request to stop the currently running pipeline."""
+    pipeline_service = get_pipeline_for_user(current_user)
     if not pipeline_service.is_running:
         raise HTTPException(status_code=400, detail="No pipeline is currently running.")
 
@@ -154,22 +188,32 @@ async def stop_pipeline_endpoint(request: Request):
 
 
 @app.get("/api/reports/latest")
-async def get_latest_report():
+async def get_latest_report(current_user: str = Depends(get_current_user)):
     """Get the latest generated report in JSON format."""
-    latest_file = settings.reports_dir / "latest_report.json"
-    if latest_file.is_symlink() and os.path.exists(latest_file):
+    pipeline = PipelineService(app_settings=settings, user_email=current_user)
+    sanitized_name = pipeline._sanitize_user_name(current_user)
+    latest_file = settings.reports_dir / sanitized_name / "latest_report.json"
+
+    if latest_file.exists():
         return FileResponse(latest_file)
 
-    logger.warning("Latest report not found, returning a sample report.")
+    logger.warning(
+        f"Latest report not found for user {current_user}, returning sample."
+    )
     sample = create_sample_report()
     return JSONResponse(content=sample.model_dump(mode="json"))
 
 
 @app.get("/api/reports/download/latest")
-async def download_latest_report(format: str = "excel"):
+async def download_latest_report(
+    format: str = "excel",
+    current_user: str = Depends(get_current_user),
+):
     """Download the latest report in either 'excel' or 'json' format."""
+    pipeline = PipelineService(app_settings=settings, user_email=current_user)
+    sanitized_name = pipeline._sanitize_user_name(current_user)
     file_ext = "xlsx" if format.lower() == "excel" else "json"
-    file_path = settings.reports_dir / f"latest_report.{file_ext}"
+    file_path = settings.reports_dir / sanitized_name / f"latest_report.{file_ext}"
     media_type = (
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         if file_ext == "xlsx"
@@ -245,13 +289,15 @@ async def update_keywords(keywords_data: dict):
 
 
 @app.get("/api/api-keys/status")
-async def get_api_keys_status():
+async def get_api_keys_status(current_user: str = Depends(get_current_user)):
     """Get the configuration status of API keys."""
     return JSONResponse(content=settings.get_api_key_status())
 
 
 @app.post("/api/api-keys/update")
-async def update_api_keys(api_keys: dict):
+async def update_api_keys(
+    api_keys: dict, current_user: str = Depends(get_current_user)
+):
     """
     Update API keys in the .env file.
     WARNING: This is a potential security risk in a production environment.
@@ -295,6 +341,46 @@ async def update_api_keys(api_keys: dict):
     except Exception as e:
         logger.error(f"Error updating API keys: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/reports/list")
+def list_all_reports(current_user: str = Depends(get_current_user)):
+    user_dir = os.path.join(settings.reports_dir, current_user)
+    if not os.path.exists(user_dir):
+        return []
+
+    files = [f for f in os.listdir(user_dir) if f.endswith(".xlsx")]
+    files.sort(reverse=True)  # Mới nhất đầu tiên
+
+    return [{"filename": f, "url": f"/api/reports/download/{f}"} for f in files]
+
+
+@app.get("/api/reports/download/{filename}")
+def download_named_report(filename: str, current_user: str = Depends(get_current_user)):
+    pipeline = PipelineService(app_settings=settings, user_email=current_user)
+    sanitized_name = pipeline._sanitize_user_name(current_user)
+    path = os.path.join(settings.reports_dir, sanitized_name, filename)
+    if not os.path.exists(path):
+        raise HTTPException(status_code=404, detail="File not found")
+    return FileResponse(
+        path,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        filename=filename,
+    )
+
+
+@app.post("/api/pause")
+async def pause_pipeline(current_user: str = Depends(get_current_user)):
+    pipeline = get_pipeline_for_user(current_user)
+    pipeline.pause_pipeline()
+    return {"message": "Pipeline paused"}
+
+
+@app.post("/api/resume")
+async def resume_pipeline(current_user: str = Depends(get_current_user)):
+    pipeline = get_pipeline_for_user(current_user)
+    pipeline.resume_pipeline()  # async nếu resume lại quá trình
+    return {"message": "Pipeline resumed"}
 
 
 if __name__ == "__main__":

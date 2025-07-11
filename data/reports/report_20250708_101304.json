@@ -1,0 +1,95 @@
+{
+  "title": "CALOFIC COMPETITOR REPORT",
+  "subtitle": "PR & SOCIAL MONTHLY REPORT",
+  "overall_summary": {
+    "thoi_gian_trich_xuat": "Từ ngày 08/06/2025 đến ngày 08/07/2025",
+    "industries": [
+      {
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "cum_noi_dung": [
+          "Khác",
+          "Hoạt động doanh nghiệp và thông tin sản phẩm"
+        ],
+        "so_luong_bai": 4,
+        "cac_dau_bao": [
+          "ANNINHTHUDO",
+          "AFAMILY",
+          "1THEGIOI",
+          "24H"
+        ]
+      }
+    ],
+    "tong_so_bai": 4
+  },
+  "industry_summaries": [
+    {
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "cum_noi_dung": [
+        "Khác",
+        "Hoạt động doanh nghiệp và thông tin sản phẩm"
+      ],
+      "so_luong_bai": 4,
+      "cac_dau_bao": [
+        "ANNINHTHUDO",
+        "AFAMILY",
+        "1THEGIOI",
+        "24H"
+      ]
+    }
+  ],
+  "articles": [
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-08",
+      "dau_bao": "AFAMILY",
+      "cum_noi_dung": "Khác",
+      "tom_tat_noi_dung": "Không có bài báo nào liên quan đến từ khóa \"dầu nành\", \"dầu oliu\" hoặc \"Latino Bella\" được tìm thấy trên website https://afamily.vn trong khoảng thời gian từ 08-06-2025 đến 08-07-2025.",
+      "link_bai_bao": "https://afamily.vn",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-08T09:55:22.477562"
+    },
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-08",
+      "dau_bao": "1THEGIOI",
+      "cum_noi_dung": "Hoạt động doanh nghiệp và thông tin sản phẩm",
+      "tom_tat_noi_dung": "```json\n[\n    {\n        \"tiêu đề\": \"Thủ tướng Phạm Minh Chính đề nghị thúc đẩy ký Hiệp định thương mại tự do Việt Nam - Brazil\",\n        \"ngày phát hành\": \"07-07-2025\",\n        \"tóm tắt\": \"Trong chương trình tham dự Hội nghị thượng đỉnh BRICS mở rộng và hoạt động song phương tại Brazil, chiều 7.7 (giờ địa phương), tại TP...\",\n        \"link bài báo\": \"https://1thegioi.vn/thu-tuong-pham-minh-chinh-de-nghi-thuc-day-ky-hiep-dinh-thuong-mai-tu-do-viet-nam-brazil-234652.html\"\n    }\n]\n```",
+      "link_bai_bao": "https://1thegioi.vn/thu-tuong-pham-minh-chinh-de-nghi-thuc-day-ky-hiep-dinh-thuong-mai-tu-do-viet-nam-brazil-234652.html\"",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-08T10:05:48.275319"
+    },
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-08",
+      "dau_bao": "24H",
+      "cum_noi_dung": "Khác",
+      "tom_tat_noi_dung": "Dưới đây là kết quả tìm kiếm các bài báo theo yêu cầu từ trang web https://24h.com.vn với các từ khóa \"dầu nành\", \"dầu oliu\", \"Latino Bella\" trong khoảng thời gian từ ngày 08-06-2025 đến ngày 08-07-2025.",
+      "link_bai_bao": "https://24h.com.vn",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-08T10:08:52.089577"
+    },
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-08",
+      "dau_bao": "ANNINHTHUDO",
+      "cum_noi_dung": "Khác",
+      "tom_tat_noi_dung": "Dựa trên yêu cầu của bạn, tôi đã crawl trang web https://anninhthudo.vn với các từ khóa \"dầu nành\", \"dầu oliu\" và \"Latino Bella\". Tuy nhiên, kết quả không tìm thấy bài viết nào phù hợp với nhu cầu về ngành FMCG trong khoảng thời gian từ 2025-06-08 đến 2025-07-08.",
+      "link_bai_bao": "https://anninhthudo.vn",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-08T10:10:00.198673"
+    }
+  ],
+  "generated_at": "2025-07-08T10:13:03.708516",
+  "total_articles": 4,
+  "date_range": "Từ ngày 08/06/2025 đến ngày 08/07/2025"
+}

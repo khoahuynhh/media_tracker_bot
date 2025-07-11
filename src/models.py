@@ -9,6 +9,11 @@ from enum import Enum
 from pydantic import BaseModel, Field, model_validator, field_validator, ConfigDict
 
 
+class UserLogin(BaseModel):
+    email: str
+    password: str
+
+
 class MediaType(str, Enum):
     """Loại media theo danh sách gốc"""
 
@@ -63,7 +68,12 @@ class Article(BaseModel):
     stt: int = Field(..., description="Số thứ tự")
     ngay_phat_hanh: date = Field(..., description="Ngày phát hành bài báo")
     dau_bao: str = Field(..., description="Tên đầu báo/media source")
-    cum_noi_dung: ContentCluster = Field(..., description="Cụm nội dung chính")
+    cum_noi_dung: Optional[ContentCluster] = Field(
+        default=None, description="Cụm nội dung chính"
+    )
+    cum_noi_dung_chi_tiet: Optional[str] = Field(
+        default=None, description="Cụm nội dung chi tiết"
+    )
     tom_tat_noi_dung: str = Field(..., description="Tóm tắt nội dung bài báo")
     link_bai_bao: str = Field(..., description="Link đến bài báo gốc")
     nganh_hang: IndustryType = Field(..., description="Ngành hàng liên quan")
@@ -81,26 +91,6 @@ class Article(BaseModel):
                 return f"https://{v}" if v else "https://example.com"
             return v
         return str(v) if v else "https://example.com"
-
-    @field_validator("ngay_phat_hanh", mode="before")
-    def parse_date(cls, v):
-        if isinstance(v, str):
-            # Xử lý format DD/MM/YYYY từ template
-            try:
-                return datetime.strptime(v, "%d/%m/%Y").date()
-            except ValueError:
-                try:
-                    return (
-                        datetime.strptime(v, "%d/%m")
-                        .date()
-                        .replace(year=datetime.now().year)
-                    )
-                except ValueError:
-                    try:
-                        return datetime.strptime(v, "%Y-%m-%d").date()
-                    except ValueError:
-                        return datetime.now().date()
-        return v
 
 
 class IndustrySummary(BaseModel):

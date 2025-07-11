@@ -15,6 +15,12 @@
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
+    <!-- tsParticles -->
+    <script src="https://cdn.jsdelivr.net/npm/tsparticles@2/tsparticles.bundle.min.js"></script>
+
     <!-- Custom CSS -->
     <style>
         :root {
@@ -31,16 +37,159 @@
         }
 
         body {
-            background-color: var(--background-color);
-            color: var(--text-color);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
+            background: linear-gradient(-45deg, #1f1f1f, #2a2a2a, #2c2c2c, #1f1f1f);
+            background-size: 300% 300%;
+            animation: gradientBG 15s ease infinite;
         }
+
+        /* LOGIN */
+        #particles-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background-color: #2a2a2a;
+            /* Nền xám vừa phải */
+        }
+
+        @keyframes gradientBG {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        #loginContainer {
+            max-width: 720px;
+            width: 90%;
+            padding: 40px;
+            /* margin-top: 5vh; */
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1);
+            color: white;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        #loginContainer input {
+            background-color: rgba(255, 255, 255, 0.07);
+            border: none;
+            color: white;
+            border-radius: 10px;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        #loginContainer input:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px var(--primary-color);
+        }
+
+        /* Cho cả hai nút chiều cao, bo góc và font đẹp */
+        #cancelBtn,
+        #pauseResumeBtn {
+            min-height: 44px;
+            font-weight: 500;
+            font-size: 15px;
+        }
+
+
+        #loginContainer button {
+            background: linear-gradient(to right, #2E8B57, #20B2AA);
+            border: none;
+            padding: 0.75rem;
+            font-weight: bold;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+        }
+
+        #loginContainer button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(32, 178, 170, 0.3);
+        }
+
+        .typing-gradient {
+            font-size: 2.5rem;
+            font-weight: bold;
+            background: linear-gradient(90deg, #ffcc00, #ff66cc, #3399ff);
+            background-size: 300%;
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: glowGradient 4s linear infinite;
+            text-align: center;
+            margin-bottom: 2rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        @keyframes glowGradient {
+            0% {
+                background-position: 0%
+            }
+
+            100% {
+                background-position: 100%
+            }
+        }
+
+        /* Hiệu ứng transition chuyên nghiệp */
+        .fade-out-up {
+            animation: fadeOutUp 0.7s ease forwards;
+        }
+
+        .fade-in-down {
+            animation: fadeInDown 0.7s ease forwards;
+        }
+
+        @keyframes fadeOutUp {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            to {
+                opacity: 0;
+                transform: translateY(-40px);
+                display: none;
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+
+        .login-exit {
+            animation: fadeOutScale 0.6s ease forwards;
+        }
+
 
         .navbar {
             background: var(--gradient-primary);
             box-shadow: var(--card-shadow);
             border-bottom: 1px solid var(--border-color);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .navbar-brand {
@@ -51,11 +200,38 @@
 
         .nav-link {
             color: rgba(255, 255, 255, 0.9) !important;
-            transition: color 0.3s ease;
+            transition: color 0.3s ease, transform 0.2s ease;
+            position: relative;
         }
 
         .nav-link:hover {
-            color: white !important;
+            color: #ffffff !important;
+            transform: scale(1.05);
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 10%;
+            width: 0%;
+            height: 2px;
+            background-color: #FFD700;
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::after {
+            width: 80%;
+        }
+
+
+        .navbar-nav .btn {
+            transition: all 0.3s ease;
+        }
+
+        .navbar-nav .btn:hover {
+            background-color: #dc3545;
+            color: white;
         }
 
         .hero-section {
@@ -91,6 +267,12 @@
             font-weight: bold;
             position: relative;
             z-index: 1;
+            transition: transform 0.5s ease, box-shadow 0.5s ease;
+        }
+
+        .hero-logo:hover {
+            transform: rotate(10deg) scale(1.1);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
         }
 
         .card {
@@ -170,18 +352,38 @@
             }
         }
 
+        .progress-text-wrapper {
+            display: flex;
+            align-items: center;
+            margin-top: 5px;
+            height: 100%;
+        }
+
+        .progress-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
         .progress-container {
             background-color: #e0e0e0;
             border-radius: 8px;
             width: 100%;
-            height: 24px;
+            height: 1rem;
             margin-bottom: 10px;
             overflow: hidden;
+            align-items: center;
+            display: flex;
+            margin-top: 15px;
+        }
+
+        .progressText {
+            margin-top: 20px;
         }
 
         .progress-bar {
             height: 100%;
-            background-color: #28a745;
+            background-color: #2E8B57;
             color: white;
             text-align: center;
             line-height: 24px;
@@ -207,6 +409,7 @@
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
+            box-shadow: 0 5px 15px rgba(32, 178, 170, 0.3);
         }
 
         .btn-primary:hover {
@@ -273,8 +476,9 @@
         }
 
         .table tbody tr:hover {
-            background-color: var(--hover-color) !important;
+            background-color: rgba(46, 139, 87, 0.15) !important;
             transform: scale(1.01);
+            cursor: pointer;
         }
 
         .table tbody td {
@@ -394,13 +598,13 @@
         }
 
         .fade-in {
-            animation: fadeIn 0.5s ease-in;
+            animation: fadeInUp 0.5s ease-in-out;
         }
 
-        @keyframes fadeIn {
+        @keyframes fadeInUp {
             from {
                 opacity: 0;
-                transform: translateY(20px);
+                transform: translateY(30px);
             }
 
             to {
@@ -416,6 +620,7 @@
             border: 1px solid var(--border-color);
             color: var(--text-color);
             border-radius: 8px;
+            transition: box-shadow 0.3s ease;
         }
 
         .form-control:focus,
@@ -424,6 +629,7 @@
             border-color: var(--primary-color);
             color: var(--text-color);
             box-shadow: 0 0 0 0.2rem rgba(46, 139, 87, 0.25);
+            box-shadow: 0 0 0 0.3rem rgba(46, 139, 87, 0.4);
         }
 
         .form-control::placeholder {
@@ -558,533 +764,566 @@
 </head>
 
 <body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark">
+    <div id="particles-background"></div>
+    <!-- === LOGIN FORM === -->
+    <form id="loginForm" onsubmit="handleLogin(event)">
+        <div class="container mt-5" id="loginContainer">
+            <h3 id="typingText" class="typing-gradient"></h3>
+            <input type="text" id="email" placeholder="admin" class="form-control mb-2" />
+            <input type="password" id="password" placeholder="123456" class="form-control mb-3" />
+            <button type="submit" class="btn btn-success w-100">Login</button>
+        </div>
+    </form>
+    <div id="dashboardContainer" style="display: none;">
+        <!-- Navigation -->
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <div class="container">
+                <a class="navbar-brand" href="#">
+                    <i class="fas fa-search-dollar me-2"></i>
+                    CALOFIC Media Tracker
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto align-items-center">
+                        <li class="nav-item">
+                            <a class="nav-link" href="#settings">Settings</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#reportModal"
+                                onclick="loadReportList()">Reports</a>
+                        </li>
+                        <li class="nav-item">
+                            <button class="btn btn-outline-light btn-sm ms-3" data-bs-toggle="modal"
+                                data-bs-target="#logoutModal">
+                                <i class="fas fa-sign-out-alt me-1"></i> Logout
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-md-2 text-center">
+                        <div class="hero-logo mx-auto">
+                            <i class="fas fa-oil-can"></i>
+                        </div>
+                    </div>
+                    <div class="col-md-10">
+                        <h1 class="display-6 fw-bold mb-2">COMPETITOR REPORT</h1>
+                        <h2 class="h4 mb-3">PR & SOCIAL MONTHLY REPORT</h2>
+                        <p class="lead mb-0">Hệ thống tracking truyền thông tự động cho ngành FMCG Việt Nam</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <div class="container">
-            <a class="navbar-brand" href="#">
-                <i class="fas fa-search-dollar me-2"></i>
-                CALOFIC Media Tracker
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="#dashboard">Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#reports">Reports</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#settings">Settings</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Hero Section -->
-    <section class="hero-section">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-md-2 text-center">
-                    <div class="hero-logo mx-auto">
-                        <i class="fas fa-oil-can"></i>
-                    </div>
-                </div>
-                <div class="col-md-10">
-                    <h1 class="display-6 fw-bold mb-2">COMPETITOR REPORT</h1>
-                    <h2 class="h4 mb-3">PR & SOCIAL MONTHLY REPORT</h2>
-                    <p class="lead mb-0">Hệ thống tracking truyền thông tự động cho ngành FMCG Việt Nam</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <div class="container">
-        <!-- Status & Controls -->
-        <div class="row mb-4">
-            <div class="col-md-8">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">
-                            <i class="fas fa-tachometer-alt me-2"></i>
-                            Bot Status
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row align-items-center">
-                            <style>
-                                .label-fixed {
-                                    width: 65px;
-                                    /* đủ cho chữ "Progress:" không bị wrap */
-                                    flex-shrink: 0;
-                                }
-                            </style>
-                            <div class="col-md-6">
-                                <div class="d-flex align-items-center mb-3">
-                                    <span class="me-3 label-fixed">Status:</span>
-                                    <span id="statusBadge" class="status-badge status-idle">
-                                        <i class="fas fa-circle"></i>
-                                        Idle
-                                    </span>
-                                </div>
-                                <div class="d-flex align-items-center mb-3">
-                                    <span class="me-3 label-fixed">Task:</span>
-                                    <span id="currentTask" class="fw-bold">Chờ khởi động</span>
-                                </div>
-                                <div class="d-flex align-items-center">
-                                    <span class="me-3 label-fixed">Progress:</span>
-                                    <div class="flex-grow-1">
-                                        <div class="progress-container">
-                                            <div id="progress-bar" class="progress-bar" style="width: 0%"></div>
-                                        </div>
-                                    </div>
-                                    <span id="progressText" class="ms-2 fw-bold">0%</span>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="row text-center">
-                                    <div class="col-4">
-                                        <div class="metric-number" id="totalSources">0</div>
-                                        <div class="metric-label">Total Sources</div>
-                                    </div>
-                                    <div class="col-4">
-                                        <div class="metric-number" id="completedSources">0</div>
-                                        <div class="metric-label">Completed</div>
-                                    </div>
-                                    <div class="col-4">
-                                        <div class="metric-number" id="failedSources">0</div>
-                                        <div class="metric-label">Failed</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">
-                            <i class="fas fa-play me-2"></i>
-                            Controls
-                        </h5>
-                    </div>
-                    <div class="card-body text-center">
-                        <button id="runBtn" class="btn btn-primary btn-lg mb-2 w-100">
-                            <i class="fas fa-play me-2"></i>
-                            Run Pipeline
-                        </button>
-                        <button id="configBtn" class="btn btn-outline-primary mb-2 w-100" onclick="showConfigModal()">
-                            <i class="fas fa-cog me-2"></i>
-                            Configure Pipeline
-                        </button>
-                        <button id="stopBtn" class="btn btn-outline-danger mb-3 w-100" disabled>
-                            <i class="fas fa-stop me-2"></i>
-                            Stop
-                        </button>
-                        <div class="small text-muted">
-                            <i class="fas fa-clock me-1"></i>
-                            Lần chạy cuối: <span id="lastRun">Chưa có</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Summary Overview -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">
-                            <i class="fas fa-chart-bar me-2"></i>
-                            Summary - Overall
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <p class="mb-2"><strong>Thời gian trích xuất dữ liệu:</strong> <span id="dateRange">Đang
-                                        tải...</span></p>
-                            </div>
-                            <div class="col-md-6 text-end">
-                                <button class="btn btn-outline-primary btn-sm me-2" onclick="downloadReport('json')">
-                                    <i class="fas fa-download me-1"></i>JSON
-                                </button>
-                                <button class="btn btn-outline-primary btn-sm me-2" onclick="downloadReport('excel')">
-                                    <i class="fas fa-file-excel me-1"></i>Excel
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead class="table-dark">
-                                    <tr>
-                                        <th>Ngành hàng</th>
-                                        <th>Nhãn hàng</th>
-                                        <th>Các đầu báo</th>
-                                        <th>Số lượng bài</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="summaryTableBody">
-                                    <tr>
-                                        <td colspan="5" class="text-center loading-state">
-                                            <i class="fas fa-spinner fa-spin me-2"></i>
-                                            Đang tải dữ liệu...
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Charts Section -->
-        <div class="row mb-4">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">
-                            <i class="fas fa-chart-pie me-2"></i>
-                            Phân bố theo Ngành hàng
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="chart-container">
-                            <canvas id="industryChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">
-                            <i class="fas fa-chart-line me-2"></i>
-                            Top Media Sources
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="chart-container">
-                            <canvas id="mediaChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Articles Detail -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="card-title mb-0">
-                            <i class="fas fa-newspaper me-2"></i>
-                            Chi tiết bài báo
-                        </h5>
-                        <div class="d-flex gap-2">
-                            <select id="industryFilter" class="form-select form-select-sm" style="width: auto;">
-                                <option value="">Tất cả ngành</option>
-                            </select>
-                            <input type="text" id="searchInput" class="form-control form-control-sm"
-                                placeholder="Tìm kiếm..." style="width: 200px;">
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead class="table-dark">
-                                    <tr>
-                                        <th>STT</th>
-                                        <th>Ngày</th>
-                                        <th>Đầu báo</th>
-                                        <th>Cụm nội dung</th>
-                                        <th>Tóm tắt</th>
-                                        <th>Ngành hàng</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="articlesTableBody">
-                                    <tr>
-                                        <td colspan="7" class="text-center loading-state">
-                                            <i class="fas fa-spinner fa-spin me-2"></i>
-                                            Đang tải dữ liệu...
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <!-- Pagination -->
-                        <nav>
-                            <ul class="pagination justify-content-center" id="pagination">
-                                <!-- Pagination will be generated here -->
-                            </ul>
-                        </nav>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Activity Log -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">
-                            <i class="fas fa-history me-2"></i>
-                            Activity Log
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div id="activityLog" class="timeline">
-                            <div class="timeline-item">
-                                <div class="fw-bold">System Started</div>
-                                <div class="text-muted small">Media Tracker Bot đã khởi động</div>
-                                <div class="text-muted small"><i class="fas fa-clock me-1"></i><span
-                                        id="startTime"></span></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Article Detail Modal -->
-    <div class="modal fade" id="articleModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Chi tiết bài báo</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div id="articleContent">
-                        <!-- Article content will be loaded here -->
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                    <a id="articleLink" href="#" target="_blank" class="btn btn-primary">Xem bài gốc</a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Configure Modal -->
-    <div class="modal fade" id="configModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">
-                        <i class="fas fa-filter me-2"></i>
-                        Configure Pipeline
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <!-- Date Range Filter -->
-                    <div class="card mb-4">
-                        <div class="card-header">
-                            <h6 class="card-title mb-0">
-                                <i class="fas fa-calendar me-2"></i>
-                                Date Range Filter
-                            </h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <label class="form-label">Start Date</label>
-                                    <input type="date" class="form-control" id="startDate">
-                                    <div class="form-text">Leave empty for default (30 days ago)</div>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">End Date</label>
-                                    <input type="date" class="form-control" id="endDate">
-                                    <div class="form-text">Leave empty for today</div>
-                                </div>
-                            </div>
-                            <div class="mt-3">
-                                <button type="button" class="btn btn-sm btn-outline-primary me-2"
-                                    onclick="setDateRange('today')">Today</button>
-                                <button type="button" class="btn btn-sm btn-outline-primary me-2"
-                                    onclick="setDateRange('week')">Last 7 days</button>
-                                <button type="button" class="btn btn-sm btn-outline-primary me-2"
-                                    onclick="setDateRange('month')">Last 30 days</button>
-                                <button type="button" class="btn btn-sm btn-outline-primary"
-                                    onclick="setDateRange('quarter')">Last 90 days</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Custom Keywords -->
+            <!-- Status & Controls -->
+            <div class="row mb-4">
+                <div class="col-md-8">
                     <div class="card">
                         <div class="card-header">
-                            <h6 class="card-title mb-0">
-                                <i class="fas fa-tags me-2"></i>
-                                Custom Keywords
-                            </h6>
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-tachometer-alt me-2"></i>
+                                Bot Status
+                            </h5>
                         </div>
                         <div class="card-body">
-                            <div class="alert alert-info">
-                                <small>
-                                    <i class="fas fa-info-circle me-1"></i>
-                                    Customize keywords for each industry. Leave empty to use default keywords.
-                                </small>
-                            </div>
-
-                            <div id="keywordContainer">
-                                <!-- Industry keyword sections will be generated here -->
-                            </div>
-
-                            <div class="mt-3">
-                                <button type="button" class="btn btn-sm btn-outline-success me-2"
-                                    onclick="addIndustry()">
-                                    <i class="fas fa-plus me-1"></i>Add Industry
-                                </button>
-                                <button type="button" class="btn btn-sm btn-outline-light me-2" onclick="addFile()">
-                                    <i class="fas fa-plus me-1"></i>Add File (.csv)
-                                </button>
-                                <button type="button" class="btn btn-sm btn-outline-warning" onclick="resetKeywords()">
-                                    <i class="fas fa-undo me-1"></i>Reset to Default
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" onclick="runWithConfig()">
-                        <i class="fas fa-play me-1"></i>Run with Config
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Settings Modal -->
-    <div class="modal fade" id="settingsModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Cài đặt hệ thống</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <!-- API Keys Section -->
-                    <div class="card mb-4">
-                        <div class="card-header">
-                            <h6 class="card-title mb-0">
-                                <i class="fas fa-key me-2"></i>
-                                API Keys Configuration
-                            </h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="alert alert-info">
-                                <small>
-                                    <i class="fas fa-info-circle me-1"></i>
-                                    Cần ít nhất 1 API key để hệ thống hoạt động.
-                                    <a href="https://platform.openai.com/api-keys" target="_blank">Get OpenAI Key</a> |
-                                    <a href="https://console.groq.com/keys" target="_blank">Get Groq Key</a>
-                                </small>
-                            </div>
-
-                            <div class="row">
+                            <div class="row align-items-center">
+                                <style>
+                                    .label-fixed {
+                                        width: 65px;
+                                        /* đủ cho chữ "Progress:" không bị wrap */
+                                        flex-shrink: 0;
+                                    }
+                                </style>
                                 <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label class="form-label">OpenAI API Key</label>
-                                        <div class="input-group">
-                                            <input type="password" class="form-control" id="openaiApiKey"
-                                                placeholder="sk-...">
-                                            <button class="btn btn-outline-secondary" type="button"
-                                                onclick="togglePassword('openaiApiKey')">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
+                                    <div class="d-flex align-items-center mb-3">
+                                        <span class="me-3 label-fixed">Status:</span>
+                                        <span id="statusBadge" class="status-badge status-idle">
+                                            <i class="fas fa-circle"></i>
+                                            Idle
+                                        </span>
+                                    </div>
+                                    <div class="d-flex align-items-center mb-3">
+                                        <span class="me-3 label-fixed">Task:</span>
+                                        <span id="currentTask" class="fw-bold">Chờ khởi động</span>
+                                    </div>
+                                    <div class="progress-wrapper">
+                                        <span class="me-3 label-fixed">Progress:</span>
+                                        <div class="flex-grow-1">
+                                            <div class="progress-container">
+                                                <div id="progress-bar" class="progress-bar" style="width: 0%"></div>
+                                            </div>
                                         </div>
-                                        <div id="openaiStatus" class="form-text">
-                                            <i class="fas fa-circle text-secondary me-1"></i>Not configured
+                                        <div class="progress-text-wrapper">
+                                            <span id="progressText" class="ms-2 fw-bold">0%</span>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label class="form-label">Groq API Key</label>
-                                        <div class="input-group">
-                                            <input type="password" class="form-control" id="groqApiKey"
-                                                placeholder="gsk_...">
-                                            <button class="btn btn-outline-secondary" type="button"
-                                                onclick="togglePassword('groqApiKey')">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
+                                    <div class="row text-center">
+                                        <div class="col-4">
+                                            <div class="metric-number" id="totalSources">0</div>
+                                            <div class="metric-label">Total Sources</div>
                                         </div>
-                                        <div id="groqStatus" class="form-text">
-                                            <i class="fas fa-circle text-secondary me-1"></i>Not configured
+                                        <div class="col-4">
+                                            <div class="metric-number" id="completedSources">0</div>
+                                            <div class="metric-label">Completed</div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="metric-number" id="failedSources">0</div>
+                                            <div class="metric-label">Failed</div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Default Provider</label>
-                                <select class="form-select" id="defaultProvider">
-                                    <option value="openai">OpenAI (Recommended)</option>
-                                    <option value="groq">Groq (Free tier available)</option>
-                                </select>
-                            </div>
-
-                            <div class="d-grid">
-                                <button type="button" class="btn btn-primary" onclick="updateApiKeys()">
-                                    <i class="fas fa-save me-2"></i>
-                                    Update API Keys
-                                </button>
-                            </div>
                         </div>
                     </div>
-
-                    <!-- Crawler Settings -->
+                </div>
+                <div class="col-md-4">
                     <div class="card">
                         <div class="card-header">
-                            <h6 class="card-title mb-0">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-play me-2"></i>
+                                Controls
+                            </h5>
+                        </div>
+                        <div class="card-body text-center">
+                            <button id="runBtn" class="btn btn-primary btn-lg mb-2 w-100">
+                                <i class="fas fa-play me-2"></i>
+                                Run Pipeline
+                            </button>
+                            <button id="configBtn" class="btn btn-outline-primary mb-2 w-100"
+                                onclick="showConfigModal()">
                                 <i class="fas fa-cog me-2"></i>
-                                Crawler Settings
-                            </h6>
-                        </div>
-                        <div class="card-body">
-                            <form id="settingsForm">
-                                <div class="mb-3">
-                                    <label class="form-label">Khoảng thời gian crawl (ngày)</label>
-                                    <input type="number" class="form-control" id="dateRangeDays" min="1" max="365"
-                                        value="30">
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Số bài tối đa mỗi source</label>
-                                    <input type="number" class="form-control" id="maxArticlesPerSource" min="1"
-                                        max="1000" value="50">
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Timeout (giây)</label>
-                                    <input type="number" class="form-control" id="crawlTimeout" min="5" max="300"
-                                        value="30">
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Keywords (JSON format)</label>
-                                    <textarea class="form-control" id="keywordsConfig" rows="8"></textarea>
-                                </div>
-                            </form>
+                                Configure Pipeline
+                            </button>
+                            <!-- Cancel & Pause/Resume Buttons Side-by-Side -->
+                            <!-- Nút Cancel và Pause nằm ngang, cùng style -->
+                            <div class="d-flex justify-content-between gap-2 mb-3">
+                                <button id="cancelBtn" class="btn btn-outline-danger flex-fill rounded-pill py-2"
+                                    onclick="cancelPipeline()" disabled>
+                                    <i class="fas fa-ban me-2"></i>Cancel
+                                </button>
+
+                                <button id="pauseResumeBtn" class="btn btn-outline-warning flex-fill rounded-pill py-2"
+                                    onclick="togglePauseResume()" disabled>
+                                    <i class="fas fa-pause me-2"></i>Pause
+                                </button>
+                            </div>
+                            <div class="small text-muted">
+                                <i class="fas fa-clock me-1"></i>
+                                Lần chạy cuối: <span id="lastRun">Chưa có</span>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                    <button type="button" class="btn btn-primary" onclick="saveSettings()">Lưu cài đặt</button>
+            </div>
+
+            <!-- Summary Overview -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-chart-bar me-2"></i>
+                                Summary - Overall
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <p class="mb-2"><strong>Thời gian trích xuất dữ liệu:</strong> <span
+                                            id="dateRange">Đang
+                                            tải...</span></p>
+                                </div>
+                                <div class="col-md-6 text-end">
+                                    <button class="btn btn-outline-primary btn-sm me-2"
+                                        onclick="downloadReport('json')">
+                                        <i class="fas fa-download me-1"></i>JSON
+                                    </button>
+                                    <button class="btn btn-outline-primary btn-sm me-2"
+                                        onclick="downloadReport('excel')">
+                                        <i class="fas fa-file-excel me-1"></i>Excel
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th>Ngành hàng</th>
+                                            <th>Nhãn hàng</th>
+                                            <th>Các đầu báo</th>
+                                            <th>Số lượng bài</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="summaryTableBody">
+                                        <tr>
+                                            <td colspan="5" class="text-center loading-state">
+                                                <i class="fas fa-spinner fa-spin me-2"></i>
+                                                Đang tải dữ liệu...
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-chart-pie me-2"></i>
+                                Phân bố theo Ngành hàng
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container">
+                                <canvas id="industryChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-chart-line me-2"></i>
+                                Top Media Sources
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container">
+                                <canvas id="mediaChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Articles Detail -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-newspaper me-2"></i>
+                                Chi tiết bài báo
+                            </h5>
+                            <div class="d-flex gap-2">
+                                <select id="industryFilter" class="form-select form-select-sm" style="width: auto;">
+                                    <option value="">Tất cả ngành</option>
+                                </select>
+                                <input type="text" id="searchInput" class="form-control form-control-sm"
+                                    placeholder="Tìm kiếm..." style="width: 200px;">
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th>STT</th>
+                                            <th>Ngày</th>
+                                            <th>Đầu báo</th>
+                                            <th>Cụm nội dung</th>
+                                            <th>Tóm tắt</th>
+                                            <th>Ngành hàng</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="articlesTableBody">
+                                        <tr>
+                                            <td colspan="7" class="text-center loading-state">
+                                                <i class="fas fa-spinner fa-spin me-2"></i>
+                                                Đang tải dữ liệu...
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Pagination -->
+                            <nav>
+                                <ul class="pagination justify-content-center" id="pagination">
+                                    <!-- Pagination will be generated here -->
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Activity Log -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-history me-2"></i>
+                                Activity Log
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="activityLog" class="timeline">
+                                <div class="timeline-item">
+                                    <div class="fw-bold">System Started</div>
+                                    <div class="text-muted small">Media Tracker Bot đã khởi động</div>
+                                    <div class="text-muted small"><i class="fas fa-clock me-1"></i><span
+                                            id="startTime"></span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Article Detail Modal -->
+        <div class="modal fade" id="articleModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Chi tiết bài báo</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="articleContent">
+                            <!-- Article content will be loaded here -->
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                        <a id="articleLink" href="#" target="_blank" class="btn btn-primary">Xem bài gốc</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Configure Modal -->
+        <div class="modal fade" id="configModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="fas fa-filter me-2"></i>
+                            Configure Pipeline
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Date Range Filter -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h6 class="card-title mb-0">
+                                    <i class="fas fa-calendar me-2"></i>
+                                    Date Range Filter
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Start Date</label>
+                                        <input type="date" class="form-control" id="startDate">
+                                        <div class="form-text">Leave empty for default (30 days ago)</div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">End Date</label>
+                                        <input type="date" class="form-control" id="endDate">
+                                        <div class="form-text">Leave empty for today</div>
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <button type="button" class="btn btn-sm btn-outline-primary me-2"
+                                        onclick="setDateRange('today')">Today</button>
+                                    <button type="button" class="btn btn-sm btn-outline-primary me-2"
+                                        onclick="setDateRange('week')">Last 7 days</button>
+                                    <button type="button" class="btn btn-sm btn-outline-primary me-2"
+                                        onclick="setDateRange('month')">Last 30 days</button>
+                                    <button type="button" class="btn btn-sm btn-outline-primary"
+                                        onclick="setDateRange('quarter')">Last 90 days</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Custom Keywords -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="card-title mb-0">
+                                    <i class="fas fa-tags me-2"></i>
+                                    Custom Keywords
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="alert alert-info">
+                                    <small>
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Customize keywords for each industry. Leave empty to use default keywords.
+                                    </small>
+                                </div>
+
+                                <div id="keywordContainer">
+                                    <!-- Industry keyword sections will be generated here -->
+                                </div>
+
+                                <div class="mt-3">
+                                    <button type="button" class="btn btn-sm btn-outline-success me-2"
+                                        onclick="addIndustry()">
+                                        <i class="fas fa-plus me-1"></i>Add Industry
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-light me-2" onclick="addFile()">
+                                        <i class="fas fa-plus me-1"></i>Add File (.csv)
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-warning"
+                                        onclick="resetKeywords()">
+                                        <i class="fas fa-undo me-1"></i>Reset to Default
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" onclick="runWithConfig()">
+                            <i class="fas fa-play me-1"></i>Run with Config
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Modal -->
+        <div class="modal fade" id="settingsModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Cài đặt hệ thống</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- API Keys Section -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h6 class="card-title mb-0">
+                                    <i class="fas fa-key me-2"></i>
+                                    API Keys Configuration
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="alert alert-info">
+                                    <small>
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Cần ít nhất 1 API key để hệ thống hoạt động.
+                                        <a href="https://platform.openai.com/api-keys" target="_blank">Get OpenAI
+                                            Key</a> |
+                                        <a href="https://console.groq.com/keys" target="_blank">Get Groq Key</a>
+                                    </small>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">OpenAI API Key</label>
+                                            <div class="input-group">
+                                                <input type="password" class="form-control" id="openaiApiKey"
+                                                    placeholder="sk-...">
+                                                <button class="btn btn-outline-secondary" type="button"
+                                                    onclick="togglePassword('openaiApiKey')">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                            </div>
+                                            <div id="openaiStatus" class="form-text">
+                                                <i class="fas fa-circle text-secondary me-1"></i>Not configured
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Groq API Key</label>
+                                            <div class="input-group">
+                                                <input type="password" class="form-control" id="groqApiKey"
+                                                    placeholder="gsk_...">
+                                                <button class="btn btn-outline-secondary" type="button"
+                                                    onclick="togglePassword('groqApiKey')">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                            </div>
+                                            <div id="groqStatus" class="form-text">
+                                                <i class="fas fa-circle text-secondary me-1"></i>Not configured
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Default Provider</label>
+                                    <select class="form-select" id="defaultProvider">
+                                        <option value="openai">OpenAI (Recommended)</option>
+                                        <option value="groq">Groq (Free tier available)</option>
+                                    </select>
+                                </div>
+
+                                <div class="d-grid">
+                                    <button type="button" class="btn btn-primary" onclick="updateApiKeys()">
+                                        <i class="fas fa-save me-2"></i>
+                                        Update API Keys
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Crawler Settings -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="card-title mb-0">
+                                    <i class="fas fa-cog me-2"></i>
+                                    Crawler Settings
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <form id="settingsForm">
+                                    <div class="mb-3">
+                                        <label class="form-label">Khoảng thời gian crawl (ngày)</label>
+                                        <input type="number" class="form-control" id="dateRangeDays" min="1" max="365"
+                                            value="30">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Số bài tối đa mỗi source</label>
+                                        <input type="number" class="form-control" id="maxArticlesPerSource" min="1"
+                                            max="1000" value="50">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Timeout (giây)</label>
+                                        <input type="number" class="form-control" id="crawlTimeout" min="5" max="300"
+                                            value="30">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Keywords (JSON format)</label>
+                                        <textarea class="form-control" id="keywordsConfig" rows="8"></textarea>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button type="button" class="btn btn-primary" onclick="saveSettings()">Lưu cài đặt</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1128,7 +1367,7 @@
             document.getElementById('runBtn').addEventListener('click', runPipeline);
 
             // Stop button - FIXED
-            document.getElementById('stopBtn').addEventListener('click', stopPipeline);
+            document.getElementById('cancelBtn').addEventListener('click', cancelPipeline);
 
             // Search and filter
             document.getElementById('searchInput').addEventListener('input', debounce(filterArticles, 300));
@@ -1199,7 +1438,12 @@
 
         async function loadLatestReport() {
             try {
-                const response = await fetch('/api/reports/latest');
+                const response = await fetch('/api/reports/latest', {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${localStorage.getItem("token")}`
+                    }
+                });
                 const data = await response.json();
 
                 if (data && data.articles) {
@@ -1215,11 +1459,11 @@
                     console.log('✅ Report loaded:', data.total_articles, 'articles');
                 } else {
                     console.log('📄 No report data available');
-                    showSampleData();
+                    // showSampleData();
                 }
             } catch (error) {
                 console.error('Error loading report:', error);
-                showSampleData();
+                // showSampleData();
             }
         }
 
@@ -1266,7 +1510,12 @@
 
         async function loadStatus() {
             try {
-                const response = await fetch('/api/status');
+                const response = await fetch('/api/status', {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${localStorage.getItem("token")}`
+                    }
+                });
                 const status = await response.json();
 
                 updateStatusDisplay(status);
@@ -1298,7 +1547,7 @@
                 return;
             }
 
-            if (status.is_running) {
+            if (status.is_running && !status.is_Paused) {
                 statusBadge.className = 'status-badge status-running';
                 statusBadge.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Running';
                 currentTask.textContent = status.team_status.current_task || 'Processing...';
@@ -1309,21 +1558,51 @@
 
                 document.getElementById('runBtn').disabled = true;
                 document.getElementById('runBtn').innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Running...';
-                document.getElementById('stopBtn').disabled = false;
+                document.getElementById('cancelBtn').disabled = false;
                 document.getElementById('configBtn').disabled = true;
+                document.getElementById('pauseResumeBtn').disabled = false;
 
                 // Store session ID
                 currentSessionId = status.session_id;
-            } else {
+            }
+            else if (status.is_running && status.is_Paused) {
+                statusBadge.className = 'status-badge status-paused';
+                statusBadge.innerHTML = '<i class="fas fa-pause me-1"></i>Paused';
+
+                currentTask.textContent = 'Paused. Press resume to continue.';
+
+                // Giữ nguyên progress
+                const progress = status.team_status.progress || 0;
+                progressBar.style.width = progress + '%';
+                progressText.textContent = Math.round(progress) + '%';
+
+                // Các nút điều khiển
+                document.getElementById('runBtn').disabled = true;
+                document.getElementById('runBtn').innerHTML = '<i class="fas fa-play me-2"></i>Paused'; // hoặc giữ nguyên tùy mục đích
+
+                document.getElementById('cancelBtn').disabled = false;
+                document.getElementById('configBtn').disabled = true;
+
+                const pauseResumeBtn = document.getElementById('pauseResumeBtn');
+                pauseResumeBtn.disabled = false;
+                pauseResumeBtn.classList.remove("btn-outline-warning");
+                pauseResumeBtn.classList.add("btn-outline-success");
+                pauseResumeBtn.innerHTML = '<i class="fas fa-play me-2"></i>Resume';
+            }
+            else {
                 statusBadge.className = 'status-badge status-idle';
                 statusBadge.innerHTML = '<i class="fas fa-check me-1"></i>Ready';
                 currentTask.textContent = 'Sẵn sàng chạy pipeline';
 
                 document.getElementById('runBtn').disabled = false;
                 document.getElementById('runBtn').innerHTML = '<i class="fas fa-play me-2"></i>Run Pipeline';
-                document.getElementById('stopBtn').disabled = true;
+                document.getElementById('cancelBtn').disabled = true;
                 document.getElementById('configBtn').disabled = false;
-
+                isPaused = false;
+                document.getElementById('pauseResumeBtn').disabled = true;
+                document.getElementById('pauseResumeBtn').classList.remove('btn-outline-success');
+                document.getElementById('pauseResumeBtn').classList.add('btn-outline-warning');
+                document.getElementById('pauseResumeBtn').innerHTML = '<i class="fas fa-pause me-2"></i>Pause';
                 // Clear session ID
                 currentSessionId = null;
             }
@@ -1349,9 +1628,42 @@
             new bootstrap.Modal(document.getElementById('settingsModal')).show();
         }
 
+        // FIXED: Load keywords từ backend
+        async function loadKeywordConfiguration() {
+            try {
+                // Set default date range (last 30 days)
+                const today = new Date();
+                const thirtyDaysAgo = new Date(today.getTime() - (30 * 24 * 60 * 60 * 1000));
+
+                document.getElementById('endDate').value = today.toISOString().split('T')[0];
+                document.getElementById('startDate').value = thirtyDaysAgo.toISOString().split('T')[0];
+
+                // Load keywords từ backend
+                const response = await fetch('/api/keywords');
+                const keywords = await response.json();
+
+                renderKeywordInputs(keywords);
+
+            } catch (error) {
+                console.error('Error loading keywords:', error);
+                // Fallback to default
+                const defaultKeywords = {
+                    "Dầu ăn": ["Tường An", "Coba", "Nortalic", "dầu ăn", "cooking oil"],
+                    "Gia vị": ["gia vị", "seasoning", "spices", "condiment", "nước mắm"],
+                    "Gạo & Ngũ cốc": ["gạo", "rice", "ngũ cốc", "cereals", "yến mạch"],
+                    "Sữa (UHT)": ["sữa", "milk", "UHT", "sữa tươi", "sữa bột"],
+                    "Baby Food": ["thức ăn trẻ em", "baby food", "sữa bột trẻ em"],
+                    "Home Care": ["nước rửa chén", "nước giặt", "chăm sóc nhà cửa"]
+                };
+                renderKeywordInputs(defaultKeywords);
+            }
+        }
+
         // Event handlers
         async function runPipeline() {
             try {
+                const startDate = document.getElementById('startDate').value;
+                const endDate = document.getElementById('endDate').value;
                 // Check if we have session conflict
                 if (currentSessionId) {
                     addActivityLog('Warning', 'Another session is running. Please wait...', 'warning');
@@ -1361,10 +1673,13 @@
                 const response = await fetch('/api/run', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        "Authorization": `Bearer ${localStorage.getItem("token")}`
                     },
                     body: JSON.stringify({
-                        session_id: generateSessionId()
+                        session_id: generateSessionId(),
+                        start_date: startDate,
+                        end_date: endDate
                     })
                 });
 
@@ -1376,7 +1691,7 @@
 
                     // Update UI
                     document.getElementById('runBtn').disabled = true;
-                    document.getElementById('stopBtn').disabled = false;
+                    document.getElementById('cancelBtn').disabled = false;
                     document.getElementById('configBtn').disabled = true;
 
                     // Start intensive polling
@@ -1393,8 +1708,7 @@
             }
         }
 
-        // FIXED: Stop pipeline function
-        async function stopPipeline() {
+        async function cancelPipeline() {
             try {
                 if (!currentSessionId) {
                     addActivityLog('Warning', 'No active session to stop', 'warning');
@@ -1409,13 +1723,14 @@
                 statusBadge.innerHTML = '<i class="fas fa-stop me-1"></i>Stopping...';
                 currentTask.textContent = 'Đang dừng pipeline...';
 
-                document.getElementById('stopBtn').disabled = true;
-                document.getElementById('stopBtn').innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Stopping...';
+                document.getElementById('cancelBtn').disabled = true;
+                document.getElementById('cancelBtn').innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Stopping...';
 
                 const response = await fetch('/api/stop', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        "Authorization": `Bearer ${localStorage.getItem("token")}`
                     },
                     body: JSON.stringify({
                         session_id: currentSessionId
@@ -1434,8 +1749,8 @@
                     setTimeout(() => {
                         document.getElementById('runBtn').disabled = false;
                         document.getElementById('runBtn').innerHTML = '<i class="fas fa-play me-2"></i>Run Pipeline';
-                        document.getElementById('stopBtn').disabled = true;
-                        document.getElementById('stopBtn').innerHTML = '<i class="fas fa-stop me-2"></i>Stop';
+                        document.getElementById('cancelBtn').disabled = true;
+                        document.getElementById('cancelBtn').innerHTML = '<i class="fas fa-stop me-2"></i>Cancel';
                         document.getElementById('configBtn').disabled = false;
 
                         statusBadge.className = 'status-badge status-idle';
@@ -1452,8 +1767,8 @@
                 addActivityLog('Error', 'Lỗi khi dừng pipeline: ' + error.message, 'error');
 
                 // Reset stop button
-                document.getElementById('stopBtn').disabled = false;
-                document.getElementById('stopBtn').innerHTML = '<i class="fas fa-stop me-2"></i>Stop';
+                document.getElementById('cancelBtn').disabled = false;
+                document.getElementById('cancelBtn').innerHTML = '<i class="fas fa-stop me-2"></i>Cancel';
             }
         }
 
@@ -1735,37 +2050,6 @@
             new bootstrap.Modal(document.getElementById('configModal')).show();
         }
 
-        // FIXED: Load keywords từ backend
-        async function loadKeywordConfiguration() {
-            try {
-                // Set default date range (last 30 days)
-                const today = new Date();
-                const thirtyDaysAgo = new Date(today.getTime() - (30 * 24 * 60 * 60 * 1000));
-
-                document.getElementById('endDate').value = today.toISOString().split('T')[0];
-                document.getElementById('startDate').value = thirtyDaysAgo.toISOString().split('T')[0];
-
-                // Load keywords từ backend
-                const response = await fetch('/api/keywords');
-                const keywords = await response.json();
-
-                renderKeywordInputs(keywords);
-
-            } catch (error) {
-                console.error('Error loading keywords:', error);
-                // Fallback to default
-                const defaultKeywords = {
-                    "Dầu ăn": ["Tường An", "Coba", "Nortalic", "dầu ăn", "cooking oil"],
-                    "Gia vị": ["gia vị", "seasoning", "spices", "condiment", "nước mắm"],
-                    "Gạo & Ngũ cốc": ["gạo", "rice", "ngũ cốc", "cereals", "yến mạch"],
-                    "Sữa (UHT)": ["sữa", "milk", "UHT", "sữa tươi", "sữa bột"],
-                    "Baby Food": ["thức ăn trẻ em", "baby food", "sữa bột trẻ em"],
-                    "Home Care": ["nước rửa chén", "nước giặt", "chăm sóc nhà cửa"]
-                };
-                renderKeywordInputs(defaultKeywords);
-            }
-        }
-
         function renderKeywordInputs(industries) {
             const container = document.getElementById('keywordContainer');
             container.innerHTML = '';
@@ -1919,9 +2203,10 @@
                 const response = await fetch('/api/run', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        "Authorization": `Bearer ${localStorage.getItem("token")}`
                     },
-                    body: JSON.stringify(config)
+                    body: JSON.stringify(config),
                 });
 
                 const result = await response.json();
@@ -1946,7 +2231,7 @@
 
                     // Update UI
                     document.getElementById('runBtn').disabled = true;
-                    document.getElementById('stopBtn').disabled = false;
+                    document.getElementById('cancelBtn').disabled = false;
                     document.getElementById('configBtn').disabled = true;
 
                     // Start intensive polling
@@ -2035,7 +2320,12 @@
 
         async function downloadReport(format) {
             try {
-                const response = await fetch(`/api/reports/download/latest?format=${format}`);
+                const response = await fetch(`/api/reports/download/latest?format=${format}`, {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${localStorage.getItem("token")}`
+                    }
+                });
 
                 if (response.ok) {
                     const blob = await response.blob();
@@ -2226,7 +2516,12 @@
                 await loadStatus();
 
                 // Check if pipeline completed
-                const statusResponse = await fetch('/api/status');
+                const statusResponse = await fetch('/api/status', {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${localStorage.getItem("token")}`
+                    }
+                });
                 const status = await statusResponse.json();
 
                 if (!status.is_running && status.team_status && status.team_status.last_run) {
@@ -2313,9 +2608,62 @@
     </script>
 
     <script>
+        async function handleLogin(event) {
+            event.preventDefault(); // Ngăn reload trang mặc định
+
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+
+            const response = await fetch("/api/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                localStorage.setItem("token", data.access_token);
+                const loginContainer = document.getElementById("loginContainer");
+                const dashboardContainer = document.getElementById("dashboardContainer");
+
+                // Thêm hiệu ứng fade out
+                loginContainer.classList.add("fade-out-up");
+
+                // Delay sau animation
+                setTimeout(() => {
+                    loginContainer.style.display = "none";
+                    dashboardContainer.style.display = "block";
+                    dashboardContainer.classList.add("fade-in-down");
+                }, 700); // Khớp với thời gian animation
+            } else {
+                alert("Wrong account or password");
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem("token");
+            document.getElementById("loginContainer").style.display = "block";
+            document.getElementById("dashboardContainer").style.display = "none";
+        }
+
+        function confirmLogout() {
+            localStorage.removeItem("token");
+            document.getElementById("loginContainer").style.display = "block";
+            document.getElementById("dashboardContainer").style.display = "none";
+
+            // Đóng modal thủ công
+            const modal = bootstrap.Modal.getInstance(document.getElementById('logoutModal'));
+            if (modal) modal.hide();
+        }
         async function syncPipelineStatus() {
             try {
-                const response = await fetch('/api/status');
+                const response = await fetch('/api/status', {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${localStorage.getItem("token")}`
+                    }
+                });
                 if (!response.ok) throw new Error('Failed to fetch pipeline status');
                 const status = await response.json();
 
@@ -2337,10 +2685,268 @@
             }
         }
 
+        const text = "WELCOME TO CHICOM SERVICES";
+        const target = document.getElementById("typingText");
+        let index = 0;
+
+        function typeLetter() {
+            if (index < text.length) {
+                target.textContent += text.charAt(index);
+                index++;
+                setTimeout(typeLetter, 100); // Tốc độ gõ: 100ms mỗi chữ
+            } else {
+                // Khi gõ xong thì ẩn thanh gõ (cursor)
+                target.style.borderRight = "none";
+            }
+        }
+
+        function handleAuthUI() {
+            const token = localStorage.getItem("token");
+            const loginDiv = document.getElementById("loginContainer");
+            const dashboardDiv = document.getElementById("dashboardContainer");
+
+            if (token) {
+                loginDiv.style.display = "none";
+                dashboardDiv.style.display = "block";
+            } else {
+                loginDiv.style.display = "block";
+                dashboardDiv.style.display = "none";
+            }
+        }
+
+        async function loadReportList() {
+            const token = localStorage.getItem("token");
+            const tableBody = document.getElementById("reportTableBody");
+            tableBody.innerHTML = `<tr><td colspan="4" class="text-muted text-center">Đang tải...</td></tr>`;
+
+            try {
+                const res = await fetch("/api/reports/list", {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const reports = await res.json();
+
+                if (!Array.isArray(reports) || reports.length === 0) {
+                    tableBody.innerHTML = `<tr><td colspan="4" class="text-center text-muted">Không có báo cáo nào</td></tr>`;
+                    return;
+                }
+
+                tableBody.innerHTML = "";
+                reports.forEach((report, index) => {
+                    const match = report.filename.match(/report_(\d{4}-\d{2}-\d{2})_(\d{2}-\d{2}-\d{2})/);
+                    const formatted = match ? `${match[1]} ${match[2].replace(/-/g, ":")}` : "Không rõ";
+
+                    const row = `
+              <tr>
+                <td>${index + 1}</td>
+                <td>${report.filename}</td>
+                <td>${formatted}</td>
+                <td>
+                    <button class="btn btn-sm btn-outline-success" onclick="downloadReportDirectly('${report.filename}')">
+                        ⬇️ Tải xuống
+                    </button>
+                </td>
+              </tr>
+            `;
+                    tableBody.insertAdjacentHTML("beforeend", row);
+                });
+            } catch (err) {
+                console.error("❌ Không tải được danh sách báo cáo:", err);
+                tableBody.innerHTML = `<tr><td colspan="4" class="text-danger text-center">Lỗi khi tải danh sách</td></tr>`;
+            }
+        }
+
+        async function downloadReportDirectly(filename) {
+            const token = localStorage.getItem("token");
+
+            try {
+                const response = await fetch(`/api/reports/download/${filename}`, {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error("Không thể tải file");
+                }
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = filename;
+                a.style.display = "none";
+
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            } catch (err) {
+                console.error("❌ Lỗi khi tải file:", err);
+                alert("Không thể tải báo cáo. Vui lòng kiểm tra token hoặc đăng nhập lại.");
+            }
+        }
+
+
         // Gọi lặp lại mỗi 5 giây
         setInterval(syncPipelineStatus, 5000);
         window.addEventListener("DOMContentLoaded", syncPipelineStatus);
+        window.onload = typeLetter;
+        document.addEventListener("DOMContentLoaded", () => {
+            handleAuthUI();
+            loadKeywordConfiguration();
+        });
+
+
     </script>
+
+    <!-- Modal xác nhận đăng xuất -->
+    <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="logoutModalLabel">Xác nhận đăng xuất</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Đóng"></button>
+                </div>
+                <div class="modal-body">
+                    Bạn có chắc chắn muốn đăng xuất khỏi hệ thống?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-danger" onclick="confirmLogout()">Đăng xuất</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal hiển thị file list -->
+    <div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="reportModalLabel">📄 Danh sách báo cáo đã tạo</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Tên báo cáo</th>
+                                <th>Thời gian tạo</th>
+                                <th>Tải xuống</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reportTableBody">
+                            <tr>
+                                <td colspan="4" class="text-muted text-center">Đang tải...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('show.bs.modal', () => {
+                const dialog = modal.querySelector('.modal-dialog');
+                if (dialog) {
+                    dialog.classList.add('animate__animated', 'animate__fadeInDown');
+                }
+            });
+
+            modal.addEventListener('hidden.bs.modal', () => {
+                const dialog = modal.querySelector('.modal-dialog');
+                if (dialog) {
+                    dialog.classList.remove('animate__animated', 'animate__fadeInDown');
+                }
+            });
+        });
+    </script>
+
+    <script>
+        tsParticles.load("particles-background", {
+            fullScreen: { enable: false },
+            background: {
+                color: "#2a2a2a" // nền xám nhẹ
+            },
+            particles: {
+                number: { value: 30 },
+                color: { value: "#FFD700" },
+                shape: {
+                    type: "circle"
+                },
+                size: { value: 2 },
+                opacity: { value: 0.6 },
+                move: {
+                    enable: true,
+                    direction: "bottom-right",
+                    speed: 0.6,
+                    gravity: { enable: false },
+                    outModes: { default: "out" },
+                },
+                shadow: {
+                    enable: true,
+                    color: "#FFD700",
+                    blur: 10
+                }
+            }
+        });
+    </script>
+
+    <script>
+        let isPaused = false;
+
+        async function togglePauseResume() {
+            const btn = document.getElementById('pauseResumeBtn');
+            const statusBadge = document.getElementById('statusBadge');
+
+            const endpoint = isPaused ? "/api/resume" : "/api/pause";
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem("token")}`
+                    }
+                });
+
+                if (response.ok) {
+                    isPaused = !isPaused;
+
+                    // Update button UI
+                    if (isPaused) {
+                        btn.classList.remove("btn-outline-warning");
+                        btn.classList.add("btn-outline-success");
+                        btn.innerHTML = '<i class="fas fa-play me-2"></i>Resume';
+
+                        statusBadge.className = 'status-badge status-paused';
+                        statusBadge.innerHTML = '<i class="fas fa-pause me-1"></i>Paused';
+                    } else {
+                        btn.classList.remove("btn-outline-success");
+                        btn.classList.add("btn-outline-warning");
+                        btn.innerHTML = '<i class="fas fa-pause me-2"></i>Pause';
+
+                        statusBadge.className = 'status-badge status-running';
+                        statusBadge.innerHTML = '<i class="fas fa-play me-1"></i>Running';
+                    }
+
+                    addActivityLog(isPaused ? "⏸ Pipeline paused." : "▶️ Pipeline resumed.");
+                } else {
+                    alert("Không thể gửi yêu cầu " + (isPaused ? "resume" : "pause"));
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Lỗi kết nối tới server.");
+            }
+        }
+    </script>
+
 
 </body>
 

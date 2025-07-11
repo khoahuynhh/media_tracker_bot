@@ -11,7 +11,9 @@ import logging
 import gc
 from datetime import datetime, timedelta
 from typing import List, Dict, Optional, Any
+from playwright.sync_api import sync_playwright
 import threading
+import requests
 from tenacity import (
     retry,
     stop_after_attempt,
@@ -33,6 +35,7 @@ from agno.tools.searxng import SearxngTools
 from agno.tools.wikipedia import WikipediaTools
 from agno.team import Team
 from openai import APITimeoutError
+from typing import Callable
 import httpx
 
 from .models import (
@@ -66,26 +69,33 @@ class CrawlerAgent:
         self.search_tools = [
             GoogleSearchTools(),
             DDGS(),
-            ArxivTools(),
-            BaiduSearchTools(),
-            HackerNewsTools(),
+            # ArxivTools(),
+            # BaiduSearchTools(),
+            # HackerNewsTools(),
             PubmedTools(),
-            # SearxngTools(
-            #     host="http://localhost:8888",
-            #     engines=["google", "bing"],
-            #     fixed_max_results=5,
-            #     news=True,
-            #     science=True),
             WikipediaTools(),
         ]
-        self.search_tool_index = 0  # Luân phiên
+        self.search_tool_index = 0
         self.model = model
         self.agent = None
         self._create_agent()
 
+    async def _check_pause(self):
+        if hasattr(self, "pause_event"):
+            while self.pause_event.is_set():
+                import logging
+
+                logging.info("⏸ CrawlerAgent paused... waiting to resume.")
+                await asyncio.sleep(1)
+
+    async def _check_stop(self):
+        if hasattr(self, "stop_event"):
+            while self.stop_event.is_set():
+                raise InterruptedError("Pipeline stopped by user.")
+
     def _create_agent(self):
         if self.agent:
-            del self.agent  # avoid potential lingering transport
+            del self.agent
         current_tool = self.search_tools[self.search_tool_index]
 
         self.agent = Agent(
@@ -95,8 +105,13 @@ class CrawlerAgent:
             tools=[Crawl4aiTools(max_length=2000), current_tool],
             instructions=[
                 "Bạn là một chuyên gia crawl web để theo dõi truyền thông tại Việt Nam.",
-                "Nhiệm vụ: Crawl các website báo chí để tìm bài viết về các đối thủ cạnh tranh dựa trên keywords.",
+                "Nhiệm vụ: Crawl các website báo chí để tìm bài viết về các đối thủ cạnh tranh dựa trên keywords và ngành hàng.",
                 "Ưu tiên tin tức mới nhất trong khoảng thời gian được chỉ định.",
+                "Chỉ lấy các bài viết được đăng trong khoảng thời gian được yêu cầu.",
+                "Những bài được lấy bắt buộc phải thỏa mãn cả 2 điều kiện sau: chứa keywords và phải liên quan đến ngành hàng.",
+                "Nếu không có bài thì để trống, đừng tự tạo nội dung hay format.",
+                "Tránh tất cả các bài viết liên quan đến việc bán hàng, quảng cáo sản phẩm, giới thiệu sản phẩm từ trang thương mại điện tử hoặc website bán hàng như Shopee, Tiki, Lazada, Homefarm, Kingfoodmart, Bách hóa xanh, v.v."
+                "Không lấy các bài viết đăng trước hoặc sau khoảng thời gian chỉ định.",
                 "Trả về kết quả dạng JSON hợp lệ chứa danh sách bài báo với các trường: tiêu đề, ngày phát hành (DD-MM-YYYY), tóm tắt nội dung, link bài báo.",
             ],
             show_tool_calls=True,
@@ -120,17 +135,16 @@ class CrawlerAgent:
         self,
         media_source: MediaSource,
         keywords: List[str],
-        date_range_days: int = 30,
+        start_date: datetime,
+        end_date: datetime,
     ) -> CrawlResult:
         start_time = datetime.now()
-        end_date = datetime.now()
-        start_date = end_date - timedelta(days=date_range_days)
         date_filter = f"từ ngày {start_date.strftime('%Y-%m-%d')} đến ngày {end_date.strftime('%Y-%m-%d')}"
         domain_url = media_source.domain
         if domain_url and not domain_url.startswith("http"):
             domain_url = f"https://{domain_url}"
 
-        max_keywords_per_query = 3  # Limit to 3 keywords per query
+        max_keywords_per_query = 3
         keyword_groups = [
             keywords[i : i + max_keywords_per_query]
             for i in range(0, len(keywords), max_keywords_per_query)
@@ -140,24 +154,32 @@ class CrawlerAgent:
             f"crawler-{media_source.name}-{datetime.now().strftime('%Y%m%d%H%M%S')}"
         )
 
+        def to_date(dt):
+            return dt.date() if isinstance(dt, datetime) else dt
+
         try:
             for tool in self.search_tools:
+                await self._check_stop()
+                await self._check_pause()
                 self._rotate_tool()
                 tool_name = type(self.agent.tools[1]).__name__
                 logger.info(f"[{media_source.name}] Đang dùng search tool: {tool_name}")
 
+                new_articles_this_tool = 0
                 for group in keyword_groups:
+                    await self._check_stop()
+                    await self._check_pause()
                     keywords_str = ", ".join(group)
+
                     crawl_query = f"""
                     Crawl website: {domain_url or media_source.name}
-                    Tìm các bài báo có chứa từ khóa: {keywords_str}
+                    Tìm các bài báo có chứa từ khóa và liên quan đến ngành hàng: {keywords_str}
                     Thời gian: {date_filter}
                     Yêu cầu:
                     - Trích xuất tiêu đề, tóm tắt, ngày đăng, link gốc.
-                    - Chỉ lấy bài viết liên quan đến ngành FMCG và từ khóa.
+                    - Chỉ lấy bài viết liên quan đến ngành hàng và từ khóa.
+                    - Tạo tóm tắt chi tiết (dưới 100 từ), nêu bật các thông tin chính như: sự kiện chính, các bên liên quan, và kết quả hoặc tác động của sự kiện. Không chỉ lặp lại tiêu đề.
                     - Format: Tiêu đề | Ngày | Tóm tắt | Link
-                    - Ngày phải là ngày xuất hiện trong nội dung bài báo.
-                    - Cố gắng trích xuất ngày từ nội dung bài báo. Ưu tiên dòng chứa ngày rõ ràng như Ngày: hoặc Published: hoặc trong đoạn đầu bài viết. Nếu không tìm được ngày rõ ràng, vẫn giữ bài báo.
                     """
 
                     try:
@@ -167,10 +189,12 @@ class CrawlerAgent:
                         response = await self.agent.arun(
                             crawl_query, session_id=session_id
                         )
-                        await asyncio.sleep(1)  # Avoid overwhelming the API
+                        logger.info(
+                            f"[DEBUG] Raw response content:\n{response.content}"
+                        )
+                        await asyncio.sleep(1)
 
                         if response and response.content:
-                            # Check for blocked content or captcha
                             if (
                                 "enable javascript" in response.content.lower()
                                 or "captcha" in response.content.lower()
@@ -183,10 +207,26 @@ class CrawlerAgent:
                             parsed_articles = self.parser.parse(
                                 response.content, media_source
                             )
-                            if parsed_articles:
-                                articles.extend(parsed_articles)
+                            valid_new_articles = [
+                                a
+                                for a in parsed_articles
+                                if a
+                                and a.link_bai_bao
+                                and a.ngay_phat_hanh
+                                and to_date(start_date)
+                                <= to_date(a.ngay_phat_hanh)
+                                <= to_date(end_date)
+                            ]
+
+                            if valid_new_articles:
+                                articles.extend(valid_new_articles)
+                                new_articles_this_tool += len(valid_new_articles)
+
                                 logger.info(
-                                    f"[{media_source.name}] Found {len(parsed_articles)} articles with {tool_name} for keywords: {keywords_str}"
+                                    f"[{media_source.name}] Found {len(valid_new_articles)} articles with {tool_name} for keywords: {keywords_str}"
+                                )
+                                logger.debug(
+                                    f"[{media_source.name}] Total articles so far: {len(articles)}"
                                 )
                             else:
                                 logger.warning(
@@ -214,17 +254,14 @@ class CrawlerAgent:
                         )
                         await asyncio.sleep(1)
 
-                    # Free memory after each keyword group
                     gc.collect()
 
-                # Stop if articles are found to avoid redundant searches
-                if articles:
+                if new_articles_this_tool > 0:
                     logger.info(
-                        f"[{media_source.name}] Stopping search as articles were found"
+                        f"[{media_source.name}] Stopping search as articles were found by {tool_name}"
                     )
                     break
 
-            # Remove duplicates based on article URL
             unique_articles = {
                 article.link_bai_bao: article
                 for article in articles
@@ -261,7 +298,7 @@ class CrawlerAgent:
                 crawl_duration=(datetime.now() - start_time).total_seconds(),
             )
         finally:
-            gc.collect()  # Final memory cleanup
+            gc.collect()
 
 
 class ProcessorAgent:
@@ -299,7 +336,7 @@ class ProcessorAgent:
             return []
 
         processed_articles = []
-        batch_size = 20  # Process 20 articles per batch to reduce memory usage
+        batch_size = 10  # Process 20 articles per batch to reduce memory usage
 
         try:
             # Extract brand list (uppercase keywords) for competitor identification
@@ -383,22 +420,28 @@ class ProcessorAgent:
                 Yêu cầu:
                 1. Phân loại chính xác ngành hàng cho từng bài (dựa theo bối cảnh bài và danh sách nhãn hàng ngành hàng tương ứng).
                 2. Với mỗi bài viết, xác định các nhãn hàng competitors nào được đề cập trong nội dung từ danh sách các nhãn hàng.
-                3. Phân loại cụm nội dung (`cum_noi_dung`): Dựa trên nội dung bài viết và từ khóa tương ứng:
+                3. Phân loại lại cụm nội dung (`cum_noi_dung`): Dựa trên tóm tắt nội dung và từ khóa tương ứng:
                 {json.dumps({k.value: v for k, v in content_clusters.items()}, ensure_ascii=False, indent=2)}
                 - Nếu không khớp với cụm nào, chọn '{ContentCluster.OTHER}'.
-                4. Trích xuất keywords tìm thấy trong bài.
-                5. Tóm tắt nội dung (`tom_tat_noi_dung`): Tạo tóm tắt ngắn gọn (dưới 100 từ), rõ ràng, tập trung vào nội dung FMCG.
+                4. Viết lại nội dung chi tiết, ngắn gọn và mang tính mô tả khái quát cho trường `cum_noi_dung_chi_tiet` dựa trên nội dung đã có sẵn:
+                    - Là 1 dòng mô tả ngắn (~10–20 từ) cho bài báo, có cấu trúc:  
+                    `[Loại thông tin]: [Tóm tắt nội dung nổi bật]`
+                    - Ví dụ: "Thông tin doanh nghiệp: Tường An khẳng định vị thế dịp Tết 2025"
+                5. Trích xuất keywords tìm thấy trong bài.
                 6. Chỉ giữ bài viết liên quan đến ngành FMCG (Dầu ăn, Gia vị, Sữa, v.v.) dựa trên từ khóa trong `keywords_config`. Loại bỏ bài không liên quan (e.g., chính trị, sức khỏe không liên quan).
-                7. Ngày đăng (`ngay_phat_hanh`): Đảm bảo định dạng DD-MM-YYYY. Nếu không có, để trống.
+                7. Định dạng ngày phát hành bắt buộc: dd/mm/yyyy (VD: 01/07/2025)"
+                8. Nếu một bài báo đề cập nhiều nhãn hàng thì ghi tất cả nhãn hàng trong danh sách `nhan_hang`.
+                9. Nếu bài liên quan nhiều ngành (ví dụ sản phẩm đa dụng), hãy chọn ngành chính nhất liên quan đến bối cảnh.
 
                 Định dạng đầu ra:
-                Trả về một danh sách JSON hợp lệ chứa các đối tượng Article đã được xử lý. Cấu trúc JSON của mỗi đối tượng phải khớp với Pydantic model:
+                Trả về một danh sách JSON hợp lệ chứa các đối tượng Article đã được xử lý. Cấu trúc JSON của mỗi đối tượng phải khớp với Pydantic model. Đây là 1 ví dụ cho bạn làm mẫu:
                 [
                     {{
                         "stt": 1,
-                        "ngay_phat_hanh": "2025-07-01",
+                        "ngay_phat_hanh": "01/07/2025",
                         "dau_bao": "VNEXPRESS",
                         "cum_noi_dung": "Chiến dịch Marketing",
+                        "cum_noi_dung_chi_tiet": "Chiến dịch Tết 2025 của Vinamilk chinh phục người tiêu dùng trẻ",
                         "tom_tat_noi_dung": "Vinamilk tung chiến dịch Tết 2025...",
                         "link_bai_bao": "https://vnexpress.net/...",
                         "nganh_hang": "Sữa",
@@ -492,7 +535,7 @@ class ReportAgent:
             logger.info("No articles provided for report generation.")
             return self._create_basic_report([], date_range)
 
-        batch_size = 20  # Process 20 articles per batch to reduce memory usage
+        batch_size = 10  # Process 20 articles per batch to reduce memory usage
         report = None
         industry_summaries = []
         processed_articles = []
@@ -650,16 +693,31 @@ class MediaTrackerTeam:
     """Đội điều phối chính cho toàn bộ quy trình."""
 
     def __init__(
-        self, config: CrawlConfig, stop_event: Optional[threading.Event] = None
+        self,
+        config: CrawlConfig,
+        start_date: datetime,
+        end_date: datetime,
+        stop_event: Optional[threading.Event] = None,
+        pause_event=threading.Event,
     ):
         self.config = config
         self.stop_event = stop_event or threading.Event()
+        self.pause_event = pause_event
         self.status = BotStatus()
 
         parser = ArticleParser()
         self.crawler = CrawlerAgent(get_llm_model("openai", "gpt-4o-mini"), parser)
+        self.crawler.pause_event = self.pause_event
+        self.crawler.stop_event = self.stop_event
         self.processor = ProcessorAgent(get_llm_model("openai", "gpt-4o"))
         self.reporter = ReportAgent(get_llm_model("openai", "gpt-4o"))
+        self.start_date = start_date
+        self.end_date = end_date
+
+    async def _check_pause(self):
+        while self.pause_event.is_set():
+            logger.info("⏸ Pipeline paused... waiting to resume.")
+            await asyncio.sleep(1)
 
     async def run_full_pipeline(self) -> Optional[CompetitorReport]:
         """
@@ -685,7 +743,9 @@ class MediaTrackerTeam:
                     return await self.crawler.crawl_media_source(
                         media_source=media_source,
                         keywords=keywords,
-                        date_range_days=self.config.date_range_days,
+                        start_date=self.start_date,
+                        end_date=self.end_date,
+                        # date_range_days=self.config.date_range_days,
                     )
 
             # Prepare all keywords
@@ -699,6 +759,7 @@ class MediaTrackerTeam:
 
             # Execute crawl tasks
             for i, task in enumerate(asyncio.as_completed(tasks)):
+                await self._check_pause()
                 if self.stop_event.is_set():
                     logger.warning("Pipeline stopped by user during crawling.")
                     raise InterruptedError("Pipeline stopped by user during crawling.")
@@ -741,9 +802,12 @@ class MediaTrackerTeam:
             # Step 2: Process articles in batches
             self.status.current_task = "Processing and analyzing articles"
             self.status.progress = 60.0
-            batch_size = 20  # Process 20 articles per batch
+            batch_size = 10  # Process 20 articles per batch
             processed_articles = []
             for i in range(0, len(all_articles), batch_size):
+                await self._check_pause()
+                if self.stop_event.is_set():
+                    raise InterruptedError("Pipeline stopped by user after processing.")
                 batch = all_articles[i : i + batch_size]
                 batch_processed = await self.processor.process_articles(
                     batch, self.config.keywords
@@ -759,9 +823,6 @@ class MediaTrackerTeam:
             )
             self.status.progress = 80.0
 
-            if self.stop_event.is_set():
-                raise InterruptedError("Pipeline stopped by user after processing.")
-
             # Step 3: Generate report in batches
             self.status.current_task = "Generating final report"
             end_date = datetime.now()
@@ -770,6 +831,10 @@ class MediaTrackerTeam:
 
             report = None
             for i in range(0, len(processed_articles), batch_size):
+                await self._check_pause()
+                if self.stop_event.is_set():
+                    raise InterruptedError("Pipeline stopped by user after processing.")
+
                 batch = processed_articles[i : i + batch_size]
                 batch_report = await self.reporter.generate_report(
                     batch, date_range_str
@@ -794,6 +859,7 @@ class MediaTrackerTeam:
             self.status.progress = 100.0
             self.status.current_task = "Pipeline completed"
             logger.info("Pipeline completed successfully.")
+            await asyncio.sleep(0.5)
             return report
 
         except (InterruptedError, asyncio.CancelledError) as e:

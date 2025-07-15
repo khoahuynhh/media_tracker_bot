@@ -10,7 +10,6 @@ import logging
 import re
 from typing import List, Dict, Optional
 from urllib.parse import urljoin, urlparse
-
 from .models import Article, MediaSource, ContentCluster, IndustryType
 from datetime import datetime
 

@@ -14,9 +14,8 @@ from typing import Dict, List, Any, Optional
 
 import pandas as pd
 from dotenv import load_dotenv, set_key
-from pydantic import BaseModel
 
-# Import models sau để tránh lỗi import vòng tròn nếu có
+# Import models
 from .models import CrawlConfig, MediaSource
 
 # Setup logging
@@ -74,10 +73,10 @@ class AppSettings:
         env_file = self.project_root / ".env"
         if not env_file.exists():
             env_template = """# API Keys for Media Tracker Bot
-OPENAI_API_KEY=your_openai_api_key_here
-GROQ_API_KEY=your_groq_api_key_here
-DEFAULT_MODEL_PROVIDER=openai
-"""
+            OPENAI_API_KEY=your_openai_api_key_here
+            GROQ_API_KEY=your_groq_api_key_here
+            DEFAULT_MODEL_PROVIDER=openai
+            """
             env_file.write_text(env_template, encoding="utf-8")
             logger.warning(
                 f"Created .env template at {env_file}. Please update it with your API keys."
@@ -176,7 +175,7 @@ DEFAULT_MODEL_PROVIDER=openai
 
     def _parse_media_list(self) -> List[MediaSource]:
         """Parse media list from config/media_sources.csv."""
-        media_file = self.config_dir / "media_sources_sl.csv"
+        media_file = self.config_dir / "test.csv"
         if not media_file.exists():
             logger.warning(f"{media_file} not found. No media sources will be loaded.")
             return []

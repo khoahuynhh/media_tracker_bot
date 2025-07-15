@@ -1,0 +1,78 @@
+{
+  "title": "CALOFIC COMPETITOR REPORT",
+  "subtitle": "PR & SOCIAL MONTHLY REPORT",
+  "overall_summary": {
+    "thoi_gian_trich_xuat": "Từ ngày 14/06/2025 đến ngày 14/07/2025",
+    "industries": [
+      {
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "cum_noi_dung": [
+          "Khác"
+        ],
+        "so_luong_bai": 3,
+        "cac_dau_bao": [
+          "NONGNGHIEPONLINE"
+        ]
+      }
+    ],
+    "tong_so_bai": 3
+  },
+  "industry_summaries": [
+    {
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "cum_noi_dung": [
+        "Khác"
+      ],
+      "so_luong_bai": 3,
+      "cac_dau_bao": [
+        "NONGNGHIEPONLINE"
+      ]
+    }
+  ],
+  "articles": [
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-06",
+      "dau_bao": "NONGNGHIEPONLINE",
+      "cum_noi_dung": null,
+      "cum_noi_dung_chi_tiet": "Vì sao dầu ăn đang gây hoang mang cho các bà nội trợ?",
+      "tom_tat_noi_dung": "Bài viết phân tích những lo ngại về chất lượng dầu ăn hiện nay, khi mà nhiều sản phẩm bị quảng cáo là 'dầu ăn sạch', nhưng thực chất chứa nhiều nguy cơ tiềm ẩn đối với sức khỏe người tiêu dùng. Các nhà hàng và cơ sở chế biến cần nâng cao tiêu chuẩn chất lượng trong bối cảnh này.",
+      "link_bai_bao": "https://nongnghiepmoitruong.vn/radio/vi-sao-dau-an-dang-gay-hoang-mang-cho-cac-ba-noi-cho-d761442.html",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-14T20:37:58.450416"
+    },
+    {
+      "stt": 2,
+      "ngay_phat_hanh": "2025-06-25",
+      "dau_bao": "NONGNGHIEPONLINE",
+      "cum_noi_dung": null,
+      "cum_noi_dung_chi_tiet": "'Biến' dầu ăn chăn nuôi thành dầu ăn cho người",
+      "tom_tat_noi_dung": "Công an tỉnh Hưng Yên vừa triệt phá một đường dây lớn liên quan đến việc biến đổi dầu ăn không đạt chất lượng từ chăn nuôi thành dầu ăn sử dụng trong thực phẩm. Sự việc này cho thấy sự cần thiết phải kiểm tra chất lượng hàng hóa chặt chẽ hơn trong ngành dầu ăn.",
+      "link_bai_bao": "https://nongnghiepmoitruong.vn/bien-dau-an-chan-nuoi-thanh-dau-an-cho-nguoi-d759607.html",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-14T20:37:58.450416"
+    },
+    {
+      "stt": 3,
+      "ngay_phat_hanh": "2025-06-25",
+      "dau_bao": "NONGNGHIEPONLINE",
+      "cum_noi_dung": null,
+      "cum_noi_dung_chi_tiet": "Không sử dụng dầu thực vật nhãn hiệu Ofood Cooking Oil và Ofood",
+      "tom_tat_noi_dung": "Cơ quan Công an tỉnh Hưng Yên đã phát đi thông báo không được bán và sử dụng dầu thực vật mang nhãn hiệu Ofood Cooking Oil do vi phạm quy định an toàn thực phẩm. Điều này khiến người tiêu dùng lo lắng về mức độ an toàn của các sản phẩm trên thị trường.",
+      "link_bai_bao": "https://nongnghiepmoitruong.vn/khong-su-dung-dau-thuc-vat-nhan-hieu-ofood-cooking-oil-va-ofood-d759730.html",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-14T20:37:58.451438"
+    }
+  ],
+  "generated_at": "2025-07-14T21:13:16.243540",
+  "total_articles": 3,
+  "date_range": "Từ ngày 14/06/2025 đến ngày 14/07/2025"
+}

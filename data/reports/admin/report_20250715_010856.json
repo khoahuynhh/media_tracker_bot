@@ -1,0 +1,95 @@
+{
+  "title": "CALOFIC COMPETITOR REPORT",
+  "subtitle": "PR & SOCIAL MONTHLY REPORT",
+  "overall_summary": {
+    "thoi_gian_trich_xuat": "Từ ngày 16/04/2025 đến ngày 15/07/2025",
+    "industries": [
+      {
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "cum_noi_dung": [
+          "Khác"
+        ],
+        "so_luong_bai": 4,
+        "cac_dau_bao": [
+          "PHUNU",
+          "DOANHNHANSAIGON",
+          "CAFEBIZ"
+        ]
+      }
+    ],
+    "tong_so_bai": 4
+  },
+  "industry_summaries": [
+    {
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "cum_noi_dung": [
+        "Khác"
+      ],
+      "so_luong_bai": 4,
+      "cac_dau_bao": [
+        "PHUNU",
+        "DOANHNHANSAIGON",
+        "CAFEBIZ"
+      ]
+    }
+  ],
+  "articles": [
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-06-26",
+      "dau_bao": "CAFEBIZ",
+      "cum_noi_dung": null,
+      "cum_noi_dung_chi_tiet": "Bộ Công Thương sẽ kiểm tra diện rộng các cơ sở sản xuất dầu ăn",
+      "tom_tat_noi_dung": "",
+      "link_bai_bao": "https://cafebiz.vn/bo-cong-thuong-se-kiem-tra-dien-rong-cac-co-so-san-xuat-dau-an-176250626182246394.chn",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-15T00:15:57.890488"
+    },
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-06-14",
+      "dau_bao": "DOANHNHANSAIGON",
+      "cum_noi_dung": null,
+      "cum_noi_dung_chi_tiet": "Những ưu điểm của tinh dầu Olive từ Provence",
+      "tom_tat_noi_dung": "Bài viết giới thiệu về những lợi ích và tác dụng tuyệt vời của tinh dầu olive từ vùng Provence, đặc biệt là trong việc làm đẹp da và tóc. Tinh dầu này được coi là nguồn cung cấp dưỡng chất cần thiết và an toàn cho các loại da, cũng như ứng dụng rộng rãi trong công nghiệp mỹ phẩm.",
+      "link_bai_bao": "https://doanhnhansaigon.vn/nhung-uu-diem-cua-tinh-dau-olive-tu-provence-248569.html",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-15T00:48:05.618081"
+    },
+    {
+      "stt": 2,
+      "ngay_phat_hanh": "2025-06-15",
+      "dau_bao": "DOANHNHANSAIGON",
+      "cum_noi_dung": null,
+      "cum_noi_dung_chi_tiet": "Giải mã phương pháp dưỡng da bằng dầu Olive",
+      "tom_tat_noi_dung": "Bài viết tìm hiểu về hiệu quả của dầu olive trong việc dưỡng da, nhấn mạnh hàm lượng vitamin A, E, D, K cao có trong dầu olive. Điều này cho thấy tầm quan trọng của sản phẩm này trong ngành hàng chăm sóc sức khỏe và sắc đẹp.",
+      "link_bai_bao": "https://doanhnhansaigon.vn/kinh-doanh/giai-ma-phuong-phap-duong-da-bang-dau-olive-1064872.html",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-15T00:48:05.618081"
+    },
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-06-24",
+      "dau_bao": "PHUNU",
+      "cum_noi_dung": null,
+      "cum_noi_dung_chi_tiet": "Dầu cho thực ăn chăn nuôi thành dầu ăn cho người, Bộ Y tế nói gì?",
+      "tom_tat_noi_dung": "",
+      "link_bai_bao": "https://www.phunuonline.com.vn/dau-cho-thuc-an-chan-nuoi-thanh-dau-an-cho-nguoi-bo-y-te-noi-gi-a1553404.html",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-15T01:06:51.855038"
+    }
+  ],
+  "generated_at": "2025-07-15T01:08:55.964550",
+  "total_articles": 4,
+  "date_range": "Từ ngày 16/04/2025 đến ngày 15/07/2025"
+}

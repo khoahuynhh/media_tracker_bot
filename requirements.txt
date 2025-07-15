@@ -1,56 +1,38 @@
-# --- Core Application Dependencies ---
-# Framework chính cho việc xây dựng API
+# --- Core Dependencies ---
 fastapi~=0.111.0
-
-# Server để chạy ứng dụng FastAPI, [standard] bao gồm các tối ưu hiệu năng
 uvicorn[standard]
-
-# Thư viện để định nghĩa và xác thực các model dữ liệu
-pydantic
+pydantic~=2.7.0
 python-multipart
-# Đọc các biến môi trường từ file .env
 python-dotenv
 
-# Thư viện chính cho các agent (LLM, team)
-agno
-
-# Thư viện crawl web, là một dependency của agno.tools.Crawl4aiTools
-crawl4ai
-
-# Thư viện tìm kiếm Google, là một dependency của agno.tools.GoogleSearchTools
+# LLM Agent system
+agno>=0.9.3
+crawl4ai>=0.3.2
 googlesearch-python
-
-# Thư viện xử lý dữ liệu quốc gia, là dependency của GoogleSearchTools
 pycountry
-
-# Thư viện cho API của OpenAI
 openai
-
-# Thư viện cho API của Groq
 groq
 
-# SỬA LỖI: Ghim phiên bản pandas và numpy để đảm bảo tương thích
-# Pandas 2.1.x tương thích với Numpy 1.26.x
+# Crawling & Automation
+playwright>=1.42.0
+
+# Data Processing
 pandas~=2.1.3
 numpy~=1.26.4
-# Engine mà pandas sử dụng để làm việc với file .xlsx
 openpyxl
 
-# Thư viện để tự động hóa trình duyệt, là dependency cốt lõi cho crawl4ai
-playwright
+# Async HTTP client & Retry
+httpx
+tenacity
 
-# Thư viện để lên lịch chạy tác vụ tự động (nếu bạn muốn dùng lại)
+# Security & JWT
+python-jose[cryptography]
+
+# Scheduling (optional for background tasks)
 schedule
 
-# --- Testing Dependencies ---
-# Framework kiểm thử chính
+# --- Development & Testing ---
 pytest
-
-# Plugin để tạo các đối tượng giả (mock) trong test
 pytest-mock
-
-# Plugin để hỗ trợ kiểm thử các hàm bất đồng bộ (async/await)
 pytest-asyncio
-
-# Plugin để kiểm thử hiệu năng (đo thời gian chạy)
 pytest-benchmark

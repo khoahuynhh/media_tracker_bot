@@ -4,7 +4,7 @@ Structured data models phù hợp với template report hiện tại
 """
 
 from typing import List, Optional, Dict, Any
-from datetime import datetime, date, timedelta
+from datetime import datetime, date
 from enum import Enum
 from pydantic import BaseModel, Field, model_validator, field_validator, ConfigDict
 
@@ -12,6 +12,14 @@ from pydantic import BaseModel, Field, model_validator, field_validator, ConfigD
 class UserLogin(BaseModel):
     email: str
     password: str
+
+
+# Giả lập database user
+USER_DB = {
+    "admin": {"password": "123456", "role": "admin"},
+    "user1": {"password": "abc", "role": "viewer"},
+    "user2": {"password": "xyz", "role": "editor"},
+}
 
 
 class MediaType(str, Enum):
@@ -43,6 +51,7 @@ class ContentCluster(str, Enum):
     PRODUCT_LAUNCH = "Ra mắt sản phẩm"
     PARTNERSHIP = "Hợp tác đối tác"
     FINANCIAL_REPORT = "Báo cáo tài chính"
+    FOOD_SAFETY = "An toàn thực phẩm"
     OTHER = "Khác"
 
 
@@ -68,9 +77,7 @@ class Article(BaseModel):
     stt: int = Field(..., description="Số thứ tự")
     ngay_phat_hanh: date = Field(..., description="Ngày phát hành bài báo")
     dau_bao: str = Field(..., description="Tên đầu báo/media source")
-    cum_noi_dung: Optional[ContentCluster] = Field(
-        default=None, description="Cụm nội dung chính"
-    )
+    cum_noi_dung: Optional[ContentCluster] = None
     cum_noi_dung_chi_tiet: Optional[str] = Field(
         default=None, description="Cụm nội dung chi tiết"
     )
@@ -92,6 +99,12 @@ class Article(BaseModel):
             return v
         return str(v) if v else "https://example.com"
 
+    @field_validator("cum_noi_dung", mode="before")
+    def convert_cum_noi_dung(cls, v):
+        if isinstance(v, str):
+            return ContentCluster(v)
+        return v
+
 
 class IndustrySummary(BaseModel):
     """Model cho tóm tắt theo ngành hàng"""
@@ -100,12 +113,19 @@ class IndustrySummary(BaseModel):
     model_config = ConfigDict(use_enum_values=True)
 
     nganh_hang: IndustryType = Field(..., description="Ngành hàng")
-    nhan_hang: List[str] = Field(..., description="Danh sách nhãn hàng competitors")
+    nhan_hang: List[str] = Field(..., description="Danh sách nhãn hàng đối thủ")
     cum_noi_dung: List[ContentCluster] = Field(
         ..., description="Các cụm nội dung chính"
     )
     so_luong_bai: int = Field(..., description="Tổng số lượng bài báo")
-    cac_dau_bao: List[str] = Field(default=[], description="Các đầu báo có đăng tin")
+
+    cac_dau_bao: List[str] = Field(
+        default=[], description="Danh sách các đầu báo có đăng tin"
+    )
+
+    @field_validator("cum_noi_dung", mode="before")
+    def convert_cluster(cls, v):
+        return [ContentCluster(c) if isinstance(c, str) else c for c in v]
 
 
 class OverallSummary(BaseModel):
@@ -114,6 +134,9 @@ class OverallSummary(BaseModel):
     thoi_gian_trich_xuat: str = Field(..., description="Thời gian trích xuất dữ liệu")
     industries: List[IndustrySummary] = Field(
         ..., description="Tóm tắt theo từng ngành"
+    )
+    cac_dau_bao: List[str] = Field(
+        default=[], description="Danh sách các đầu báo có đăng tin"
     )
     tong_so_bai: int = Field(..., description="Tổng số bài báo toàn bộ")
 
@@ -371,14 +394,14 @@ __all__ = [
 # Utility functions
 def create_sample_report() -> CompetitorReport:
     """Tạo sample report để test"""
-    from datetime import date
 
     sample_article = Article(
         stt=1,
         ngay_phat_hanh=date.today(),
         dau_bao="Vietnam Biz",
         cum_noi_dung=ContentCluster.HOAT_DONG_DOANH_NGHIEP,
-        tom_tat_noi_dung="Tường An dẫn đầu thị trường thực phẩm Tết 2025 với các sản phẩm dầu ăn chất lượng cao",
+        cum_noi_dung_chi_tiet="Thông tin doanh nghiệp: Thương hiệu quốc qua dẫn đầu thị trường thực phẩm mùa Tết 2025",
+        tom_tat_noi_dung="Tường An dẫn đầu thị trường thực phẩm Tết 2025 với các sản phẩm dầu ăn chất lượng cao, khẳng định vị thế với loạt giải pháp quà Tết sáng tạo, đáp ứng nhu cầu tiêu dùng thông minh",
         link_bai_bao="https://vietnambiz.vn/sample-article",
         nganh_hang=IndustryType.DAU_AN,
         nhan_hang=["Tường An", "Coba", "Nortalic"],
@@ -561,9 +584,33 @@ def create_default_config() -> CrawlConfig:
         date_range_days=30,
         max_articles_per_source=50,
         crawl_timeout=30,
-        exclude_domains=["facebook.com", "twitter.com", "instagram.com"],
+        exclude_domains=[
+            # Mạng xã hội
+            "facebook.com",
+            "twitter.com",
+            "instagram.com",
+            "linkedin.com",
+            "tiktok.com",
+            # Thương mại điện tử Việt Nam
+            "shopee.vn",
+            "lazada.vn",
+            "tiki.vn",
+            "sendo.vn",
+            "adayroi.com",
+            "homefarm.vn",
+            "kingfoodmart.com",
+            "bachhoaxanh.com"
+            # Quốc tế
+            "amazon.com",
+            "ebay.com",
+            "aliexpress.com",
+            "walmart.com",
+            # Rút gọn link, spam
+            "bit.ly",
+            "goo.gl",
+        ],
         enable_parallel_crawling=True,
-        max_concurrent_sources=2,
+        max_concurrent_sources=5,
         retry_failed_sources=True,
         max_retries=2,
         use_cache=True,

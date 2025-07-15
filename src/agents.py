@@ -9,11 +9,13 @@ import asyncio
 import json
 import logging
 import gc
+import threading
+import httpx
+import re
+
 from datetime import datetime, timedelta
 from typing import List, Dict, Optional, Any
 from playwright.sync_api import sync_playwright
-import threading
-import requests
 from tenacity import (
     retry,
     stop_after_attempt,
@@ -21,6 +23,7 @@ from tenacity import (
     retry_if_exception_type,
 )
 
+# Import Agno
 from agno.agent import Agent
 from agno.models.openai import OpenAIChat
 from agno.models.groq import Groq
@@ -33,11 +36,10 @@ from agno.tools.hackernews import HackerNewsTools
 from agno.tools.pubmed import PubmedTools
 from agno.tools.searxng import SearxngTools
 from agno.tools.wikipedia import WikipediaTools
-from agno.team import Team
-from openai import APITimeoutError
-from typing import Callable
-import httpx
 
+# Import modules
+from openai import APITimeoutError
+from .parsing import ArticleParser
 from .models import (
     MediaSource,
     Article,
@@ -49,7 +51,6 @@ from .models import (
     BotStatus,
     ContentCluster,
 )
-from .parsing import ArticleParser
 
 logger = logging.getLogger(__name__)
 
@@ -67,7 +68,7 @@ class CrawlerAgent:
     def __init__(self, model: Any, parser: ArticleParser, timeout: int = 10):
         self.parser = parser
         self.search_tools = [
-            GoogleSearchTools(),
+            GoogleSearchTools(timeout),
             DDGS(),
             # ArxivTools(),
             # BaiduSearchTools(),
@@ -83,8 +84,6 @@ class CrawlerAgent:
     async def _check_pause(self):
         if hasattr(self, "pause_event"):
             while self.pause_event.is_set():
-                import logging
-
                 logging.info("⏸ CrawlerAgent paused... waiting to resume.")
                 await asyncio.sleep(1)
 
@@ -108,9 +107,7 @@ class CrawlerAgent:
                 "Nhiệm vụ: Crawl các website báo chí để tìm bài viết về các đối thủ cạnh tranh dựa trên keywords và ngành hàng.",
                 "Ưu tiên tin tức mới nhất trong khoảng thời gian được chỉ định.",
                 "Chỉ lấy các bài viết được đăng trong khoảng thời gian được yêu cầu.",
-                "Những bài được lấy bắt buộc phải thỏa mãn cả 2 điều kiện sau: chứa keywords và phải liên quan đến ngành hàng.",
-                "Nếu không có bài thì để trống, đừng tự tạo nội dung hay format.",
-                "Tránh tất cả các bài viết liên quan đến việc bán hàng, quảng cáo sản phẩm, giới thiệu sản phẩm từ trang thương mại điện tử hoặc website bán hàng như Shopee, Tiki, Lazada, Homefarm, Kingfoodmart, Bách hóa xanh, v.v."
+                "Nếu không tìm thấy bài viết thì để trống, đừng tự tạo nội dung hay format.",
                 "Không lấy các bài viết đăng trước hoặc sau khoảng thời gian chỉ định.",
                 "Trả về kết quả dạng JSON hợp lệ chứa danh sách bài báo với các trường: tiêu đề, ngày phát hành (DD-MM-YYYY), tóm tắt nội dung, link bài báo.",
             ],
@@ -134,6 +131,7 @@ class CrawlerAgent:
     async def crawl_media_source(
         self,
         media_source: MediaSource,
+        industry_name: str,
         keywords: List[str],
         start_date: datetime,
         end_date: datetime,
@@ -173,7 +171,7 @@ class CrawlerAgent:
 
                     crawl_query = f"""
                     Crawl website: {domain_url or media_source.name}
-                    Tìm các bài báo có chứa từ khóa và liên quan đến ngành hàng: {keywords_str}
+                    Tìm các bài báo có chứa các từ khóa: {keywords_str} và PHẢI liên quan đến ngành hàng: {industry_name}
                     Thời gian: {date_filter}
                     Yêu cầu:
                     - Trích xuất tiêu đề, tóm tắt, ngày đăng, link gốc.
@@ -394,6 +392,23 @@ class ProcessorAgent:
                     "báo cáo tài chính",
                     "kết quả kinh doanh",
                 ],
+                ContentCluster.FOOD_SAFETY: [
+                    "an toàn thực phẩm",
+                    "ATTP",
+                    "ngộ độc",
+                    "nhiễm khuẩn",
+                    "thu hồi sản phẩm",
+                    "chất cấm",
+                    "kiểm tra ATTP",
+                    "thanh tra an toàn thực phẩm",
+                    "truy xuất nguồn gốc",
+                    "blockchain thực phẩm",
+                    "tem QR",
+                    "chuỗi cung ứng sạch",
+                    "cam kết chất lượng thực phẩm",
+                    "quy định an toàn thực phẩm",
+                    "xử phạt vi phạm ATTP",
+                ],
                 ContentCluster.OTHER: [],
             }
 
@@ -419,10 +434,10 @@ class ProcessorAgent:
                 
                 Yêu cầu:
                 1. Phân loại chính xác ngành hàng cho từng bài (dựa theo bối cảnh bài và danh sách nhãn hàng ngành hàng tương ứng).
-                2. Với mỗi bài viết, xác định các nhãn hàng competitors nào được đề cập trong nội dung từ danh sách các nhãn hàng.
+                2. Đọc kỹ nội dung bài viết, chỉ liệt kê các nhãn hàng trong `nhan_hang` nếu thực sự xuất hiện trong bài. Nếu không thấy nhãn hàng nào thì để `nhan_hang` là `[]`. Không tự bịa hoặc tự suy đoán thêm.
                 3. Phân loại lại cụm nội dung (`cum_noi_dung`): Dựa trên tóm tắt nội dung và từ khóa tương ứng:
                 {json.dumps({k.value: v for k, v in content_clusters.items()}, ensure_ascii=False, indent=2)}
-                - Nếu không khớp với cụm nào, chọn '{ContentCluster.OTHER}'.
+                - Nếu không tìm thấy cụm nội dung nào khớp với danh sách từ khóa cụm nội dung, BẮT BUỘC gán trường (`cum_noi_dung`) là '{ContentCluster.OTHER}', KHÔNG ĐƯỢC để trống hoặc trả về none hay null.
                 4. Viết lại nội dung chi tiết, ngắn gọn và mang tính mô tả khái quát cho trường `cum_noi_dung_chi_tiet` dựa trên nội dung đã có sẵn:
                     - Là 1 dòng mô tả ngắn (~10–20 từ) cho bài báo, có cấu trúc:  
                     `[Loại thông tin]: [Tóm tắt nội dung nổi bật]`
@@ -449,6 +464,34 @@ class ProcessorAgent:
                         "keywords_found": ["Tết", "TV quảng cáo", "Vinamilk"]
                     }}
                 ]
+                [
+                    {{
+                        "stt": 2,
+                        "ngay_phat_hanh": "06/07/2025",
+                        "dau_bao": "Thanh Nien",
+                        "cum_noi_dung": "Hoạt động doanh nghiệp và thông tin sản phẩm",
+                        "cum_noi_dung_chi_tiet": "Thông tin doanh nghiệp: Tường An và Coba mở rộng thị phần dầu ăn miền Tây",
+                        "tom_tat_noi_dung": "Tường An và Coba tăng cường đầu tư và phân phối sản phẩm dầu ăn tại khu vực miền Tây Nam Bộ.",
+                        "link_bai_bao": "https://thanhnien.vn/tuong-an-coba-dau-an",
+                        "nganh_hang": "Dầu ăn",
+                        "nhan_hang": ["Tường An", "Coba"],
+                        "keywords_found": ["Tường An", "Coba", "dầu ăn", "thị phần"]
+                    }}
+                ]
+                [
+                    {{
+                        "stt": 3,
+                        "ngay_phat_hanh": "07/07/2025",
+                        "dau_bao": "Tuoi Tre",
+                        "cum_noi_dung": "Chương trình CSR",
+                        "cum_noi_dung_chi_tiet": "CSR: Doanh nghiệp địa phương hỗ trợ cộng đồng miền núi",
+                        "tom_tat_noi_dung": "Một số doanh nghiệp địa phương phối hợp tổ chức chương trình hỗ trợ bà con miền núi mùa mưa lũ.",
+                        "link_bai_bao": "https://tuoitre.vn/csr-mien-nui",
+                        "nganh_hang": "Dầu ăn",
+                        "nhan_hang": [],
+                        "keywords_found": ["hỗ trợ cộng đồng", "CSR", "miền núi"]
+                    }}
+                ]
                 """
 
                 try:
@@ -456,6 +499,9 @@ class ProcessorAgent:
                     if response and response.content:
                         try:
                             processed_data = json.loads(response.content)
+                            for item in processed_data:
+                                if item.get("cum_noi_dung") in [None, "null", ""]:
+                                    item["cum_noi_dung"] = ContentCluster.OTHER
                             processed_articles.extend(
                                 [Article(**item) for item in processed_data]
                             )
@@ -513,138 +559,87 @@ class ReportAgent:
                 "Bạn là chuyên gia tạo báo cáo phân tích truyền thông cho ngành FMCG.",
                 "Nhiệm vụ: Tạo một báo cáo phân tích đối thủ cạnh tranh từ dữ liệu các bài báo đã được cung cấp.",
                 "Bạn BẮT BUỘC phải trả về kết quả dưới dạng một đối tượng JSON (JSON object) duy nhất, hợp lệ và tuân thủ nghiêm ngặt theo cấu trúc của Pydantic model 'CompetitorReport'.",
+                "Nếu không có dữ liệu hoặc có lỗi, trả về CompetitorReport rỗng hợp lệ với các trường là [] hoặc 0.",
             ],
-            markdown=True,
+            markdown=False,
         )
+
+    def extract_json(self, text: str) -> str:
+        """
+        Cắt phần JSON thuần từ chuỗi LLM trả về, bỏ các markdown ```json ... ```
+        """
+        pattern = r"```json(.*?)```"
+        match = re.search(pattern, text, re.DOTALL)
+        if match:
+            return match.group(1).strip()
+
+        # Nếu không có ```json thì tìm cặp ngoặc { }
+        match_brace = re.search(r"(\{.*\})", text, re.DOTALL)
+        if match_brace:
+            return match_brace.group(1).strip()
+
+        raise ValueError("Không tìm thấy JSON trong phản hồi")
 
     async def generate_report(
         self, articles: List[Article], date_range: str
     ) -> CompetitorReport:
         """
         Generates a competitor analysis report from a list of articles for a given date range.
-        Optimizes memory usage by processing articles in batches and freeing memory after each batch.
-
-        Args:
-            articles: List of processed Article objects.
-            date_range: String representing the date range (e.g., "Từ ngày 01/07/2025 đến ngày 07/07/2025").
-
-        Returns:
-            A CompetitorReport object containing the analysis.
         """
+
         if not articles:
-            logger.info("No articles provided for report generation.")
+            logger.info(
+                "No articles provided for report generation. Returning basic report."
+            )
             return self._create_basic_report([], date_range)
 
-        batch_size = 10  # Process 20 articles per batch to reduce memory usage
-        report = None
-        industry_summaries = []
-        processed_articles = []
-
         try:
-            # Process articles in batches
-            for i in range(0, len(articles), batch_size):
-                batch = articles[i : i + batch_size]
-                logger.info(
-                    f"Generating report for batch {i // batch_size + 1} with {len(batch)} articles"
-                )
+            logger.info(f"Generating full report for {len(articles)} articles...")
 
-                # Create prompt for the batch
-                report_prompt = f"""
-                Tạo một báo cáo phân tích đối thủ cạnh tranh từ {len(batch)} bài báo sau đây cho khoảng thời gian: {date_range}.
-                
-                Dữ liệu đầu vào:
-                - Danh sách bài báo: {json.dumps([a.model_dump(mode='json') for a in batch], ensure_ascii=False, indent=2)}
+            report_prompt = f"""
+            Tạo một báo cáo phân tích đối thủ cạnh tranh từ {len(articles)} bài báo sau đây cho khoảng thời gian: {date_range}.
+            
+            Dữ liệu đầu vào:
+            - Danh sách bài báo: {json.dumps([a.model_dump(mode='json') for a in articles], ensure_ascii=False, indent=2)}
 
-                Yêu cầu nhiệm vụ:
-                1. Tạo một 'overall_summary' (tóm tắt tổng quan) với các thống kê chung cho lô bài báo này.
-                2. Tạo một danh sách 'industry_summaries' (tóm tắt theo ngành), mỗi ngành một mục.
-                3. Bao gồm các phân tích về đối thủ cạnh tranh hàng đầu, các nhận định về thị trường và xu hướng.
-                
-                Định dạng đầu ra:
-                Trả về một đối tượng JSON duy nhất, hợp lệ và tuân thủ nghiêm ngặt cấu trúc của model 
-                CompetitorReport(
-                    overall_summary=overall_summary,
-                    industry_summaries=industry_summaries,
-                    articles=articles,
-                    total_articles=len(articles),
-                    date_range=date_range
-                ).
-                """
+            Yêu cầu nhiệm vụ:
+            1. Tạo 'overall_summary' (tóm tắt tổng quan), bao gồm ngành hàng, nhãn hàng, các đầu báo và số bài theo ngành.
+            2. Tạo danh sách 'industry_summaries' (tóm tắt theo ngành), mỗi ngành là 1 mục, bao gồm: danh sách nhãn hàng, cụm nội dung, số lượng bài.
+            3. Trả về danh sách 'articles' đã được xử lý (giữ nguyên input là được).
+            4. Đảm bảo trả về đúng 1 đối tượng JSON duy nhất, không có markdown, không có giải thích ngoài lề.
 
+            Trả về đúng 1 đối tượng JSON duy nhất với cấu trúc sau:
+            CompetitorReport(
+                overall_summary: { ... },
+                industry_summaries: [ ... ],
+                articles=[ ... ],
+                total_articles={len(articles)},
+                date_range="{date_range}"
+            )
+
+            Quy tắc:
+                - Bắt đầu phản hồi bằng ký tự '{' và kết thúc bằng '}'.
+                - Không thêm bất kỳ chú thích, markdown hay ký tự thừa nào ngoài JSON.
+                - Trả về JSON thuần theo chuẩn RFC8259.
+            """
+
+            response = await self.agent.arun(report_prompt)
+            logger.error(f"Raw LLM response: {response.content}")
+            if response and response.content:
                 try:
-                    response = await self.agent.arun(report_prompt)
-                    if response and response.content:
-                        try:
-                            batch_report = CompetitorReport(
-                                **json.loads(response.content)
-                            )
-                            if report is None:
-                                report = batch_report
-                            else:
-                                report.articles.extend(batch_report.articles)
-                                report.industry_summaries.extend(
-                                    batch_report.industry_summaries
-                                )
-                                report.total_articles += batch_report.total_articles
-                            processed_articles.extend(batch_report.articles)
-                            industry_summaries.extend(batch_report.industry_summaries)
-                            logger.info(
-                                f"Batch {i // batch_size + 1} processed: {len(batch_report.articles)} articles"
-                            )
-                        except (json.JSONDecodeError, TypeError) as e:
-                            logger.error(
-                                f"Failed to parse JSON response for batch {i // batch_size + 1}: {e}"
-                            )
-                            processed_articles.extend(
-                                batch
-                            )  # Keep raw articles if parsing fails
-                    else:
-                        logger.warning(
-                            f"No valid response for batch {i // batch_size + 1}"
-                        )
-                        processed_articles.extend(
-                            batch
-                        )  # Keep raw articles if no response
-
-                except Exception as e:
+                    raw_json = self.extract_json(response.content)
+                    return CompetitorReport(**json.loads(raw_json))
+                except (json.JSONDecodeError, TypeError) as e:
                     logger.error(
-                        f"Error generating report for batch {i // batch_size + 1}: {e}",
-                        exc_info=True,
+                        f"Không thể phân tích phản hồi từ ReportAgent dưới dạng JSON: {e}. Đang tạo báo cáo cơ bản."
                     )
-                    processed_articles.extend(
-                        batch
-                    )  # Keep raw articles if processing fails
-
-                # Free memory after each batch
-                gc.collect()
-
-            # If no valid report was generated, fall back to basic report
-            if report is None:
-                logger.warning(
-                    "No valid report generated, falling back to basic report."
-                )
-                return self._create_basic_report(articles, date_range)
-
-            # Update overall summary
-            report.overall_summary = OverallSummary(
-                thoi_gian_trich_xuat=date_range,
-                industries=industry_summaries,
-                tong_so_bai=len(processed_articles),
-            )
-            report.articles = processed_articles
-            report.total_articles = len(processed_articles)
-            report.date_range = date_range
-
-            logger.info(
-                f"Report generation completed. Total articles: {report.total_articles}"
-            )
-            return report
-
+                    return self._create_basic_report(articles, date_range)
+            return self._create_basic_report(articles, date_range)
         except Exception as e:
-            logger.error(f"Report generation failed: {e}", exc_info=True)
+            logger.error(f"Tạo báo cáo thất bại: {e}", exc_info=True)
             return self._create_basic_report(articles, date_range)
         finally:
-            gc.collect()  # Final memory cleanup
+            gc.collect()
 
     def _create_basic_report(
         self, articles: List[Article], date_range: str
@@ -667,8 +662,13 @@ class ReportAgent:
                     )
                 ),
                 cum_noi_dung=list(
-                    set(article.cum_noi_dung for article in industry_articles)
-                ),
+                    set(
+                        c
+                        for article in industry_articles
+                        if (c := article.cum_noi_dung) is not None
+                    )
+                )
+                or [ContentCluster.OTHER],
                 so_luong_bai=len(industry_articles),
                 cac_dau_bao=list(set(article.dau_bao for article in industry_articles)),
             )
@@ -680,6 +680,7 @@ class ReportAgent:
             industries=industry_summaries,
             tong_so_bai=len(articles),
         )
+
         return CompetitorReport(
             overall_summary=overall_summary,
             industry_summaries=industry_summaries,
@@ -738,10 +739,11 @@ class MediaTrackerTeam:
             # Limit concurrent crawl tasks using Semaphore
             semaphore = asyncio.Semaphore(self.config.max_concurrent_sources)
 
-            async def bounded_crawl(media_source, keywords):
+            async def bounded_crawl(media_source, industry_name, keywords):
                 async with semaphore:
                     return await self.crawler.crawl_media_source(
                         media_source=media_source,
+                        industry_name=industry_name,
                         keywords=keywords,
                         start_date=self.start_date,
                         end_date=self.end_date,
@@ -749,13 +751,13 @@ class MediaTrackerTeam:
                     )
 
             # Prepare all keywords
-            all_keywords = list(
-                set(kw for kws in self.config.keywords.values() for kw in kws)
-            )
-            tasks = [
-                bounded_crawl(media_source, all_keywords)
-                for media_source in self.config.media_sources
-            ]
+            # all_keywords = list(
+            #     set(kw for kws in self.config.keywords.values() for kw in kws)
+            # )
+            tasks = []
+            for industry_name, keywords in self.config.keywords.items():
+                for media_source in self.config.media_sources:
+                    tasks.append(bounded_crawl(media_source, industry_name, keywords))
 
             # Execute crawl tasks
             for i, task in enumerate(asyncio.as_completed(tasks)):
@@ -873,6 +875,10 @@ class MediaTrackerTeam:
         finally:
             self.status.is_running = False
             self.status.last_run = datetime.now()
+            if self.status.progress < 100.0:
+                self.status.progress = 100.0
+            if "completed" not in self.status.current_task.lower():
+                self.status.current_task = "Ready"
             gc.collect()  # Final memory cleanup
 
     def get_status(self) -> BotStatus:

@@ -1,0 +1,199 @@
+{
+  "title": "CALOFIC COMPETITOR REPORT",
+  "subtitle": "PR & SOCIAL MONTHLY REPORT",
+  "overall_summary": {
+    "thoi_gian_trich_xuat": "Từ ngày 14/06/2025 đến ngày 14/07/2025",
+    "industries": [
+      {
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "cum_noi_dung": [
+          "Khác"
+        ],
+        "so_luong_bai": 10,
+        "cac_dau_bao": [
+          "SAIGONTIMESONLINE",
+          "DOANHNHANSAIGON",
+          "CAFEF",
+          "PHUNU"
+        ]
+      }
+    ],
+    "tong_so_bai": 11
+  },
+  "industry_summaries": [
+    {
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "cum_noi_dung": [
+        "Khác"
+      ],
+      "so_luong_bai": 10,
+      "cac_dau_bao": [
+        "SAIGONTIMESONLINE",
+        "DOANHNHANSAIGON",
+        "CAFEF",
+        "PHUNU"
+      ]
+    },
+    {
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "cum_noi_dung": [
+        "Khác"
+      ],
+      "so_luong_bai": 1,
+      "cac_dau_bao": [
+        "PHUNU"
+      ]
+    }
+  ],
+  "articles": [
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-06-14",
+      "dau_bao": "CAFEF",
+      "cum_noi_dung": null,
+      "cum_noi_dung_chi_tiet": "Dầu oliu : 1 loại cá Việt Nam được Mỹ bỏ 69 triệu USD để thu mua",
+      "tom_tat_noi_dung": "Bài viết đề cập đến việc một loại cá Việt Nam đang thu hút sự chú ý từ thị trường Mỹ, đặc biệt khi giá dầu oliu gia tăng đột biến. Việc Mỹ đầu tư 69 triệu USD vào loại cá này không chỉ giúp tăng cường trao đổi thương mại mà còn đặt ra nhiều cơ hội mới cho nông sản Việt.",
+      "link_bai_bao": "https://cafef.vn/dau-o-liu.html",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-14T22:27:43.628667"
+    },
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-06-26",
+      "dau_bao": "DOANHNHANSAIGON",
+      "cum_noi_dung": null,
+      "cum_noi_dung_chi_tiet": "Sẽ kiểm tra diện rộng các cơ sở sản xuất dầu ăn",
+      "tom_tat_noi_dung": "Bài viết đề cập đến việc các cơ quan chức năng sẽ thực hiện kiểm tra diện rộng các cơ sở sản xuất dầu ăn để đảm bảo chất lượng sản phẩm và đảm bảo an toàn thực phẩm. Sự kiện này có liên quan đến những thay đổi trong chính sách quản lý chất lượng dầu thực vật.",
+      "link_bai_bao": "https://doanhnhansaigon.vn/se-kiem-tra-dien-rong-cac-co-so-san-xuat-dau-an-319342.html",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-14T22:26:45.482698"
+    },
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-06-14",
+      "dau_bao": "DOANHNHANSAIGON",
+      "cum_noi_dung": null,
+      "cum_noi_dung_chi_tiet": "Chưa rõ",
+      "tom_tat_noi_dung": "",
+      "link_bai_bao": "https://doanhnhansaigon.vn/nhung-uu-diem-cua-tinh-dau-olive-tu-provence-248569.html",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-14T22:27:55.461428"
+    },
+    {
+      "stt": 2,
+      "ngay_phat_hanh": "2025-07-01",
+      "dau_bao": "DOANHNHANSAIGON",
+      "cum_noi_dung": null,
+      "cum_noi_dung_chi_tiet": "Chưa rõ",
+      "tom_tat_noi_dung": "",
+      "link_bai_bao": "https://doanhnhansaigon.vn/kinh-doanh/giai-ma-phuong-phap-duong-da-bang-dau-olive-1064872.html",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-14T22:27:55.461428"
+    },
+    {
+      "stt": 2,
+      "ngay_phat_hanh": "2025-06-28",
+      "dau_bao": "SAIGONTIMESONLINE",
+      "cum_noi_dung": null,
+      "cum_noi_dung_chi_tiet": "Những loại dầu ăn gây hại cho sức khỏe, không chỉ riêng dầu ăn chăn nuôi",
+      "tom_tat_noi_dung": "Nhiều loại dầu ăn, đặc biệt là dầu ăn chăn nuôi, có thể gậy hại cho sức khỏe người tiêu dùng. Bài viết điểm qua những rủi ro sức khỏe tiềm ẩn từ các loại dầu ăn kém chất lượng được sử dụng rộng rãi trong nhà hàng và quán ăn.",
+      "link_bai_bao": "https://sgtt.thesaigontimes.vn/nhung-loai-dau-an-gay-hai-cho-suc-khoe-khong-chi-rieng-dau-an-chan-nuoi/",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-14T22:43:39.548987"
+    },
+    {
+      "stt": 3,
+      "ngay_phat_hanh": "2025-06-26",
+      "dau_bao": "SAIGONTIMESONLINE",
+      "cum_noi_dung": null,
+      "cum_noi_dung_chi_tiet": "Cảnh báo dầu ăn chăn nuôi được 'phù phép' thành dầu ăn cho người",
+      "tom_tat_noi_dung": "Có dấu hiệu cho thấy dầu ăn chăn nuôi bị biến tướng thành dầu ăn dành cho con người mà không đảm bảo tiêu chuẩn an toàn thực phẩm. Bài viết nêu lên sự nguy hiểm tiềm tàng cho sức khỏe từ tiêu dùng loại dầu này.",
+      "link_bai_bao": "https://thesaigontimes.vn/canh-bao-dau-an-chan-nuoi-duoc-phu-phep-thanh-dau-an-cho-nguoi/",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-14T22:43:39.548987"
+    },
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-06-19",
+      "dau_bao": "SAIGONTIMESONLINE",
+      "cum_noi_dung": null,
+      "cum_noi_dung_chi_tiet": "Chiến sự Israel - Iran đẩy giá dầu đậu nành và dầu cọ tăng vọt",
+      "tom_tat_noi_dung": "Bài viết bàn luận về việc giá dầu đậu nành và dầu cọ tăng mạnh do tác động của chiến sự giữa Israel và Iran, ảnh hưởng đến chi phí năng lượng toàn cầu. Sự kiện này đã làm gia tăng lo ngại về sự thiếu hụt nguồn cung, dẫn đến tình trạng giá tăng vọt.",
+      "link_bai_bao": "https://thesaigontimes.vn/chien-su-israel-iran-day-gia-dau-dau-nanh-va-dau-co-tang-vot/",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-14T22:44:03.350563"
+    },
+    {
+      "stt": 2,
+      "ngay_phat_hanh": "2025-07-06",
+      "dau_bao": "SAIGONTIMESONLINE",
+      "cum_noi_dung": null,
+      "cum_noi_dung_chi_tiet": "Giá thực phẩm toàn cầu tăng trong tháng Sáu - Saigon Times",
+      "tom_tat_noi_dung": "Nội dung bài viết tập trung vào sự gia tăng giá cả thực phẩm toàn cầu trong tháng Sáu, với dầu cọ và đậu nành là những mặt hàng chính có mức tăng giá cao. Tình hình này phản ánh những biến động trong nguồn cung và nhu cầu thực phẩm toàn cầu, đẩy giá lên mức cao mới.",
+      "link_bai_bao": "https://thesaigontimes.vn/gia-thuc-pham-toan-cau-tang-trong-thang-sau/",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-14T22:44:03.350563"
+    },
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-06-24",
+      "dau_bao": "PHUNU",
+      "cum_noi_dung": null,
+      "cum_noi_dung_chi_tiet": "Dầu cho thực ăn chăn nuôi thành dầu ăn cho người, Bộ Y tế nói gì?",
+      "tom_tat_noi_dung": "Bài viết đề cập đến việc Ofood, thương hiệu của Công ty TNHH Sản xuất và XNK Nhật Minh Food, sản xuất dầu ăn từ nguyên liệu thực vật dùng cho thực phẩm chăn nuôi. Bài viết cũng chỉ ra những ứng dụng của sản phẩm này trong ngành thực phẩm và các khuyến nghị từ Bộ Y tế về tính an toàn và ứng dụng của sản phẩm cho người tiêu dùng.",
+      "link_bai_bao": "https://www.phunuonline.com.vn/dau-cho-thuc-an-chan-nuoi-thanh-dau-an-cho-nguoi-bo-y-te-noi-gi-a1553404.html",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-14T22:45:49.860738"
+    },
+    {
+      "stt": 2,
+      "ngay_phat_hanh": "2025-06-25",
+      "dau_bao": "PHUNU",
+      "cum_noi_dung": null,
+      "cum_noi_dung_chi_tiet": "Dầu ăn giá đã lừa các bà nội trợ suốt thời gian qua như thế nào?",
+      "tom_tat_noi_dung": "Bài viết phân tích tình trạng giá cả dầu ăn giả trong thị trường hiện nay, khi mà các mặt hàng này đã được sử dụng trong thực phẩm cơ bản nhưng không đảm bảo chất lượng. Cục An toàn Thực phẩm (Bộ Y tế) đã có cảnh báo nghiêm túc về việc sử dụng dầu ăn không rõ nguồn gốc, ảnh hưởng đến sức khỏe của người tiêu dùng.",
+      "link_bai_bao": "https://www.phunuonline.com.vn/dau-an-gia-da-lua-cac-ba-noi-tro-suot-thoi-gian-qua-nhu-the-nao-a1553477.html",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-14T22:45:49.860738"
+    },
+    {
+      "stt": 3,
+      "ngay_phat_hanh": "2025-07-06",
+      "dau_bao": "PHUNU",
+      "cum_noi_dung": null,
+      "cum_noi_dung_chi_tiet": "Lo ngại dầu ăn “bẩn”, người dân đổ xô đi ép dầu đầu phòng",
+      "tom_tat_noi_dung": "Bài viết nêu bật sự gia tăng lo ngại của người tiêu dùng về chất lượng dầu ăn trên thị trường, dẫn đến việc họ chạy đua để ép dầu tại nhà. Nhu cầu cao đã làm tăng áp lực lên các nguồn cung ứng nguyên liệu và thúc đẩy các hành động tự bảo vệ sức khỏe của người tiêu dùng, bên cạnh những nguy cơ tiềm ẩn về mặt an toàn thực phẩm.",
+      "link_bai_bao": "https://www.phunuonline.com.vn/lo-ngai-dau-an-ban-nguoi-dan-do-xo-di-ep-dau-dau-phong-a1554365.html",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-14T22:45:49.860738"
+    }
+  ],
+  "generated_at": "2025-07-14T23:00:28.534149",
+  "total_articles": 11,
+  "date_range": "Từ ngày 14/06/2025 đến ngày 14/07/2025"
+}

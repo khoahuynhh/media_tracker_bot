@@ -10,18 +10,18 @@ import shutil
 import logging
 import threading
 import re
+import pandas as pd
 from datetime import datetime, timedelta, timezone
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, DefaultDict
 from collections import defaultdict
 from jose import jwt, JWTError
 from fastapi.security import OAuth2PasswordBearer
-from fastapi import FastAPI, HTTPException, Depends, Request
+from fastapi import HTTPException, Depends
 
 
-# SỬA LỖI: Sử dụng import tương đối
-from .models import CompetitorReport, CrawlConfig, BotStatus, MediaType
+from .models import CompetitorReport, BotStatus, MediaType, Article
 from .agents import MediaTrackerTeam
-from .configs import AppSettings, settings
+from .configs import AppSettings
 
 logger = logging.getLogger(__name__)
 
@@ -186,8 +186,6 @@ class PipelineService:
 
     async def _save_report(self, report: CompetitorReport, user_email: str):
         """Saves the report to JSON and Excel files."""
-        import pandas as pd
-        from pathlib import Path
 
         folder_name = self._sanitize_user_name(user_email)
         reports_dir = self.settings.reports_dir / folder_name
@@ -224,43 +222,114 @@ class PipelineService:
 
                 # 2. Summary theo ngành (1 sheet mỗi ngành)
                 for s in report.industry_summaries:
-                    sheet_name = f"Summary - Ngành {s.nganh_hang[:25]}"  # Giới hạn tên sheet 31 ký tự
-                    df = pd.DataFrame(
-                        [
+                    sheet_name = (
+                        f"Summary - Ngành {s.nganh_hang[:25]}"  # Giới hạn 31 ký tự
+                    )
+
+                    rows = []
+
+                    for brand in s.nhan_hang:
+                        # Lọc các bài báo có chứa nhãn hàng này
+                        related_articles = [
+                            article
+                            for article in report.articles
+                            if brand in article.nhan_hang
+                            and article.nganh_hang == s.nganh_hang
+                        ]
+
+                        # Lấy các cụm nội dung xuất hiện trong các bài báo đó (không trùng)
+                        clusters = set(
+                            article.cum_noi_dung
+                            for article in related_articles
+                            if article.cum_noi_dung
+                        )
+
+                        # Gộp cụm nội dung thành chuỗi có đánh số
+                        if clusters:
+                            cluster_text = "\n".join(
+                                [f"{idx+1}. {c}" for idx, c in enumerate(clusters)]
+                            )
+                        else:
+                            cluster_text = ""
+
+                        # Số lượng bài là tổng số bài có brand này (không phân cụm)
+                        count = len(related_articles)
+
+                        rows.append(
                             {
                                 "Ngành hàng": s.nganh_hang,
-                                "Nhãn hàng": ", ".join(s.nhan_hang),
-                                "Cụm nội dung": ", ".join([c for c in s.cum_noi_dung]),
-                                "Số lượng bài": s.so_luong_bai,
-                                # Nếu bạn muốn thêm đầu báo: "Các đầu báo": ", ".join(s.cac_dau_bao),
+                                "Nhãn hàng": brand,
+                                "Cụm nội dung": cluster_text,
+                                "Số lượng bài": count,
                             }
-                        ]
-                    )
+                        )
+
+                    # Bổ sung dòng cho các bài không có nhãn hàng
+                    no_brand_articles = [
+                        article
+                        for article in report.articles
+                        if not article.nhan_hang and article.nganh_hang == s.nganh_hang
+                    ]
+
+                    if no_brand_articles:
+                        # Lấy các cụm nội dung của bài không có nhãn
+                        clusters_no_brand = set(
+                            article.cum_noi_dung
+                            for article in no_brand_articles
+                            if article.cum_noi_dung
+                        )
+
+                        if clusters_no_brand:
+                            cluster_text = "\n".join(
+                                [
+                                    f"{idx+1}. {c}"
+                                    for idx, c in enumerate(clusters_no_brand)
+                                ]
+                            )
+                        else:
+                            cluster_text = ""
+
+                        count = len(no_brand_articles)
+
+                        rows.append(
+                            {
+                                "Ngành hàng": s.nganh_hang,
+                                "Nhãn hàng": "Không nhãn hàng",
+                                "Cụm nội dung": cluster_text,
+                                "Số lượng bài": count,
+                            }
+                        )
+
+                    # Tạo DataFrame và ghi vào Excel
+                    df = pd.DataFrame(rows)
                     df.to_excel(writer, index=False, sheet_name=sheet_name)
 
                 # 3. Mỗi nhãn hàng một sheet bài báo
 
                 # Gom bài theo nhãn hàng
-                articles_by_brand = defaultdict(list)
+                articles_by_brand: DefaultDict[str, List[Article]] = defaultdict(list)
+                articles_no_brand: List[Article] = []
                 for article in report.articles:
-                    for brand in article.nhan_hang:
-                        articles_by_brand[brand].append(article)
+                    if article.nhan_hang:
+                        for brand in article.nhan_hang:
+                            articles_by_brand[brand].append(article)
+                    else:
+                        articles_no_brand.append(article)
 
                 # Ghi mỗi nhãn hàng ra 1 sheet
                 for brand, articles in articles_by_brand.items():
-                    sheet_name = f"Ngành {article.nganh_hang} - {brand[:25]}"  # Giới hạn tên sheet
+                    first_article = articles[0]
+                    sheet_name = f"Ngành {first_article.nganh_hang[:31]} - {brand[:25]}"  # Giới hạn tên sheet
                     df = pd.DataFrame(
                         [
                             {
-                                "STT": article.stt,
-                                "Ngày phát hành": article.ngay_phat_hanh.strftime(
-                                    "%d/%m/%Y"
-                                ),
-                                "Đầu báo": article.dau_bao,
-                                "Cụm nội dung": article.cum_noi_dung_chi_tiet
-                                or article.cum_noi_dung,
-                                "Tóm tắt nội dung": article.tom_tat_noi_dung,
-                                "Link bài báo": article.link_bai_bao,
+                                "STT": a.stt,
+                                "Ngày phát hành": a.ngay_phat_hanh.strftime("%d/%m/%Y"),
+                                "Đầu báo": a.dau_bao,
+                                "Cụm nội dung": a.cum_noi_dung_chi_tiet
+                                or a.cum_noi_dung,
+                                "Tóm tắt nội dung": a.tom_tat_noi_dung,
+                                "Link bài báo": a.link_bai_bao,
                                 # "Ngành hàng": a.nganh_hang,
                                 # "Nhãn hàng": ", ".join(a.nhan_hang),
                                 # "Keywords": ", ".join(a.keywords_found),
@@ -271,6 +340,31 @@ class PipelineService:
                     # Sequence STT
                     df["STT"] = range(1, len(df) + 1)
                     # Nếu muốn nó ở đầu tiên:
+                    df = df[["STT"] + [col for col in df.columns if col != "STT"]]
+                    df.to_excel(writer, sheet_name=sheet_name, index=False)
+
+                # 4. Ghi sheet cho các bài không có nhãn hàng
+                if articles_no_brand:
+                    first_article = articles_no_brand[0]
+                    industry = first_article.nganh_hang
+                    sheet_name = f"General - {industry}"
+                    sheet_name = sheet_name[:31]  # Đảm bảo không quá 31 ký tự
+
+                    df = pd.DataFrame(
+                        [
+                            {
+                                "STT": a.stt,
+                                "Ngày phát hành": a.ngay_phat_hanh.strftime("%d/%m/%Y"),
+                                "Đầu báo": a.dau_bao,
+                                "Cụm nội dung": a.cum_noi_dung_chi_tiet
+                                or a.cum_noi_dung,
+                                "Tóm tắt nội dung": a.tom_tat_noi_dung,
+                                "Link bài báo": a.link_bai_bao,
+                            }
+                            for a in articles_no_brand
+                        ]
+                    )
+                    df["STT"] = range(1, len(df) + 1)
                     df = df[["STT"] + [col for col in df.columns if col != "STT"]]
                     df.to_excel(writer, sheet_name=sheet_name, index=False)
 

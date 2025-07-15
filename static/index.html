@@ -37,6 +37,7 @@
         }
 
         body {
+            font-family: 'Arial', sans-serif;
             background: linear-gradient(-45deg, #1f1f1f, #2a2a2a, #2c2c2c, #1f1f1f);
             background-size: 300% 300%;
             animation: gradientBG 15s ease infinite;
@@ -69,7 +70,7 @@
         }
 
         #loginContainer {
-            max-width: 720px;
+            max-width: 750px;
             width: 90%;
             padding: 40px;
             /* margin-top: 5vh; */
@@ -179,11 +180,9 @@
             }
         }
 
-
         .login-exit {
             animation: fadeOutScale 0.6s ease forwards;
         }
-
 
         .navbar {
             background: var(--gradient-primary);
@@ -279,14 +278,14 @@
             background-color: var(--card-background);
             border: 1px solid var(--border-color);
             box-shadow: var(--card-shadow);
-            border-radius: 12px;
+            border-radius: 0.5rem;
             margin-bottom: 1.5rem;
-            transition: all 0.3s ease;
+            transition: transform 0.2s;
             overflow: hidden;
         }
 
         .card:hover {
-            transform: translateY(-2px);
+            transform: translateY(-5px);
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
         }
 
@@ -366,15 +365,12 @@
         }
 
         .progress-container {
-            background-color: #e0e0e0;
+            background-color: #e9ecef;
+            /* màu nền thanh progress */
             border-radius: 8px;
-            width: 100%;
-            height: 1rem;
-            margin-bottom: 10px;
+            height: 16px;
+            /* hoặc 20px cho to đẹp */
             overflow: hidden;
-            align-items: center;
-            display: flex;
-            margin-top: 15px;
         }
 
         .progressText {
@@ -383,11 +379,17 @@
 
         .progress-bar {
             height: 100%;
-            background-color: #2E8B57;
+            background: linear-gradient(90deg, #2E8B57, #20B2AA);
+            /* gradient đẹp hơn */
             color: white;
             text-align: center;
-            line-height: 24px;
+            line-height: 16px;
+            /* bằng với height để căn giữa */
             transition: width 0.3s ease;
+            font-size: 0.75rem;
+            /* nhỏ gọn */
+            white-space: nowrap;
+            /* không bị xuống dòng */
         }
 
         .status-running {
@@ -398,6 +400,12 @@
         .status-done {
             color: green;
             font-weight: bold;
+        }
+
+        .btn {
+            border-radius: 0.25rem;
+            font-weight: 500;
+            transition: all 0.2s ease-in-out;
         }
 
         .btn-primary {
@@ -527,6 +535,7 @@
             text-transform: uppercase;
             letter-spacing: 1px;
             font-weight: 500;
+            display: inline-block;
         }
 
         .loading-spinner {
@@ -694,29 +703,6 @@
             border-color: var(--primary-color);
         }
 
-        /* RESPONSIVE IMPROVEMENTS */
-        @media (max-width: 768px) {
-            .hero-section {
-                padding: 1rem 0;
-            }
-
-            .metric-number {
-                font-size: 2rem;
-            }
-
-            .chart-container {
-                height: 250px;
-            }
-
-            .card-body {
-                padding: 1rem;
-            }
-
-            .table-responsive {
-                font-size: 0.9rem;
-            }
-        }
-
         /* BADGE IMPROVEMENTS */
         .badge {
             font-size: 0.8rem;
@@ -759,6 +745,40 @@
 
         ::-webkit-scrollbar-thumb:hover {
             background: #20B2AA;
+        }
+
+        /* RESPONSIVE IMPROVEMENTS */
+        @media (max-width: 576px) {
+            .hero-section h1 {
+                font-size: 1.5rem;
+            }
+
+            .hero-section p {
+                font-size: 0.9rem;
+            }
+
+            .card-body {
+                padding: 1rem;
+            }
+
+            .metric-number {
+                font-size: 1.5rem;
+            }
+
+            .metric-label {
+                font-size: 0.75rem;
+            }
+
+            .table th,
+            .table td {
+                font-size: 0.85rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            #loginContainer {
+                padding: 20px;
+            }
         }
     </style>
 </head>
@@ -838,25 +858,25 @@
                             <div class="row align-items-center">
                                 <style>
                                     .label-fixed {
-                                        width: 65px;
+                                        min-width: 70px;
                                         /* đủ cho chữ "Progress:" không bị wrap */
                                         flex-shrink: 0;
                                     }
                                 </style>
-                                <div class="col-md-6">
+                                <div class="col-12 col-md-6">
                                     <div class="d-flex align-items-center mb-3">
-                                        <span class="me-3 label-fixed">Status:</span>
+                                        <span class="label-fixed me-3">Status:</span>
                                         <span id="statusBadge" class="status-badge status-idle">
                                             <i class="fas fa-circle"></i>
                                             Idle
                                         </span>
                                     </div>
                                     <div class="d-flex align-items-center mb-3">
-                                        <span class="me-3 label-fixed">Task:</span>
+                                        <span class="label-fixed me-3">Task:</span>
                                         <span id="currentTask" class="fw-bold">Chờ khởi động</span>
                                     </div>
                                     <div class="progress-wrapper">
-                                        <span class="me-3 label-fixed">Progress:</span>
+                                        <span class="label-fixed me-3">Progress:</span>
                                         <div class="flex-grow-1">
                                             <div class="progress-container">
                                                 <div id="progress-bar" class="progress-bar" style="width: 0%"></div>
@@ -867,7 +887,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-12 col-md-6">
                                     <div class="row text-center">
                                         <div class="col-4">
                                             <div class="metric-number" id="totalSources">0</div>
@@ -875,7 +895,7 @@
                                         </div>
                                         <div class="col-4">
                                             <div class="metric-number" id="completedSources">0</div>
-                                            <div class="metric-label">Completed</div>
+                                            <span class="metric-label">Completed</span>
                                         </div>
                                         <div class="col-4">
                                             <div class="metric-number" id="failedSources">0</div>
@@ -939,12 +959,12 @@
                         </div>
                         <div class="card-body">
                             <div class="row mb-3">
-                                <div class="col-md-6">
+                                <div class="col-12 col-md-6">
                                     <p class="mb-2"><strong>Thời gian trích xuất dữ liệu:</strong> <span
                                             id="dateRange">Đang
                                             tải...</span></p>
                                 </div>
-                                <div class="col-md-6 text-end">
+                                <div class="col-12 col-md-6 text-end">
                                     <button class="btn btn-outline-primary btn-sm me-2"
                                         onclick="downloadReport('json')">
                                         <i class="fas fa-download me-1"></i>JSON
@@ -984,7 +1004,7 @@
 
             <!-- Charts Section -->
             <div class="row mb-4">
-                <div class="col-md-6">
+                <div class="col-12 col-md-6">
                     <div class="card">
                         <div class="card-header">
                             <h5 class="card-title mb-0">
@@ -999,7 +1019,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-12 col-md-6">
                     <div class="card">
                         <div class="card-header">
                             <h5 class="card-title mb-0">
@@ -1137,12 +1157,12 @@
                             </div>
                             <div class="card-body">
                                 <div class="row">
-                                    <div class="col-md-6">
+                                    <div class="col-12 col-md-6">
                                         <label class="form-label">Start Date</label>
                                         <input type="date" class="form-control" id="startDate">
                                         <div class="form-text">Leave empty for default (30 days ago)</div>
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-12 col-md-6">
                                         <label class="form-label">End Date</label>
                                         <input type="date" class="form-control" id="endDate">
                                         <div class="form-text">Leave empty for today</div>
@@ -1236,7 +1256,7 @@
                                 </div>
 
                                 <div class="row">
-                                    <div class="col-md-6">
+                                    <div class="col-12 col-md-6">
                                         <div class="mb-3">
                                             <label class="form-label">OpenAI API Key</label>
                                             <div class="input-group">
@@ -1252,7 +1272,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-12 col-md-6">
                                         <div class="mb-3">
                                             <label class="form-label">Groq API Key</label>
                                             <div class="input-group">
@@ -1347,15 +1367,58 @@
         let currentConfig = null;
 
         // Initialize dashboard
-        document.addEventListener('DOMContentLoaded', function () {
-            initializeDashboard();
-            loadInitialData();
-            setupEventListeners();
-            startStatusPolling();
+        document.addEventListener('DOMContentLoaded', async function () {
+            const token = localStorage.getItem("token");
 
-            // Set start time
+            if (!token) {
+                showLogin();
+            } else {
+                // Gọi API backend để xác thực token
+                try {
+                    const response = await fetch('/api/auth/check', {
+                        headers: {
+                            "Authorization": `Bearer ${token}`
+                        }
+                    });
+
+                    if (response.ok) {
+                        initializeDashboard();
+                        loadInitialData();
+                        setupEventListeners();
+                        startStatusPolling();
+                        showDashboard();
+                    } else {
+                        localStorage.removeItem("token");
+                        showLogin();
+                    }
+                } catch (err) {
+                    console.error(err);
+                    localStorage.removeItem("token");
+                    showLogin();
+                }
+            }
+
             document.getElementById('startTime').textContent = new Date().toLocaleString('vi-VN');
         });
+
+        function showLogin() {
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('dashboardContainer').style.display = 'none';
+
+            // Reset input cho chắc chắn
+            document.getElementById('email').value = '';
+            document.getElementById('password').value = '';
+
+            // Reset lại trạng thái animation nếu có
+            const container = document.getElementById('loginContainer');
+            container.classList.remove('fade-out-up');
+            container.classList.add('fade-in-down');
+        }
+
+        function showDashboard() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('dashboardContainer').style.display = 'block';
+        }
 
         function initializeDashboard() {
             console.log('🚀 Initializing Media Tracker Dashboard...');
@@ -1605,6 +1668,9 @@
                 document.getElementById('pauseResumeBtn').innerHTML = '<i class="fas fa-pause me-2"></i>Pause';
                 // Clear session ID
                 currentSessionId = null;
+
+                progressBar.style.width = '0%';
+                progressText.textContent = '0%';
             }
 
             // Update metrics
@@ -1621,6 +1687,7 @@
             if (status.api_keys && (!status.api_keys.openai_configured && !status.api_keys.groq_configured)) {
                 addActivityLog('API Keys Required', 'Vui lòng cấu hình API keys trong Settings', 'error');
             }
+
         }
 
         function openSettings() {
@@ -2294,13 +2361,13 @@
             const content = document.getElementById('articleContent');
             content.innerHTML = `
                 <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-12 col-md-6">
                         <p><strong>STT:</strong> ${article.stt}</p>
                         <p><strong>Ngày phát hành:</strong> ${formatDate(article.ngay_phat_hanh)}</p>
                         <p><strong>Đầu báo:</strong> ${article.dau_bao}</p>
                         <p><strong>Ngành hàng:</strong> <span class="industry-pill">${article.nganh_hang}</span></p>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-12 col-md-6">
                         <p><strong>Cụm nội dung:</strong> ${article.cum_noi_dung}</p>
                         <p><strong>Nhãn hàng:</strong> ${article.nhan_hang.map(brand => `<span class="industry-pill">${brand}</span>`).join(' ')}</p>
                         <p><strong>Keywords:</strong> ${article.keywords_found.join(', ')}</p>
@@ -2636,16 +2703,35 @@
                     dashboardContainer.style.display = "block";
                     dashboardContainer.classList.add("fade-in-down");
                 }, 700); // Khớp với thời gian animation
+                initializeDashboard();
+                loadInitialData();
+                setupEventListeners();
+                startStatusPolling();
             } else {
                 alert("Wrong account or password");
             }
         }
 
         function logout() {
+            // Xóa token
             localStorage.removeItem("token");
-            document.getElementById("loginContainer").style.display = "block";
-            document.getElementById("dashboardContainer").style.display = "none";
+
+            // Dừng polling nếu có
+            if (statusInterval) {
+                clearInterval(statusInterval);
+            }
+
+            // Reset form login
+            document.getElementById('loginForm').reset();
+
+            // Hiện lại login
+            showLogin();
+
+            // Đóng modal logout
+            var modal = bootstrap.Modal.getInstance(document.getElementById('logoutModal'));
+            modal.hide();
         }
+
 
         function confirmLogout() {
             localStorage.removeItem("token");

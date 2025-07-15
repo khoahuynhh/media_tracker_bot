@@ -14,13 +14,13 @@ import asyncio
 import subprocess
 import uvicorn
 
-from fastapi import FastAPI, Request, HTTPException, BackgroundTasks, Depends
+from fastapi import FastAPI, Request, HTTPException, BackgroundTasks, Depends, status
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from typing import Dict
-from pathlib import Path
+from jose import JWTError, jwt
 
 subprocess.run(["playwright", "install"], check=False)
 
@@ -38,10 +38,16 @@ logging.basicConfig(
 )
 
 
-# Import refactored components
-from .models import CrawlConfig, create_sample_report, UserLogin
+# Import modules
+from .models import CrawlConfig, create_sample_report, UserLogin, USER_DB
 from .configs import settings
-from .services import PipelineService, create_access_token, get_current_user
+from .services import (
+    PipelineService,
+    create_access_token,
+    get_current_user,
+    SECRET_KEY,
+    ALGORITHM,
+)
 
 # Save pipeline according to email user
 user_pipelines: Dict[str, PipelineService] = {}
@@ -82,11 +88,15 @@ if static_dir.exists() and static_dir.is_dir():
 # --- API Endpoints ---
 @app.post("/api/login")
 def login(user: UserLogin):
-    # Giả sử bạn hardcode tài khoản mẫu
-    if user.email == "admin" and user.password == "123456":
-        token = create_access_token({"sub": user.email})
-        return {"access_token": token, "token_type": "bearer"}
-    raise HTTPException(status_code=401, detail="Invalid credentials")
+    user_record = USER_DB.get(user.email)
+
+    if not user_record or user_record["password"] != user.password:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+
+    token_data = {"sub": user.email, "role": user_record["role"]}
+
+    token = create_access_token(token_data)
+    return {"access_token": token, "token_type": "bearer", "role": user_record["role"]}
 
 
 def get_pipeline_for_user(user_email: str) -> PipelineService:
@@ -95,6 +105,24 @@ def get_pipeline_for_user(user_email: str) -> PipelineService:
             app_settings=settings, user_email=user_email
         )
     return user_pipelines[user_email]
+
+
+@app.get("/api/auth/check")
+def check_token(request: Request):
+    auth_header = request.headers.get("Authorization")
+    if not auth_header or not auth_header.startswith("Bearer "):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Token missing"
+        )
+
+    token = auth_header.split(" ")[1]
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return {"message": "Token is valid", "user": payload.get("sub")}
+    except JWTError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
+        )
 
 
 @app.get("/", response_class=HTMLResponse, include_in_schema=False)

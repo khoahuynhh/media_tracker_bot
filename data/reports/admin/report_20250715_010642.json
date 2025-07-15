@@ -1,0 +1,145 @@
+{
+  "title": "CALOFIC COMPETITOR REPORT",
+  "subtitle": "PR & SOCIAL MONTHLY REPORT",
+  "overall_summary": {
+    "thoi_gian_trich_xuat": "Từ ngày 15/06/2025 đến ngày 15/07/2025",
+    "industries": [
+      {
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "cum_noi_dung": [
+          "Khác"
+        ],
+        "so_luong_bai": 8,
+        "cac_dau_bao": [
+          "SAIGONTIMESONLINE",
+          "CAFEBIZ"
+        ]
+      }
+    ],
+    "tong_so_bai": 8
+  },
+  "industry_summaries": [
+    {
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "cum_noi_dung": [
+        "Khác"
+      ],
+      "so_luong_bai": 8,
+      "cac_dau_bao": [
+        "SAIGONTIMESONLINE",
+        "CAFEBIZ"
+      ]
+    }
+  ],
+  "articles": [
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-06-26",
+      "dau_bao": "CAFEBIZ",
+      "cum_noi_dung": null,
+      "cum_noi_dung_chi_tiet": "Chưa rõ",
+      "tom_tat_noi_dung": "",
+      "link_bai_bao": "https://cafebiz.vn/bo-cong-thuong-se-kiem-tra-dien-rong-cac-co-so-san-xuat-dau-an-176250626182246394.chn",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-15T00:46:50.204447"
+    },
+    {
+      "stt": 2,
+      "ngay_phat_hanh": "2025-06-25",
+      "dau_bao": "CAFEBIZ",
+      "cum_noi_dung": null,
+      "cum_noi_dung_chi_tiet": "Chưa rõ",
+      "tom_tat_noi_dung": "",
+      "link_bai_bao": "https://cafebiz.vn/phanh-phui-duong-day-phu-phep-dau-an-cho-vat-nuoi-thanh-dau-an-cho-nguoi-bo-y-te-canh-bao-17625062506502568.chn",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-15T00:46:50.204447"
+    },
+    {
+      "stt": 3,
+      "ngay_phat_hanh": "2025-06-24",
+      "dau_bao": "CAFEBIZ",
+      "cum_noi_dung": null,
+      "cum_noi_dung_chi_tiet": "Chưa rõ",
+      "tom_tat_noi_dung": "",
+      "link_bai_bao": "https://cafebiz.vn/kinh-hoang-hang-chuc-nghin-tan-dau-dung-cho-thuc-an-chan-nuoi-bien-thanh-dau-an-cho-nguoi-176250624221517519.chn",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-15T00:46:50.205454"
+    },
+    {
+      "stt": 4,
+      "ngay_phat_hanh": "2025-06-26",
+      "dau_bao": "CAFEBIZ",
+      "cum_noi_dung": null,
+      "cum_noi_dung_chi_tiet": "Chưa rõ",
+      "tom_tat_noi_dung": "",
+      "link_bai_bao": "https://cafebiz.vn/pha-duong-day-dau-thuc-vat-gia-nhap-lau-cuc-lon-tren-toan-quoc-thu-giu-hon-1000-tan-1762506261949196.chn",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-15T00:46:50.205454"
+    },
+    {
+      "stt": 5,
+      "ngay_phat_hanh": "2025-07-04",
+      "dau_bao": "CAFEBIZ",
+      "cum_noi_dung": null,
+      "cum_noi_dung_chi_tiet": "Chưa rõ",
+      "tom_tat_noi_dung": "",
+      "link_bai_bao": "https://cafebiz.vn/bat-nu-giam-doc-phu-phep-dau-an-chan-nuoi-thanh-cho-nguoi-he-lo-mang-luoi-doanh-nghiep-day-dac-nhung-khai-thue-chi-5-nguoi-17625070410503199.chn",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-15T00:46:50.205454"
+    },
+    {
+      "stt": 2,
+      "ngay_phat_hanh": "2025-06-26",
+      "dau_bao": "SAIGONTIMESONLINE",
+      "cum_noi_dung": null,
+      "cum_noi_dung_chi_tiet": "Chưa rõ",
+      "tom_tat_noi_dung": "",
+      "link_bai_bao": "https://thesaigontimes.vn/canh-bao-dau-an-chan-nuoi-duoc-phu-phep-thanh-dau-an-cho-nguoi/",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-15T01:02:24.381361"
+    },
+    {
+      "stt": 3,
+      "ngay_phat_hanh": "2025-06-28",
+      "dau_bao": "SAIGONTIMESONLINE",
+      "cum_noi_dung": null,
+      "cum_noi_dung_chi_tiet": "Chưa rõ",
+      "tom_tat_noi_dung": "",
+      "link_bai_bao": "https://sgtt.thesaigontimes.vn/nhung-loai-dau-an-gay-hai-cho-suc-khoe-khong-chi-rieng-dau-an-chan-nuoi/",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-15T01:02:24.381361"
+    },
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-06-19",
+      "dau_bao": "SAIGONTIMESONLINE",
+      "cum_noi_dung": null,
+      "cum_noi_dung_chi_tiet": "Chiến sự Israel - Iran đẩy giá dầu đậu nành và dầu cọ tăng vọt",
+      "tom_tat_noi_dung": "Giá dầu đậu nành và dầu cọ tăng mạnh do căng thẳng xung đột giữa Israel và Iran. Tình hình an ninh làm chi phí sản xuất gia tăng, dẫn đến khả năng thiếu hụt nguồn cung trên thị trường toàn cầu.",
+      "link_bai_bao": "https://thesaigontimes.vn/chien-su-israel-iran-day-gia-dau-dau-nanh-va-dau-co-tang-vot/",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-15T01:02:50.146161"
+    }
+  ],
+  "generated_at": "2025-07-15T01:06:41.587278",
+  "total_articles": 8,
+  "date_range": "Từ ngày 15/06/2025 đến ngày 15/07/2025"
+}

@@ -1,0 +1,79 @@
+{
+  "title": "CALOFIC COMPETITOR REPORT",
+  "subtitle": "PR & SOCIAL MONTHLY REPORT",
+  "overall_summary": {
+    "thoi_gian_trich_xuat": "Từ ngày 15/06/2025 đến ngày 15/07/2025",
+    "industries": [
+      {
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "cum_noi_dung": [
+          "Khác"
+        ],
+        "so_luong_bai": 3,
+        "cac_dau_bao": [
+          "PHUNU"
+        ]
+      }
+    ],
+    "cac_dau_bao": [],
+    "tong_so_bai": 3
+  },
+  "industry_summaries": [
+    {
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "cum_noi_dung": [
+        "Khác"
+      ],
+      "so_luong_bai": 3,
+      "cac_dau_bao": [
+        "PHUNU"
+      ]
+    }
+  ],
+  "articles": [
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-06-24",
+      "dau_bao": "PHUNU",
+      "cum_noi_dung": null,
+      "cum_noi_dung_chi_tiet": "Dầu cho thức ăn chăn nuôi thành dầu ăn cho người, Bộ Y tế nói gì?",
+      "tom_tat_noi_dung": "Bài viết đề cập đến hiện tượng dầu thực vật dành cho thức ăn chăn nuôi được chế biến lại thành dầu ăn dành cho con người. Bộ Y tế đã cảnh báo về chất lượng và an toàn của sản phẩm này, đồng thời khuyến cáo người tiêu dùng cần cẩn trọng với nguồn gốc của dầu ăn sử dụng.",
+      "link_bai_bao": "https://www.phunuonline.com.vn/dau-cho-thuc-an-chan-nuoi-thanh-dau-an-cho-nguoi-bo-y-te-noi-gi-a1553404.html",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-15T15:24:22.160368"
+    },
+    {
+      "stt": 2,
+      "ngay_phat_hanh": "2025-07-06",
+      "dau_bao": "PHUNU",
+      "cum_noi_dung": null,
+      "cum_noi_dung_chi_tiet": "Lo ngại dầu ăn “bẩn”, người dân đổ xô đi ép dầu đậu phộng",
+      "tom_tat_noi_dung": "Bài báo phân tích tình trạng người dân lo lắng về chất lượng dầu ăn hiện nay, dẫn đến việc gia tăng nhu cầu sử dụng dầu đậu phộng ép tại nhà. Giá dầu ăn đang tăng cao, khiến người tiêu dùng tìm kiếm giải pháp an toàn và tốt cho sức khỏe qua việc tự sản xuất dầu ăn tại nhà.",
+      "link_bai_bao": "https://www.phunuonline.com.vn/lo-ngai-dau-an-ban-nguoi-dan-do-xo-di-ep-dau-dau-phong-a1554365.html",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-15T15:24:22.160368"
+    },
+    {
+      "stt": 3,
+      "ngay_phat_hanh": "2025-06-25",
+      "dau_bao": "PHUNU",
+      "cum_noi_dung": null,
+      "cum_noi_dung_chi_tiet": "Dầu ăn giá đã lừa các bà nội trợ suốt thời gian qua như thế nào?",
+      "tom_tat_noi_dung": "Bài viết nêu bật sự bất ổn trong thị trường dầu ăn khi lợi nhuận của các doanh nghiệp chế biến tăng cao nhưng người tiêu dùng lại phải chịu gánh nặng về giá. Cục An toàn Thực phẩm đã phát đi cảnh báo về nguồn gốc dầu ăn không rõ ràng, khiến người dân hoang mang.",
+      "link_bai_bao": "https://www.phunuonline.com.vn/dau-an-gia-da-lua-cac-ba-noi-tro-suot-thoi-gian-qua-nhu-the-nao-a1553477.html",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-15T15:24:22.160368"
+    }
+  ],
+  "generated_at": "2025-07-15T15:26:28.015075",
+  "total_articles": 3,
+  "date_range": "Từ ngày 15/06/2025 đến ngày 15/07/2025"
+}

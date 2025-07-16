@@ -1,0 +1,53 @@
+{
+  "title": "CALOFIC COMPETITOR REPORT",
+  "subtitle": "PR & SOCIAL MONTHLY REPORT",
+  "overall_summary": {
+    "thoi_gian_trich_xuat": "Từ ngày 16/06/2025 đến ngày 16/07/2025",
+    "industries": [
+      {
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "cum_noi_dung": [
+          "Khác"
+        ],
+        "so_luong_bai": 1,
+        "cac_dau_bao": [
+          "PHUNU"
+        ]
+      }
+    ],
+    "cac_dau_bao": [],
+    "tong_so_bai": 1
+  },
+  "industry_summaries": [
+    {
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "cum_noi_dung": [
+        "Khác"
+      ],
+      "so_luong_bai": 1,
+      "cac_dau_bao": [
+        "PHUNU"
+      ]
+    }
+  ],
+  "articles": [
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-06-24",
+      "dau_bao": "PHUNU",
+      "cum_noi_dung": null,
+      "cum_noi_dung_chi_tiet": "Dầu cho thực ăn chăn nuôi thành dầu ăn cho người, Bộ Y tế nói gì?",
+      "tom_tat_noi_dung": "Bài viết đề cập đến việc chuyển đổi dầu cho thực phẩm chăn nuôi thành dầu ăn cho con người và những quan ngại của Bộ Y tế về vấn đề này. Việc này có thể gây ảnh hưởng đến sức khỏe cộng đồng nếu không được kiểm soát chặt chẽ.",
+      "link_bai_bao": "https://www.phunuonline.com.vn/dau-cho-thuc-an-chan-nuoi-thanh-dau-an-cho-nguoi-bo-y-te-noi-gi-a1553404.html",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-16T00:44:19.502556"
+    }
+  ],
+  "generated_at": "2025-07-16T00:45:12.943452",
+  "total_articles": 1,
+  "date_range": "Từ ngày 16/06/2025 đến ngày 16/07/2025"
+}

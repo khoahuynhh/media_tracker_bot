@@ -1593,6 +1593,11 @@
             }
         }
 
+        function showCompletionModal() {
+            const modal = new bootstrap.Modal(document.getElementById('completionModal'));
+            modal.show();
+        }
+
         function updateStatusDisplay(status) {
             const statusBadge = document.getElementById('statusBadge');
             const currentTask = document.getElementById('currentTask');
@@ -1808,7 +1813,6 @@
 
                 if (response.ok) {
                     addActivityLog('Pipeline Stopped', 'Quá trình crawling đã được dừng');
-
                     // Clear session
                     currentSessionId = null;
 
@@ -2595,6 +2599,7 @@
                     // Pipeline completed, reload report
                     await loadLatestReport();
                     addActivityLog('Pipeline Completed', 'Quá trình crawling đã hoàn thành');
+                    showCompletionModal();
 
                     // Clear current session
                     currentSessionId = null;
@@ -2932,6 +2937,24 @@
                             </tr>
                         </tbody>
                     </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal thông báo hoàn thành process -->
+    <div class="modal fade" id="completionModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content text-center">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">Hoàn thành!</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-0">Quá trình xử lý đã hoàn tất thành công.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-success" data-bs-dismiss="modal">Đóng</button>
                 </div>
             </div>
         </div>

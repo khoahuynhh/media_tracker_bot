@@ -50,7 +50,9 @@ from .models import (
     CrawlConfig,
     BotStatus,
     ContentCluster,
+    KeywordManager,
 )
+from .configs import CONFIG_DIR
 
 logger = logging.getLogger(__name__)
 
@@ -408,6 +410,8 @@ class ProcessorAgent:
                     "cam kết chất lượng thực phẩm",
                     "quy định an toàn thực phẩm",
                     "xử phạt vi phạm ATTP",
+                    "sức khỏe",
+                    "thu hồi sản phẩm",
                 ],
                 ContentCluster.OTHER: [],
             }
@@ -434,19 +438,25 @@ class ProcessorAgent:
                 
                 Yêu cầu:
                 1. Phân loại chính xác ngành hàng cho từng bài (dựa theo bối cảnh bài và danh sách nhãn hàng ngành hàng tương ứng).
-                2. Đọc kỹ nội dung bài viết, chỉ liệt kê các nhãn hàng trong `nhan_hang` nếu thực sự xuất hiện trong bài. Nếu không thấy nhãn hàng nào thì để `nhan_hang` là `[]`. Không tự bịa hoặc tự suy đoán thêm.
-                3. Phân loại lại cụm nội dung (`cum_noi_dung`): Dựa trên tóm tắt nội dung và từ khóa tương ứng:
-                {json.dumps({k.value: v for k, v in content_clusters.items()}, ensure_ascii=False, indent=2)}
-                - Nếu không tìm thấy cụm nội dung nào khớp với danh sách từ khóa cụm nội dung, BẮT BUỘC gán trường (`cum_noi_dung`) là '{ContentCluster.OTHER}', KHÔNG ĐƯỢC để trống hoặc trả về none hay null.
-                4. Viết lại nội dung chi tiết, ngắn gọn và mang tính mô tả khái quát cho trường `cum_noi_dung_chi_tiet` dựa trên nội dung đã có sẵn:
+                2. Trích xuất `nhan_hang`:
+                    - Đọc nội dung bài viết và kiểm tra xem có nhãn hàng nào trong danh sách sau xuất hiện hay không: 
+                    {json.dumps(brand_list, ensure_ascii=False, indent=2)}
+                    - Chỉ ghi nhận những nhãn hàng thực sự xuất hiện trong bài viết (bất kể viết hoa hay viết thường).
+                    - Nếu không thấy nhãn hàng nào thì để `nhan_hang` là `[]`. Không tự bịa hoặc tự suy đoán thêm.
+                3. Phân loại lại cụm nội dung (`cum_noi_dung`). Nếu bài viết có nội dung tương đương, đồng nghĩa hoặc gần giống với các cụm từ khóa: {json.dumps({k.value: v for k, v in content_clusters.items()}, ensure_ascii=False, indent=2)}, hãy phân loại vào cụm đó.
+                4. Nếu không tìm thấy cụm nội dung nào khớp với danh sách từ khóa cụm nội dung, BẮT BUỘC gán trường (`cum_noi_dung`) là '{ContentCluster.OTHER.value}', KHÔNG ĐƯỢC để trống hoặc trả về none hay null.
+                5. Viết lại nội dung chi tiết, ngắn gọn và mang tính mô tả khái quát cho trường `cum_noi_dung_chi_tiet` dựa trên nội dung đã có sẵn:
                     - Là 1 dòng mô tả ngắn (~10–20 từ) cho bài báo, có cấu trúc:  
                     `[Loại thông tin]: [Tóm tắt nội dung nổi bật]`
                     - Ví dụ: "Thông tin doanh nghiệp: Tường An khẳng định vị thế dịp Tết 2025"
-                5. Trích xuất keywords tìm thấy trong bài.
-                6. Chỉ giữ bài viết liên quan đến ngành FMCG (Dầu ăn, Gia vị, Sữa, v.v.) dựa trên từ khóa trong `keywords_config`. Loại bỏ bài không liên quan (e.g., chính trị, sức khỏe không liên quan).
-                7. Định dạng ngày phát hành bắt buộc: dd/mm/yyyy (VD: 01/07/2025)"
-                8. Nếu một bài báo đề cập nhiều nhãn hàng thì ghi tất cả nhãn hàng trong danh sách `nhan_hang`.
-                9. Nếu bài liên quan nhiều ngành (ví dụ sản phẩm đa dụng), hãy chọn ngành chính nhất liên quan đến bối cảnh.
+                6. Trích xuất `keywords_found`:
+                    - Là tất cả các từ khóa ngành liên quan thực sự xuất hiện trong bài viết.
+                    - Chỉ được trích xuất từ các từ khóa đã cung cấp trong `keywords_config`.
+                    - Nếu không tìm thấy từ khóa nào, để `keywords_found` là []
+                7. Chỉ giữ bài viết liên quan đến ngành FMCG (Dầu ăn, Gia vị, Sữa, v.v.) dựa trên từ khóa trong `keywords_config`. Loại bỏ bài không liên quan (e.g., chính trị, sức khỏe không liên quan).
+                8. Định dạng ngày phát hành bắt buộc: dd/mm/yyyy (VD: 01/07/2025)"
+                9. Nếu một bài báo đề cập nhiều nhãn hàng thì ghi tất cả nhãn hàng trong danh sách `nhan_hang`.
+                10. Nếu bài liên quan nhiều ngành (ví dụ sản phẩm đa dụng), hãy chọn ngành chính nhất liên quan đến bối cảnh.
 
                 Định dạng đầu ra:
                 Trả về một danh sách JSON hợp lệ chứa các đối tượng Article đã được xử lý. Cấu trúc JSON của mỗi đối tượng phải khớp với Pydantic model. Đây là 1 ví dụ cho bạn làm mẫu:
@@ -499,9 +509,27 @@ class ProcessorAgent:
                     if response and response.content:
                         try:
                             processed_data = json.loads(response.content)
-                            for item in processed_data:
-                                if item.get("cum_noi_dung") in [None, "null", ""]:
-                                    item["cum_noi_dung"] = ContentCluster.OTHER
+                            logger.info(
+                                f"Processed data content:\n{json.dumps(processed_data, ensure_ascii=False, indent=2)}"
+                            )
+                            articles_data = processed_data.get("articles", [])
+                            km = KeywordManager(
+                                CONFIG_DIR / "content_cluster_keywords.json"
+                            )
+                            for item in articles_data:
+                                valid_clusters = [c.value for c in ContentCluster]
+                                if (
+                                    item.get("cum_noi_dung")
+                                    in [None, "null", "", "Khác"]
+                                    or item.get("cum_noi_dung") not in valid_clusters
+                                ):
+                                    text_to_check = (
+                                        item.get("tom_tat_noi_dung", "")
+                                        + " "
+                                        + item.get("cum_noi_dung_chi_tiet", "")
+                                    ).strip()
+                                    fallback_cluster = km.map_to_cluster(text_to_check)
+                                    item["cum_noi_dung"] = fallback_cluster
                             processed_articles.extend(
                                 [Article(**item) for item in processed_data]
                             )
@@ -566,19 +594,32 @@ class ReportAgent:
 
     def extract_json(self, text: str) -> str:
         """
-        Cắt phần JSON thuần từ chuỗi LLM trả về, bỏ các markdown ```json ... ```
+        Trích xuất đoạn JSON thuần từ phản hồi của LLM.
+        Ưu tiên tìm đoạn giữa ```json ... ```, nếu không có thì tìm đoạn có vẻ là JSON.
         """
-        pattern = r"```json(.*?)```"
-        match = re.search(pattern, text, re.DOTALL)
-        if match:
-            return match.group(1).strip()
 
-        # Nếu không có ```json thì tìm cặp ngoặc { }
-        match_brace = re.search(r"(\{.*\})", text, re.DOTALL)
-        if match_brace:
-            return match_brace.group(1).strip()
+        # 1. Tìm đoạn markdown ```json ... ```
+        matches = re.findall(r"```json(.*?)```", text, re.DOTALL)
+        if matches:
+            for match in matches:
+                match = match.strip()
+                try:
+                    json.loads(match)  # Check if valid JSON
+                    return match
+                except json.JSONDecodeError:
+                    continue  # Try next match
 
-        raise ValueError("Không tìm thấy JSON trong phản hồi")
+        # 2. Tìm toàn bộ đoạn JSON: {...} hoặc [...]
+        candidates = re.findall(r"(\{.*?\}|\[.*?\])", text, re.DOTALL)
+        for candidate in candidates:
+            candidate = candidate.strip()
+            try:
+                json.loads(candidate)
+                return candidate
+            except json.JSONDecodeError:
+                continue
+
+        raise ValueError("Không tìm thấy JSON hợp lệ trong phản hồi")
 
     async def generate_report(
         self, articles: List[Article], date_range: str
@@ -612,9 +653,9 @@ class ReportAgent:
             CompetitorReport(
                 overall_summary: { ... },
                 industry_summaries: [ ... ],
-                articles=[ ... ],
-                total_articles={len(articles)},
-                date_range="{date_range}"
+                articles: [ ... ],
+                total_articles: {len(articles)},
+                date_range: "{date_range}"
             )
 
             Quy tắc:

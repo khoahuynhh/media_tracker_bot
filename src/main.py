@@ -37,7 +37,6 @@ logging.basicConfig(
     ],
 )
 
-
 # Import modules
 from .models import CrawlConfig, create_sample_report, UserLogin, USER_DB
 from .configs import settings

@@ -1,0 +1,53 @@
+{
+  "title": "CALOFIC COMPETITOR REPORT",
+  "subtitle": "PR & SOCIAL MONTHLY REPORT",
+  "overall_summary": {
+    "thoi_gian_trich_xuat": "Từ ngày 16/06/2025 đến ngày 16/07/2025",
+    "industries": [
+      {
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "cum_noi_dung": [
+          "Khác"
+        ],
+        "so_luong_bai": 1,
+        "cac_dau_bao": [
+          "PHUNU"
+        ]
+      }
+    ],
+    "cac_dau_bao": [],
+    "tong_so_bai": 1
+  },
+  "industry_summaries": [
+    {
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "cum_noi_dung": [
+        "Khác"
+      ],
+      "so_luong_bai": 1,
+      "cac_dau_bao": [
+        "PHUNU"
+      ]
+    }
+  ],
+  "articles": [
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-06-24",
+      "dau_bao": "PHUNU",
+      "cum_noi_dung": null,
+      "cum_noi_dung_chi_tiet": "Dầu cho thực ăn chăn nuôi thành dầu ăn cho người, Bộ Y tế nói gì?",
+      "tom_tat_noi_dung": "Bài viết đề cập đến việc dầu thực vật được Công ty TNHH Sản xuất và XNK Nhật Minh Food phát triển để chế biến thức ăn cho người. Ngành y tế đã cung cấp thông tin về việc chuyển đổi này nhằm đảm bảo an toàn và chất lượng thực phẩm.",
+      "link_bai_bao": "https://www.phunuonline.com.vn/dau-cho-thuc-an-chan-nuoi-thanh-dau-an-cho-nguoi-bo-y-te-noi-gi-a1553404.html",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-16T17:38:04.633905"
+    }
+  ],
+  "generated_at": "2025-07-16T17:39:07.868052",
+  "total_articles": 1,
+  "date_range": "Từ ngày 16/06/2025 đến ngày 16/07/2025"
+}

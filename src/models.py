@@ -3,6 +3,7 @@ models.py - Pydantic Models cho Media Tracker Bot (ENHANCED VERSION)
 Structured data models phù hợp với template report hiện tại
 """
 
+import json
 from typing import List, Optional, Dict, Any
 from datetime import datetime, date
 from enum import Enum
@@ -55,6 +56,20 @@ class ContentCluster(str, Enum):
     OTHER = "Khác"
 
 
+class KeywordManager:
+    def __init__(self, json_path: str):
+        with open(json_path, "r", encoding="utf-8") as f:
+            self.cluster_keywords: Dict[str, List[str]] = json.load(f)
+
+    def map_to_cluster(self, text: str) -> str:
+        text_lower = text.lower()
+        for cluster, keywords in self.cluster_keywords.items():
+            for kw in keywords:
+                if kw.lower() in text_lower:
+                    return cluster
+        return "Khác"
+
+
 class MediaSource(BaseModel):
     """Model cho nguồn media từ danh sách gốc"""
 
@@ -77,7 +92,10 @@ class Article(BaseModel):
     stt: int = Field(..., description="Số thứ tự")
     ngay_phat_hanh: date = Field(..., description="Ngày phát hành bài báo")
     dau_bao: str = Field(..., description="Tên đầu báo/media source")
-    cum_noi_dung: Optional[ContentCluster] = None
+    cum_noi_dung: Optional[ContentCluster] = Field(
+        default=None,
+        description="Cụm nội dung chính của bài báo. Nếu không xác định được thì là 'Khác'",
+    )
     cum_noi_dung_chi_tiet: Optional[str] = Field(
         default=None, description="Cụm nội dung chi tiết"
     )

@@ -20,6 +20,7 @@ USER_DB = {
     "admin": {"password": "123456", "role": "admin"},
     "user1": {"password": "abc", "role": "viewer"},
     "user2": {"password": "xyz", "role": "editor"},
+    "khoa": {"password": "debug", "role": "developer"},
 }
 
 
@@ -170,12 +171,12 @@ class OverallSummary(BaseModel):
 class CompetitorReport(BaseModel):
     """Model chính cho toàn bộ report - match với template hiện tại"""
 
-    title: str = Field(
-        default="CALOFIC COMPETITOR REPORT", description="Tiêu đề report"
-    )
-    subtitle: str = Field(
-        default="PR & SOCIAL MONTHLY REPORT", description="Phụ đề report"
-    )
+    # title: str = Field(
+    #     default="CALOFIC COMPETITOR REPORT", description="Tiêu đề report"
+    # )
+    # subtitle: str = Field(
+    #     default="PR & SOCIAL MONTHLY REPORT", description="Phụ đề report"
+    # )
 
     # Summary sections
     overall_summary: OverallSummary = Field(..., description="Tóm tắt tổng quan")
@@ -235,7 +236,10 @@ class CrawlConfig(BaseModel):
         default=50, description="Max articles mỗi source"
     )
     crawl_timeout: int = Field(
-        default=30, description="Timeout cho mỗi crawl (seconds)"
+        default=480, description="Timeout cho mỗi crawl (seconds)"
+    )
+    total_pipeline_timeout: int = Field(
+        default=1800, description="Tổng timeout pipeline (giây)"
     )
     exclude_domains: List[str] = Field(default=[], description="Domains cần loại trừ")
 
@@ -249,7 +253,7 @@ class CrawlConfig(BaseModel):
     retry_failed_sources: bool = Field(default=True, description="Retry failed sources")
     max_retries: int = Field(default=2, description="Max retries for failed sources")
     use_cache: bool = Field(default=True, description="Use caching for crawled data")
-    cache_duration_hours: int = Field(default=24, description="Cache duration in hours")
+    cache_duration_hours: int = Field(default=8, description="Cache duration in hours")
 
 
 class CrawlResult(BaseModel):
@@ -617,7 +621,10 @@ def create_default_config() -> CrawlConfig:
             "adayroi.com",
             "homefarm.vn",
             "kingfoodmart.com",
-            "bachhoaxanh.com"
+            "bachhoaxanh.com",
+            "namanmarket.com",
+            "tomfruits.com",
+            "frenchtaste.com.vn"
             # Quốc tế
             "amazon.com",
             "ebay.com",

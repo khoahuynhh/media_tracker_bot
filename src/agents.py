@@ -22,6 +22,7 @@ from tenacity import (
     wait_exponential,
     retry_if_exception_type,
 )
+from collections import defaultdict
 
 # Import Agno
 from agno.agent import Agent
@@ -53,6 +54,7 @@ from .models import (
     KeywordManager,
 )
 from .configs import CONFIG_DIR
+from .cache_manager import SafeCacheManager
 
 logger = logging.getLogger(__name__)
 
@@ -67,8 +69,11 @@ def get_llm_model(provider: str, model_id: str) -> Any:
 class CrawlerAgent:
     """Agent chuyên crawl web, sử dụng prompt tiếng Việt."""
 
-    def __init__(self, model: Any, parser: ArticleParser, timeout: int = 10):
+    def __init__(
+        self, model: Any, config: CrawlConfig, parser: ArticleParser, timeout: int = 10
+    ):
         self.parser = parser
+        self.config = config
         self.search_tools = [
             GoogleSearchTools(timeout),
             DDGS(),
@@ -82,6 +87,11 @@ class CrawlerAgent:
         self.model = model
         self.agent = None
         self._create_agent()
+        self.cache_manager = SafeCacheManager(
+            cache_dir="cache/crawl_results",
+            ttl_hours=self.config.cache_duration_hours,
+            version="1.0",
+        )
 
     async def _check_pause(self):
         if hasattr(self, "pause_event"):
@@ -93,6 +103,23 @@ class CrawlerAgent:
         if hasattr(self, "stop_event"):
             while self.stop_event.is_set():
                 raise InterruptedError("Pipeline stopped by user.")
+
+    def return_partial_result(self, media_source: MediaSource) -> CrawlResult:
+        unique_articles = {
+            article.link_bai_bao: article
+            for article in getattr(self, "current_articles", [])
+        }
+        articles = list(unique_articles.values())
+
+        return CrawlResult(
+            source_name=media_source.name,
+            source_type=media_source.type,
+            url=media_source.domain,
+            articles_found=articles,
+            crawl_status="partial" if articles else "timeout",
+            error_message="Trả về các bài đã crawl được trước khi timeout.",
+            crawl_duration=self.config.crawl_timeout,
+        )
 
     def _create_agent(self):
         if self.agent:
@@ -139,6 +166,22 @@ class CrawlerAgent:
         end_date: datetime,
     ) -> CrawlResult:
         start_time = datetime.now()
+
+        # Use cache if true
+        if self.config.use_cache:
+            cache_key = self.cache_manager.make_cache_key(
+                media_source.name,
+                industry_name,
+                keywords,
+                start_date,
+                end_date,
+            )
+            cached_data = self.cache_manager.load_cache(cache_key)
+
+            if cached_data:
+                logger.info(f"[{media_source.name}] ✅ Loaded from cache.")
+                return CrawlResult(**cached_data)
+
         date_filter = f"từ ngày {start_date.strftime('%Y-%m-%d')} đến ngày {end_date.strftime('%Y-%m-%d')}"
         domain_url = media_source.domain
         if domain_url and not domain_url.startswith("http"):
@@ -166,6 +209,7 @@ class CrawlerAgent:
                 logger.info(f"[{media_source.name}] Đang dùng search tool: {tool_name}")
 
                 new_articles_this_tool = 0
+                self.current_articles = []
                 for group in keyword_groups:
                     await self._check_stop()
                     await self._check_pause()
@@ -220,6 +264,7 @@ class CrawlerAgent:
 
                             if valid_new_articles:
                                 articles.extend(valid_new_articles)
+                                self.current_articles.extend(valid_new_articles)
                                 new_articles_this_tool += len(valid_new_articles)
 
                                 logger.info(
@@ -272,7 +317,7 @@ class CrawlerAgent:
                 f"[{media_source.name}] Crawled {len(articles)} unique articles"
             )
 
-            return CrawlResult(
+            result = CrawlResult(
                 source_name=media_source.name,
                 source_type=media_source.type,
                 url=media_source.domain,
@@ -285,6 +330,15 @@ class CrawlerAgent:
                 ),
                 crawl_duration=(datetime.now() - start_time).total_seconds(),
             )
+
+            if (
+                self.config.use_cache
+                and result.crawl_status == "success"
+                and len(result.articles_found) > 0
+            ):
+                self.cache_manager.save_cache(cache_key, result)
+
+            return result
 
         except Exception as e:
             logger.error(f"[{media_source.name}] Crawl failed: {e}", exc_info=True)
@@ -299,6 +353,21 @@ class CrawlerAgent:
             )
         finally:
             gc.collect()
+
+    def close(self):
+        # Xóa agent để giải phóng bộ nhớ
+        if hasattr(self, "agent"):
+            del self.agent
+
+        # Xoay vòng các tool để đóng nếu có browser
+        for tool in self.search_tools:
+            if hasattr(tool, "close"):
+                try:
+                    tool.close()
+                except Exception as e:
+                    logger.warning(f"Tool {tool} đóng không thành công: {e}")
+
+        gc.collect()  # Gọi garbage collection ngay lập tức
 
 
 class ProcessorAgent:
@@ -316,6 +385,44 @@ class ProcessorAgent:
             ],
             markdown=True,
         )
+
+    def extract_json(self, text: str) -> str:
+        """
+        Trích xuất JSON từ phản hồi LLM với thứ tự ưu tiên:
+        1. Tìm đoạn trong ```json ... ```
+        2. Nếu không có, bỏ dấu '...' ngoài cùng (nếu có)
+        3. Tìm đoạn JSON {...} hoặc [...]
+        """
+
+        text = text.strip()
+
+        # 1️. Ưu tiên tìm ```json ... ```
+        matches = re.findall(r"```json(.*?)```", text, re.DOTALL)
+        if matches:
+            for match in matches:
+                match = match.strip()
+                try:
+                    json.loads(match)
+                    return match  # ✅ Trả về JSON đúng luôn
+                except json.JSONDecodeError:
+                    continue
+
+        # 2. Nếu không có, xử lý dấu '...' ngoài cùng
+        if text.startswith("'") and text.endswith("'"):
+            text = text[1:-1].strip()
+
+        # 3️. Tìm đoạn JSON {...} hoặc [...]
+        candidates = re.findall(r"(\{.*?\}|\[.*?\])", text, re.DOTALL)
+        for candidate in candidates:
+            candidate = candidate.strip()
+            try:
+                json.loads(candidate)
+                return candidate  # ✅ Trả về JSON đúng
+            except json.JSONDecodeError:
+                continue
+
+        # Nếu không tìm thấy
+        raise ValueError("Không tìm thấy JSON hợp lệ trong phản hồi.")
 
     async def process_articles(
         self, raw_articles: List[Article], keywords_config: Dict[str, List[str]]
@@ -449,7 +556,7 @@ class ProcessorAgent:
                     - Là 1 dòng mô tả ngắn (~10–20 từ) cho bài báo, có cấu trúc:  
                     `[Loại thông tin]: [Tóm tắt nội dung nổi bật]`
                     - Ví dụ: "Thông tin doanh nghiệp: Tường An khẳng định vị thế dịp Tết 2025"
-                6. Trích xuất `keywords_found`:
+                6. Trích xuất và ghi vào `keywords_found`:
                     - Là tất cả các từ khóa ngành liên quan thực sự xuất hiện trong bài viết.
                     - Chỉ được trích xuất từ các từ khóa đã cung cấp trong `keywords_config`.
                     - Nếu không tìm thấy từ khóa nào, để `keywords_found` là []
@@ -506,18 +613,33 @@ class ProcessorAgent:
 
                 try:
                     response = await self.agent.arun(analysis_prompt)
+                    logger.error(f"LLM raw output:\n{response.content}")
+
                     if response and response.content:
                         try:
                             processed_data = json.loads(response.content)
-                            logger.info(
-                                f"Processed data content:\n{json.dumps(processed_data, ensure_ascii=False, indent=2)}"
-                            )
-                            articles_data = processed_data.get("articles", [])
+                            processed_data = self.extract_json(processed_data)
+                            # Xử lý khi LLM trả về list
+                            if isinstance(processed_data, list):
+                                articles_data = processed_data
+                            elif isinstance(processed_data, dict):
+                                articles_data = processed_data.get("articles", [])
+                            else:
+                                articles_data = []
+
                             km = KeywordManager(
                                 CONFIG_DIR / "content_cluster_keywords.json"
                             )
+                            valid_clusters = [c.value for c in ContentCluster]
+
                             for item in articles_data:
-                                valid_clusters = [c.value for c in ContentCluster]
+                                text_to_check = (
+                                    item.get("tom_tat_noi_dung", "")
+                                    + " "
+                                    + (item.get("cum_noi_dung_chi_tiet", "") or "")
+                                ).lower()
+
+                                # Fallback cụm nội dung nếu cần
                                 if (
                                     item.get("cum_noi_dung")
                                     in [None, "null", "", "Khác"]
@@ -526,30 +648,75 @@ class ProcessorAgent:
                                     text_to_check = (
                                         item.get("tom_tat_noi_dung", "")
                                         + " "
-                                        + item.get("cum_noi_dung_chi_tiet", "")
+                                        + (item.get("cum_noi_dung_chi_tiet", "") or "")
                                     ).strip()
                                     fallback_cluster = km.map_to_cluster(text_to_check)
                                     item["cum_noi_dung"] = fallback_cluster
+
+                                # Fallback keywords_found
+                                if (
+                                    "keywords_found" not in item
+                                    or not item["keywords_found"]
+                                ):
+                                    item["keywords_found"] = []
+                                    for industry, keywords in keywords_config.items():
+                                        for kw in keywords:
+                                            if kw.lower() in text_to_check:
+                                                item["keywords_found"].append(kw)
+                                    # Loại trùng
+                                    item["keywords_found"] = list(
+                                        set(item["keywords_found"])
+                                    )
+
+                                # Fallback nhãn hàng
+                                if "nhan_hang" not in item or not item["nhan_hang"]:
+                                    item["nhan_hang"] = []
+                                    for brand in brand_list:
+                                        if brand.lower() in text_to_check:
+                                            item["nhan_hang"].append(brand)
+                                    # Loại trùng
+                                    item["nhan_hang"] = list(set(item["nhan_hang"]))
+
                             processed_articles.extend(
-                                [Article(**item) for item in processed_data]
+                                [Article(**item) for item in articles_data]
                             )
                             logger.info(
-                                f"Batch {i // batch_size + 1} processed: {len(processed_data)} articles"
+                                f"Batch {i // batch_size + 1} processed: {len(articles_data)} articles"
                             )
+
                         except (json.JSONDecodeError, TypeError) as e:
                             logger.error(
                                 f"Failed to parse JSON response for batch {i // batch_size + 1}: {e}"
                             )
-                            processed_articles.extend(
-                                batch
-                            )  # Keep raw articles if parsing fails
+                            # Fallback: gán cụm nội dung bằng KeywordManager khi lỗi
+                            km = KeywordManager(
+                                CONFIG_DIR / "content_cluster_keywords.json"
+                            )
+                            for article in batch:
+                                text = (
+                                    article.tom_tat_noi_dung
+                                    + " "
+                                    + (article.cum_noi_dung_chi_tiet or "")
+                                )
+                                article.cum_noi_dung = km.map_to_cluster(text)
+                            processed_articles.extend(batch)
+
                     else:
                         logger.warning(
                             f"No valid response for batch {i // batch_size + 1}"
                         )
-                        processed_articles.extend(
-                            batch
-                        )  # Keep raw articles if no response
+                        # Fallback tương tự khi không có response
+                        km = KeywordManager(
+                            CONFIG_DIR / "content_cluster_keywords.json"
+                        )
+                        for article in batch:
+                            text = (
+                                article.tom_tat_noi_dung
+                                + " "
+                                + (article.cum_noi_dung_chi_tiet or "")
+                            )
+                            article.cum_noi_dung = km.map_to_cluster(text)
+                        processed_articles.extend(batch)
 
                 except Exception as e:
                     logger.error(
@@ -574,6 +741,10 @@ class ProcessorAgent:
         finally:
             gc.collect()  # Final memory cleanup
 
+    def close(self):
+        del self.agent
+        gc.collect()
+
 
 class ReportAgent:
     """Agent chuyên tạo báo cáo, sử dụng prompt tiếng Việt."""
@@ -594,32 +765,72 @@ class ReportAgent:
 
     def extract_json(self, text: str) -> str:
         """
-        Trích xuất đoạn JSON thuần từ phản hồi của LLM.
-        Ưu tiên tìm đoạn giữa ```json ... ```, nếu không có thì tìm đoạn có vẻ là JSON.
+        Trích xuất JSON từ phản hồi LLM với thứ tự ưu tiên:
+        1. Tìm đoạn trong ```json ... ```
+        2. Nếu không có, bỏ dấu '...' ngoài cùng (nếu có)
+        3. Tìm đoạn JSON {...} hoặc [...]
         """
 
-        # 1. Tìm đoạn markdown ```json ... ```
+        text = text.strip()
+
+        # 1️. Ưu tiên tìm ```json ... ```
         matches = re.findall(r"```json(.*?)```", text, re.DOTALL)
         if matches:
             for match in matches:
                 match = match.strip()
                 try:
-                    json.loads(match)  # Check if valid JSON
-                    return match
+                    json.loads(match)
+                    return match  # ✅ Trả về JSON đúng luôn
                 except json.JSONDecodeError:
-                    continue  # Try next match
+                    continue
 
-        # 2. Tìm toàn bộ đoạn JSON: {...} hoặc [...]
+        # 2. Nếu không có, xử lý dấu '...' ngoài cùng
+        if text.startswith("'") and text.endswith("'"):
+            text = text[1:-1].strip()
+
+        # 3️. Tìm đoạn JSON {...} hoặc [...]
         candidates = re.findall(r"(\{.*?\}|\[.*?\])", text, re.DOTALL)
         for candidate in candidates:
             candidate = candidate.strip()
             try:
                 json.loads(candidate)
-                return candidate
+                return candidate  # ✅ Trả về JSON đúng
             except json.JSONDecodeError:
                 continue
 
-        raise ValueError("Không tìm thấy JSON hợp lệ trong phản hồi")
+        # Nếu không tìm thấy
+        raise ValueError("Không tìm thấy JSON hợp lệ trong phản hồi.")
+
+    from collections import defaultdict
+
+    def fix_cum_noi_dung(summary_data, articles):
+        # Gom cụm nội dung từ articles
+        cum_noi_dung_map = defaultdict(set)
+
+        for art in articles:
+            nganh = (
+                art.nganh_hang.value
+                if hasattr(art.nganh_hang, "value")
+                else art.nganh_hang
+            )
+            if art.cum_noi_dung:
+                cum_noi_dung_map[nganh].add(art.cum_noi_dung.value)
+            else:
+                cum_noi_dung_map[nganh].add("Khác")
+
+        # Ghi đè vào industry_summaries
+        for ind in summary_data.get("industry_summaries", []):
+            nganh = ind["nganh_hang"]
+            if nganh in cum_noi_dung_map:
+                ind["cum_noi_dung"] = list(cum_noi_dung_map[nganh])
+
+        # Ghi đè vào overall_summary.industries
+        for ind in summary_data.get("overall_summary", {}).get("industries", []):
+            nganh = ind["nganh_hang"]
+            if nganh in cum_noi_dung_map:
+                ind["cum_noi_dung"] = list(cum_noi_dung_map[nganh])
+
+        return summary_data
 
     async def generate_report(
         self, articles: List[Article], date_range: str
@@ -641,35 +852,42 @@ class ReportAgent:
             Tạo một báo cáo phân tích đối thủ cạnh tranh từ {len(articles)} bài báo sau đây cho khoảng thời gian: {date_range}.
             
             Dữ liệu đầu vào:
-            - Danh sách bài báo: {json.dumps([a.model_dump(mode='json') for a in articles], ensure_ascii=False, indent=2)}
+            - Input: Một danh sách các bài báo đã được xử lý đầy đủ, không cần sửa đổi gì thêm: {json.dumps([a.model_dump(mode='json') for a in articles], ensure_ascii=False, indent=2)}
 
             Yêu cầu nhiệm vụ:
-            1. Tạo 'overall_summary' (tóm tắt tổng quan), bao gồm ngành hàng, nhãn hàng, các đầu báo và số bài theo ngành.
-            2. Tạo danh sách 'industry_summaries' (tóm tắt theo ngành), mỗi ngành là 1 mục, bao gồm: danh sách nhãn hàng, cụm nội dung, số lượng bài.
-            3. Trả về danh sách 'articles' đã được xử lý (giữ nguyên input là được).
-            4. Đảm bảo trả về đúng 1 đối tượng JSON duy nhất, không có markdown, không có giải thích ngoài lề.
+            1. Dùng danh sách articles trên để tạo `overall_summary` và `industry_summaries`.
+            2. Tạo 'overall_summary' (tóm tắt tổng quan), bao gồm: thoi_gian_trich_xuat, industries (nganh_hang, nhan_hang, cum_noi_dung, so_luong_bai, cac_dau_bao), cac_dau_bao và tong_so_bai.
+            3. Tạo danh sách 'industry_summaries' (tóm tắt theo ngành), mỗi ngành là 1 mục (nganh_hang), bao gồm: nhan_hang, cum_noi_dung, cac_dau_bao, so_luong_bai.
+            5. Đảm bảo trả về đúng 1 đối tượng JSON duy nhất, không có markdown, không có giải thích ngoài lề.
 
-            Trả về đúng 1 đối tượng JSON duy nhất với cấu trúc sau:
-            CompetitorReport(
+            Trả về đúng một đối tượng JSON duy nhất với cấu trúc sau:
+            {{
                 overall_summary: { ... },
-                industry_summaries: [ ... ],
-                articles: [ ... ],
-                total_articles: {len(articles)},
-                date_range: "{date_range}"
-            )
+                industry_summaries: [ ... ]
+            }}
 
-            Quy tắc:
-                - Bắt đầu phản hồi bằng ký tự '{' và kết thúc bằng '}'.
-                - Không thêm bất kỳ chú thích, markdown hay ký tự thừa nào ngoài JSON.
-                - Trả về JSON thuần theo chuẩn RFC8259.
+            
+            Quy tắc bắt buộc:
+            - Bắt đầu output bằng '{' và kết thúc bằng '}' duy nhất.
             """
-
             response = await self.agent.arun(report_prompt)
             logger.error(f"Raw LLM response: {response.content}")
             if response and response.content:
                 try:
                     raw_json = self.extract_json(response.content)
-                    return CompetitorReport(**json.loads(raw_json))
+                    summary_data = json.loads(raw_json)
+
+                    # ✅ Fix cum_noi_dung bằng code
+                    summary_data = self.fix_cum_noi_dung(summary_data, articles)
+
+                    # Gộp lại articles từ input, không cho LLM sinh
+                    summary_data["articles"] = [
+                        a.model_dump(mode="json") for a in articles
+                    ]
+
+                    # Truyền vào CompetitorReport
+                    return CompetitorReport(**summary_data)
+
                 except (json.JSONDecodeError, TypeError) as e:
                     logger.error(
                         f"Không thể phân tích phản hồi từ ReportAgent dưới dạng JSON: {e}. Đang tạo báo cáo cơ bản."
@@ -730,6 +948,10 @@ class ReportAgent:
             date_range=date_range,
         )
 
+    def close(self):
+        del self.agent
+        gc.collect()
+
 
 class MediaTrackerTeam:
     """Đội điều phối chính cho toàn bộ quy trình."""
@@ -748,7 +970,9 @@ class MediaTrackerTeam:
         self.status = BotStatus()
 
         parser = ArticleParser()
-        self.crawler = CrawlerAgent(get_llm_model("openai", "gpt-4o-mini"), parser)
+        self.crawler = CrawlerAgent(
+            get_llm_model("openai", "gpt-4o-mini"), config, parser
+        )
         self.crawler.pause_event = self.pause_event
         self.crawler.stop_event = self.stop_event
         self.processor = ProcessorAgent(get_llm_model("openai", "gpt-4o"))
@@ -778,18 +1002,26 @@ class MediaTrackerTeam:
             logger.info(f"Starting crawl for {self.status.total_sources} sources.")
 
             # Limit concurrent crawl tasks using Semaphore
-            semaphore = asyncio.Semaphore(self.config.max_concurrent_sources)
+            self.semaphore = asyncio.Semaphore(self.config.max_concurrent_sources)
 
             async def bounded_crawl(media_source, industry_name, keywords):
-                async with semaphore:
-                    return await self.crawler.crawl_media_source(
-                        media_source=media_source,
-                        industry_name=industry_name,
-                        keywords=keywords,
-                        start_date=self.start_date,
-                        end_date=self.end_date,
-                        # date_range_days=self.config.date_range_days,
-                    )
+                async with self.semaphore:
+                    try:
+                        return await asyncio.wait_for(
+                            self.crawler.crawl_media_source(
+                                media_source=media_source,
+                                industry_name=industry_name,
+                                keywords=keywords,
+                                start_date=self.start_date,
+                                end_date=self.end_date,
+                            ),
+                            timeout=self.config.crawl_timeout,  # Timeout mỗi nguồn báo (VD: 30s)
+                        )
+                    except asyncio.TimeoutError:
+                        logger.warning(
+                            f"[{media_source.name}] ⏰ Timeout sau {self.config.crawl_timeout} giây."
+                        )
+                        return self.crawler.return_partial_result(media_source)
 
             # Prepare all keywords
             # all_keywords = list(
@@ -924,3 +1156,10 @@ class MediaTrackerTeam:
 
     def get_status(self) -> BotStatus:
         return self.status
+
+    def cleanup(self):
+        logger.info("🔧 Đang giải phóng tài nguyên pipeline...")
+        self.crawler.close()
+        self.processor.close()
+        self.reporter.close()
+        gc.collect()

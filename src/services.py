@@ -113,7 +113,10 @@ class PipelineService:
                 pause_event=self.pause_event,
             )
 
-            report = await self.team.run_full_pipeline()
+            report = await asyncio.wait_for(
+                self.team.run_full_pipeline(),
+                timeout=self.settings.crawl_config.total_pipeline_timeout,
+            )
 
             if report:
                 await self._save_report(report, user_email=user_email)
@@ -138,6 +141,7 @@ class PipelineService:
             self.current_session_id = None
             if self.team:
                 self.team.status.is_running = False
+            self.team.cleanup()
 
     def pause_pipeline(self):
         if self.is_running and not self.pause_event.is_set():
@@ -155,6 +159,8 @@ class PipelineService:
             self.stop_event.set()
             self.is_running = False
             self.is_paused = False
+            if self.team:
+                self.team.cleanup()
             return True
         return False
 

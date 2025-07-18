@@ -21,766 +21,8 @@
     <!-- tsParticles -->
     <script src="https://cdn.jsdelivr.net/npm/tsparticles@2/tsparticles.bundle.min.js"></script>
 
-    <!-- Custom CSS -->
-    <style>
-        :root {
-            --primary-color: #2E8B57;
-            --secondary-color: #FFD700;
-            --background-color: #1a1a1a;
-            --card-background: #2d2d2d;
-            --text-color: #ffffff;
-            --text-muted: #b0b0b0;
-            --border-color: #404040;
-            --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            --gradient-primary: linear-gradient(135deg, #2E8B57 0%, #20B2AA 100%);
-            --hover-color: rgba(46, 139, 87, 0.1);
-        }
-
-        body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(-45deg, #1f1f1f, #2a2a2a, #2c2c2c, #1f1f1f);
-            background-size: 300% 300%;
-            animation: gradientBG 15s ease infinite;
-        }
-
-        /* LOGIN */
-        #particles-background {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            background-color: #2a2a2a;
-            /* Nền xám vừa phải */
-        }
-
-        @keyframes gradientBG {
-            0% {
-                background-position: 0% 50%;
-            }
-
-            50% {
-                background-position: 100% 50%;
-            }
-
-            100% {
-                background-position: 0% 50%;
-            }
-        }
-
-        #loginContainer {
-            max-width: 750px;
-            width: 90%;
-            padding: 40px;
-            /* margin-top: 5vh; */
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(12px);
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1);
-            color: white;
-            animation: fadeIn 1s ease-in-out;
-        }
-
-        #loginContainer input {
-            background-color: rgba(255, 255, 255, 0.07);
-            border: none;
-            color: white;
-            border-radius: 10px;
-            padding: 0.75rem;
-            margin-bottom: 1rem;
-            transition: all 0.3s ease;
-        }
-
-        #loginContainer input:focus {
-            outline: none;
-            box-shadow: 0 0 0 2px var(--primary-color);
-        }
-
-        /* Cho cả hai nút chiều cao, bo góc và font đẹp */
-        #cancelBtn,
-        #pauseResumeBtn {
-            min-height: 44px;
-            font-weight: 500;
-            font-size: 15px;
-        }
-
-
-        #loginContainer button {
-            background: linear-gradient(to right, #2E8B57, #20B2AA);
-            border: none;
-            padding: 0.75rem;
-            font-weight: bold;
-            border-radius: 50px;
-            transition: all 0.3s ease;
-        }
-
-        #loginContainer button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(32, 178, 170, 0.3);
-        }
-
-        .typing-gradient {
-            font-size: 2.5rem;
-            font-weight: bold;
-            background: linear-gradient(90deg, #ffcc00, #ff66cc, #3399ff);
-            background-size: 300%;
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: glowGradient 4s linear infinite;
-            text-align: center;
-            margin-bottom: 2rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        @keyframes glowGradient {
-            0% {
-                background-position: 0%
-            }
-
-            100% {
-                background-position: 100%
-            }
-        }
-
-        /* Hiệu ứng transition chuyên nghiệp */
-        .fade-out-up {
-            animation: fadeOutUp 0.7s ease forwards;
-        }
-
-        .fade-in-down {
-            animation: fadeInDown 0.7s ease forwards;
-        }
-
-        @keyframes fadeOutUp {
-            from {
-                opacity: 1;
-                transform: translateY(0);
-            }
-
-            to {
-                opacity: 0;
-                transform: translateY(-40px);
-                display: none;
-            }
-        }
-
-        @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translateY(40px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .login-exit {
-            animation: fadeOutScale 0.6s ease forwards;
-        }
-
-        .navbar {
-            background: var(--gradient-primary);
-            box-shadow: var(--card-shadow);
-            border-bottom: 1px solid var(--border-color);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .navbar-brand {
-            font-weight: 700;
-            font-size: 1.5rem;
-            color: white !important;
-        }
-
-        .nav-link {
-            color: rgba(255, 255, 255, 0.9) !important;
-            transition: color 0.3s ease, transform 0.2s ease;
-            position: relative;
-        }
-
-        .nav-link:hover {
-            color: #ffffff !important;
-            transform: scale(1.05);
-        }
-
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 10%;
-            width: 0%;
-            height: 2px;
-            background-color: #FFD700;
-            transition: width 0.3s ease;
-        }
-
-        .nav-link:hover::after {
-            width: 80%;
-        }
-
-
-        .navbar-nav .btn {
-            transition: all 0.3s ease;
-        }
-
-        .navbar-nav .btn:hover {
-            background-color: #dc3545;
-            color: white;
-        }
-
-        .hero-section {
-            background: var(--gradient-primary);
-            color: white;
-            padding: 2rem 0;
-            margin-bottom: 2rem;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .hero-section::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
-            opacity: 0.1;
-        }
-
-        .hero-logo {
-            width: 60px;
-            height: 60px;
-            background: var(--secondary-color);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            color: var(--primary-color);
-            font-weight: bold;
-            position: relative;
-            z-index: 1;
-            transition: transform 0.5s ease, box-shadow 0.5s ease;
-        }
-
-        .hero-logo:hover {
-            transform: rotate(10deg) scale(1.1);
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
-        }
-
-        .card {
-            background-color: var(--card-background);
-            border: 1px solid var(--border-color);
-            box-shadow: var(--card-shadow);
-            border-radius: 0.5rem;
-            margin-bottom: 1.5rem;
-            transition: transform 0.2s;
-            overflow: hidden;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
-        }
-
-        .card-header {
-            background: var(--gradient-primary);
-            color: white;
-            border-bottom: 1px solid var(--border-color);
-            font-weight: 600;
-            padding: 1rem 1.5rem;
-        }
-
-        .card-body {
-            padding: 1.5rem;
-            color: var(--text-color);
-        }
-
-        .status-badge {
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .status-running {
-            background: linear-gradient(45deg, #f39c12, #e67e22);
-            color: white;
-            animation: pulse 2s infinite;
-        }
-
-        .status-completed {
-            background: linear-gradient(45deg, #27ae60, #2ecc71);
-            color: white;
-        }
-
-        .status-failed {
-            background: linear-gradient(45deg, #e74c3c, #c0392b);
-            color: white;
-        }
-
-        .status-idle {
-            background: linear-gradient(45deg, #95a5a6, #7f8c8d);
-            color: white;
-        }
-
-        .status-stopping {
-            background: linear-gradient(45deg, #e67e22, #d35400);
-            color: white;
-            animation: pulse 1s infinite;
-        }
-
-        @keyframes pulse {
-
-            0%,
-            100% {
-                opacity: 1;
-            }
-
-            50% {
-                opacity: 0.7;
-            }
-        }
-
-        .progress-text-wrapper {
-            display: flex;
-            align-items: center;
-            margin-top: 5px;
-            height: 100%;
-        }
-
-        .progress-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .progress-container {
-            background-color: #e9ecef;
-            /* màu nền thanh progress */
-            border-radius: 8px;
-            height: 16px;
-            /* hoặc 20px cho to đẹp */
-            overflow: hidden;
-        }
-
-        .progressText {
-            margin-top: 20px;
-        }
-
-        .progress-bar {
-            height: 100%;
-            background: linear-gradient(90deg, #2E8B57, #20B2AA);
-            /* gradient đẹp hơn */
-            color: white;
-            text-align: center;
-            line-height: 16px;
-            /* bằng với height để căn giữa */
-            transition: width 0.3s ease;
-            font-size: 0.75rem;
-            /* nhỏ gọn */
-            white-space: nowrap;
-            /* không bị xuống dòng */
-        }
-
-        .status-running {
-            color: orange;
-            font-weight: bold;
-        }
-
-        .status-done {
-            color: green;
-            font-weight: bold;
-        }
-
-        .btn {
-            border-radius: 0.25rem;
-            font-weight: 500;
-            transition: all 0.2s ease-in-out;
-        }
-
-        .btn-primary {
-            background: var(--gradient-primary);
-            border: none;
-            border-radius: 25px;
-            padding: 0.7rem 2rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 5px 15px rgba(32, 178, 170, 0.3);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(46, 139, 87, 0.4);
-        }
-
-        .btn-primary:active {
-            transform: translateY(0);
-        }
-
-        .btn-outline-primary {
-            color: var(--primary-color);
-            border-color: var(--primary-color);
-            border-radius: 25px;
-            padding: 0.7rem 2rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        .btn-outline-primary:hover {
-            background: var(--primary-color);
-            border-color: var(--primary-color);
-            transform: translateY(-1px);
-        }
-
-        .btn-outline-danger {
-            color: #e74c3c;
-            border-color: #e74c3c;
-            border-radius: 25px;
-            padding: 0.7rem 2rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        .btn-outline-danger:hover {
-            background: #e74c3c;
-            border-color: #e74c3c;
-            color: white;
-            transform: translateY(-1px);
-        }
-
-        /* TABLE IMPROVEMENTS - FIX BLACK TEXT ISSUE */
-        .table {
-            color: var(--text-color) !important;
-            background-color: transparent;
-        }
-
-        .table-dark {
-            background-color: var(--primary-color) !important;
-            color: white !important;
-        }
-
-        .table-dark th {
-            background-color: var(--primary-color) !important;
-            color: white !important;
-            border-color: rgba(255, 255, 255, 0.2);
-        }
-
-        .table tbody tr {
-            background-color: var(--card-background);
-            border-color: var(--border-color);
-            transition: all 0.3s ease;
-        }
-
-        .table tbody tr:hover {
-            background-color: rgba(46, 139, 87, 0.15) !important;
-            transform: scale(1.01);
-            cursor: pointer;
-        }
-
-        .table tbody td {
-            color: var(--text-color) !important;
-            border-color: var(--border-color);
-            padding: 1rem 0.75rem;
-            vertical-align: middle;
-        }
-
-        .table tbody td strong {
-            color: var(--primary-color) !important;
-        }
-
-        .text-muted {
-            color: var(--text-muted) !important;
-        }
-
-        .industry-pill {
-            display: inline-block;
-            padding: 0.4rem 0.8rem;
-            margin: 0.2rem;
-            background: var(--gradient-primary);
-            color: white;
-            border-radius: 15px;
-            font-size: 0.8rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-
-        .industry-pill:hover {
-            transform: scale(1.05);
-            box-shadow: 0 2px 8px rgba(46, 139, 87, 0.3);
-        }
-
-        .metric-number {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: var(--primary-color);
-            margin-bottom: 0.5rem;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-        }
-
-        .metric-label {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-weight: 500;
-            display: inline-block;
-        }
-
-        .loading-spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        .chart-container {
-            position: relative;
-            height: 300px;
-            margin: 1rem 0;
-            background: rgba(255, 255, 255, 0.02);
-            border-radius: 8px;
-            padding: 1rem;
-        }
-
-        .modal-content {
-            background-color: var(--card-background);
-            border: 1px solid var(--border-color);
-            color: var(--text-color);
-        }
-
-        .modal-header {
-            background: var(--gradient-primary);
-            color: white;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .modal-body {
-            background-color: var(--card-background);
-        }
-
-        .modal-footer {
-            background-color: var(--card-background);
-            border-top: 1px solid var(--border-color);
-        }
-
-        .timeline-item {
-            padding: 1rem;
-            border-left: 3px solid var(--primary-color);
-            margin-left: 1rem;
-            position: relative;
-            background: rgba(46, 139, 87, 0.05);
-            border-radius: 0 8px 8px 0;
-            margin-bottom: 0.5rem;
-        }
-
-        .timeline-item::before {
-            content: '';
-            position: absolute;
-            left: -8px;
-            top: 1.5rem;
-            width: 12px;
-            height: 12px;
-            background: var(--primary-color);
-            border-radius: 50%;
-            box-shadow: 0 0 0 3px var(--card-background);
-        }
-
-        .fade-in {
-            animation: fadeInUp 0.5s ease-in-out;
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* FORM IMPROVEMENTS */
-        .form-control,
-        .form-select {
-            background-color: var(--card-background);
-            border: 1px solid var(--border-color);
-            color: var(--text-color);
-            border-radius: 8px;
-            transition: box-shadow 0.3s ease;
-        }
-
-        .form-control:focus,
-        .form-select:focus {
-            background-color: var(--card-background);
-            border-color: var(--primary-color);
-            color: var(--text-color);
-            box-shadow: 0 0 0 0.2rem rgba(46, 139, 87, 0.25);
-            box-shadow: 0 0 0 0.3rem rgba(46, 139, 87, 0.4);
-        }
-
-        .form-control::placeholder {
-            color: var(--text-muted);
-        }
-
-        .form-label {
-            color: var(--text-color);
-            font-weight: 500;
-        }
-
-        .form-text {
-            color: var(--text-muted);
-        }
-
-        /* ALERT IMPROVEMENTS */
-        .alert {
-            border-radius: 10px;
-            border: none;
-            padding: 1rem 1.5rem;
-        }
-
-        .alert-info {
-            background: rgba(52, 152, 219, 0.1);
-            color: #3498db;
-            border-left: 4px solid #3498db;
-        }
-
-        .alert-success {
-            background: rgba(39, 174, 96, 0.1);
-            color: #27ae60;
-            border-left: 4px solid #27ae60;
-        }
-
-        .alert-danger {
-            background: rgba(231, 76, 60, 0.1);
-            color: #e74c3c;
-            border-left: 4px solid #e74c3c;
-        }
-
-        .alert-warning {
-            background: rgba(243, 156, 18, 0.1);
-            color: #f39c12;
-            border-left: 4px solid #f39c12;
-        }
-
-        /* PAGINATION IMPROVEMENTS */
-        .pagination .page-link {
-            background-color: var(--card-background);
-            border-color: var(--border-color);
-            color: var(--text-color);
-        }
-
-        .pagination .page-link:hover {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-            color: white;
-        }
-
-        .pagination .page-item.active .page-link {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-        }
-
-        /* BADGE IMPROVEMENTS */
-        .badge {
-            font-size: 0.8rem;
-            padding: 0.5rem 0.8rem;
-            border-radius: 12px;
-        }
-
-        .bg-primary {
-            background: var(--gradient-primary) !important;
-        }
-
-        /* LOADING STATE */
-        .loading-state {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem;
-            color: var(--text-muted);
-        }
-
-        .loading-state i {
-            margin-right: 0.5rem;
-            animation: spin 1s linear infinite;
-        }
-
-        /* SCROLLBAR IMPROVEMENTS */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: var(--card-background);
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--primary-color);
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: #20B2AA;
-        }
-
-        /* RESPONSIVE IMPROVEMENTS */
-        @media (max-width: 576px) {
-            .hero-section h1 {
-                font-size: 1.5rem;
-            }
-
-            .hero-section p {
-                font-size: 0.9rem;
-            }
-
-            .card-body {
-                padding: 1rem;
-            }
-
-            .metric-number {
-                font-size: 1.5rem;
-            }
-
-            .metric-label {
-                font-size: 0.75rem;
-            }
-
-            .table th,
-            .table td {
-                font-size: 0.85rem;
-            }
-        }
-
-        @media (max-width: 576px) {
-            #loginContainer {
-                padding: 20px;
-            }
-        }
-    </style>
+    <!--Dashboard-->
+    <link rel="stylesheet" href="/static/assets/css/dashboard.css">
 </head>
 
 <body>
@@ -815,8 +57,7 @@
                                 onclick="loadReportList()">Reports</a>
                         </li>
                         <li class="nav-item">
-                            <button class="btn btn-outline-light btn-sm ms-3" data-bs-toggle="modal"
-                                data-bs-target="#logoutModal">
+                            <button class="btn btn-outline-light btn-sm ms-3" onclick="confirmLogout()">
                                 <i class="fas fa-sign-out-alt me-1"></i> Logout
                             </button>
                         </li>
@@ -1402,17 +643,26 @@
         });
 
         function showLogin() {
-            document.getElementById('loginForm').style.display = 'block';
-            document.getElementById('dashboardContainer').style.display = 'none';
+            const loginContainer = document.getElementById('loginContainer');
+            const dashboardContainer = document.getElementById('dashboardContainer');
 
-            // Reset input cho chắc chắn
-            document.getElementById('email').value = '';
-            document.getElementById('password').value = '';
+            // Ẩn dashboard
+            dashboardContainer.style.display = 'none';
+            dashboardContainer.classList.remove("fade-in-down");
 
-            // Reset lại trạng thái animation nếu có
-            const container = document.getElementById('loginContainer');
-            container.classList.remove('fade-out-up');
-            container.classList.add('fade-in-down');
+            // Reset login container
+            loginContainer.style.display = 'block';
+            loginContainer.classList.remove("fade-out-up");
+            loginContainer.classList.remove("fade-in-down");
+
+            // Force reflow để reset animation
+            void loginContainer.offsetWidth;
+
+            // Thêm animation xuất hiện lại
+            loginContainer.classList.add("fade-in-down");
+
+            // Reset input form
+            document.getElementById('loginForm').reset();
         }
 
         function showDashboard() {
@@ -1442,19 +692,6 @@
                 loadSettings();
                 new bootstrap.Modal(document.getElementById('settingsModal')).show();
             });
-        }
-
-        // Debounce function for search input
-        function debounce(func, wait) {
-            let timeout;
-            return function executedFunction(...args) {
-                const later = () => {
-                    clearTimeout(timeout);
-                    func(...args);
-                };
-                clearTimeout(timeout);
-                timeout = setTimeout(later, wait);
-            };
         }
 
         async function loadInitialData() {
@@ -1513,6 +750,19 @@
                     currentReport = data;
                     currentArticles = data.articles;
                     filteredArticles = [...currentArticles];
+
+                    //Format thời gian tạo report từ generated_at
+                    const generatedAt = new Date(currentReport.generated_at);
+                    const formattedTime = generatedAt.toLocaleString("vi-VN", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        second: "2-digit"
+                    });
+
+                    document.getElementById("lastRun").innerText = formattedTime;
 
                     updateSummaryTable();
                     updateArticlesTable();
@@ -1841,27 +1091,6 @@
                 document.getElementById('cancelBtn').disabled = false;
                 document.getElementById('cancelBtn').innerHTML = '<i class="fas fa-stop me-2"></i>Cancel';
             }
-        }
-
-        function generateSessionId() {
-            return 'session_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
-        }
-
-        function showAlert(type, title, message) {
-            const alert = document.createElement('div');
-            alert.className = `alert alert-${type} alert-dismissible fade show`;
-            alert.innerHTML = `
-                <strong>${title}</strong> ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            `;
-            document.querySelector('.container').insertBefore(alert, document.querySelector('.container').firstChild);
-
-            // Auto remove after 5 seconds
-            setTimeout(() => {
-                if (alert.parentNode) {
-                    alert.remove();
-                }
-            }, 5000);
         }
 
         function updateSummaryTable() {
@@ -2599,7 +1828,6 @@
                     // Pipeline completed, reload report
                     await loadLatestReport();
                     addActivityLog('Pipeline Completed', 'Quá trình crawling đã hoàn thành');
-                    showCompletionModal();
 
                     // Clear current session
                     currentSessionId = null;
@@ -2609,12 +1837,6 @@
                     startStatusPolling();
                 }
             }, 2000); // Poll every 2 seconds during run
-        }
-
-        // Utility functions
-        function formatDate(dateString) {
-            const date = new Date(dateString);
-            return date.toLocaleDateString('vi-VN');
         }
 
         function addActivityLog(title, message, type = 'info') {
@@ -2718,35 +1940,28 @@
         }
 
         function logout() {
-            // Xóa token
             localStorage.removeItem("token");
-
-            // Dừng polling nếu có
             if (statusInterval) {
                 clearInterval(statusInterval);
             }
 
-            // Reset form login
             document.getElementById('loginForm').reset();
-
-            // Hiện lại login
             showLogin();
 
-            // Đóng modal logout
-            var modal = bootstrap.Modal.getInstance(document.getElementById('logoutModal'));
-            modal.hide();
+            // Đóng modal nếu có
+            const modalEl = document.getElementById('logoutModal');
+            if (modalEl) {
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                if (modal) modal.hide();
+            }
         }
 
 
         function confirmLogout() {
-            localStorage.removeItem("token");
-            document.getElementById("loginContainer").style.display = "block";
-            document.getElementById("dashboardContainer").style.display = "none";
-
-            // Đóng modal thủ công
-            const modal = bootstrap.Modal.getInstance(document.getElementById('logoutModal'));
-            if (modal) modal.hide();
+            const modal = new bootstrap.Modal(document.getElementById('logoutModal'));
+            modal.show();
         }
+
         async function syncPipelineStatus() {
             try {
                 const response = await fetch('/api/status', {
@@ -2823,21 +2038,29 @@
 
                 tableBody.innerHTML = "";
                 reports.forEach((report, index) => {
-                    const match = report.filename.match(/report_(\d{4}-\d{2}-\d{2})_(\d{2}-\d{2}-\d{2})/);
-                    const formatted = match ? `${match[1]} ${match[2].replace(/-/g, ":")}` : "Không rõ";
+                    const timeStr = report.generated_at
+                        ? new Date(report.generated_at).toLocaleString("vi-VN", {
+                            day: "2-digit",
+                            month: "2-digit",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            second: "2-digit"
+                        })
+                        : "Không rõ";
 
                     const row = `
-              <tr>
-                <td>${index + 1}</td>
-                <td>${report.filename}</td>
-                <td>${formatted}</td>
-                <td>
-                    <button class="btn btn-sm btn-outline-success" onclick="downloadReportDirectly('${report.filename}')">
-                        ⬇️ Tải xuống
-                    </button>
-                </td>
-              </tr>
-            `;
+                                <tr>
+                                    <td>${index + 1}</td>
+                                    <td>${report.filename}</td>
+                                    <td>${timeStr}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-success" onclick="downloadReportDirectly('${report.filename}')">
+                                            ⬇️ Tải xuống
+                                        </button>
+                                    </td>
+                                </tr>
+                                `;
                     tableBody.insertAdjacentHTML("beforeend", row);
                 });
             } catch (err) {
@@ -2893,24 +2116,23 @@
     </script>
 
     <!-- Modal xác nhận đăng xuất -->
-    <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
+    <div class="modal fade" id="logoutModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg">
-                <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title" id="logoutModalLabel">Xác nhận đăng xuất</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                        aria-label="Đóng"></button>
+            <div class="modal-content text-center">
+                <div class="modal-header">
+                    <h5 class="modal-title">Xác nhận đăng xuất</h5>
                 </div>
                 <div class="modal-body">
-                    Bạn có chắc chắn muốn đăng xuất khỏi hệ thống?
+                    <p>Bạn có chắc chắn muốn đăng xuất khỏi hệ thống?</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                    <button type="button" class="btn btn-danger" onclick="confirmLogout()">Đăng xuất</button>
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button class="btn btn-danger" onclick="logout()">Đồng ý</button>
                 </div>
             </div>
         </div>
     </div>
+
 
     <!-- Modal hiển thị file list -->
     <div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
@@ -3056,7 +2278,7 @@
         }
     </script>
 
-
+    <script src="static/assets/js/utils.js"></script>
 </body>
 
 </html>

@@ -95,6 +95,7 @@ class ArticleParser:
                     item.get("summary")
                     or item.get("tóm_tắt_nội_dung")
                     or item.get("tóm tắt nội dung")
+                    or item.get("tóm tắt")
                     or ""
                 )
                 if (

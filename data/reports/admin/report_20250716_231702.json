@@ -1,0 +1,94 @@
+{
+  "title": "CALOFIC COMPETITOR REPORT",
+  "subtitle": "PR & SOCIAL MONTHLY REPORT",
+  "overall_summary": {
+    "thoi_gian_trich_xuat": "Từ ngày 16/06/2025 đến ngày 16/07/2025",
+    "industries": [
+      {
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "cum_noi_dung": [
+          "Khác"
+        ],
+        "so_luong_bai": 4,
+        "cac_dau_bao": [
+          "PHUNU",
+          "DANTRI"
+        ]
+      }
+    ],
+    "cac_dau_bao": [],
+    "tong_so_bai": 4
+  },
+  "industry_summaries": [
+    {
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "cum_noi_dung": [
+        "Khác"
+      ],
+      "so_luong_bai": 4,
+      "cac_dau_bao": [
+        "PHUNU",
+        "DANTRI"
+      ]
+    }
+  ],
+  "articles": [
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-06-24",
+      "dau_bao": "PHUNU",
+      "cum_noi_dung": null,
+      "cum_noi_dung_chi_tiet": "Dầu cho thực ăn chăn nuôi thành dầu ăn cho người, Bộ Y tế nói gì?",
+      "tom_tat_noi_dung": "Bài viết bàn về việc sử dụng dầu cho thực phẩm chăn nuôi được chuyển đổi thành dầu ăn cho con người. Có sự tham gia của Bộ Y tế trong việc quy định sử dụng và đảm bảo an toàn thực phẩm, nhấn mạnh các tiêu chuẩn cần thiết để dầu này có thể được tiêu thụ.",
+      "link_bai_bao": "https://www.phunuonline.com.vn/dau-cho-thuc-an-chan-nuoi-thanh-dau-an-cho-nguoi-bo-y-te-noi-gi-a1553404.html",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-16T23:14:54.093529"
+    },
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-06-25",
+      "dau_bao": "DANTRI",
+      "cum_noi_dung": null,
+      "cum_noi_dung_chi_tiet": "Dầu ăn chân nuôi \"hồ biến\" thành cho người: Nguy hiểm thế nào?",
+      "tom_tat_noi_dung": "Bài viết phân tích nguy cơ từ việc sử dụng dầu ăn chân nuôi, chủ yếu là dầu thô, trong thực phẩm. Theo các chuyên gia, việc tiêu thụ người có thể dẫn đến nhiều vấn đề sức khỏe nghiêm trọng. Các khuyến nghị về an toàn thực phẩm được đề xuất nhằm đảm bảo sức khỏe người tiêu dùng.",
+      "link_bai_bao": "https://dantri.com.vn/suc-khoe/dau-an-chan-nuoi-ho-bien-thanh-cho-nguoi-nguy-hiem-the-nao-20250625104839529.htm",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-16T23:15:35.129359"
+    },
+    {
+      "stt": 2,
+      "ngay_phat_hanh": "2025-06-25",
+      "dau_bao": "DANTRI",
+      "cum_noi_dung": null,
+      "cum_noi_dung_chi_tiet": "Bộ Y tế cảnh báo về dầu ăn chân nuôi thành thực phẩm cho người",
+      "tom_tat_noi_dung": "Bộ Y tế đã đưa ra cảnh báo về việc sử dụng dầu ăn chân nuôi trong chế biến thực phẩm, nhấn mạnh nguy cơ sức khỏe. Các quy định pháp lý về an toàn thực phẩm tồn tại nhưng vấn đề thực tế vẫn còn nghiêm trọng. Bộ kêu gọi nâng cao nhận thức cộng đồng để bảo vệ sức khỏe.",
+      "link_bai_bao": "https://dantri.com.vn/suc-khoe/bo-y-te-canh-bao-ve-dau-an-chan-nuoi-thanh-thuc-pham-cho-nguoi-20250625073946950.htm",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-16T23:15:35.129359"
+    },
+    {
+      "stt": 3,
+      "ngay_phat_hanh": "2025-06-26",
+      "dau_bao": "DANTRI",
+      "cum_noi_dung": null,
+      "cum_noi_dung_chi_tiet": "Vụ dầu chân nuôi \"biến\" thành thực phẩm cho người",
+      "tom_tat_noi_dung": "Bài viết đề cập đến một vụ việc nghiêm trọng liên quan đến dầu chân nuôi biến thành thực phẩm. Câu chuyện được báo cáo trên truyền hình khiến cộng đồng lo lắng về an toàn thực phẩm và sức khỏe. Cục An toàn thực phẩm yêu cầu điều tra và xử lý nghiêm khắc các vi phạm.",
+      "link_bai_bao": "https://dantri.com.vn/kinh-doanh/vu-dau-chan-nuoi-bien-thanh-thuc-pham-cho-nguoi-bo-cong-thuong-thong-tin-20250626090431301.htm",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-16T23:15:35.129359"
+    }
+  ],
+  "generated_at": "2025-07-16T23:17:02.052893",
+  "total_articles": 4,
+  "date_range": "Từ ngày 16/06/2025 đến ngày 16/07/2025"
+}

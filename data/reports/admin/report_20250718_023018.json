@@ -1,0 +1,129 @@
+{
+  "overall_summary": {
+    "thoi_gian_trich_xuat": "Từ ngày 18/06/2025 đến ngày 18/07/2025",
+    "industries": [
+      {
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "cum_noi_dung": [
+          "Khác"
+        ],
+        "so_luong_bai": 7,
+        "cac_dau_bao": [
+          "TRETHO"
+        ]
+      }
+    ],
+    "cac_dau_bao": [],
+    "tong_so_bai": 7
+  },
+  "industry_summaries": [
+    {
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "cum_noi_dung": [
+        "Khác"
+      ],
+      "so_luong_bai": 7,
+      "cac_dau_bao": [
+        "TRETHO"
+      ]
+    }
+  ],
+  "articles": [
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-06-17",
+      "dau_bao": "TRETHO",
+      "cum_noi_dung": "Khác",
+      "cum_noi_dung_chi_tiet": "Bí quyết chọn đúng loại dầu ăn để nấu nướng an toàn cho sức khỏe",
+      "tom_tat_noi_dung": "",
+      "link_bai_bao": "https://www.webtretho.com/f/an-de-khoe-dep/bi-quyet-chon-dung-loai-dau-an-de-nau-nuong-an-toan-cho-suc-khoe",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-18T01:35:53.466117"
+    },
+    {
+      "stt": 2,
+      "ngay_phat_hanh": "2025-06-18",
+      "dau_bao": "TRETHO",
+      "cum_noi_dung": "Khác",
+      "cum_noi_dung_chi_tiet": "DẦU THỰC VẬT - MAMA COOKING OIL",
+      "tom_tat_noi_dung": "",
+      "link_bai_bao": "https://www.webtretho.com/f/mua-gi-o-dau/dau-thuc-vat-mama-cooking-oil",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-18T01:35:53.466117"
+    },
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-17",
+      "dau_bao": "TRETHO",
+      "cum_noi_dung": "Khác",
+      "cum_noi_dung_chi_tiet": "Dùng dầu thực vật thế nào thì tốt? - Webtretho",
+      "tom_tat_noi_dung": "",
+      "link_bai_bao": "https://www.webtretho.com/f/nguyen-lieu-nau-nuong/dung-dau-thuc-vat-the-nao-thi-tot-2258447",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-18T01:36:28.160291"
+    },
+    {
+      "stt": 4,
+      "ngay_phat_hanh": "2025-07-10",
+      "dau_bao": "TRETHO",
+      "cum_noi_dung": "Khác",
+      "cum_noi_dung_chi_tiet": "8 dầu thực vật chất lượng, giá rẻ, đảm bảo an toàn cho sức khỏe cả nhà",
+      "tom_tat_noi_dung": "",
+      "link_bai_bao": "https://www.webtretho.com/p/8-dau-thuc-vat-chat-luong-gia-re-dam-bao-an-toan-cho-suc-khoe-ca-nha",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-18T01:35:53.472720"
+    },
+    {
+      "stt": 2,
+      "ngay_phat_hanh": "2025-07-17",
+      "dau_bao": "TRETHO",
+      "cum_noi_dung": "Khác",
+      "cum_noi_dung_chi_tiet": "Kinh nghiệm dùng dầu ăn hướng dưỡng - Webtretho",
+      "tom_tat_noi_dung": "",
+      "link_bai_bao": "https://www.webtretho.com/f/bua-com-gia-dinh/kinh-nghiem-dung-dau-an-huong-duong-2063987",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-18T01:36:28.160291"
+    },
+    {
+      "stt": 3,
+      "ngay_phat_hanh": "2025-07-17",
+      "dau_bao": "TRETHO",
+      "cum_noi_dung": "Khác",
+      "cum_noi_dung_chi_tiet": "Vì sao chỉ em phụ nữ nên chọn dầu Olein và dầu nành? - Webtretho",
+      "tom_tat_noi_dung": "",
+      "link_bai_bao": "https://www.webtretho.com/f/cafe-webtretho/vi-sao-chi-em-phu-nu-nen-chon-dau-olein-va-dau-nanh-2286998",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-18T01:36:28.160291"
+    },
+    {
+      "stt": 4,
+      "ngay_phat_hanh": "2025-07-17",
+      "dau_bao": "TRETHO",
+      "cum_noi_dung": "Khác",
+      "cum_noi_dung_chi_tiet": "Sự thật về loại dầu ăn đắt gấp 10 và độc gấp 200 lần - Webtretho",
+      "tom_tat_noi_dung": "",
+      "link_bai_bao": "https://www.webtretho.com/f/meo-hay-suc-khoe-va-doi-song/su-that-ve-loai-dau-an-dat-gap-10-va-doc-gap-200-lan-2160797",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-18T01:36:28.160291"
+    }
+  ],
+  "generated_at": "2025-07-18T02:30:17.663841",
+  "total_articles": 7,
+  "date_range": "Từ ngày 18/06/2025 đến ngày 18/07/2025"
+}

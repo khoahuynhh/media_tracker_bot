@@ -11,7 +11,6 @@ import uuid
 import json
 import sys
 import asyncio
-import subprocess
 import uvicorn
 
 from fastapi import FastAPI, Request, HTTPException, BackgroundTasks, Depends, status
@@ -21,8 +20,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from typing import Dict
 from jose import JWTError, jwt
-
-subprocess.run(["playwright", "install"], check=False)
 
 if sys.platform.startswith("win"):
     asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
@@ -214,6 +211,11 @@ async def stop_pipeline_endpoint(
         raise HTTPException(status_code=500, detail="Failed to request pipeline stop.")
 
 
+from fastapi.responses import JSONResponse
+import json
+from .models import CompetitorReport
+
+
 @app.get("/api/reports/latest")
 async def get_latest_report(current_user: str = Depends(get_current_user)):
     """Get the latest generated report in JSON format."""
@@ -222,7 +224,11 @@ async def get_latest_report(current_user: str = Depends(get_current_user)):
     latest_file = settings.reports_dir / sanitized_name / "latest_report.json"
 
     if latest_file.exists():
-        return FileResponse(latest_file)
+        with open(latest_file, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            report = CompetitorReport(**data)
+
+        return JSONResponse(content=report.model_dump(mode="json"))
 
     logger.warning(
         f"Latest report not found for user {current_user}, returning sample."
@@ -379,7 +385,35 @@ def list_all_reports(current_user: str = Depends(get_current_user)):
     files = [f for f in os.listdir(user_dir) if f.endswith(".xlsx")]
     files.sort(reverse=True)  # Mới nhất đầu tiên
 
-    return [{"filename": f, "url": f"/api/reports/download/{f}"} for f in files]
+    result = []
+
+    for f in files:
+        # Tìm file .json tương ứng
+        json_name = f.replace(".xlsx", ".json")
+        json_path = os.path.join(user_dir, json_name)
+
+        generated_at = None
+        if os.path.exists(json_path):
+            try:
+                with open(json_path, "r", encoding="utf-8") as jf:
+                    data = json.load(jf)
+                    # Lấy trường generated_at từ JSON
+                    generated_at = data.get("generated_at")
+                    if not generated_at:
+                        # Fallback nếu dùng key khác hoặc thiếu
+                        generated_at = data.get("generatedAt")
+            except Exception as e:
+                generated_at = None  # Để tránh lỗi toàn bộ API nếu 1 file lỗi
+
+        result.append(
+            {
+                "filename": f,
+                "url": f"/api/reports/download/{f}",
+                "generated_at": generated_at,
+            }
+        )
+
+    return result
 
 
 @app.get("/api/reports/download/{filename}")

@@ -161,7 +161,7 @@ class AppSettings:
                 max_articles_per_source=other_configs.get(
                     "max_articles_per_source", 50
                 ),
-                crawl_timeout=other_configs.get("crawl_timeout", 30),
+                crawl_timeout=other_configs.get("crawl_timeout", 480),
                 exclude_domains=other_configs.get("exclude_domains", []),
             )
             self.save_crawl_config(config)

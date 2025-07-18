@@ -1,0 +1,60 @@
+{
+  "overall_summary": {
+    "thoi_gian_trich_xuat": "Từ ngày 17/06/2025 đến ngày 17/07/2025",
+    "industries": [
+      {
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "cum_noi_dung": [
+          "An toàn thực phẩm",
+          "Hoạt động doanh nghiệp và thông tin sản phẩm"
+        ],
+        "so_luong_bai": 2
+      }
+    ],
+    "cac_dau_bao": [],
+    "tong_so_bai": 2
+  },
+  "industry_summaries": [
+    {
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "cum_noi_dung": [
+        "An toàn thực phẩm",
+        "Hoạt động doanh nghiệp và thông tin sản phẩm"
+      ],
+      "so_luong_bai": 2
+    }
+  ],
+  "articles": [
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-06-24",
+      "dau_bao": "PHUNU",
+      "cum_noi_dung": "An toàn thực phẩm",
+      "cum_noi_dung_chi_tiet": "Dầu cho thực ăn chăn nuôi thành dầu ăn cho người, Bộ Y tế nói gì?",
+      "tom_tat_noi_dung": "Bài viết đề cập đến tranh cãi xung quanh việc sử dụng dầu thực vật cho chế biến thực phẩm, dẫn đến lo ngại về an toàn thực phẩm. Bộ Y tế đã phát biểu về chất lượng và tính an toàn của dầu ăn, đồng thời khuyến cáo người tiêu dùng cần cẩn trọng trong việc lựa chọn sản phẩm dầu ăn.",
+      "link_bai_bao": "https://www.phunuonline.com.vn/dau-cho-thuc-an-chan-nuoi-thanh-dau-an-cho-nguoi-bo-y-te-noi-gi-a1553404.html",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-17T00:52:32.514591"
+    },
+    {
+      "stt": 2,
+      "ngay_phat_hanh": "2025-07-06",
+      "dau_bao": "PHUNU",
+      "cum_noi_dung": "Hoạt động doanh nghiệp và thông tin sản phẩm",
+      "cum_noi_dung_chi_tiet": "Lo ngại dầu ăn bán giả, người dân đổ xô đi ép dầu ăn đúng quy cách",
+      "tom_tat_noi_dung": "Giữa lúc các sản phẩm dầu ăn giả đang tràn lan trên thị trường, người dân đã bắt đầu tìm kiếm phương pháp tự sản xuất dầu ăn để đảm bảo an toàn thực phẩm. Bài viết phân tích những bất cập trong quản lý sản phẩm dầu ăn và khuyến nghị cho người tiêu dùng những biện pháp an toàn.",
+      "link_bai_bao": "https://www.phunuonline.com.vn/lo-ngai-dau-an-ban-nguoi-dan-do-xo-di-ep-dau-dau-phong-a1554365.html",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-17T00:52:32.514591"
+    }
+  ],
+  "generated_at": "2025-07-17T00:53:49.230735",
+  "total_articles": 2,
+  "date_range": "Từ ngày 17/06/2025 đến ngày 17/07/2025"
+}

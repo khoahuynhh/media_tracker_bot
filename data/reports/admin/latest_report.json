@@ -1,8 +1,6 @@
 {
-  "title": "CALOFIC COMPETITOR REPORT",
-  "subtitle": "PR & SOCIAL MONTHLY REPORT",
   "overall_summary": {
-    "thoi_gian_trich_xuat": "Từ ngày 16/06/2025 đến ngày 16/07/2025",
+    "thoi_gian_trich_xuat": "Từ ngày 18/06/2025 đến ngày 18/07/2025",
     "industries": [
       {
         "nganh_hang": "Dầu ăn",
@@ -12,7 +10,7 @@
         ],
         "so_luong_bai": 1,
         "cac_dau_bao": [
-          "PHUNU"
+          "SUCKHOEDOISONG"
         ]
       }
     ],
@@ -28,26 +26,26 @@
       ],
       "so_luong_bai": 1,
       "cac_dau_bao": [
-        "PHUNU"
+        "SUCKHOEDOISONG"
       ]
     }
   ],
   "articles": [
     {
-      "stt": 2,
-      "ngay_phat_hanh": "2025-06-24",
-      "dau_bao": "PHUNU",
-      "cum_noi_dung": null,
-      "cum_noi_dung_chi_tiet": "Dầu cho thức ăn chăn nuôi thành dầu ăn cho người, Bộ Y tế nói gì?",
-      "tom_tat_noi_dung": "Bài viết trình bày sự chuyển đổi của dầu dùng cho thức ăn chăn nuôi sang dầu ăn cho người. Bộ Y tế đã đưa ra những khuyến cáo về mức độ an toàn và tính hợp pháp của dầu này đối với sức khỏe người tiêu dùng.",
-      "link_bai_bao": "https://www.phunuonline.com.vn/dau-cho-thuc-an-chan-nuoi-thanh-dau-an-cho-nguoi-bo-y-te-noi-gi-a1553404.html",
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-08",
+      "dau_bao": "SUCKHOEDOISONG",
+      "cum_noi_dung": "Khác",
+      "cum_noi_dung_chi_tiet": "2 loại dầu ăn không tốt cho sức khỏe cần hạn chế",
+      "tom_tat_noi_dung": "Bài viết trình bày về hai loại dầu ăn không an toàn khi chiên đi chiên lại nhiều lần. Các chuyên gia cảnh báo rằng dầu cọ và dầu đậu nành có thể sinh ra axit béo bão hòa cao, gây hại cho sức khỏe con người.",
+      "link_bai_bao": "https://suckhoedoisong.vn/2-loai-dau-an-khong-tot-cho-suc-khoe-can-han-che-169250708105953162.htm",
       "nganh_hang": "Dầu ăn",
       "nhan_hang": [],
       "keywords_found": [],
-      "crawl_timestamp": "2025-07-16T20:02:29.483080"
+      "crawl_timestamp": "2025-07-18T12:08:09.788955"
     }
   ],
-  "generated_at": "2025-07-16T20:03:35.844002",
+  "generated_at": "2025-07-18T12:59:16.325841",
   "total_articles": 1,
-  "date_range": "Từ ngày 16/06/2025 đến ngày 16/07/2025"
+  "date_range": "Từ ngày 18/06/2025 đến ngày 18/07/2025"
 }

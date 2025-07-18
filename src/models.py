@@ -105,9 +105,25 @@ class Article(BaseModel):
     nganh_hang: IndustryType = Field(..., description="Ngành hàng liên quan")
     nhan_hang: List[str] = Field(default=[], description="Các nhãn hàng được đề cập")
     keywords_found: List[str] = Field(default=[], description="Keywords được tìm thấy")
-    crawl_timestamp: datetime = Field(
+    crawl_timestamp: Optional[datetime] = Field(
         default_factory=datetime.now, description="Thời gian crawl"
     )
+
+    @field_validator("ngay_phat_hanh", mode="before")
+    def parse_ngay_phat_hanh(cls, v):
+        if isinstance(v, str):
+            # Thử parse dd/mm/yyyy trước
+            try:
+                return datetime.strptime(v, "%d/%m/%Y").date()
+            except ValueError:
+                pass
+            # Thử parse ISO format YYYY-MM-DD (mặc định Pydantic hỗ trợ)
+            try:
+                return datetime.fromisoformat(v).date()
+            except ValueError:
+                pass
+            raise ValueError(f"Invalid date format for ngay_phat_hanh: {v}")
+        return v
 
     @field_validator("link_bai_bao", mode="before")
     def validate_url(cls, v):
@@ -188,7 +204,7 @@ class CompetitorReport(BaseModel):
     articles: List[Article] = Field(..., description="Chi tiết các bài báo")
 
     # Metadata
-    generated_at: datetime = Field(
+    generated_at: Optional[datetime] = Field(
         default_factory=datetime.now, description="Thời gian tạo report"
     )
     total_articles: int = Field(..., description="Tổng số bài báo")

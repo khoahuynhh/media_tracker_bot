@@ -224,7 +224,7 @@ class PipelineService:
 
             with pd.ExcelWriter(excel_file, engine="openpyxl") as writer:
                 # 1. Summary tổng quan
-                overall_df.to_excel(writer, sheet_name="Summary - Overall")
+                overall_df.to_excel(writer, sheet_name="Summary - Overall", index=False)
 
                 # 2. Summary theo ngành (1 sheet mỗi ngành)
                 for s in report.industry_summaries:
@@ -338,7 +338,7 @@ class PipelineService:
                                 "Link bài báo": a.link_bai_bao,
                                 # "Ngành hàng": a.nganh_hang,
                                 # "Nhãn hàng": ", ".join(a.nhan_hang),
-                                # "Keywords": ", ".join(a.keywords_found),
+                                "Keywords": ", ".join(a.keywords_found),
                             }
                             for a in articles
                         ]

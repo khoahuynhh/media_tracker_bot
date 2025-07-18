@@ -6,7 +6,7 @@
         "nganh_hang": "Dầu ăn",
         "nhan_hang": [],
         "cum_noi_dung": [
-          "Khác"
+          "An toàn thực phẩm"
         ],
         "so_luong_bai": 1,
         "cac_dau_bao": [
@@ -14,7 +14,9 @@
         ]
       }
     ],
-    "cac_dau_bao": [],
+    "cac_dau_bao": [
+      "SUCKHOEDOISONG"
+    ],
     "tong_so_bai": 1
   },
   "industry_summaries": [
@@ -22,7 +24,7 @@
       "nganh_hang": "Dầu ăn",
       "nhan_hang": [],
       "cum_noi_dung": [
-        "Khác"
+        "An toàn thực phẩm"
       ],
       "so_luong_bai": 1,
       "cac_dau_bao": [
@@ -35,17 +37,21 @@
       "stt": 1,
       "ngay_phat_hanh": "2025-07-08",
       "dau_bao": "SUCKHOEDOISONG",
-      "cum_noi_dung": "Khác",
-      "cum_noi_dung_chi_tiet": "2 loại dầu ăn không tốt cho sức khỏe cần hạn chế",
+      "cum_noi_dung": "An toàn thực phẩm",
+      "cum_noi_dung_chi_tiet": "An toàn thực phẩm: Cảnh báo dầu ăn không tốt cho sức khỏe",
       "tom_tat_noi_dung": "Bài viết trình bày về hai loại dầu ăn không an toàn khi chiên đi chiên lại nhiều lần. Các chuyên gia cảnh báo rằng dầu cọ và dầu đậu nành có thể sinh ra axit béo bão hòa cao, gây hại cho sức khỏe con người.",
       "link_bai_bao": "https://suckhoedoisong.vn/2-loai-dau-an-khong-tot-cho-suc-khoe-can-han-che-169250708105953162.htm",
       "nganh_hang": "Dầu ăn",
       "nhan_hang": [],
-      "keywords_found": [],
-      "crawl_timestamp": "2025-07-18T12:08:09.788955"
+      "keywords_found": [
+        "dầu ăn",
+        "dầu cọ",
+        "dầu nành"
+      ],
+      "crawl_timestamp": "2025-07-18T17:31:41.796491"
     }
   ],
-  "generated_at": "2025-07-18T12:59:16.325841",
+  "generated_at": "2025-07-18T17:31:46.875843",
   "total_articles": 1,
   "date_range": "Từ ngày 18/06/2025 đến ngày 18/07/2025"
 }

@@ -12,6 +12,7 @@ import gc
 import threading
 import httpx
 import re
+import ast
 
 from datetime import datetime, timedelta
 from typing import List, Dict, Optional, Any
@@ -564,6 +565,7 @@ class ProcessorAgent:
                 8. Định dạng ngày phát hành bắt buộc: dd/mm/yyyy (VD: 01/07/2025)"
                 9. Nếu một bài báo đề cập nhiều nhãn hàng thì ghi tất cả nhãn hàng trong danh sách `nhan_hang`.
                 10. Nếu bài liên quan nhiều ngành (ví dụ sản phẩm đa dụng), hãy chọn ngành chính nhất liên quan đến bối cảnh.
+                11. Giữ nguyên `tom_tat_noi_dung`, không cắt bớt, sinh ra hay thay đổi nội dung.
 
                 Định dạng đầu ra:
                 Trả về một danh sách JSON hợp lệ chứa các đối tượng Article đã được xử lý. Cấu trúc JSON của mỗi đối tượng phải khớp với Pydantic model. Đây là 1 ví dụ cho bạn làm mẫu:
@@ -617,15 +619,8 @@ class ProcessorAgent:
 
                     if response and response.content:
                         try:
-                            processed_data = json.loads(response.content)
-                            processed_data = self.extract_json(processed_data)
-                            # Xử lý khi LLM trả về list
-                            if isinstance(processed_data, list):
-                                articles_data = processed_data
-                            elif isinstance(processed_data, dict):
-                                articles_data = processed_data.get("articles", [])
-                            else:
-                                articles_data = []
+                            raw_json = self.extract_json(response.content)
+                            articles_data = json.loads(raw_json)
 
                             km = KeywordManager(
                                 CONFIG_DIR / "content_cluster_keywords.json"
@@ -764,73 +759,40 @@ class ReportAgent:
         )
 
     def extract_json(self, text: str) -> str:
-        """
-        Trích xuất JSON từ phản hồi LLM với thứ tự ưu tiên:
-        1. Tìm đoạn trong ```json ... ```
-        2. Nếu không có, bỏ dấu '...' ngoài cùng (nếu có)
-        3. Tìm đoạn JSON {...} hoặc [...]
-        """
-
         text = text.strip()
 
-        # 1️. Ưu tiên tìm ```json ... ```
+        # Ưu tiên tìm đoạn ```json ... ```
         matches = re.findall(r"```json(.*?)```", text, re.DOTALL)
         if matches:
             for match in matches:
                 match = match.strip()
                 try:
-                    json.loads(match)
-                    return match  # ✅ Trả về JSON đúng luôn
-                except json.JSONDecodeError:
+                    obj = json.loads(match)
+                    if isinstance(obj, dict):
+                        return match
+                except:
                     continue
 
-        # 2. Nếu không có, xử lý dấu '...' ngoài cùng
-        if text.startswith("'") and text.endswith("'"):
-            text = text[1:-1].strip()
+        # Nếu không có, tìm JSON object ngoài cùng
+        try:
+            # Thử parse toàn bộ text luôn nếu là dict
+            obj = json.loads(text)
+            if isinstance(obj, dict):
+                return text
+        except:
+            pass
 
-        # 3️. Tìm đoạn JSON {...} hoặc [...]
-        candidates = re.findall(r"(\{.*?\}|\[.*?\])", text, re.DOTALL)
-        for candidate in candidates:
-            candidate = candidate.strip()
+        # Fallback tìm các cặp { } lớn nhất
+        dict_candidates = re.findall(r"(\{.*\})", text, re.DOTALL)
+        for candidate in dict_candidates:
             try:
-                json.loads(candidate)
-                return candidate  # ✅ Trả về JSON đúng
-            except json.JSONDecodeError:
+                obj = json.loads(candidate.strip())
+                if isinstance(obj, dict):
+                    return candidate.strip()
+            except:
                 continue
 
-        # Nếu không tìm thấy
-        raise ValueError("Không tìm thấy JSON hợp lệ trong phản hồi.")
-
-    from collections import defaultdict
-
-    def fix_cum_noi_dung(summary_data, articles):
-        # Gom cụm nội dung từ articles
-        cum_noi_dung_map = defaultdict(set)
-
-        for art in articles:
-            nganh = (
-                art.nganh_hang.value
-                if hasattr(art.nganh_hang, "value")
-                else art.nganh_hang
-            )
-            if art.cum_noi_dung:
-                cum_noi_dung_map[nganh].add(art.cum_noi_dung.value)
-            else:
-                cum_noi_dung_map[nganh].add("Khác")
-
-        # Ghi đè vào industry_summaries
-        for ind in summary_data.get("industry_summaries", []):
-            nganh = ind["nganh_hang"]
-            if nganh in cum_noi_dung_map:
-                ind["cum_noi_dung"] = list(cum_noi_dung_map[nganh])
-
-        # Ghi đè vào overall_summary.industries
-        for ind in summary_data.get("overall_summary", {}).get("industries", []):
-            nganh = ind["nganh_hang"]
-            if nganh in cum_noi_dung_map:
-                ind["cum_noi_dung"] = list(cum_noi_dung_map[nganh])
-
-        return summary_data
+        raise ValueError("Không tìm thấy JSON dict hợp lệ trong phản hồi.")
 
     async def generate_report(
         self, articles: List[Article], date_range: str
@@ -857,15 +819,16 @@ class ReportAgent:
             Yêu cầu nhiệm vụ:
             1. Dùng danh sách articles trên để tạo `overall_summary` và `industry_summaries`.
             2. Tạo 'overall_summary' (tóm tắt tổng quan), bao gồm: thoi_gian_trich_xuat, industries (nganh_hang, nhan_hang, cum_noi_dung, so_luong_bai, cac_dau_bao), cac_dau_bao và tong_so_bai.
-            3. Tạo danh sách 'industry_summaries' (tóm tắt theo ngành), mỗi ngành là 1 mục (nganh_hang), bao gồm: nhan_hang, cum_noi_dung, cac_dau_bao, so_luong_bai.
-            5. Đảm bảo trả về đúng 1 đối tượng JSON duy nhất, không có markdown, không có giải thích ngoài lề.
+            3. Tạo danh sách 'industry_summaries' (tóm tắt theo ngành), mỗi ngành là 1 mục (nganh_hang), bao gồm: nhan_hang, cum_noi_dung (trường cum_noi_dung sẽ là bao gồm hết tất cả các cụm nội dung của tất cả các bài), cac_dau_bao, so_luong_bai.
+            4. Đảm bảo trả về đúng 1 đối tượng JSON duy nhất, không có markdown, không có giải thích ngoài lề.
 
             Trả về đúng một đối tượng JSON duy nhất với cấu trúc sau:
             {{
                 overall_summary: { ... },
-                industry_summaries: [ ... ]
+                industry_summaries: [ ... ],
+                total_articles={len(articles)},
+                date_range={date_range}
             }}
-
             
             Quy tắc bắt buộc:
             - Bắt đầu output bằng '{' và kết thúc bằng '}' duy nhất.
@@ -874,11 +837,22 @@ class ReportAgent:
             logger.error(f"Raw LLM response: {response.content}")
             if response and response.content:
                 try:
-                    raw_json = self.extract_json(response.content)
-                    summary_data = json.loads(raw_json)
+                    try:
+                        # Ưu tiên parse bằng json.loads
+                        summary_data = json.loads(response.content)
+                    except json.JSONDecodeError:
+                        try:
+                            # Nếu LLM trả về dạng {'key': 'value'}, dùng ast.literal_eval
+                            summary_data = ast.literal_eval(response.content)
+                        except Exception:
+                            # Fallback dùng extract_json để tìm đúng đoạn JSON
+                            raw_json = self.extract_json(response.content)
+                            summary_data = json.loads(raw_json)
 
-                    # ✅ Fix cum_noi_dung bằng code
-                    summary_data = self.fix_cum_noi_dung(summary_data, articles)
+                    # Check có phải dict không
+                    if not isinstance(summary_data, dict):
+                        logger.error("LLM trả về list hoặc sai schema. Fallback.")
+                        return self._create_basic_report(articles, date_range)
 
                     # Gộp lại articles từ input, không cho LLM sinh
                     summary_data["articles"] = [

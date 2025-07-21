@@ -1,0 +1,44 @@
+{
+  "cache_version": "1.0",
+  "created_at": "2025-07-21T13:25:54.535762",
+  "ttl_hours": 8,
+  "crawl_status": "success",
+  "data": {
+    "source_name": "NHIPCAUDAUTU",
+    "source_type": "Website",
+    "url": "nhipcaudautu.vn",
+    "articles_found": [
+      {
+        "stt": 1,
+        "ngay_phat_hanh": "2025-06-21",
+        "dau_bao": "NHIPCAUDAUTU",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Cây cọ của bầu Đức dùng để làm gì? - Tạp chí Nhịp Cầu Đầu Tư",
+        "tom_tat_noi_dung": "Bài viết khám phá ứng dụng của cây cọ tại Việt Nam, một nguồn nguyên liệu quý cho ngành chế biến dầu ăn. Đặc biệt, cây cọ tương tự như các loại dầu ăn khác như dầu đậu nành và dầu hạt cải, làm nổi bật vai trò quan trọng của chúng trong sản xuất thực phẩm.",
+        "link_bai_bao": "https://ntp.nhipcaudautu.vn/kinh-doanh/cay-co-cua-bau-duc-dung-de-lam-gi-3127418/",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-07-21T13:25:36.204911"
+      },
+      {
+        "stt": 2,
+        "ngay_phat_hanh": "2025-07-21",
+        "dau_bao": "NHIPCAUDAUTU",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Dầu ăn tăng giá, người nghèo \"bỏng tay\" - Nhip Cau Dau Tu",
+        "tom_tat_noi_dung": "Bài viết phân tích tác động của việc tăng giá dầu ăn đối với người tiêu dùng, đặc biệt là những hộ nghèo. Điều này làm tăng gánh nặng tài chính cho các gia đình, khi giá nguyên liệu dự báo tiếp tục tăng cao trong thời gian tới.",
+        "link_bai_bao": "https://m.nhipcaudautu.vn/the-gioi/dau-an-tang-gia-nguoi-ngheo-bong-tay-3346810/",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-07-21T13:25:36.204911"
+      }
+    ],
+    "crawl_status": "success",
+    "error_message": "",
+    "crawl_duration": 363.74456,
+    "crawl_timestamp": "2025-07-21T13:25:54.535762",
+    "retry_count": 0
+  }
+}

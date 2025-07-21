@@ -355,20 +355,16 @@ class CrawlerAgent:
         finally:
             gc.collect()
 
-    def close(self):
-        # Xóa agent để giải phóng bộ nhớ
-        if hasattr(self, "agent"):
-            del self.agent
-
-        # Xoay vòng các tool để đóng nếu có browser
+    def close_final(self):
+        logger.info("🧹 Đóng hoàn toàn CrawlerAgent, giải phóng agent và tools.")
+        self.agent = None
         for tool in self.search_tools:
             if hasattr(tool, "close"):
                 try:
                     tool.close()
                 except Exception as e:
                     logger.warning(f"Tool {tool} đóng không thành công: {e}")
-
-        gc.collect()  # Gọi garbage collection ngay lập tức
+        gc.collect()
 
 
 class ProcessorAgent:
@@ -819,8 +815,19 @@ class ReportAgent:
             Yêu cầu nhiệm vụ:
             1. Dùng danh sách articles trên để tạo `overall_summary` và `industry_summaries`.
             2. Tạo 'overall_summary' (tóm tắt tổng quan), bao gồm: thoi_gian_trich_xuat, industries (nganh_hang, nhan_hang, cum_noi_dung, so_luong_bai, cac_dau_bao), cac_dau_bao và tong_so_bai.
-            3. Tạo danh sách 'industry_summaries' (tóm tắt theo ngành), mỗi ngành là 1 mục (nganh_hang), bao gồm: nhan_hang, cum_noi_dung (trường cum_noi_dung sẽ là bao gồm hết tất cả các cụm nội dung của tất cả các bài), cac_dau_bao, so_luong_bai.
-            4. Đảm bảo trả về đúng 1 đối tượng JSON duy nhất, không có markdown, không có giải thích ngoài lề.
+            3. Tạo danh sách 'industry_summaries' (tóm tắt theo ngành), mỗi ngành là 1 mục (nganh_hang), bao gồm: nhan_hang, cum_noi_dung (trường cum_noi_dung sẽ là bao gồm hết tất cả các cụm nội dung của tất cả các bài trong cùng 1 ngành), cac_dau_bao, so_luong_bai.
+            4. Quy tắc khi tạo trường `cum_noi_dung` trong `industry_summaries`:
+                - `cum_noi_dung` chỉ được chọn trong danh sách sau (không thêm mô tả chi tiết):
+                - "Hoạt động doanh nghiệp và thông tin sản phẩm"
+                - "Chương trình CSR"
+                - "Chiến dịch Marketing"
+                - "Ra mắt sản phẩm"
+                - "Hợp tác đối tác"
+                - "Báo cáo tài chính"
+                - "An toàn thực phẩm"
+                - "Khác"
+            5. Nếu cần mô tả chi tiết, hãy ghi vào `cum_noi_dung_chi_tiet`, không được ghi vào `cum_noi_dung`.
+            6. Đảm bảo trả về đúng 1 đối tượng JSON duy nhất, không có markdown, không có giải thích ngoài lề.
 
             Trả về đúng một đối tượng JSON duy nhất với cấu trúc sau:
             {{
@@ -1079,22 +1086,25 @@ class MediaTrackerTeam:
             date_range_str = f"Từ ngày {start_date.strftime('%d/%m/%Y')} đến ngày {end_date.strftime('%d/%m/%Y')}"
 
             report = None
-            for i in range(0, len(processed_articles), batch_size):
-                await self._check_pause()
-                if self.stop_event.is_set():
-                    raise InterruptedError("Pipeline stopped by user after processing.")
-
-                batch = processed_articles[i : i + batch_size]
-                batch_report = await self.reporter.generate_report(
-                    batch, date_range_str
+            await self._check_pause()
+            if self.stop_event.is_set():
+                raise InterruptedError(
+                    "Pipeline stopped by user before report generation."
                 )
-                if report is None:
-                    report = batch_report
-                else:
-                    report.articles.extend(batch_report.articles)
-                    report.industry_summaries.extend(batch_report.industry_summaries)
-                    report.total_articles += batch_report.total_articles
-                gc.collect()  # Free memory after each batch
+
+            if not processed_articles:
+                logger.warning("No valid articles to generate report.")
+                return None
+
+            report = await self.reporter.generate_report(
+                processed_articles, date_range_str
+            )
+
+            await self._check_pause()
+            if self.stop_event.is_set():
+                raise InterruptedError(
+                    "Pipeline stopped by user after report generation."
+                )
 
             if report is None:
                 logger.warning("No valid articles to generate report.")
@@ -1133,7 +1143,7 @@ class MediaTrackerTeam:
 
     def cleanup(self):
         logger.info("🔧 Đang giải phóng tài nguyên pipeline...")
-        self.crawler.close()
+        self.crawler.close_final()
         self.processor.close()
         self.reporter.close()
         gc.collect()

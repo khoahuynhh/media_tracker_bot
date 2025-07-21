@@ -1,0 +1,292 @@
+{
+  "overall_summary": {
+    "thoi_gian_trich_xuat": "2025-07-21T14:56:07.315979",
+    "industries": [
+      {
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "cum_noi_dung": [
+          "An toàn thực phẩm",
+          "Hoạt động doanh nghiệp và thông tin sản phẩm",
+          "Khác"
+        ],
+        "so_luong_bai": 15,
+        "cac_dau_bao": [
+          "DOANHNHANSAIGON",
+          "SAIGONTIMESONLINE",
+          "NHIPCAUDAUTU",
+          "NGOISAONET",
+          "SOHA",
+          "ALOBACSI"
+        ]
+      }
+    ],
+    "cac_dau_bao": [
+      "DOANHNHANSAIGON",
+      "SAIGONTIMESONLINE",
+      "NHIPCAUDAUTU",
+      "NGOISAONET",
+      "SOHA",
+      "ALOBACSI"
+    ],
+    "tong_so_bai": 15
+  },
+  "industry_summaries": [
+    {
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "cum_noi_dung": [
+        "Hoạt động doanh nghiệp và thông tin sản phẩm",
+        "An toàn thực phẩm",
+        "Khác"
+      ],
+      "so_luong_bai": 15,
+      "cac_dau_bao": [
+        "DOANHNHANSAIGON",
+        "SAIGONTIMESONLINE",
+        "NHIPCAUDAUTU",
+        "NGOISAONET",
+        "SOHA",
+        "ALOBACSI"
+      ]
+    }
+  ],
+  "articles": [
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-06-26",
+      "dau_bao": "DOANHNHANSAIGON",
+      "cum_noi_dung": "An toàn thực phẩm",
+      "cum_noi_dung_chi_tiet": "An toàn thực phẩm: Kiểm tra cơ sở sản xuất dầu ăn trên cả nước",
+      "tom_tat_noi_dung": "Bài viết thông báo về việc sẽ tiến hành kiểm tra diện rộng các cơ sở sản xuất dầu ăn trên cả nước. Đặc biệt, cơ quan chức năng sẽ tập trung vào các cơ sở sản xuất dầu thực vật, đảm bảo các sản phẩm đạt tiêu chuẩn chất lượng và an toàn thực phẩm, góp phần bảo vệ sức khoẻ người tiêu dùng.",
+      "link_bai_bao": "https://doanhnhansaigon.vn/se-kiem-tra-dien-rong-cac-co-so-san-xuat-dau-an-319342.html",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [
+        "dầu ăn",
+        "dầu thực vật"
+      ],
+      "crawl_timestamp": "2025-07-21T14:55:15.464330"
+    },
+    {
+      "stt": 2,
+      "ngay_phat_hanh": "2025-06-26",
+      "dau_bao": "SAIGONTIMESONLINE",
+      "cum_noi_dung": "An toàn thực phẩm",
+      "cum_noi_dung_chi_tiet": "An toàn thực phẩm: Cảnh báo về dầu ăn chăn nuôi thành dầu ăn cho người",
+      "tom_tat_noi_dung": "Bài viết cảnh báo về việc một số loại dầu ăn từ chăn nuôi không đảm bảo tiêu chuẩn an toàn thực phẩm và bị biến đổi thành dầu ăn cho người. Điều này đặt ra thách thức lớn cho các công ty và cơ quan quản lý thực phẩm trong việc kiểm soát chất lượng sản phẩm.",
+      "link_bai_bao": "https://thesaigontimes.vn/canh-bao-dau-an-chan-nuoi-duoc-phu-phep-thanh-dau-an-cho-nguoi/",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [
+        "dầu ăn"
+      ],
+      "crawl_timestamp": "2025-07-21T14:55:15.465352"
+    },
+    {
+      "stt": 3,
+      "ngay_phat_hanh": "2025-06-28",
+      "dau_bao": "SAIGONTIMESONLINE",
+      "cum_noi_dung": "An toàn thực phẩm",
+      "cum_noi_dung_chi_tiet": "An toàn thực phẩm: Các loại dầu ăn độc hại cần tránh",
+      "tom_tat_noi_dung": "Bài viết phân tích các loại dầu ăn độc hại có thể gặp phải trong cuộc sống hàng ngày, không chỉ dừng lại ở dầu ăn chăn nuôi. Các chuyên gia y tế khuyến cáo người tiêu dùng cần chú ý đến thành phần của dầu ăn để bảo vệ sức khỏe.",
+      "link_bai_bao": "https://sgtt.thesaigontimes.vn/nhung-loai-dau-an-gay-hai-cho-suc-khoe-khong-chi-rieng-dau-an-chan-nuoi/",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [
+        "dầu ăn"
+      ],
+      "crawl_timestamp": "2025-07-21T14:55:15.465352"
+    },
+    {
+      "stt": 4,
+      "ngay_phat_hanh": "2025-07-21",
+      "dau_bao": "SAIGONTIMESONLINE",
+      "cum_noi_dung": "Hoạt động doanh nghiệp và thông tin sản phẩm",
+      "cum_noi_dung_chi_tiet": "Thông tin thị trường: Giá dầu đậu nành và dầu cọ tiếp tục tăng",
+      "tom_tat_noi_dung": "Giá dầu cọ tại Malaysia đã tăng 4,4%, đạt 3.330 ringgit/tấn, vì sự gia tăng nhu cầu toàn cầu. Vào sáng nay, trong một hội nghị tại Quảng Châu (Trung Quốc), các nhà sản xuất đã thảo luận về tình hình cung cầu của ngành dầu ăn, dẫn tới sự tăng giá này.",
+      "link_bai_bao": "https://thesaigontimes.vn/gia-dau-nanh-va-dau-co-tiep-tuc-tang/",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [
+        "dầu nành",
+        "dầu cọ",
+        "dầu ăn"
+      ],
+      "crawl_timestamp": "2025-07-21T14:55:15.465352"
+    },
+    {
+      "stt": 5,
+      "ngay_phat_hanh": "2025-06-21",
+      "dau_bao": "NHIPCAUDAUTU",
+      "cum_noi_dung": "Hoạt động doanh nghiệp và thông tin sản phẩm",
+      "cum_noi_dung_chi_tiet": "Nông nghiệp: Địa vị quan trọng của cây cọ trong sản xuất dầu ăn",
+      "tom_tat_noi_dung": "Bài viết khám phá ứng dụng của cây cọ tại Việt Nam, một nguồn nguyên liệu quý cho ngành chế biến dầu ăn. Đặc biệt, cây cọ tương tự như các loại dầu ăn khác như dầu đậu nành và dầu hạt cải, làm nổi bật vai trò quan trọng của chúng trong sản xuất thực phẩm.",
+      "link_bai_bao": "https://ntp.nhipcaudautu.vn/kinh-doanh/cay-co-cua-bau-duc-dung-de-lam-gi-3127418/",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [
+        "dầu ăn",
+        "dầu đậu nành"
+      ],
+      "crawl_timestamp": "2025-07-21T14:55:15.465352"
+    },
+    {
+      "stt": 6,
+      "ngay_phat_hanh": "2025-07-21",
+      "dau_bao": "NHIPCAUDAUTU",
+      "cum_noi_dung": "Khác",
+      "cum_noi_dung_chi_tiet": "Thị trường tiêu dùng: Tác động của tăng giá dầu ăn",
+      "tom_tat_noi_dung": "Bài viết phân tích tác động của việc tăng giá dầu ăn đối với người tiêu dùng, đặc biệt là những hộ nghèo. Điều này làm tăng gánh nặng tài chính cho các gia đình, khi giá nguyên liệu dự báo tiếp tục tăng cao trong thời gian tới.",
+      "link_bai_bao": "https://m.nhipcaudautu.vn/the-gioi/dau-an-tang-gia-nguoi-ngheo-bong-tay-3346810/",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [
+        "dầu ăn"
+      ],
+      "crawl_timestamp": "2025-07-21T14:55:15.465352"
+    },
+    {
+      "stt": 7,
+      "ngay_phat_hanh": "2025-06-26",
+      "dau_bao": "NGOISAONET",
+      "cum_noi_dung": "An toàn thực phẩm",
+      "cum_noi_dung_chi_tiet": "An toàn thực phẩm: Nguy cơ khi dùng thực phẩm chế biến bằng dầu chân nuôi",
+      "tom_tat_noi_dung": "Bài báo cảnh báo về những nguy cơ sức khỏe khi tiêu dùng thực phẩm chế biến bằng dầu chân nuôi. Các phương pháp sản xuất và ảnh hưởng đối với chất lượng dinh dưỡng là những vấn đề chính được nêu ra.",
+      "link_bai_bao": "https://ngoisao.vnexpress.net/moi-nguy-hai-khi-an-thuc-pham-che-bien-bang-dau-chan-nuoi-4906593.html",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [
+        "dầu ăn"
+      ],
+      "crawl_timestamp": "2025-07-21T14:55:15.465352"
+    },
+    {
+      "stt": 8,
+      "ngay_phat_hanh": "2025-06-25",
+      "dau_bao": "NGOISAONET",
+      "cum_noi_dung": "An toàn thực phẩm",
+      "cum_noi_dung_chi_tiet": "An toàn thực phẩm: Dầu ăn chân nuôi thành thực phẩm cho người",
+      "tom_tat_noi_dung": "Bài viết đề cập đến việc dầu ăn chân nuôi được sử dụng trong chế biến thức ăn cho con người, cũng như những tác động tiêu cực đến sức khỏe, chẳng hạn như nguy cơ ung thư và suy gan. Các chuyên gia khuyến cáo nên lưu ý về nguồn gốc của dầu ăn.",
+      "link_bai_bao": "https://ngoisao.vnexpress.net/hang-chuc-nghin-tan-dau-an-chan-nuoi-bi-bien-thanh-thuc-pham-cho-nguoi-4906125.html",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [
+        "dầu ăn"
+      ],
+      "crawl_timestamp": "2025-07-21T14:55:15.465352"
+    },
+    {
+      "stt": 9,
+      "ngay_phat_hanh": "2025-06-26",
+      "dau_bao": "SOHA",
+      "cum_noi_dung": "An toàn thực phẩm",
+      "cum_noi_dung_chi_tiet": "An toàn thực phẩm: Vấn đề dầu ăn chăn nuôi làm thực phẩm cho người",
+      "tom_tat_noi_dung": "Dầu thực vật dùng cho chăn nuôi không đạt tiêu chuẩn vệ sinh an toàn thực phẩm, không có công dụng, giá trị sử dụng với người dùng. Việc cốt yếu đưa dầu không đạt chất lượng vào thực phẩm tiêu thụ cho người dân đang gây ra những lo ngại về an toàn thực phẩm.",
+      "link_bai_bao": "https://soha.vn/thong-tin-moi-vu-ho-bien-dau-an-chan-nuoi-thanh-thuc-pham-cho-nguoi-198250626160857003.htm",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [
+        "dầu ăn",
+        "dầu thực vật"
+      ],
+      "crawl_timestamp": "2025-07-21T14:55:15.465352"
+    },
+    {
+      "stt": 10,
+      "ngay_phat_hanh": "2025-06-26",
+      "dau_bao": "SOHA",
+      "cum_noi_dung": "An toàn thực phẩm",
+      "cum_noi_dung_chi_tiet": "An toàn thực phẩm: Kiểm tra cơ sở sản xuất dầu ăn trên diện rộng",
+      "tom_tat_noi_dung": "Bộ Công Thương chỉ đạo kiểm tra các cơ sở sản xuất dầu ăn, xử lý vi phạm và bảo vệ người tiêu dùng. Động thái này được thực hiện nhằm nâng cao chất lượng sản phẩm và đảm bảo quyền lợi cho người tiêu dùng trước tình trạng hàng giả, hàng kém chất lượng.",
+      "link_bai_bao": "https://soha.vn/bo-cong-thuong-se-kiem-tra-dien-rong-cac-co-so-san-xuat-dau-an-198250626170004938.htm",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [
+        "dầu ăn"
+      ],
+      "crawl_timestamp": "2025-07-21T14:55:15.465352"
+    },
+    {
+      "stt": 3,
+      "ngay_phat_hanh": "2025-06-25",
+      "dau_bao": "SOHA",
+      "cum_noi_dung": "An toàn thực phẩm",
+      "cum_noi_dung_chi_tiet": "An toàn thực phẩm: Dầu kém chất lượng từ Công ty Nhật Minh Food",
+      "tom_tat_noi_dung": "Các loại dầu ăn của Công ty Nhật Minh Food gần nhãn hiệu Ofood Cooking Oil, được xác định là hàng kém chất lượng, hàng giả. Việc đưa dầu gia tăng từ sản xuất chăn nuôi vào tiêu thụ cho người sẽ tạo ra nhiều hệ lụy tiêu cực cho sức khỏe cộng đồng.",
+      "link_bai_bao": "https://soha.vn/can-canh-day-chuyen-ho-bien-dau-dung-cho-thuc-an-chan-nuoi-thanh-dau-an-cho-nguoi-tai-cong-ty-nhat-minh-food-198250624230726198.htm",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [
+        "dầu ăn"
+      ],
+      "crawl_timestamp": "2025-07-21T14:56:07.314974"
+    },
+    {
+      "stt": 4,
+      "ngay_phat_hanh": "2025-06-26",
+      "dau_bao": "SOHA",
+      "cum_noi_dung": "An toàn thực phẩm",
+      "cum_noi_dung_chi_tiet": "An toàn thực phẩm: Cảnh báo sản xuất dầu ăn giả từ thực vật",
+      "tom_tat_noi_dung": "Dầu thực vật dùng cho chăn nuôi không đạt chuẩn vệ sinh an toàn thực phẩm, không có công dụng, giá trị sử dụng dành cho người tiêu dùng. Khi bị phát hiện, các đơn vị chưa được cấp giấy chứng nhận sẽ bị xử lý nghiêm khắc, đảm bảo sức khỏe cộng đồng.",
+      "link_bai_bao": "https://soha.vn/bo-cong-thuong-noi-gi-ve-giay-chung-nhan-du-dieu-kien-attp-vu-dau-an-lam-tu-thuc-an-chan-nuoi-198250625215956491.htm",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [
+        "dầu ăn",
+        "dầu thực vật"
+      ],
+      "crawl_timestamp": "2025-07-21T14:56:07.315979"
+    },
+    {
+      "stt": 2,
+      "ngay_phat_hanh": "2025-06-26",
+      "dau_bao": "SOHA",
+      "cum_noi_dung": "Hoạt động doanh nghiệp và thông tin sản phẩm",
+      "cum_noi_dung_chi_tiet": "Xuất khẩu dầu ăn Việt Nam tăng mạnh vào châu Âu",
+      "tom_tat_noi_dung": "Việt Nam đã xuất khẩu một lượng lớn dầu ăn sang các thị trường châu Âu, chủ yếu là dầu hạt cải, dầu đậu nành và dầu hướng dương. Kể từ tháng 6 năm 2025, nhu cầu tăng mạnh đã thúc đẩy sản xuất trong nước. Điều này không chỉ tạo nhiều cơ hội cho các doanh nghiệp mà còn giúp cải thiện cán cân thương mại.",
+      "link_bai_bao": "https://soha.vn/khong-chi-dau-an-cho-vat-nuoi-3-loai-dau-an-nguy-hiem-sau-nay-van-dang-hien-dien-trong-bua-com-nhieu-nha-198250626075457788.htm",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [
+        "dầu ăn",
+        "dầu đậu nành",
+        "dầu hướng dương"
+      ],
+      "crawl_timestamp": "2025-07-21T14:56:07.315979"
+    },
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-06-21",
+      "dau_bao": "ALOBACSI",
+      "cum_noi_dung": "Khác",
+      "cum_noi_dung_chi_tiet": "Khám phá lợi ích của dầu thực vật trong chế độ ăn",
+      "tom_tat_noi_dung": "Bài viết thảo luận về lợi ích của dầu thực vật trong chế độ ăn uống, nhấn mạnh khuyến nghị sử dụng 25ml dầu/người/ngày để đảm bảo sức khỏe. Tác giả đã đề cập đến những nghiên cứu gần đây cho thấy dầu thực vật cung cấp nhiều axit béo không bão hòa cần thiết cho cơ thể.",
+      "link_bai_bao": "https://alobacsi.com/dau-thuc-vat-co-thuc-su-tot.html",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [
+        "dầu thực vật"
+      ],
+      "crawl_timestamp": "2025-07-21T14:56:07.315979"
+    },
+    {
+      "stt": 2,
+      "ngay_phat_hanh": "2025-07-10",
+      "dau_bao": "ALOBACSI",
+      "cum_noi_dung": "Khác",
+      "cum_noi_dung_chi_tiet": "Nguy cơ độc tố từ dầu thực vật kém chất lượng",
+      "tom_tat_noi_dung": "Bài viết bàn luận về nguy cơ tiềm tàng từ việc sử dụng dầu thực vật chế biến từ nguyên liệu kém chất lượng. Các chuyên gia dinh dưỡng nhấn mạnh tầm quan trọng của việc lựa chọn dầu thực vật an toàn và chất lượng nhằm bảo vệ sức khỏe, tránh các loại ung thư có thể xảy ra do độc tố.",
+      "link_bai_bao": "https://alobacsi.com/dau-thuc-vat-mang-con-bao-doc-to-co-the-gay-ung-thu.html",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [
+        "dầu thực vật"
+      ],
+      "crawl_timestamp": "2025-07-21T14:56:07.315979"
+    }
+  ],
+  "generated_at": "2025-07-21T14:56:19.900663",
+  "total_articles": 15,
+  "date_range": "Từ ngày 21/06/2025 đến ngày 21/07/2025"
+}

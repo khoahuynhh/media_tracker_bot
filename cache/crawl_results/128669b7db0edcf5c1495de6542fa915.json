@@ -1,0 +1,57 @@
+{
+  "cache_version": "1.0",
+  "created_at": "2025-07-21T13:15:29.289582",
+  "ttl_hours": 8,
+  "crawl_status": "success",
+  "data": {
+    "source_name": "SAIGONTIMESONLINE",
+    "source_type": "Website",
+    "url": "thesaigontimes.vn",
+    "articles_found": [
+      {
+        "stt": 2,
+        "ngay_phat_hanh": "2025-06-26",
+        "dau_bao": "SAIGONTIMESONLINE",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Cảnh báo dầu ăn chăn nuôi được 'phù phép' thành dầu ăn cho người",
+        "tom_tat_noi_dung": "Bài viết cảnh báo về việc một số loại dầu ăn từ chăn nuôi không đảm bảo tiêu chuẩn an toàn thực phẩm và bị biến đổi thành dầu ăn cho người. Điều này đặt ra thách thức lớn cho các công ty và cơ quan quản lý thực phẩm trong việc kiểm soát chất lượng sản phẩm.",
+        "link_bai_bao": "https://thesaigontimes.vn/canh-bao-dau-an-chan-nuoi-duoc-phu-phep-thanh-dau-an-cho-nguoi/",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-07-21T13:14:42.696452"
+      },
+      {
+        "stt": 3,
+        "ngay_phat_hanh": "2025-06-28",
+        "dau_bao": "SAIGONTIMESONLINE",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Những loại dầu ăn gây hại cho sức khỏe, không chỉ riêng dầu ăn chăn nuôi",
+        "tom_tat_noi_dung": "Bài viết phân tích các loại dầu ăn độc hại có thể gặp phải trong cuộc sống hàng ngày, không chỉ dừng lại ở dầu ăn chăn nuôi. Các chuyên gia y tế khuyến cáo người tiêu dùng cần chú ý đến thành phần của dầu ăn để bảo vệ sức khỏe.",
+        "link_bai_bao": "https://sgtt.thesaigontimes.vn/nhung-loai-dau-an-gay-hai-cho-suc-khoe-khong-chi-rieng-dau-an-chan-nuoi/",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-07-21T13:14:42.696452"
+      },
+      {
+        "stt": 2,
+        "ngay_phat_hanh": "2025-07-21",
+        "dau_bao": "SAIGONTIMESONLINE",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Giá dầu đậu nành và dầu cọ tiếp tục tăng",
+        "tom_tat_noi_dung": "Giá dầu cọ tại Malaysia đã tăng 4,4%, đạt 3.330 ringgit/tấn, vì sự gia tăng nhu cầu toàn cầu. Vào sáng nay, trong một hội nghị tại Quảng Châu (Trung Quốc), các nhà sản xuất đã thảo luận về tình hình cung cầu của ngành dầu ăn, dẫn tới sự tăng giá này.",
+        "link_bai_bao": "https://thesaigontimes.vn/gia-dau-nanh-va-dau-co-tiep-tuc-tang/",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-07-21T13:15:06.922752"
+      }
+    ],
+    "crawl_status": "success",
+    "error_message": "",
+    "crawl_duration": 341.406404,
+    "crawl_timestamp": "2025-07-21T13:15:29.287542",
+    "retry_count": 0
+  }
+}

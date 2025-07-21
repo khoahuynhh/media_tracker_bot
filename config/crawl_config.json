@@ -22,10 +22,73 @@
   "media_sources": [
     {
       "stt": 1,
+      "name": "ALOBACSI",
+      "type": "Website",
+      "domain": "alobacsi.com",
+      "reference_name": "alobacsi"
+    },
+    {
+      "stt": 2,
       "name": "SUCKHOEDOISONG",
       "type": "Website",
       "domain": "suckhoedoisong.vn",
       "reference_name": "suckhoedoisong"
+    },
+    {
+      "stt": 3,
+      "name": "NGOISAONET",
+      "type": "Website",
+      "domain": "ngoisao.vnexpress.net",
+      "reference_name": "ngoisao"
+    },
+    {
+      "stt": 4,
+      "name": "AFAMILY",
+      "type": "Website",
+      "domain": "afamily.vn",
+      "reference_name": "afamily"
+    },
+    {
+      "stt": 5,
+      "name": "SOHA",
+      "type": "Website",
+      "domain": "soha.vn",
+      "reference_name": "soha"
+    },
+    {
+      "stt": 6,
+      "name": "TRETHO",
+      "type": "Website",
+      "domain": "webtretho.com",
+      "reference_name": "tretho"
+    },
+    {
+      "stt": 7,
+      "name": "PHUNU",
+      "type": "Website",
+      "domain": "phunuonline.com.vn",
+      "reference_name": "phunuonline"
+    },
+    {
+      "stt": 8,
+      "name": "SAIGONTIMESONLINE",
+      "type": "Website",
+      "domain": "thesaigontimes.vn",
+      "reference_name": "saigontimes"
+    },
+    {
+      "stt": 9,
+      "name": "NHIPCAUDAUTU",
+      "type": "Website",
+      "domain": "nhipcaudautu.vn",
+      "reference_name": "nhipcaudautu"
+    },
+    {
+      "stt": 10,
+      "name": "DOANHNHANSAIGON",
+      "type": "Website",
+      "domain": "doanhnhansaigon.vn",
+      "reference_name": "doanhnhansaigon"
     }
   ],
   "date_range_days": 30,

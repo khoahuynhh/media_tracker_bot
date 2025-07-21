@@ -17,6 +17,8 @@ from collections import defaultdict
 from jose import jwt, JWTError
 from fastapi.security import OAuth2PasswordBearer
 from fastapi import HTTPException, Depends
+from openpyxl.utils import get_column_letter
+from openpyxl.styles import Alignment
 
 
 from .models import CompetitorReport, BotStatus, MediaType, Article
@@ -309,6 +311,20 @@ class PipelineService:
                     # Tạo DataFrame và ghi vào Excel
                     df = pd.DataFrame(rows)
                     df.to_excel(writer, index=False, sheet_name=sheet_name)
+
+                    worksheet = writer.sheets[sheet_name]
+
+                    for idx, col_name in enumerate(df.columns):
+                        col_letter = get_column_letter(idx + 1)
+                        for row in range(2, len(df) + 2):  # Bỏ header
+                            cell = worksheet[f"{col_letter}{row}"]
+                            if col_name == "Cụm nội dung":
+                                cell.alignment = Alignment(
+                                    wrap_text=True, vertical="top"
+                                )
+                            else:
+                                # Các cột khác: chỉ middle align
+                                cell.alignment = Alignment(vertical="center")
 
                 # 3. Mỗi nhãn hàng một sheet bài báo
 

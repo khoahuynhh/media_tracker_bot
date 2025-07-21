@@ -1,0 +1,83 @@
+{
+  "cache_version": "1.0",
+  "created_at": "2025-07-21T13:25:31.609201",
+  "ttl_hours": 8,
+  "crawl_status": "success",
+  "data": {
+    "source_name": "SOHA",
+    "source_type": "Website",
+    "url": "soha.vn",
+    "articles_found": [
+      {
+        "stt": 1,
+        "ngay_phat_hanh": "2025-06-26",
+        "dau_bao": "SOHA",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Thông tin mới vụ 'hồ biến' dầu ăn chăn nuôi thành thực phẩm cho người",
+        "tom_tat_noi_dung": "Dầu thực vật dùng cho chăn nuôi không đạt tiêu chuẩn vệ sinh an toàn thực phẩm, không có công dụng, giá trị sử dụng với người dùng. Việc cốt yếu đưa dầu không đạt chất lượng vào thực phẩm tiêu thụ cho người dân đang gây ra những lo ngại về an toàn thực phẩm.",
+        "link_bai_bao": "https://soha.vn/thong-tin-moi-vu-ho-bien-dau-an-chan-nuoi-thanh-thuc-pham-cho-nguoi-198250626160857003.htm",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-07-21T13:24:56.102423"
+      },
+      {
+        "stt": 2,
+        "ngay_phat_hanh": "2025-06-26",
+        "dau_bao": "SOHA",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Bộ Công Thương sẽ kiểm tra diện rộng các cơ sở sản xuất dầu ăn",
+        "tom_tat_noi_dung": "Bộ Công Thương chỉ đạo kiểm tra các cơ sở sản xuất dầu ăn, xử lý vi phạm và bảo vệ người tiêu dùng. Động thái này được thực hiện nhằm nâng cao chất lượng sản phẩm và đảm bảo quyền lợi cho người tiêu dùng trước tình trạng hàng giả, hàng kém chất lượng.",
+        "link_bai_bao": "https://soha.vn/bo-cong-thuong-se-kiem-tra-dien-rong-cac-co-so-san-xuat-dau-an-198250626170004938.htm",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-07-21T13:24:56.103473"
+      },
+      {
+        "stt": 3,
+        "ngay_phat_hanh": "2025-06-25",
+        "dau_bao": "SOHA",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Cận cảnh dây chuyền 'hồ biến' dầu dùng cho thức ăn chăn nuôi thành dầu ăn cho người tại công ty Nhật Minh Food",
+        "tom_tat_noi_dung": "Các loại dầu ăn của Công ty Nhật Minh Food gần nhãn hiệu Ofood Cooking Oil, được xác định là hàng kém chất lượng, hàng giả. Việc đưa dầu gia tăng từ sản xuất chăn nuôi vào tiêu thụ cho người sẽ tạo ra nhiều hệ lụy tiêu cực cho sức khỏe cộng đồng.",
+        "link_bai_bao": "https://soha.vn/can-canh-day-chuyen-ho-bien-dau-dung-cho-thuc-an-chan-nuoi-thanh-dau-an-cho-nguoi-tai-cong-ty-nhat-minh-food-198250624230726198.htm",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-07-21T13:24:56.103473"
+      },
+      {
+        "stt": 4,
+        "ngay_phat_hanh": "2025-06-26",
+        "dau_bao": "SOHA",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Bộ Công Thương cảnh báo về hành vi sản xuất dầu ăn giả từ thực vật",
+        "tom_tat_noi_dung": "Dầu thực vật dùng cho chăn nuôi không đạt chuẩn vệ sinh an toàn thực phẩm, không có công dụng, giá trị sử dụng dành cho người tiêu dùng. Khi bị phát hiện, các đơn vị chưa được cấp giấy chứng nhận sẽ bị xử lý nghiêm khắc, đảm bảo sức khỏe cộng đồng.",
+        "link_bai_bao": "https://soha.vn/bo-cong-thuong-noi-gi-ve-giay-chung-nhan-du-dieu-kien-attp-vu-dau-an-lam-tu-thuc-an-chan-nuoi-198250625215956491.htm",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-07-21T13:24:56.103473"
+      },
+      {
+        "stt": 2,
+        "ngay_phat_hanh": "2025-06-26",
+        "dau_bao": "SOHA",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Khối lượng rất lớn dầu ăn của Việt Nam xuất khẩu sang âu châu",
+        "tom_tat_noi_dung": "Việt Nam đã xuất khẩu một lượng lớn dầu ăn sang các thị trường châu Âu, chủ yếu là dầu hạt cải, dầu đậu nành và dầu hướng dương. Kể từ tháng 6 năm 2025, nhu cầu tăng mạnh đã thúc đẩy sản xuất trong nước. Điều này không chỉ tạo nhiều cơ hội cho các doanh nghiệp mà còn giúp cải thiện cán cân thương mại.",
+        "link_bai_bao": "https://soha.vn/khong-chi-dau-an-cho-vat-nuoi-3-loai-dau-an-nguy-hiem-sau-nay-van-dang-hien-dien-trong-bua-com-nhieu-nha-198250626075457788.htm",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-07-21T13:25:17.345232"
+      }
+    ],
+    "crawl_status": "success",
+    "error_message": "",
+    "crawl_duration": 279.382765,
+    "crawl_timestamp": "2025-07-21T13:25:31.607117",
+    "retry_count": 0
+  }
+}

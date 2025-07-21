@@ -1,0 +1,44 @@
+{
+  "cache_version": "1.0",
+  "created_at": "2025-07-21T13:15:19.071082",
+  "ttl_hours": 8,
+  "crawl_status": "success",
+  "data": {
+    "source_name": "ALOBACSI",
+    "source_type": "Website",
+    "url": "alobacsi.com",
+    "articles_found": [
+      {
+        "stt": 1,
+        "ngay_phat_hanh": "2025-06-21",
+        "dau_bao": "ALOBACSI",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Dầu thực vật có thực sự tốt? - AloBacsi",
+        "tom_tat_noi_dung": "Bài viết thảo luận về lợi ích của dầu thực vật trong chế độ ăn uống, nhấn mạnh khuyến nghị sử dụng 25ml dầu/người/ngày để đảm bảo sức khỏe. Tác giả đã đề cập đến những nghiên cứu gần đây cho thấy dầu thực vật cung cấp nhiều axit béo không bão hòa cần thiết cho cơ thể.",
+        "link_bai_bao": "https://alobacsi.com/dau-thuc-vat-co-thuc-su-tot.html",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-07-21T13:15:05.678108"
+      },
+      {
+        "stt": 2,
+        "ngay_phat_hanh": "2025-07-10",
+        "dau_bao": "ALOBACSI",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Dầu thực vật mang \"cơn bão\" độc tố có thể gây ung thư? - AloBacsi",
+        "tom_tat_noi_dung": "Bài viết bàn luận về nguy cơ tiềm tàng từ việc sử dụng dầu thực vật chế biến từ nguyên liệu kém chất lượng. Các chuyên gia dinh dưỡng nhấn mạnh tầm quan trọng của việc lựa chọn dầu thực vật an toàn và chất lượng nhằm bảo vệ sức khỏe, tránh các loại ung thư có thể xảy ra do độc tố.",
+        "link_bai_bao": "https://alobacsi.com/dau-thuc-vat-mang-con-bao-doc-to-co-the-gay-ung-thu.html",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-07-21T13:15:05.678108"
+      }
+    ],
+    "crawl_status": "success",
+    "error_message": "",
+    "crawl_duration": 330.666113,
+    "crawl_timestamp": "2025-07-21T13:15:19.069404",
+    "retry_count": 0
+  }
+}

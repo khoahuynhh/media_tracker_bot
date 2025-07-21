@@ -1,0 +1,31 @@
+{
+  "cache_version": "1.0",
+  "created_at": "2025-07-21T13:29:09.417540",
+  "ttl_hours": 8,
+  "crawl_status": "success",
+  "data": {
+    "source_name": "DOANHNHANSAIGON",
+    "source_type": "Website",
+    "url": "doanhnhansaigon.vn",
+    "articles_found": [
+      {
+        "stt": 1,
+        "ngay_phat_hanh": "2025-06-26",
+        "dau_bao": "DOANHNHANSAIGON",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Sẽ kiểm tra diện rộng các cơ sở sản xuất dầu ăn",
+        "tom_tat_noi_dung": "Bài viết thông báo về việc sẽ tiến hành kiểm tra diện rộng các cơ sở sản xuất dầu ăn trên cả nước. Đặc biệt, cơ quan chức năng sẽ tập trung vào các cơ sở sản xuất dầu thực vật, đảm bảo các sản phẩm đạt tiêu chuẩn chất lượng và an toàn thực phẩm, góp phần bảo vệ sức khoẻ người tiêu dùng.",
+        "link_bai_bao": "https://doanhnhansaigon.vn/se-kiem-tra-dien-rong-cac-co-so-san-xuat-dau-an-319342.html",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-07-21T13:28:40.038796"
+      }
+    ],
+    "crawl_status": "success",
+    "error_message": "",
+    "crawl_duration": 217.700437,
+    "crawl_timestamp": "2025-07-21T13:29:09.416519",
+    "retry_count": 0
+  }
+}

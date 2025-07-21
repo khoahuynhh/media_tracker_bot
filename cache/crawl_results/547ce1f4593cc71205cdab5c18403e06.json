@@ -1,0 +1,44 @@
+{
+  "cache_version": "1.0",
+  "created_at": "2025-07-21T13:20:52.065791",
+  "ttl_hours": 8,
+  "crawl_status": "success",
+  "data": {
+    "source_name": "NGOISAONET",
+    "source_type": "Website",
+    "url": "ngoisao.vnexpress.net",
+    "articles_found": [
+      {
+        "stt": 2,
+        "ngay_phat_hanh": "2025-06-26",
+        "dau_bao": "NGOISAONET",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Mối nguy hại khi ăn thực phẩm chế biến bằng dầu chân nuôi",
+        "tom_tat_noi_dung": "Bài báo cảnh báo về những nguy cơ sức khỏe khi tiêu dùng thực phẩm chế biến bằng dầu chân nuôi. Các phương pháp sản xuất và ảnh hưởng đối với chất lượng dinh dưỡng là những vấn đề chính được nêu ra.",
+        "link_bai_bao": "https://ngoisao.vnexpress.net/moi-nguy-hai-khi-an-thuc-pham-che-bien-bang-dau-chan-nuoi-4906593.html",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-07-21T13:20:19.809722"
+      },
+      {
+        "stt": 3,
+        "ngay_phat_hanh": "2025-06-25",
+        "dau_bao": "NGOISAONET",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Dầu ăn chân nuôi được 'phù phép' thành thực phẩm cho người",
+        "tom_tat_noi_dung": "Bài viết đề cập đến việc dầu ăn chân nuôi được sử dụng trong chế biến thức ăn cho con người, cũng như những tác động tiêu cực đến sức khỏe, chẳng hạn như nguy cơ ung thư và suy gan. Các chuyên gia khuyến cáo nên lưu ý về nguồn gốc của dầu ăn.",
+        "link_bai_bao": "https://ngoisao.vnexpress.net/hang-chuc-nghin-tan-dau-an-chan-nuoi-bi-bien-thanh-thuc-pham-cho-nguoi-4906125.html",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-07-21T13:20:19.809722"
+      }
+    ],
+    "crawl_status": "success",
+    "error_message": "",
+    "crawl_duration": 322.673541,
+    "crawl_timestamp": "2025-07-21T13:20:52.065791",
+    "retry_count": 0
+  }
+}

@@ -35,6 +35,7 @@ logging.basicConfig(
 )
 
 # Import modules
+from .tasks import run_pipeline_task
 from .models import CrawlConfig, create_sample_report, UserLogin, USER_DB
 from .configs import settings
 from .services import (

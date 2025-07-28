@@ -1,0 +1,122 @@
+{
+  "cache_version": "1.0",
+  "created_at": "2025-07-27T16:24:04.955155",
+  "ttl_hours": 8,
+  "crawl_status": "success",
+  "data": {
+    "source_name": "TRETHO",
+    "source_type": "Website",
+    "url": "webtretho.com",
+    "articles_found": [
+      {
+        "stt": 1,
+        "ngay_phat_hanh": "2025-07-27",
+        "dau_bao": "TRETHO",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "DẦU THỰC VẬT - MAMA COOKING OIL - Webtretho",
+        "tom_tat_noi_dung": "\"MAMA COOKING OIL\" hứa hẹn mang lại sự ngon miệng và dinh dưỡng cho bữa ăn của bạn, nhờ vào sự chọn lựa kỹ lưỡng của nguồn nguyên liệu.",
+        "link_bai_bao": "https://www.webtretho.com/f/mua-gi-o-dau/dau-thuc-vat-mama-cooking-oil",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-07-27T16:21:50.197695"
+      },
+      {
+        "stt": 2,
+        "ngay_phat_hanh": "2025-07-27",
+        "dau_bao": "TRETHO",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Bí quyết chọn đúng loại dầu ăn để nấu nướng an toàn cho sức khỏe",
+        "tom_tat_noi_dung": "Bài viết chia sẻ 7 loại dầu ăn dinh dưỡng với giá cả hợp lý, gợi ý để mọi người có thể sử dụng hàng ngày mà không lo lắng về sức khỏe.",
+        "link_bai_bao": "https://www.webtretho.com/f/an-de-khoe-dep/bi-quyet-chon-dung-loai-dau-an-de-nau-nuong-an-toan-cho-suc-khoe",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-07-27T16:21:50.198698"
+      },
+      {
+        "stt": 1,
+        "ngay_phat_hanh": "2025-07-27",
+        "dau_bao": "TRETHO",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Dùng dầu thực vật thế nào thì tốt? - Webtretho",
+        "tom_tat_noi_dung": "Bài viết thảo luận về các loại dầu thực vật và lợi ích của từng loại đối với sức khỏe. Đặc biệt nhấn mạnh dầu mỡ và dầu đậu nành là tốt cho sự phát triển của trẻ nhỏ, cùng với các chất dinh dưỡng khác có trong chúng.",
+        "link_bai_bao": "https://www.webtretho.com/f/nguyen-lieu-nau-nuong/dung-dau-thuc-vat-the-nao-thi-tot-2258447",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-07-27T16:22:31.196805"
+      },
+      {
+        "stt": 4,
+        "ngay_phat_hanh": "2025-07-27",
+        "dau_bao": "TRETHO",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Phát hiện gây sốc: Dầu ăn có khi còn độc hại hơn mỡ lợn - Webtretho",
+        "tom_tat_noi_dung": "Nghiên cứu cho thấy dầu ăn chế biến sẵn có thể chứa chất độc hại, cảnh báo người tiêu dùng về việc lựa chọn và sử dụng dầu trong nấu ăn hàng ngày.",
+        "link_bai_bao": "https://www.webtretho.com/f/meo-hay-suc-khoe-va-doi-song/phat-hien-gay-soc-dau-an-co-khi-con-doc-hai-hon-mo-lon-2148824",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-07-27T16:21:50.198698"
+      },
+      {
+        "stt": 2,
+        "ngay_phat_hanh": "2025-07-27",
+        "dau_bao": "TRETHO",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Vì sao chị em phụ nữ nên chọn dầu Olein và dầu nành? - Webtretho",
+        "tom_tat_noi_dung": "Bài viết khuyên phụ nữ nên chọn dầu Olein và dầu nành vì những chất bảo vệ sức khỏe và làm giảm quá trình lão hóa. Dầu nành cung cấp chất béo có lợi cho cơ thể, giúp duy trì sức khỏe và sắc đẹp.",
+        "link_bai_bao": "https://www.webtretho.com/f/cafe-webtretho/vi-sao-chi-em-phu-nu-nen-chon-dau-olein-va-dau-nanh-2286998",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-07-27T16:22:31.197798"
+      },
+      {
+        "stt": 3,
+        "ngay_phat_hanh": "2025-07-27",
+        "dau_bao": "TRETHO",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Sự thật về loại dầu ăn đắt gấp 10 và độc gấp 200 lần - Webtretho",
+        "tom_tat_noi_dung": "Bài viết để cập đến những loại dầu ăn phổ biến trên thị trường và chỉ ra những nguy cơ sức khỏe tiềm ẩn từ một số loại dầu chế biến kém chất lượng. Nhấn mạnh cần lưu ý khi chọn lựa dầu ăn hàng ngày.",
+        "link_bai_bao": "https://www.webtretho.com/f/meo-hay-suc-khoe-va-doi-song/su-that-ve-loai-dau-an-dat-gap-10-va-doc-gap-200-lan-2160797",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-07-27T16:22:31.197798"
+      },
+      {
+        "stt": 4,
+        "ngay_phat_hanh": "2025-07-27",
+        "dau_bao": "TRETHO",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Dầu ăn hướng dương nhập khẩu từ nga \"kubanochka\". - Webtretho",
+        "tom_tat_noi_dung": "Bài viết giới thiệu về sản phẩm dầu hướng dương nhập khẩu từ Nga, nhấn mạnh tính an toàn và lợi ích sức khỏe của dầu này. Nó cung cấp thông tin về nguồn gốc và quy trình sản xuất dầu hướng dương chất lượng cao.",
+        "link_bai_bao": "https://www.webtretho.com/f/mua-gi-o-dau/dau-an-huong-duong-nhap-khau-tu-nga-kubanochka-2370850",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-07-27T16:22:31.197798"
+      },
+      {
+        "stt": 5,
+        "ngay_phat_hanh": "2025-07-27",
+        "dau_bao": "TRETHO",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Kinh nghiệm dùng dầu ăn hướng dương - Webtretho",
+        "tom_tat_noi_dung": "Bài viết chia sẻ kinh nghiệm cá nhân về việc sử dụng dầu hướng dương trong nấu ăn và các món ăn ngon tốt cho sức khỏe. Chất dinh dưỡng có trong dầu được nhấn mạnh trong các món ăn gia đình.",
+        "link_bai_bao": "https://www.webtretho.com/f/bua-com-gia-dinh/kinh-nghiem-dung-dau-an-huong-duong-2063987",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-07-27T16:22:31.197798"
+      }
+    ],
+    "crawl_status": "success",
+    "error_message": "",
+    "crawl_duration": 250.973809,
+    "crawl_timestamp": "2025-07-27T16:24:04.955155",
+    "retry_count": 0
+  }
+}

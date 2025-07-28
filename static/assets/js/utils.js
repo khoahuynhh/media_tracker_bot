@@ -12,7 +12,7 @@ function debounce(func, wait) {
 }
 
 function generateSessionId() {
-    return 'session_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+    return 'sess-' + Date.now() + '-' + Math.floor(Math.random() * 100000);
 }
 
 function showAlert(type, title, message) {

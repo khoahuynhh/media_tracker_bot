@@ -1,19 +1,16 @@
 # src/main.py
 """
 Main entry point for the Media Tracker Bot.
-Phiên bản này đã được điều chỉnh để tương thích ngược với file index.html gốc,
-bằng cách thêm lại các API endpoint đã được refactor trước đó.
 """
 
 import logging
 import os
-import uuid
 import json
 import sys
 import asyncio
 import uvicorn
 
-from fastapi import FastAPI, Request, HTTPException, BackgroundTasks, Depends, status
+from fastapi import FastAPI, Request, HTTPException, Depends, status
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -35,8 +32,14 @@ logging.basicConfig(
 )
 
 # Import modules
-from .tasks import run_pipeline_task
-from .models import CrawlConfig, create_sample_report, UserLogin, USER_DB
+from .task_state import task_manager
+from .models import (
+    CrawlConfig,
+    CompetitorReport,
+    create_sample_report,
+    UserLogin,
+    USER_DB,
+)
 from .configs import settings
 from .services import (
     PipelineService,
@@ -133,88 +136,26 @@ async def get_frontend():
     )
 
 
-@app.get("/api/status")
-async def get_status(current_user: str = Depends(get_current_user)):
-    """Get the current status of the bot and any running pipeline."""
-    pipeline_service = get_pipeline_for_user(current_user)
-    status = pipeline_service.get_status()
-    return JSONResponse(content=status)
-
-
 @app.post("/api/run")
 async def run_pipeline_endpoint(
-    background_tasks: BackgroundTasks,
     request: Request,
     current_user: str = Depends(get_current_user),
 ):
-    # current_user is login email
-    print(f"Pipeline của user: {current_user}")
+    data = await request.json()
     pipeline_service = get_pipeline_for_user(current_user)
-    """Start a new media tracking pipeline run in the background."""
-    if pipeline_service.is_running:
-        raise HTTPException(
-            status_code=409,
-            detail=f"A pipeline is already running with session ID: {pipeline_service.current_session_id}",
-        )
 
-    try:
-        data = await request.json()
-        logger.info(f"[RUN] 🔍 Received data from FE: {data}")
-    except json.JSONDecodeError:
-        data = {}
+    session_id = data.get("session_id")  # Nhận session_id từ FE
+    logger.info(f"✅ [API] /api/run nhận session_id={session_id}, user={current_user}")
 
-    session_id = data.get("session_id", str(uuid.uuid4()))
-
-    background_tasks.add_task(
-        pipeline_service.run_pipeline,
+    # Call celery task
+    pipeline_service.run_background_task(
         session_id=session_id,
-        user_email=current_user,
         start_date=data.get("start_date"),
         end_date=data.get("end_date"),
         custom_keywords=data.get("custom_keywords"),
     )
-    return JSONResponse(
-        content={
-            "message": "Pipeline started in background.",
-            "session_id": session_id,
-        },
-        status_code=202,
-    )
 
-
-@app.post("/api/stop")
-async def stop_pipeline_endpoint(
-    request: Request, current_user: str = Depends(get_current_user)
-):
-    """Request to stop the currently running pipeline."""
-    pipeline_service = get_pipeline_for_user(current_user)
-    if not pipeline_service.is_running:
-        raise HTTPException(status_code=400, detail="No pipeline is currently running.")
-
-    try:
-        data = await request.json()
-        session_id = data.get("session_id")
-        if not session_id or session_id != pipeline_service.current_session_id:
-            raise HTTPException(
-                status_code=400,
-                detail="Invalid or missing session_id for active pipeline.",
-            )
-    except (json.JSONDecodeError, KeyError):
-        raise HTTPException(
-            status_code=400,
-            detail="Request body must be a JSON object with a 'session_id' key.",
-        )
-
-    success = pipeline_service.stop_pipeline(session_id)
-    if success:
-        return JSONResponse(content={"message": "Pipeline stop requested."})
-    else:
-        raise HTTPException(status_code=500, detail="Failed to request pipeline stop.")
-
-
-from fastapi.responses import JSONResponse
-import json
-from .models import CompetitorReport
+    return {"message": "Task started", "session_id": session_id}
 
 
 @app.get("/api/reports/latest")
@@ -413,7 +354,6 @@ def list_all_reports(current_user: str = Depends(get_current_user)):
                 "generated_at": generated_at,
             }
         )
-
     return result
 
 
@@ -431,18 +371,30 @@ def download_named_report(filename: str, current_user: str = Depends(get_current
     )
 
 
-@app.post("/api/pause")
-async def pause_pipeline(current_user: str = Depends(get_current_user)):
-    pipeline = get_pipeline_for_user(current_user)
-    pipeline.pause_pipeline()
-    return {"message": "Pipeline paused"}
+# --- API for tasks ---
+@app.get("/api/tasks")
+def get_user_tasks(current_user: str = Depends(get_current_user)):
+    return task_manager.get_tasks(current_user)
 
 
-@app.post("/api/resume")
-async def resume_pipeline(current_user: str = Depends(get_current_user)):
-    pipeline = get_pipeline_for_user(current_user)
-    pipeline.resume_pipeline()  # async nếu resume lại quá trình
-    return {"message": "Pipeline resumed"}
+@app.post("/api/tasks/{session_id}/pause")
+def pause_task(session_id: str, current_user: str = Depends(get_current_user)):
+    task_manager.update_task(current_user, session_id, {"status": "paused"})
+    return {"message": "Task paused"}
+
+
+@app.post("/api/tasks/{session_id}/resume")
+async def resume_task(session_id: str, current_user: str = Depends(get_current_user)):
+    pipeline_service = get_pipeline_for_user(current_user)
+    task_manager.update_task(current_user, session_id, {"status": "running"})
+    pipeline_service.resume_task_worker(session_id)
+    return {"message": "Task resumed and worker restarted"}
+
+
+@app.post("/api/tasks/{session_id}/cancel")
+def cancel_task(session_id: str, current_user: str = Depends(get_current_user)):
+    task_manager.update_task(current_user, session_id, {"status": "cancelled"})
+    return {"message": "Task cancelled"}
 
 
 if __name__ == "__main__":

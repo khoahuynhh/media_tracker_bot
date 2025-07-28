@@ -1,7 +1,4 @@
 import json
-import threading
-import time
-from datetime import datetime
 from pathlib import Path
 
 
@@ -18,6 +15,12 @@ class TaskManager:
     def get_tasks(self, user_email):
         return self.tasks.get(user_email, [])
 
+    def get_task_status(self, user_email, session_id):
+        for task in self.get_tasks(user_email):
+            if task["session_id"] == session_id:
+                return task["status"]
+        return None
+
     def update_task(self, user_email, session_id, updates):
         for task in self.tasks.get(user_email, []):
             if task["session_id"] == session_id:
@@ -28,6 +31,13 @@ class TaskManager:
         if self.storage_path.exists():
             with open(self.storage_path, "r", encoding="utf-8") as f:
                 self.tasks = json.load(f)
+
+            # Khi restart, giữ lại paused/completed, các trạng thái khác chuyển thành paused để resume được
+            for user_tasks in self.tasks.values():
+                for task in user_tasks:
+                    if task["status"] in ["running", "pending"]:
+                        task["status"] = "paused"
+                        task["current_task"] = "Restarting system"
 
     def save_tasks(self):
         with open(self.storage_path, "w", encoding="utf-8") as f:

@@ -1,0 +1,83 @@
+{
+  "cache_version": "1.0",
+  "created_at": "2025-07-24T16:34:38.905530",
+  "ttl_hours": 8,
+  "crawl_status": "success",
+  "data": {
+    "source_name": "SOHA",
+    "source_type": "Website",
+    "url": "soha.vn",
+    "articles_found": [
+      {
+        "stt": 1,
+        "ngay_phat_hanh": "2025-06-26",
+        "dau_bao": "SOHA",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Bộ Công Thương sẽ kiểm tra diện rộng các cơ sở sản xuất dầu ăn",
+        "tom_tat_noi_dung": "Bộ Công Thương sẽ tiến hành kiểm tra các cơ sở sản xuất dầu ăn nhằm xử lý vi phạm và bảo vệ người tiêu dùng. Động thái này xuất phát từ lo ngại về chất lượng và vệ sinh an toàn thực phẩm của các sản phẩm dầu ăn trên thị trường.",
+        "link_bai_bao": "https://soha.vn/bo-cong-thuong-se-kiem-tra-dien-rong-cac-co-so-san-xuat-dau-an-198250626170004938.htm",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-07-24T16:34:23.619829"
+      },
+      {
+        "stt": 2,
+        "ngay_phat_hanh": "2025-06-25",
+        "dau_bao": "SOHA",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Cần cảnh giác dây chuyền \"hô biến\" dầu dùng cho thực ăn chăn nuôi ...",
+        "tom_tat_noi_dung": "Bài viết cảnh báo về các loại dầu ăn của Công ty Nhật Minh Food, đặc biệt là sản phẩm Ofood Cooking Oil, sau khi phát hiện hàng giả và kém chất lượng. Điều này ảnh hưởng nghiêm trọng đến an toàn thực phẩm và sức khỏe người tiêu dùng.",
+        "link_bai_bao": "https://soha.vn/can-canh-day-chuyen-ho-bien-dau-dung-cho-thuc-an-chan-nuoi-thanh-dau-an-cho-nguoi-tai-cong-ty-nhat-minh-food-198250624230726198.htm",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-07-24T16:34:23.619829"
+      },
+      {
+        "stt": 3,
+        "ngay_phat_hanh": "2025-06-26",
+        "dau_bao": "SOHA",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Thông tin mới vụ 'hô biến' dầu ăn chăn nuôi thành thực phẩm cho ...",
+        "tom_tat_noi_dung": "Sự việc liên quan đến dầu thực vật bị chuyển đổi không đúng tiêu chuẩn vệ sinh an toàn thực phẩm khiến người tiêu dùng lo ngại. Bài viết cũng cung cấp thông tin về các chính sách xử lý những vi phạm nghiêm trọng này.",
+        "link_bai_bao": "https://soha.vn/thong-tin-moi-vu-ho-bien-dau-an-chan-nuoi-thanh-thuc-pham-cho-nguoi-198250626160857003.htm",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-07-24T16:34:23.620856"
+      },
+      {
+        "stt": 4,
+        "ngay_phat_hanh": "2025-06-25",
+        "dau_bao": "SOHA",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Kinh hoàng dầu dùng cho thực ăn chăn nuôi nhưng lại được biến ...",
+        "tom_tat_noi_dung": "Bài viết phanh phui sự thật về các đối tượng đã bán các sản phẩm dầu thực vật không đảm bảo chất lượng cho người tiêu dùng. Việc này không chỉ ảnh hưởng đến an toàn thực phẩm mà còn tạo ra mối đe dọa cho sức khỏe xã hội.",
+        "link_bai_bao": "https://soha.vn/kinh-hoang-dau-dung-cho-thuc-an-chan-nuoi-nhung-lai-duoc-bien-thanh-dau-an-cho-nguoi-198250624231235219.htm",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-07-24T16:34:23.620856"
+      },
+      {
+        "stt": 5,
+        "ngay_phat_hanh": "2025-06-26",
+        "dau_bao": "SOHA",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Hàng chục nghìn tấn dầu ăn làm từ thức ăn chăn nuôi - SOHA",
+        "tom_tat_noi_dung": "Bộ Công Thương xác nhận dầu ăn Ofood sản xuất từ dầu thực vật dùng cho thức ăn chăn nuôi là một vi phạm nghiêm trọng trong công tác đảm bảo an toàn thực phẩm, dẫn đến việc hàng triệu người tiêu dùng có thể bị ảnh hưởng.",
+        "link_bai_bao": "https://soha.vn/hang-chuc-nghin-tan-dau-an-lam-tu-thuc-an-chan-nuoi-bo-cong-thuong-thong-tin-198250626154328133.htm",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-07-24T16:34:23.620856"
+      }
+    ],
+    "crawl_status": "success",
+    "error_message": "",
+    "crawl_duration": 176.813159,
+    "crawl_timestamp": "2025-07-24T16:34:38.905530",
+    "retry_count": 0
+  }
+}

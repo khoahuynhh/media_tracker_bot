@@ -8,9 +8,9 @@ It decouples the API (main.py) from the agents.
 import asyncio
 import shutil
 import logging
-import threading
 import re
 import pandas as pd
+import traceback
 from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional, DefaultDict
 from collections import defaultdict
@@ -24,6 +24,7 @@ from openpyxl.styles import Alignment
 from .models import CompetitorReport, BotStatus, MediaType, Article
 from .agents import MediaTrackerTeam
 from .configs import AppSettings
+from .task_state import task_manager
 
 logger = logging.getLogger(__name__)
 
@@ -49,20 +50,17 @@ def get_current_user(token: str = Depends(oauth2_scheme)) -> str:
 
 class PipelineService:
     """
-    Manages the execution and state of the media tracking pipeline.
+    Core pipeline logic for media tracking. This function handles crawling and report generation.
+    It is intended to be called by background task workers.
     """
 
     def __init__(self, app_settings: AppSettings, user_email: str):
         self.settings = app_settings
         self.team: Optional[MediaTrackerTeam] = None
-        self.is_running = False
-        self.pause_event = threading.Event()
-        self.current_session_id: Optional[str] = None
-        self.stop_event = threading.Event()
         self.status_by_source = {}
         self.user_email = user_email
 
-    async def run_pipeline(
+    async def run_pipeline_logic(
         self,
         session_id: str,
         user_email: str,
@@ -70,121 +68,280 @@ class PipelineService:
         end_date: Optional[str] = None,
         custom_keywords: Optional[Dict[str, List[str]]] = None,
     ) -> Optional[CompetitorReport]:
-        """
-        Runs the full tracking pipeline for a given session.
-        """
-        if self.is_running:
-            logger.warning(
-                f"Attempted to run pipeline for session {session_id}, but a pipeline is already running for session {self.current_session_id}."
-            )
-            return None
-
-        self.is_running = True
+        logger.info(f"[{session_id}] Starting media tracking pipeline...")
         self.current_session_id = session_id
-        self.stop_event.clear()
 
-        try:
-            logger.info(f"[{session_id}] Starting media tracking pipeline...")
+        session_config = self.settings.crawl_config.model_copy(deep=True)
+        session_config.media_sources = self.settings.crawl_config.media_sources.copy()
 
-            session_config = self.settings.crawl_config.model_copy(deep=True)
-            website_sources = [
-                source
-                for source in session_config.media_sources
-                if source.type == MediaType.WEBSITE
-            ]
-            session_config.media_sources = website_sources
+        if custom_keywords:
+            session_config.keywords = custom_keywords
 
-            if custom_keywords:
-                session_config.keywords = custom_keywords
-            if start_date and end_date:
-                try:
-                    start_dt = datetime.strptime(start_date, "%Y-%m-%d")
-                    end_dt = datetime.strptime(end_date, "%Y-%m-%d")
-                    session_config.date_range_days = (end_dt - start_dt).days
-                except ValueError:
-                    logger.error(
-                        f"[{session_id}] Invalid date format. Using default date range."
-                    )
-
-            self.pause_event.clear()
-            self.team = MediaTrackerTeam(
-                config=session_config,
-                stop_event=self.stop_event,
-                start_date=start_dt,
-                end_date=end_dt,
-                pause_event=self.pause_event,
-            )
-
-            report = await asyncio.wait_for(
-                self.team.run_full_pipeline(),
-                timeout=self.settings.crawl_config.total_pipeline_timeout,
-            )
-
-            if report:
-                await self._save_report(report, user_email=user_email)
-                logger.info(f"[{session_id}] Pipeline completed successfully.")
-            else:
-                logger.warning(
-                    f"[{session_id}] Pipeline finished without generating a report."
+        if start_date and end_date:
+            try:
+                start_dt = datetime.strptime(start_date, "%Y-%m-%d")
+                end_dt = datetime.strptime(end_date, "%Y-%m-%d")
+                session_config.date_range_days = (end_dt - start_dt).days
+            except ValueError:
+                logger.error(
+                    f"[{session_id}] Invalid date format. Using default date range."
                 )
+                start_dt = None
+                end_dt = None
+        else:
+            start_dt = None
+            end_dt = None
 
-            return report
+        # Lấy lại task hiện tại
+        tasks = task_manager.get_tasks(user_email)
+        task = next((t for t in tasks if t["session_id"] == session_id), None)
+        articles_so_far = [Article(**a) for a in task.get("articles_so_far", [])]
+
+        self.team = MediaTrackerTeam(
+            config=session_config,
+            start_date=start_dt,
+            end_date=end_dt,
+            session_id=session_id,
+            user_email=user_email,
+            on_progress_update=self._update_task_progress,
+            check_cancelled=self.is_cancelled,
+            check_paused=self.should_pause,
+            articles_so_far=articles_so_far,
+            source_status_list=task.get("source_status_list", []),
+        )
+
+        report = await asyncio.wait_for(
+            self.team.run_full_pipeline(),
+            timeout=self.settings.crawl_config.total_pipeline_timeout,
+        )
+
+        if report:
+            await self._save_report(report, user_email)
+            logger.info(f"[{session_id}] Pipeline completed successfully.")
+        else:
+            logger.warning(
+                f"[{session_id}] Pipeline finished without generating a report."
+            )
+        return report
+
+    def is_cancelled(self):
+        tasks = task_manager.get_tasks(self.user_email)
+        task = next(
+            (t for t in tasks if t["session_id"] == self.current_session_id), None
+        )
+        return task and task["status"] == "cancelled"
+
+    def should_pause(self):
+        tasks = task_manager.get_tasks(self.user_email)
+        task = next(
+            (t for t in tasks if t["session_id"] == self.current_session_id), None
+        )
+        return task and task["status"] == "paused"
+
+    def resume_task_worker(self, session_id):
+        logger.info(f"[{session_id}] Resuming pipeline execution (resume_task_worker)")
+        asyncio.create_task(self._task_worker(session_id))
+
+    def _update_task_progress(
+        self, source_name, completed, failed, progress, current_task
+    ):
+        all_sources = [s.name for s in self.settings.crawl_config.media_sources]
+
+        current_tasks = task_manager.get_tasks(self.user_email)
+        task = next(
+            (t for t in current_tasks if t["session_id"] == self.current_session_id),
+            None,
+        )
+
+        if task.get("status") not in ["pending", "running"]:
+            return
+
+        if task:
+            # Lấy danh sách source đã completed từ team
+
+            completed_or_failed = [
+                s["source_name"]
+                for s in self.team.source_status_list
+                if s["status"] in ("completed", "failed")
+            ]
+
+            remaining = [s for s in all_sources if s not in completed_or_failed]
+
+            task_manager.update_task(
+                self.user_email,
+                self.current_session_id,
+                {
+                    "current_source": source_name,
+                    "completed_sources": completed,
+                    "failed_sources": failed,
+                    "progress": progress,
+                    "current_task": current_task,
+                    "status": "running",
+                    "remaining_sources": remaining,
+                    "source_status_list": self.team.source_status_list,  # Lưu luôn vào task
+                },
+            )
+
+    async def retry_task_worker(app_settings, user_email, session_id):
+        new_service = PipelineService(app_settings, user_email)
+        await new_service._task_worker(session_id)
+
+    async def _task_worker(self, session_id):
+        tasks = task_manager.get_tasks(self.user_email)
+        task = next((t for t in tasks if t["session_id"] == session_id), None)
+
+        if not task:
+            logger.info(f"[{session_id}] Task not found, stopping worker.")
+            return
+
+        status = task["status"]
+
+        if status == "paused":
+            logger.info(f"[{session_id}] Task is paused. Waiting to resume...")
+            # Đợi cho đến khi không còn paused
+            while True:
+                current_status = task_manager.get_task_status(
+                    self.user_email, session_id
+                )
+                if current_status == "paused":
+                    await asyncio.sleep(2)
+                elif current_status == "cancelled":
+                    logger.info(
+                        f"[{session_id}] Task was cancelled while paused. Exiting."
+                    )
+                    return  # 👉 Dừng ngay, không tiếp tục
+                else:
+                    break  # Resume hợp lệ
+            logger.info(
+                f"[{session_id}] Resumed. Checking if cancelled before proceeding..."
+            )
+
+        # Kiểm tra lại trạng thái trước khi tiếp tục
+        current_status = task_manager.get_task_status(self.user_email, session_id)
+        if current_status == "cancelled":
+            logger.info(f"[{session_id}] Task is cancelled. Exiting worker.")
+            return
+
+        if current_status == "pending":
+            logger.info(f"[{session_id}] Task is pending. Preparing pipeline setup...")
+            task_manager.update_task(
+                self.user_email,
+                session_id,
+                {
+                    "status": "pending",
+                    "current_task": "Preparing tools and resources...",
+                    "progress": 0.0,
+                },
+            )
+            await asyncio.sleep(5)  # Cho FE thấy trạng thái pending
+
+            # Kiểm tra lại trạng thái trước khi chuyển sang running
+            current_status = task_manager.get_task_status(self.user_email, session_id)
+            if current_status == "cancelled":
+                logger.info(
+                    f"[{session_id}] Task was cancelled during pending. Exiting."
+                )
+                return
+
+            task_manager.update_task(
+                self.user_email,
+                session_id,
+                {
+                    "status": "running",
+                    "current_task": "Crawling... please wait.",
+                    "progress": 0.0,
+                },
+            )
+
+        # Bắt đầu pipeline thực sự
+        try:
+            logger.info(f"[{session_id}] Starting pipeline execution.")
+            params = task["params"]
+
+            await self.run_pipeline_logic(
+                session_id,
+                self.user_email,
+                start_date=params["start_date"],
+                end_date=params["end_date"],
+                custom_keywords=params["custom_keywords"],
+            )
+            task_manager.update_task(
+                self.user_email, session_id, {"status": "completed", "progress": 100.0}
+            )
+
+        except asyncio.CancelledError:
+            logger.warning(f"[{session_id}] ⚠️ Task forcefully cancelled.")
+            task_manager.update_task(
+                self.user_email,
+                session_id,
+                {
+                    "status": "cancelled",
+                    "current_task": "Pipeline was cancelled",
+                },
+            )
 
         except Exception as e:
             logger.error(
-                f"[{session_id}] Pipeline failed with an unhandled exception: {e}",
-                exc_info=True,
+                f"[{session_id}] Pipeline failed: {e}\n{traceback.format_exc()}"
             )
-            if self.team:
-                self.team.status.current_task = f"Failed: {e}"
-            return None
-        finally:
-            self.is_running = False
-            self.current_session_id = None
-            if self.team:
-                self.team.status.is_running = False
-            self.team.cleanup()
+            task["retry_count"] += 1
+            if task["retry_count"] < task["max_retries"]:
+                logger.info(
+                    f"[{session_id}] Retry {task['retry_count']} / {task['max_retries']}"
+                )
+                task_manager.update_task(
+                    self.user_email,
+                    session_id,
+                    {
+                        "status": "pending",
+                        "current_source": None,
+                        "progress": 0.0,
+                        "current_task": "Chuẩn bị retry sau lỗi",
+                    },
+                )
+                await asyncio.sleep(5)
+                asyncio.create_task(
+                    self._task_worker(session_id)
+                )  # Tự gọi lại để retry
+            else:
+                task_manager.update_task(
+                    self.user_email, session_id, {"status": "failed", "error": str(e)}
+                )
 
-    def pause_pipeline(self):
-        if self.is_running and not self.pause_event.is_set():
-            self.pause_event.set()
-            logger.info("⏸ Pipeline paused.")
+    def run_background_task(
+        self, session_id, start_date=None, end_date=None, custom_keywords=None
+    ):
+        task_data = {
+            "session_id": session_id,
+            "status": "pending",
+            "start_time": datetime.now().isoformat(),
+            "progress": 0.0,
+            "retry_count": 0,
+            "max_retries": 2,
+            # Thông tin cần cho dashboard
+            "params": {
+                "start_date": start_date,
+                "end_date": end_date,
+                "custom_keywords": custom_keywords,
+            },
+            "current_source": None,
+            "total_sources": len(self.settings.crawl_config.media_sources),
+            "completed_sources": 0,
+            "failed_sources": 0,
+            "current_task": "Khởi động pipeline",
+            "source_status_list": [],
+        }
 
-    def resume_pipeline(self):
-        if self.is_running and self.pause_event.is_set():
-            self.pause_event.clear()
-            logger.info("▶️ Pipeline resumed.")
+        task_manager.add_task(self.user_email, task_data)
 
-    def stop_pipeline(self, session_id: str) -> bool:
-        if self.is_running and self.current_session_id == session_id:
-            logger.info("Pipeline cancelled by user.")
-            self.stop_event.set()
-            self.is_running = False
-            self.is_paused = False
-            if self.team:
-                self.team.cleanup()
-            return True
-        return False
+        # Khởi chạy task async
+        asyncio.create_task(self._task_worker(session_id))
+
+        return session_id
 
     def get_status(self) -> Dict:
         """Gets the current status of the service and the running team."""
-        # SỬA LỖI: Luôn trả về một đối tượng BotStatus hợp lệ
-        if self.is_running and self.team:
-            team_status = self.team.get_status()
-        else:
-            # Nếu không chạy, tạo một đối tượng BotStatus mặc định
-            team_status = BotStatus(is_running=False, current_task="Idle")
-
-        status_data = {
-            "is_running": self.is_running,
-            "session_id": self.current_session_id,  # Đổi tên từ current_session_id
-            "team_status": team_status.model_dump(),
-            "api_keys": self.settings.get_api_key_status(),
-            "total_media_sources": len(self.settings.crawl_config.media_sources),
-            "is_Paused": self.pause_event.is_set(),
-        }
-
-        return status_data
+        return {"tasks": task_manager.get_tasks(self.user_email)}
 
     def _sanitize_user_name(self, username: str) -> str:
         """Trả về tên thư mục an toàn từ tên user."""

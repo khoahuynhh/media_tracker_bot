@@ -240,7 +240,7 @@ class CrawlConfig(BaseModel):
                 "max_articles_per_source": 50,
                 "crawl_timeout": 30,
                 "enable_parallel_crawling": True,
-                "max_concurrent_sources": 5,
+                "max_concurrent_sources": 3,
             }
         }
     )

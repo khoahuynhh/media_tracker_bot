@@ -1,0 +1,226 @@
+{
+  "overall_summary": {
+    "thoi_gian_trich_xuat": "2025-07-24",
+    "industries": [
+      {
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "cum_noi_dung": [
+          "Hoạt động doanh nghiệp và thông tin sản phẩm",
+          "An toàn thực phẩm",
+          "Khác"
+        ],
+        "so_luong_bai": 11,
+        "cac_dau_bao": [
+          "SOHA",
+          "TRETHO",
+          "PHUNU"
+        ]
+      }
+    ],
+    "cac_dau_bao": [
+      "SOHA",
+      "TRETHO",
+      "PHUNU"
+    ],
+    "tong_so_bai": 11
+  },
+  "industry_summaries": [
+    {
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "cum_noi_dung": [
+        "Hoạt động doanh nghiệp và thông tin sản phẩm",
+        "An toàn thực phẩm",
+        "Khác"
+      ],
+      "so_luong_bai": 11,
+      "cac_dau_bao": [
+        "SOHA",
+        "TRETHO",
+        "PHUNU"
+      ]
+    }
+  ],
+  "articles": [
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-06-26",
+      "dau_bao": "SOHA",
+      "cum_noi_dung": "Hoạt động doanh nghiệp và thông tin sản phẩm",
+      "cum_noi_dung_chi_tiet": "Bộ Công Thương kiểm tra dầu ăn bảo vệ người tiêu dùng",
+      "tom_tat_noi_dung": "Bộ Công Thương sẽ tiến hành kiểm tra các cơ sở sản xuất dầu ăn nhằm xử lý vi phạm và bảo vệ người tiêu dùng. Động thái này xuất phát từ lo ngại về chất lượng và vệ sinh an toàn thực phẩm của các sản phẩm dầu ăn trên thị trường.",
+      "link_bai_bao": "https://soha.vn/bo-cong-thuong-se-kiem-tra-dien-rong-cac-co-so-san-xuat-dau-an-198250626170004938.htm",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [
+        "dầu ăn",
+        "an toàn thực phẩm"
+      ],
+      "crawl_timestamp": "2025-07-24T23:32:30.758276"
+    },
+    {
+      "stt": 2,
+      "ngay_phat_hanh": "2025-06-25",
+      "dau_bao": "SOHA",
+      "cum_noi_dung": "An toàn thực phẩm",
+      "cum_noi_dung_chi_tiet": "Cảnh giác dầu ăn kém chất lượng từ Nhật Minh Food",
+      "tom_tat_noi_dung": "Bài viết cảnh báo về các loại dầu ăn của Công ty Nhật Minh Food, đặc biệt là sản phẩm Ofood Cooking Oil, sau khi phát hiện hàng giả và kém chất lượng. Điều này ảnh hưởng nghiêm trọng đến an toàn thực phẩm và sức khỏe người tiêu dùng.",
+      "link_bai_bao": "https://soha.vn/can-canh-day-chuyen-ho-bien-dau-dung-cho-thuc-an-chan-nuoi-thanh-dau-an-cho-nguoi-tai-cong-ty-nhat-minh-food-198250624230726198.htm",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [
+        "dầu ăn",
+        "an toàn thực phẩm"
+      ],
+      "crawl_timestamp": "2025-07-24T23:32:30.758276"
+    },
+    {
+      "stt": 3,
+      "ngay_phat_hanh": "2025-06-26",
+      "dau_bao": "SOHA",
+      "cum_noi_dung": "An toàn thực phẩm",
+      "cum_noi_dung_chi_tiet": "Vấn đề tiêu chuẩn vệ sinh trong dầu ăn chăn nuôi",
+      "tom_tat_noi_dung": "Sự việc liên quan đến dầu thực vật bị chuyển đổi không đúng tiêu chuẩn vệ sinh an toàn thực phẩm khiến người tiêu dùng lo ngại. Bài viết cũng cung cấp thông tin về các chính sách xử lý những vi phạm nghiêm trọng này.",
+      "link_bai_bao": "https://soha.vn/thong-tin-moi-vu-ho-bien-dau-an-chan-nuoi-thanh-thuc-pham-cho-nguoi-198250626160857003.htm",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [
+        "dầu ăn",
+        "an toàn thực phẩm"
+      ],
+      "crawl_timestamp": "2025-07-24T23:32:30.759276"
+    },
+    {
+      "stt": 4,
+      "ngay_phat_hanh": "2025-06-25",
+      "dau_bao": "SOHA",
+      "cum_noi_dung": "An toàn thực phẩm",
+      "cum_noi_dung_chi_tiet": "Lộ diện dầu thực vật không đảm bảo chất lượng",
+      "tom_tat_noi_dung": "Bài viết phanh phui sự thật về các đối tượng đã bán các sản phẩm dầu thực vật không đảm bảo chất lượng cho người tiêu dùng. Việc này không chỉ ảnh hưởng đến an toàn thực phẩm mà còn tạo ra mối đe dọa cho sức khỏe xã hội.",
+      "link_bai_bao": "https://soha.vn/kinh-hoang-dau-dung-cho-thuc-an-chan-nuoi-nhung-lai-duoc-bien-thanh-dau-an-cho-nguoi-198250624231235219.htm",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [
+        "dầu ăn",
+        "an toàn thực phẩm"
+      ],
+      "crawl_timestamp": "2025-07-24T23:32:30.759276"
+    },
+    {
+      "stt": 5,
+      "ngay_phat_hanh": "2025-06-26",
+      "dau_bao": "SOHA",
+      "cum_noi_dung": "An toàn thực phẩm",
+      "cum_noi_dung_chi_tiet": "Ofood dùng dầu chăn nuôi gây lo ngại cho ATTP",
+      "tom_tat_noi_dung": "Bộ Công Thương xác nhận dầu ăn Ofood sản xuất từ dầu thực vật dùng cho thức ăn chăn nuôi là một vi phạm nghiêm trọng trong công tác đảm bảo an toàn thực phẩm, dẫn đến việc hàng triệu người tiêu dùng có thể bị ảnh hưởng.",
+      "link_bai_bao": "https://soha.vn/hang-chuc-nghin-tan-dau-an-lam-tu-thuc-an-chan-nuoi-bo-cong-thuong-thong-tin-198250626154328133.htm",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [
+        "dầu ăn",
+        "an toàn thực phẩm"
+      ],
+      "crawl_timestamp": "2025-07-24T23:32:30.759276"
+    },
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-06-24",
+      "dau_bao": "TRETHO",
+      "cum_noi_dung": "Khác",
+      "cum_noi_dung_chi_tiet": "Lợi ích dinh dưỡng từ dầu Meizan Gold cho sức khỏe",
+      "tom_tat_noi_dung": "Bài viết trình bày các lợi ích của dầu Meizan Gold với các thành phần dinh dưỡng như vitamin E, A, và axit béo omega-3, omega-6, giúp bồi bổ sức khỏe và nâng cao hương vị món ăn. Đây là sự lựa chọn lý tưởng cho các bữa ăn an toàn và bổ dưỡng.",
+      "link_bai_bao": "https://www.webtretho.com/f/an-de-khoe-dep/bi-quyet-chon-dung-loai-dau-an-de-nau-nuong-an-toan-cho-suc-khoe",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [
+        "dầu ăn"
+      ],
+      "crawl_timestamp": "2025-07-24T23:32:30.759276"
+    },
+    {
+      "stt": 2,
+      "ngay_phat_hanh": "2025-06-24",
+      "dau_bao": "TRETHO",
+      "cum_noi_dung": "Khác",
+      "cum_noi_dung_chi_tiet": "Giới thiệu dầu thực vật an toàn cho gia đình",
+      "tom_tat_noi_dung": "Bài viết giới thiệu một số loại dầu thực vật chất lượng cao, nhằm giúp người tiêu dùng lựa chọn sản phẩm an toàn và giá cả hợp lý cho gia đình. Những loại dầu này được khuyến cáo sử dụng để tăng cường dinh dưỡng cho các bữa ăn hàng ngày.",
+      "link_bai_bao": "https://www.webtretho.com/p/8-dau-thuc-vat-chat-luong-gia-re-dam-bao-an-toan-cho-suc-khoe-ca-nha",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [
+        "dầu thực vật"
+      ],
+      "crawl_timestamp": "2025-07-24T23:32:30.759276"
+    },
+    {
+      "stt": 3,
+      "ngay_phat_hanh": "2025-06-24",
+      "dau_bao": "TRETHO",
+      "cum_noi_dung": "Khác",
+      "cum_noi_dung_chi_tiet": "Cảnh báo nguy hiểm từ dầu ăn độc hại",
+      "tom_tat_noi_dung": "Bài viết cảnh báo về việc sử dụng dầu ăn bị xử lý ở nhiệt độ cao và các hóa chất độc hại như Hexane có trong dầu thực vật. Những thông tin này nhấn mạnh tầm quan trọng của việc lựa chọn dầu ăn an toàn cho sức khỏe người tiêu dùng.",
+      "link_bai_bao": "https://www.webtretho.com/f/bua-com-gia-dinh/dau-an-ban-co-dang-su-dung-thu-doc-hai-moi-ngay-ma-khong-biet",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [
+        "dầu ăn",
+        "dầu thực vật"
+      ],
+      "crawl_timestamp": "2025-07-24T23:32:30.759276"
+    },
+    {
+      "stt": 4,
+      "ngay_phat_hanh": "2025-06-24",
+      "dau_bao": "TRETHO",
+      "cum_noi_dung": "Khác",
+      "cum_noi_dung_chi_tiet": "Phân tích sự độc hại của dầu ăn đắt tiền",
+      "tom_tat_noi_dung": "Bài viết phân tích tính chất độc hại của loại dầu ăn đắt tiền, cho thấy rằng những sản phẩm này có thể gây hại cho sức khỏe gấp nhiều lần so với dầu thông thường. Đặc biệt, nó cộng thêm rủi ro cho người tiêu dùng khi sử dụng thực phẩm không rõ nguồn gốc.",
+      "link_bai_bao": "https://www.webtretho.com/f/meo-hay-suc-khoe-va-doi-song/su-that-ve-loai-dau-an-dat-gap-10-va-doc-gap-200-lan-2160797",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [
+        "dầu ăn"
+      ],
+      "crawl_timestamp": "2025-07-24T23:32:30.759276"
+    },
+    {
+      "stt": 5,
+      "ngay_phat_hanh": "2025-07-24",
+      "dau_bao": "TRETHO",
+      "cum_noi_dung": "Khác",
+      "cum_noi_dung_chi_tiet": "Giới thiệu dầu hướng dương Nga Kubanochka tại VN",
+      "tom_tat_noi_dung": "Bài viết giới thiệu về dầu ăn hướng dương Kubanochka nhập khẩu từ Nga, nhấn mạnh giá cả và chất lượng của sản phẩm này trên thị trường Việt Nam. Thông tin hữu ích cho những ai tìm kiếm nguồn cung cấp dầu ăn mới lạ và an toàn.",
+      "link_bai_bao": "https://www.webtretho.com/f/mua-gi-o-dau/dau-an-huong-duong-nhap-khau-tu-nga-kubanochka-2370850",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [
+        "dầu ăn",
+        "dầu hướng dương"
+      ],
+      "crawl_timestamp": "2025-07-24T23:32:30.760271"
+    },
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-06-24",
+      "dau_bao": "PHUNU",
+      "cum_noi_dung": "An toàn thực phẩm",
+      "cum_noi_dung_chi_tiet": "An toàn thực phẩm: Bộ Y tế đánh giá dầu ăn từ thức ăn chăn nuôi",
+      "tom_tat_noi_dung": "Bài viết phân tích những quy định liên quan đến việc sử dụng dầu cho thức ăn chăn nuôi và hiện trạng dầu ăn sản xuất từ nguồn nguyên liệu này. Có sự tham gia của công ty TNHH Nhật Minh Food và những ý kiến từ Bộ Y tế về độ an toàn và tác động đến sức khỏe của người tiêu dùng.",
+      "link_bai_bao": "https://www.phunuonline.com.vn/dau-cho-thuc-an-chan-nuoi-thanh-dau-an-cho-nguoi-bo-y-te-noi-gi-a1553404.html",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [
+        "dầu ăn",
+        "nguyên liệu",
+        "Bộ Y tế",
+        "độ an toàn",
+        "sức khỏe"
+      ],
+      "crawl_timestamp": "2025-07-24T23:32:38.871702"
+    }
+  ],
+  "generated_at": "2025-07-24T23:32:44.326488",
+  "total_articles": 11,
+  "date_range": "Từ ngày 24/06/2025 đến ngày 24/07/2025"
+}

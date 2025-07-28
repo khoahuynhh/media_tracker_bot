@@ -42,7 +42,7 @@
             <div class="container">
                 <a class="navbar-brand" href="#">
                     <i class="fas fa-search-dollar me-2"></i>
-                    CALOFIC Media Tracker
+                    CHICOM Media Tracker
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                     <span class="navbar-toggler-icon"></span>
@@ -70,15 +70,15 @@
         <section class="hero-section">
             <div class="container">
                 <div class="row align-items-center">
-                    <div class="col-md-2 text-center">
+                    <!-- <div class="col-md-2 text-center">
                         <div class="hero-logo mx-auto">
                             <i class="fas fa-oil-can"></i>
                         </div>
-                    </div>
+                    </div> -->
                     <div class="col-md-10">
                         <h1 class="display-6 fw-bold mb-2">COMPETITOR REPORT</h1>
                         <h2 class="h4 mb-3">PR & SOCIAL MONTHLY REPORT</h2>
-                        <p class="lead mb-0">Hệ thống tracking truyền thông tự động cho ngành FMCG Việt Nam</p>
+                        <p class="lead mb-0">Automatic media tracking system for Vietnam FMCG industry</p>
                     </div>
                 </div>
             </div>
@@ -108,13 +108,13 @@
                                     <div class="d-flex align-items-center mb-3">
                                         <span class="label-fixed me-3">Status:</span>
                                         <span id="statusBadge" class="status-badge status-idle">
-                                            <i class="fas fa-circle"></i>
+                                            <i class="fas fa-circle-notch me-1"></i>
                                             Idle
                                         </span>
                                     </div>
                                     <div class="d-flex align-items-center mb-3">
                                         <span class="label-fixed me-3">Task:</span>
-                                        <span id="currentTask" class="fw-bold">Chờ khởi động</span>
+                                        <span id="currentTask" class="fw-bold">Waiting to start</span>
                                     </div>
                                     <div class="progress-wrapper">
                                         <span class="label-fixed me-3">Progress:</span>
@@ -170,7 +170,7 @@
                             <!-- Nút Cancel và Pause nằm ngang, cùng style -->
                             <div class="d-flex justify-content-between gap-2 mb-3">
                                 <button id="cancelBtn" class="btn btn-outline-danger flex-fill rounded-pill py-2"
-                                    onclick="cancelPipeline()" disabled>
+                                    disabled>
                                     <i class="fas fa-ban me-2"></i>Cancel
                                 </button>
 
@@ -201,9 +201,8 @@
                         <div class="card-body">
                             <div class="row mb-3">
                                 <div class="col-12 col-md-6">
-                                    <p class="mb-2"><strong>Thời gian trích xuất dữ liệu:</strong> <span
-                                            id="dateRange">Đang
-                                            tải...</span></p>
+                                    <p class="mb-2"><strong>Data extraction time:</strong> <span
+                                            id="dateRange">Loading...</span></p>
                                 </div>
                                 <div class="col-12 col-md-6 text-end">
                                     <button class="btn btn-outline-primary btn-sm me-2"
@@ -232,7 +231,7 @@
                                         <tr>
                                             <td colspan="5" class="text-center loading-state">
                                                 <i class="fas fa-spinner fa-spin me-2"></i>
-                                                Đang tải dữ liệu...
+                                                Loading data...
                                             </td>
                                         </tr>
                                     </tbody>
@@ -590,9 +589,6 @@
         </div>
     </div>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-
     <!-- Custom JavaScript -->
     <script>
         // Global variables
@@ -610,6 +606,7 @@
         // Initialize dashboard
         document.addEventListener('DOMContentLoaded', async function () {
             const token = localStorage.getItem("token");
+            const modal = document.getElementById("completionModal");
 
             if (!token) {
                 showLogin();
@@ -639,10 +636,21 @@
                 }
             }
 
+            if (modal) {
+                modal.addEventListener("hidden.bs.modal", function () {
+                    // Tự động xóa overlay nếu còn
+                    const backdrop = document.querySelector('.modal-backdrop');
+                    if (backdrop) backdrop.remove();
+                    document.body.classList.remove('modal-open'); // ngừa scroll lock
+                    document.body.style = ''; // xóa overflow: hidden nếu còn
+                });
+            }
+
             document.getElementById('startTime').textContent = new Date().toLocaleString('vi-VN');
         });
 
         function showLogin() {
+            const loginForm = document.getElementById('loginForm');
             const loginContainer = document.getElementById('loginContainer');
             const dashboardContainer = document.getElementById('dashboardContainer');
 
@@ -652,6 +660,7 @@
 
             // Reset login container
             loginContainer.style.display = 'block';
+            loginForm.style.display = 'block'
             loginContainer.classList.remove("fade-out-up");
             loginContainer.classList.remove("fade-in-down");
 
@@ -713,6 +722,7 @@
                 const response = await fetch('/api/config');
                 const config = await response.json();
                 currentConfig = config;
+                document.getElementById('totalSources').textContent = config.media_sources.length;
                 console.log('✅ Config loaded:', config);
             } catch (error) {
                 console.error('Error loading config:', error);
@@ -821,128 +831,201 @@
             updateDateRange();
         }
 
+        function getActiveTask(tasks) {
+            return tasks.find(task => task.session_id === currentSessionId) || null;
+        }
+
         async function loadStatus() {
             try {
-                const response = await fetch('/api/status', {
+                // Gọi API để lấy danh sách task hiện tại
+                const response = await fetch('/api/tasks', {
                     method: "GET",
                     headers: {
                         "Authorization": `Bearer ${localStorage.getItem("token")}`
                     }
                 });
-                const status = await response.json();
 
-                updateStatusDisplay(status);
+                const tasks = await response.json();
+
+                // ✅ Lấy lại sessionId đã lưu từ localStorage (nếu có)
+                const savedSessionId = localStorage.getItem("currentSessionId");
+
+                let activeTask = null;
+
+                if (savedSessionId) {
+                    // Tìm task có session_id trùng khớp
+                    activeTask = tasks.find(t => t.session_id === savedSessionId);
+                }
+
+                // Nếu không tìm thấy (ví dụ session đã bị xóa), fallback lấy task mới nhất đang hoạt động
+                if (!activeTask && tasks.length > 0) {
+                    activeTask = getActiveTask(tasks); // Hàm đã có sẵn của bạn
+                }
+
+                if (activeTask) {
+                    // ✅ Gán lại sessionId sau F5 để toàn bộ hệ thống nhớ đúng
+                    currentSessionId = activeTask.session_id;
+
+                    if (["completed", "cancelled", "failed"].includes(activeTask.status)) {
+                        localStorage.removeItem("currentSessionId");
+                    }
+                }
+
+                // ✅ Gọi hàm cập nhật UI như cũ
+                updateTaskDisplay(activeTask, tasks);
             } catch (error) {
-                console.error('Error loading status:', error);
-                // Show offline status
-                updateStatusDisplay({
-                    is_running: false,
-                    api_keys: { openai_configured: false, groq_configured: false },
-                    team_status: { progress: 0 }
-                });
+                console.error('❌ Error loading task status:', error);
             }
         }
+
 
         function showCompletionModal() {
             const modal = new bootstrap.Modal(document.getElementById('completionModal'));
             modal.show();
         }
 
-        function updateStatusDisplay(status) {
+        function updateTaskDisplay(activeTask, tasks) {
             const statusBadge = document.getElementById('statusBadge');
-            const currentTask = document.getElementById('currentTask');
+            const currentTaskEl = document.getElementById('currentTask');
             const progressBar = document.getElementById('progress-bar');
             const progressText = document.getElementById('progressText');
+            const totalSourcesEl = document.getElementById('totalSources');
+            const completedSourcesEl = document.getElementById('completedSources');
+            const failedSourcesEl = document.getElementById('failedSources');
 
-            // Check API keys status first
-            if (status.api_keys && (!status.api_keys.openai_configured && !status.api_keys.groq_configured)) {
-                statusBadge.className = 'status-badge status-failed';
-                statusBadge.innerHTML = '<span class="btn btn-sm text-white text-nowrap"> <i class="fas fa-exclamation-triangle me-1"></i> API Keys Required</span>';
-                currentTask.innerHTML = '<a href="#" onclick="openSettings()" class="btn btn-sm btn-outline-primary text-nowrap"> <i class="fas fa-cog me-1"></i> Add API keys </a>';
+            const runBtn = document.getElementById('runBtn');
+            const runIcon = runBtn.querySelector('i');
+            const cancelBtn = document.getElementById('cancelBtn');
+            const pauseResumeBtn = document.getElementById('pauseResumeBtn');
+            const configBtn = document.getElementById('configBtn');
 
-                document.getElementById('runBtn').disabled = true;
-                document.getElementById('runBtn').innerHTML = '<i class="fas fa-key me-2"></i>Setup API Keys First';
-                return;
+            totalSourcesEl.textContent = activeTask.total_sources || 0;
+            completedSourcesEl.textContent = activeTask.completed_sources || 0;
+            failedSourcesEl.textContent = activeTask.failed_sources || 0;
+
+            progressBar.style.width = (activeTask.progress || 0) + '%';
+            progressText.textContent = Math.round(activeTask.progress || 0) + '%';
+
+            if (!activeTask || activeTask.status === "idle") {
+                runIcon.className = 'fas fa-play me-2';
+                statusBadge.className = 'status-badge status-idle';
+                statusBadge.innerHTML = '<i class="fas fa-circle-notch me-1"></i>Idle';
+
+                currentTaskEl.textContent = 'Sẵn sàng chạy pipeline';
+                progressBar.style.width = '0%';
+                progressText.textContent = '0%';
+
+                totalSourcesEl.textContent = config.media_sources.length || 0;
+                completedSourcesEl.textContent = 0;
+                failedSourcesEl.textContent = 0;
+
+                runBtn.disabled = false;
+                cancelBtn.disabled = true;
+                pauseResumeBtn.disabled = true;
+                configBtn.disabled = false;
             }
+            else if (activeTask.status === "pending") {
+                statusBadge.className = 'status-badge status-pending';
+                statusBadge.innerHTML = '<i class="fas fa-clock me-1"></i>Ready';
 
-            if (status.is_running && !status.is_Paused) {
+                currentTaskEl.textContent = activeTask.current_task || 'Khởi tạo pipeline...';
+
+                runBtn.disabled = true;
+                cancelBtn.disabled = true;
+                pauseResumeBtn.disabled = true;
+                pauseResumeBtn.innerHTML = '<i class="fas fa-pause me-2"></i>Pause';
+                pauseResumeBtn.classList.remove("btn-outline-success");
+                pauseResumeBtn.classList.add("btn-outline-warning");
+
+                configBtn.disabled = true;
+            }
+            else if (activeTask.status === "running") {
                 statusBadge.className = 'status-badge status-running';
+                runIcon.className = 'fas fa-spinner fa-spin me-2';
                 statusBadge.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Running';
-                currentTask.textContent = status.team_status.current_task || 'Processing...';
+                currentTaskEl.textContent = activeTask.current_task || 'Đang xử lý...';
 
-                const progress = status.team_status.progress || 0;
-                progressBar.style.width = progress + '%';
-                progressText.textContent = Math.round(progress) + '%';
-
-                document.getElementById('runBtn').disabled = true;
-                document.getElementById('runBtn').innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Running...';
-                document.getElementById('cancelBtn').disabled = false;
-                document.getElementById('configBtn').disabled = true;
-                document.getElementById('pauseResumeBtn').disabled = false;
-
-                // Store session ID
-                currentSessionId = status.session_id;
-            }
-            else if (status.is_running && status.is_Paused) {
-                statusBadge.className = 'status-badge status-paused';
-                statusBadge.innerHTML = '<i class="fas fa-pause me-1"></i>Paused';
-
-                currentTask.textContent = 'Paused. Press resume to continue.';
-
-                // Giữ nguyên progress
-                const progress = status.team_status.progress || 0;
-                progressBar.style.width = progress + '%';
-                progressText.textContent = Math.round(progress) + '%';
-
-                // Các nút điều khiển
-                document.getElementById('runBtn').disabled = true;
-                document.getElementById('runBtn').innerHTML = '<i class="fas fa-play me-2"></i>Paused'; // hoặc giữ nguyên tùy mục đích
-
-                document.getElementById('cancelBtn').disabled = false;
-                document.getElementById('configBtn').disabled = true;
-
-                const pauseResumeBtn = document.getElementById('pauseResumeBtn');
+                runBtn.disabled = true;
+                cancelBtn.disabled = false;
                 pauseResumeBtn.disabled = false;
+                pauseResumeBtn.innerHTML = '<i class="fas fa-pause me-2"></i>Pause';
+                pauseResumeBtn.classList.remove("btn-outline-success");
+                pauseResumeBtn.classList.add("btn-outline-warning");
+
+                configBtn.disabled = true;
+            }
+            else if (activeTask.status === "paused") {
+                runBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Pausing...';
+                statusBadge.className = 'status-badge status-paused';
+                statusBadge.innerHTML = '<i class="fas fa-pause-circle me-1"></i>Paused';
+                currentTaskEl.textContent = 'Pause, press Resume to continue.';
+
+                pauseResumeBtn.disabled = false;
+                pauseResumeBtn.innerHTML = '<i class="fas fa-play me-2"></i>Resume';
                 pauseResumeBtn.classList.remove("btn-outline-warning");
                 pauseResumeBtn.classList.add("btn-outline-success");
-                pauseResumeBtn.innerHTML = '<i class="fas fa-play me-2"></i>Resume';
-            }
-            else {
-                statusBadge.className = 'status-badge status-idle';
-                statusBadge.innerHTML = '<i class="fas fa-check me-1"></i>Ready';
-                currentTask.textContent = 'Sẵn sàng chạy pipeline';
 
-                document.getElementById('runBtn').disabled = false;
-                document.getElementById('runBtn').innerHTML = '<i class="fas fa-play me-2"></i>Run Pipeline';
-                document.getElementById('cancelBtn').disabled = true;
-                document.getElementById('configBtn').disabled = false;
-                isPaused = false;
-                document.getElementById('pauseResumeBtn').disabled = true;
-                document.getElementById('pauseResumeBtn').classList.remove('btn-outline-success');
-                document.getElementById('pauseResumeBtn').classList.add('btn-outline-warning');
-                document.getElementById('pauseResumeBtn').innerHTML = '<i class="fas fa-pause me-2"></i>Pause';
-                // Clear session ID
-                currentSessionId = null;
+                runBtn.disabled = true;
+                cancelBtn.disabled = false;
+                configBtn.disabled = true;
+            }
+            else if (activeTask.status === "cancelled") {
+                runBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Cancelling...';
+                statusBadge.className = 'status-badge status-stopping animate__animated animate__flash';
+                statusBadge.innerHTML = '<i class="fas fa-times-circle me-1"></i>Cancelled';
+                currentTaskEl.textContent = 'Cancelling by user';
 
                 progressBar.style.width = '0%';
                 progressText.textContent = '0%';
+
+                runBtn.disabled = true;
+                cancelBtn.disabled = true;
+                pauseResumeBtn.disabled = true;
+                configBtn.disabled = true;
+
+                completedSourcesEl.textContent = 0;
+                failedSourcesEl.textContent = 0;
+
+                if (activeTask.current_task === "Pipeline was cancelled" || activeTask.current_task === "Restarting system") {
+                    runBtn.innerHTML = '<i class="fas fa-play me-2"></i> Run Pipeline';
+                    currentTaskEl.textContent = 'Cancelled by user'
+                    runBtn.disabled = false;
+                    configBtn.disabled = false;
+                    currentSessionId = null;
+                }
+
             }
+            else if (activeTask.status === "completed") {
+                runIcon.className = 'fas fa-play me-2';
+                statusBadge.className = 'status-badge status-completed';
+                statusBadge.innerHTML = '<i class="fas fa-check-circle me-1"></i>Completed';
+                currentTaskEl.textContent = 'All set! Waiting for your next run.';
 
-            // Update metrics
-            document.getElementById('totalSources').textContent = status.total_media_sources || 0;
-            document.getElementById('completedSources').textContent = status.team_status?.completed_sources || 0;
-            document.getElementById('failedSources').textContent = status.team_status?.failed_sources || 0;
+                progressBar.style.width = '100%';
+                progressText.textContent = '100%';
 
-            // Update last run
-            if (status.team_status && status.team_status.last_run) {
-                document.getElementById('lastRun').textContent = new Date(status.team_status.last_run).toLocaleString('vi-VN');
+                runBtn.disabled = false;
+                cancelBtn.disabled = true;
+                pauseResumeBtn.disabled = true;
+                configBtn.disabled = false;
+
+                // completedSourcesEl.textContent = 0;
+                // failedSourcesEl.textContent = 0;
+
+                // Show modal báo hoàn thành
+                showCompletionModal();
+                currentSessionId = null;
             }
+            else if (activeTask.status === "failed") {
+                statusBadge.className = 'status-badge status-failed animate__animated animate__shakeX';
+                statusBadge.innerHTML = '<i class="fas fa-exclamation-triangle me-1"></i>Failed';
+                currentTaskEl.textContent = 'An error occurred, please run again.';
 
-            // Show API key status in activity log if not configured
-            if (status.api_keys && (!status.api_keys.openai_configured && !status.api_keys.groq_configured)) {
-                addActivityLog('API Keys Required', 'Vui lòng cấu hình API keys trong Settings', 'error');
+                runBtn.disabled = false;
+                cancelBtn.disabled = true;
+                pauseResumeBtn.disabled = true;
+                configBtn.disabled = false;
             }
-
         }
 
         function openSettings() {
@@ -983,12 +1066,25 @@
 
         // Event handlers
         async function runPipeline() {
+            const session_id = generateSessionId();
+            console.log("[FE] Session ID gửi lên:", session_id);
+            localStorage.setItem("currentSessionId", session_id);
             try {
                 const startDate = document.getElementById('startDate').value;
                 const endDate = document.getElementById('endDate').value;
-                // Check if we have session conflict
-                if (currentSessionId) {
-                    addActivityLog('Warning', 'Another session is running. Please wait...', 'warning');
+
+                // Check for is there any task is running or pending
+                const check_task = await fetch('/api/tasks', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem("token")}`
+                    }
+                });
+                const tasks = await check_task.json();
+
+                const hasActiveTask = tasks.some(t => ["running", "pending"].includes(t.status));
+
+                if (hasActiveTask) {
+                    addActivityLog('Warning', 'A task is already running. Please wait...', 'warning');
                     return;
                 }
 
@@ -999,22 +1095,18 @@
                         "Authorization": `Bearer ${localStorage.getItem("token")}`
                     },
                     body: JSON.stringify({
-                        session_id: generateSessionId(),
+                        session_id: session_id,
                         start_date: startDate,
-                        end_date: endDate
+                        end_date: endDate,
+                        custom_keywords: null
                     })
                 });
 
                 const result = await response.json();
+                currentSessionId = session_id;
 
                 if (response.ok) {
-                    currentSessionId = result.session_id;
                     addActivityLog('Pipeline Started', 'Quá trình crawling đã bắt đầu');
-
-                    // Update UI
-                    document.getElementById('runBtn').disabled = true;
-                    document.getElementById('cancelBtn').disabled = false;
-                    document.getElementById('configBtn').disabled = true;
 
                     // Start intensive polling
                     startIntensivePolling();
@@ -1031,67 +1123,23 @@
         }
 
         async function cancelPipeline() {
+            if (!currentSessionId) return;
+
             try {
-                if (!currentSessionId) {
-                    addActivityLog('Warning', 'No active session to stop', 'warning');
-                    return;
-                }
-
-                // Update UI immediately
-                const statusBadge = document.getElementById('statusBadge');
-                const currentTask = document.getElementById('currentTask');
-
-                statusBadge.className = 'status-badge status-stopping';
-                statusBadge.innerHTML = '<i class="fas fa-stop me-1"></i>Stopping...';
-                currentTask.textContent = 'Đang dừng pipeline...';
-
-                document.getElementById('cancelBtn').disabled = true;
-                document.getElementById('cancelBtn').innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Stopping...';
-
-                const response = await fetch('/api/stop', {
+                await fetch(`/api/tasks/${currentSessionId}/cancel`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        "Authorization": `Bearer ${localStorage.getItem("token")}`
-                    },
-                    body: JSON.stringify({
-                        session_id: currentSessionId
-                    })
+                        'Authorization': `Bearer ${localStorage.getItem("token")}`
+                    }
                 });
 
-                const result = await response.json();
-
-                if (response.ok) {
-                    addActivityLog('Pipeline Stopped', 'Quá trình crawling đã được dừng');
-                    // Clear session
-                    currentSessionId = null;
-
-                    // Reset UI
-                    setTimeout(() => {
-                        document.getElementById('runBtn').disabled = false;
-                        document.getElementById('runBtn').innerHTML = '<i class="fas fa-play me-2"></i>Run Pipeline';
-                        document.getElementById('cancelBtn').disabled = true;
-                        document.getElementById('cancelBtn').innerHTML = '<i class="fas fa-stop me-2"></i>Cancel';
-                        document.getElementById('configBtn').disabled = false;
-
-                        statusBadge.className = 'status-badge status-idle';
-                        statusBadge.innerHTML = '<i class="fas fa-check me-1"></i>Ready';
-                        currentTask.textContent = 'Sẵn sàng chạy pipeline';
-                    }, 1000);
-
-                } else {
-                    throw new Error(result.detail || 'Failed to stop pipeline');
-                }
-
-            } catch (error) {
-                console.error('Error stopping pipeline:', error);
-                addActivityLog('Error', 'Lỗi khi dừng pipeline: ' + error.message, 'error');
-
-                // Reset stop button
-                document.getElementById('cancelBtn').disabled = false;
-                document.getElementById('cancelBtn').innerHTML = '<i class="fas fa-stop me-2"></i>Cancel';
+                addActivityLog("Pipeline cancelled");
+                loadStatus();
+            } catch (err) {
+                console.error(err);
             }
         }
+
 
         function updateSummaryTable() {
             const tbody = document.getElementById('summaryTableBody');
@@ -1134,6 +1182,16 @@
                 industries.map(industry => `<option value="${industry.nganh_hang}">${industry.nganh_hang}</option>`).join('');
         }
 
+        function updateSTT() {
+            const rows = document.querySelectorAll("#articlesTableBody tr");
+            rows.forEach((row, idx) => {
+                const sttCell = row.querySelector(".stt-cell");
+                if (sttCell) {
+                    sttCell.innerHTML = `<strong>${idx + 1}</strong>`;
+                }
+            });
+        }
+
         function updateArticlesTable() {
             const tbody = document.getElementById('articlesTableBody');
 
@@ -1150,7 +1208,7 @@
 
             tbody.innerHTML = pageArticles.map(article => `
                 <tr class="fade-in">
-                    <td><strong>${article.stt}</strong></td>
+                    <td class="stt-cell"></td>
                     <td>${formatDate(article.ngay_phat_hanh)}</td>
                     <td><strong>${article.dau_bao}</strong></td>
                     <td><small class="text-muted">${article.cum_noi_dung}</small></td>
@@ -1167,7 +1225,7 @@
                     </td>
                 </tr>
             `).join('');
-
+            updateSTT();
             updatePagination(filteredArticles.length);
         }
 
@@ -1341,9 +1399,20 @@
         function updateDateRange() {
             const dateRangeElement = document.getElementById('dateRange');
             if (currentReport && currentReport.overall_summary) {
-                dateRangeElement.textContent = currentReport.overall_summary.thoi_gian_trich_xuat;
+                const rawDate = currentReport.date_range;
+
+                // Ví dụ rawDate: "Từ ngày 01/07/2025 đến ngày 25/07/2025"
+                const match = rawDate.match(/Từ ngày (.+?) đến ngày (.+)/);
+                if (match) {
+                    const start = match[1];
+                    const end = match[2];
+                    dateRangeElement.textContent = `${start} → ${end}`;
+                } else {
+                    dateRangeElement.textContent = rawDate;
+                }
             }
         }
+
 
         function showConfigModal() {
             loadKeywordConfiguration();
@@ -1461,7 +1530,7 @@
             try {
                 const config = collectKeywordConfiguration();
 
-                // Validate dates
+                // Validate date range
                 if (config.start_date && config.end_date) {
                     const start = new Date(config.start_date);
                     const end = new Date(config.end_date);
@@ -1471,31 +1540,29 @@
                         return;
                     }
 
-                    // Check if date range is too long (more than 6 months)
-                    const diffTime = Math.abs(end - start);
-                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
+                    const diffDays = Math.ceil(Math.abs(end - start) / (1000 * 60 * 60 * 24));
                     if (diffDays > 180) {
-                        showAlert('warning', 'Date Range Too Long', 'Please select a date range of 6 months or less for better performance');
+                        showAlert('warning', 'Date Range Too Long', 'Select a date range of 6 months or less');
                         return;
                     }
                 }
 
-                // Check if we have session conflict
                 if (currentSessionId) {
                     addActivityLog('Warning', 'Another session is running. Please wait...', 'warning');
                     return;
                 }
 
-                config.session_id = generateSessionId();
+                // Tạo session_id phía FE
+                const sessionId = generateSessionId();
+                currentSessionId = sessionId;
 
-                // FIXED: Save keywords if provided
+                config.session_id = sessionId;  // ✅ Truyền luôn xuống BE
+
+                // Save custom keywords nếu có
                 if (config.custom_keywords) {
                     await fetch('/api/keywords', {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
+                        headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(config.custom_keywords)
                     });
                 }
@@ -1512,41 +1579,26 @@
                 const result = await response.json();
 
                 if (response.ok) {
-                    currentSessionId = result.session_id;
+                    addActivityLog('Pipeline Started', `Pipeline started with session ID: ${sessionId}`);
 
-                    // Close modal
-                    bootstrap.Modal.getInstance(document.getElementById('configModal')).hide();
-
-                    // Show config summary
-                    let configSummary = 'Pipeline started with custom configuration:\n';
-                    if (config.start_date && config.end_date) {
-                        configSummary += `Date range: ${config.start_date} to ${config.end_date}\n`;
-                    }
-                    if (config.custom_keywords) {
-                        const industryCount = Object.keys(config.custom_keywords).length;
-                        configSummary += `Custom keywords: ${industryCount} industries`;
-                    }
-
-                    addActivityLog('Pipeline Started', configSummary);
-
-                    // Update UI
                     document.getElementById('runBtn').disabled = true;
                     document.getElementById('cancelBtn').disabled = false;
                     document.getElementById('configBtn').disabled = true;
 
-                    // Start intensive polling
-                    startIntensivePolling();
+                    bootstrap.Modal.getInstance(document.getElementById('configModal')).hide();
 
+                    startIntensivePolling();
                 } else {
                     throw new Error(result.detail || 'Failed to start pipeline');
                 }
 
             } catch (error) {
-                console.error('Error starting pipeline with config:', error);
+                console.error('Error starting pipeline:', error);
                 addActivityLog('Error', 'Lỗi khi khởi động pipeline: ' + error.message, 'error');
                 showAlert('danger', 'Lỗi!', error.message);
             }
         }
+
 
         function filterArticles() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
@@ -1652,7 +1704,11 @@
         async function loadSettings() {
             try {
                 // Load API keys status
-                const apiResponse = await fetch('/api/api-keys/status');
+                const apiResponse = await fetch("/api/api-keys/status", {
+                    headers: {
+                        "Authorization": `Bearer ${localStorage.getItem("token")}`
+                    }
+                });
                 const apiStatus = await apiResponse.json();
 
                 // Update API key status indicators
@@ -1661,7 +1717,11 @@
                 document.getElementById('defaultProvider').value = apiStatus.default_provider;
 
                 // Load crawler config
-                const response = await fetch('/api/config');
+                const response = await fetch('/api/config', {
+                    headers: {
+                        "Authorization": `Bearer ${localStorage.getItem("token")}`
+                    }
+                });
                 const config = await response.json();
 
                 // FIXED: Map config fields properly
@@ -1804,39 +1864,44 @@
 
         // Status polling
         function startStatusPolling() {
-            statusInterval = setInterval(loadStatus, 5000); // Poll every 5 seconds
+            statusInterval = setInterval(loadStatus, 3000); // Poll every 5 seconds
         }
 
         function startIntensivePolling() {
-            if (statusInterval) {
-                clearInterval(statusInterval);
-            }
+            if (!currentSessionId) return;
 
-            statusInterval = setInterval(async () => {
-                await loadStatus();
+            pollingInterval = setInterval(async () => {
+                try {
+                    const response = await fetch('/api/tasks', {
+                        headers: {
+                            "Authorization": `Bearer ${localStorage.getItem("token")}`
+                        }
+                    });
+                    const tasks = await response.json();
+                    const currentTask = tasks.find(t => t.session_id === currentSessionId);
 
-                // Check if pipeline completed
-                const statusResponse = await fetch('/api/status', {
-                    method: "GET",
-                    headers: {
-                        "Authorization": `Bearer ${localStorage.getItem("token")}`
+                    if (currentTask) {
+                        updateTaskDisplay(currentTask, tasks);
+
+                        if (["completed"].includes(currentTask.status)) {
+                            loadLatestReport();
+                        }
+
+                        if (["failed"].includes(currentTask.status)) {
+                            clearInterval(pollingInterval);  // Ngừng polling
+
+                            addActivityLog("Task Finished", `Session ${currentSessionId} has status: ${currentTask.status}`);
+
+                            // Gọi lại loadStatus để update UI đầy đủ
+                            loadStatus();
+                        }
+                    } else {
+                        console.warn("Task not found in polling.");
                     }
-                });
-                const status = await statusResponse.json();
-
-                if (!status.is_running && status.team_status && status.team_status.last_run) {
-                    // Pipeline completed, reload report
-                    await loadLatestReport();
-                    addActivityLog('Pipeline Completed', 'Quá trình crawling đã hoàn thành');
-
-                    // Clear current session
-                    currentSessionId = null;
-
-                    // Return to normal polling
-                    clearInterval(statusInterval);
-                    startStatusPolling();
+                } catch (err) {
+                    console.error("Polling error:", err);
                 }
-            }, 2000); // Poll every 2 seconds during run
+            }, 3000);
         }
 
         function addActivityLog(title, message, type = 'info') {
@@ -1941,6 +2006,7 @@
 
         function logout() {
             localStorage.removeItem("token");
+            currentSessionId = null;
             if (statusInterval) {
                 clearInterval(statusInterval);
             }
@@ -1960,35 +2026,6 @@
         function confirmLogout() {
             const modal = new bootstrap.Modal(document.getElementById('logoutModal'));
             modal.show();
-        }
-
-        async function syncPipelineStatus() {
-            try {
-                const response = await fetch('/api/status', {
-                    method: "GET",
-                    headers: {
-                        "Authorization": `Bearer ${localStorage.getItem("token")}`
-                    }
-                });
-                if (!response.ok) throw new Error('Failed to fetch pipeline status');
-                const status = await response.json();
-
-                // Cập nhật thanh progress
-                const progressBar = document.getElementById('progress-bar');
-                if (progressBar) {
-                    progressBar.style.width = `${status.progress.toFixed(1)}%`;
-                    progressBar.innerText = `${status.progress.toFixed(1)}%`;
-                }
-
-                // Cập nhật trạng thái pipeline
-                const statusText = document.getElementById('pipeline-status');
-                if (statusText) {
-                    statusText.innerText = status.is_running ? 'Đang chạy...' : 'Đã hoàn tất';
-                    statusText.className = status.is_running ? 'status-running' : 'status-done';
-                }
-            } catch (error) {
-                console.error('Lỗi khi đồng bộ trạng thái pipeline:', error);
-            }
         }
 
         const text = "WELCOME TO CHICOM SERVICES";
@@ -2051,7 +2088,7 @@
 
                     const row = `
                                 <tr>
-                                    <td>${index + 1}</td>
+                                    <td ${index + 1}></td>
                                     <td>${report.filename}</td>
                                     <td>${timeStr}</td>
                                     <td>
@@ -2102,10 +2139,6 @@
             }
         }
 
-
-        // Gọi lặp lại mỗi 5 giây
-        setInterval(syncPipelineStatus, 5000);
-        window.addEventListener("DOMContentLoaded", syncPipelineStatus);
         window.onload = typeLetter;
         document.addEventListener("DOMContentLoaded", () => {
             handleAuthUI();
@@ -2231,54 +2264,34 @@
     </script>
 
     <script>
-        let isPaused = false;
-
         async function togglePauseResume() {
-            const btn = document.getElementById('pauseResumeBtn');
-            const statusBadge = document.getElementById('statusBadge');
+            if (!currentSessionId) return;
 
-            const endpoint = isPaused ? "/api/resume" : "/api/pause";
+            const btn = document.getElementById('pauseResumeBtn');
+            const isCurrentlyPaused = btn.innerHTML.includes("Resume");
+
+            const endpoint = isCurrentlyPaused ?
+                `/api/tasks/${currentSessionId}/resume` :
+                `/api/tasks/${currentSessionId}/pause`;
+
             try {
-                const response = await fetch(endpoint, {
+                await fetch(endpoint, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
                         'Authorization': `Bearer ${localStorage.getItem("token")}`
                     }
                 });
 
-                if (response.ok) {
-                    isPaused = !isPaused;
-
-                    // Update button UI
-                    if (isPaused) {
-                        btn.classList.remove("btn-outline-warning");
-                        btn.classList.add("btn-outline-success");
-                        btn.innerHTML = '<i class="fas fa-play me-2"></i>Resume';
-
-                        statusBadge.className = 'status-badge status-paused';
-                        statusBadge.innerHTML = '<i class="fas fa-pause me-1"></i>Paused';
-                    } else {
-                        btn.classList.remove("btn-outline-success");
-                        btn.classList.add("btn-outline-warning");
-                        btn.innerHTML = '<i class="fas fa-pause me-2"></i>Pause';
-
-                        statusBadge.className = 'status-badge status-running';
-                        statusBadge.innerHTML = '<i class="fas fa-play me-1"></i>Running';
-                    }
-
-                    addActivityLog(isPaused ? "⏸ Pipeline paused." : "▶️ Pipeline resumed.");
-                } else {
-                    alert("Không thể gửi yêu cầu " + (isPaused ? "resume" : "pause"));
-                }
+                loadStatus(); // Gọi lại để cập nhật UI
             } catch (err) {
                 console.error(err);
-                alert("Lỗi kết nối tới server.");
             }
         }
     </script>
 
     <script src="static/assets/js/utils.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

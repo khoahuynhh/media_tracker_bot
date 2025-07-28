@@ -1,0 +1,31 @@
+{
+  "cache_version": "1.0",
+  "created_at": "2025-07-24T16:34:43.248315",
+  "ttl_hours": 8,
+  "crawl_status": "success",
+  "data": {
+    "source_name": "PHUNU",
+    "source_type": "Website",
+    "url": "phunuonline.com.vn",
+    "articles_found": [
+      {
+        "stt": 1,
+        "ngay_phat_hanh": "2025-06-24",
+        "dau_bao": "PHUNU",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Dầu cho thức ăn chăn nuôi thành dầu ăn cho người, Bộ Y tế nói gì?",
+        "tom_tat_noi_dung": "Bài viết phân tích những quy định liên quan đến việc sử dụng dầu cho thức ăn chăn nuôi và hiện trạng dầu ăn sản xuất từ nguồn nguyên liệu này. Có sự tham gia của công ty TNHH Nhật Minh Food và những ý kiến từ Bộ Y tế về độ an toàn và tác động đến sức khỏe của người tiêu dùng.",
+        "link_bai_bao": "https://www.phunuonline.com.vn/dau-cho-thuc-an-chan-nuoi-thanh-dau-an-cho-nguoi-bo-y-te-noi-gi-a1553404.html",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-07-24T16:34:23.919122"
+      }
+    ],
+    "crawl_status": "success",
+    "error_message": "",
+    "crawl_duration": 180.75366,
+    "crawl_timestamp": "2025-07-24T16:34:43.248315",
+    "retry_count": 0
+  }
+}

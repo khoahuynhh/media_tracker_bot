@@ -293,6 +293,29 @@
         animation: pulse 2s infinite;
     }
 
+    .status-paused {
+        background: linear-gradient(45deg, #3498db, #2980b9);
+        color: white;
+        animation: pulse-paused 3s infinite;
+    }
+
+    @keyframes pulse-paused {
+        0% {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        50% {
+            transform: scale(1.01);
+            opacity: 0.85;
+        }
+
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
     .status-completed {
         background: linear-gradient(45deg, #27ae60, #2ecc71);
         color: white;
@@ -306,6 +329,12 @@
     .status-idle {
         background: linear-gradient(45deg, #95a5a6, #7f8c8d);
         color: white;
+    }
+
+    .status-pending {
+        background: linear-gradient(45deg, #f1c40f, #f39c12);
+        color: white;
+        animation: pulse 1s infinite infinite;
     }
 
     .status-stopping {
@@ -329,11 +358,12 @@
     .progress-text-wrapper {
         display: flex;
         align-items: center;
-        margin-top: 5px;
-        height: 100%;
+        margin-top: 0;
+        height: 16px;
     }
 
     .progress-wrapper {
+        min-width: 40px;
         display: flex;
         align-items: center;
         gap: 0.5rem;
@@ -346,10 +376,12 @@
         height: 16px;
         /* hoặc 20px cho to đẹp */
         overflow: hidden;
+        position: relative;
     }
 
-    .progressText {
-        margin-top: 20px;
+    #progressText {
+        margin-top: 0;
+        line-height: 16px;
     }
 
     .progress-bar {
@@ -413,11 +445,11 @@
         transition: all 0.3s ease;
     }
 
-    .btn-outline-primary:hover {
+    /* .btn-outline-primary:hover {
         background: var(--primary-color);
         border-color: var(--primary-color);
         transform: translateY(-1px);
-    }
+    } */
 
     .btn-outline-danger {
         color: #e74c3c;

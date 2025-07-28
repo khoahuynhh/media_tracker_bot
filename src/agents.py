@@ -9,7 +9,6 @@ import asyncio
 import json
 import logging
 import gc
-import threading
 import httpx
 import re
 import ast
@@ -23,7 +22,6 @@ from tenacity import (
     wait_exponential,
     retry_if_exception_type,
 )
-from collections import defaultdict
 
 # Import Agno
 from agno.agent import Agent
@@ -56,6 +54,7 @@ from .models import (
 )
 from .configs import CONFIG_DIR
 from .cache_manager import SafeCacheManager
+from .task_state import task_manager
 
 logger = logging.getLogger(__name__)
 
@@ -71,12 +70,21 @@ class CrawlerAgent:
     """Agent chuyên crawl web, sử dụng prompt tiếng Việt."""
 
     def __init__(
-        self, model: Any, config: CrawlConfig, parser: ArticleParser, timeout: int = 10
+        self,
+        model: Any,
+        config: CrawlConfig,
+        parser: ArticleParser,
+        session_id: Optional[str] = None,
+        check_cancelled: Optional[callable] = None,
+        check_paused: Optional[callable] = None,
+        check_pause_or_cancel: Optional[callable] = None,
+        user_email: Optional[str] = None,
     ):
         self.parser = parser
         self.config = config
+        self.session_id = session_id
         self.search_tools = [
-            GoogleSearchTools(timeout),
+            GoogleSearchTools(timeout=60),
             DDGS(),
             # ArxivTools(),
             # BaiduSearchTools(),
@@ -87,23 +95,16 @@ class CrawlerAgent:
         self.search_tool_index = 0
         self.model = model
         self.agent = None
-        self._create_agent()
         self.cache_manager = SafeCacheManager(
             cache_dir="cache/crawl_results",
             ttl_hours=self.config.cache_duration_hours,
             version="1.0",
         )
-
-    async def _check_pause(self):
-        if hasattr(self, "pause_event"):
-            while self.pause_event.is_set():
-                logging.info("⏸ CrawlerAgent paused... waiting to resume.")
-                await asyncio.sleep(1)
-
-    async def _check_stop(self):
-        if hasattr(self, "stop_event"):
-            while self.stop_event.is_set():
-                raise InterruptedError("Pipeline stopped by user.")
+        self.check_cancelled = check_cancelled or (lambda: False)
+        self.check_paused = check_paused or (lambda: False)
+        self.check_pause_or_cancel = check_pause_or_cancel
+        self.user_email = user_email
+        self.rotate_index = 0
 
     def return_partial_result(self, media_source: MediaSource) -> CrawlResult:
         unique_articles = {
@@ -146,9 +147,9 @@ class CrawlerAgent:
             add_datetime_to_instructions=True,
         )
 
-    def _rotate_tool(self):
-        self.search_tool_index = (self.search_tool_index + 1) % len(self.search_tools)
-        self._create_agent()
+    # def _rotate_tool(self):
+    #     self.search_tool_index = (self.search_tool_index + 1) % len(self.search_tools)
+    #     self._create_agent()
 
     @retry(
         stop=stop_after_attempt(5),
@@ -194,28 +195,47 @@ class CrawlerAgent:
             for i in range(0, len(keywords), max_keywords_per_query)
         ]
         articles = []
-        session_id = (
-            f"crawler-{media_source.name}-{datetime.now().strftime('%Y%m%d%H%M%S')}"
-        )
 
         def to_date(dt):
             return dt.date() if isinstance(dt, datetime) else dt
 
+        task = next(
+            (
+                t
+                for t in task_manager.get_tasks(self.user_email)
+                if t["session_id"] == self.session_id
+            ),
+            None,
+        )
+        checkpoint = (
+            task.get("crawl_checkpoint", {}).get(media_source.name, {}) if task else {}
+        )
+        tools_to_try = checkpoint.get("tool_order")
+
+        if tools_to_try is None:
+            base_order = list(range(len(self.search_tools)))
+            start_tool_index = self.rotate_index
+            self.rotate_index = (self.rotate_index + 1) % len(self.search_tools)
+            tools_to_try = base_order[start_tool_index:] + base_order[:start_tool_index]
+
+        start_tool_index = checkpoint.get("tool_index", 0)
+        start_group_index = checkpoint.get("group_index", 0)
         try:
-            for tool in self.search_tools:
-                await self._check_stop()
-                await self._check_pause()
-                self._rotate_tool()
-                tool_name = type(self.agent.tools[1]).__name__
-                logger.info(f"[{media_source.name}] Đang dùng search tool: {tool_name}")
+            for i in range(start_tool_index, len(tools_to_try)):
+                await self.check_pause_or_cancel()
+                tool_index = tools_to_try[i]
+                tool_name = type(self.search_tools[tool_index]).__name__
+
+                self.search_tool_index = tool_index
+                self._create_agent()
 
                 new_articles_this_tool = 0
                 self.current_articles = []
-                for group in keyword_groups:
-                    await self._check_stop()
-                    await self._check_pause()
-                    keywords_str = ", ".join(group)
 
+                for group_index in range(start_group_index, len(keyword_groups)):
+                    await self.check_pause_or_cancel()
+                    group = keyword_groups[group_index]
+                    keywords_str = ", ".join(group)
                     crawl_query = f"""
                     Crawl website: {domain_url or media_source.name}
                     Tìm các bài báo có chứa các từ khóa: {keywords_str} và PHẢI liên quan đến ngành hàng: {industry_name}
@@ -226,13 +246,16 @@ class CrawlerAgent:
                     - Tạo tóm tắt chi tiết (dưới 100 từ), nêu bật các thông tin chính như: sự kiện chính, các bên liên quan, và kết quả hoặc tác động của sự kiện. Không chỉ lặp lại tiêu đề.
                     - Format: Tiêu đề | Ngày | Tóm tắt | Link
                     """
+                    logger.info(
+                        f"[{media_source.name}] Using {tool_name} for group {group_index + 1}/{len(keyword_groups)}"
+                    )
 
                     try:
                         logger.info(
                             f"[{media_source.name}] Searching with keywords: {keywords_str}"
                         )
                         response = await self.agent.arun(
-                            crawl_query, session_id=session_id
+                            crawl_query, session_id=self.session_id
                         )
                         logger.info(
                             f"[DEBUG] Raw response content:\n{response.content}"
@@ -299,6 +322,23 @@ class CrawlerAgent:
                             exc_info=True,
                         )
                         await asyncio.sleep(1)
+
+                    task_manager.update_task(
+                        self.user_email,
+                        self.session_id,
+                        {
+                            "articles_so_far": [
+                                a.model_dump(mode="json") for a in articles
+                            ],
+                            "crawl_checkpoint": {
+                                media_source.name: {
+                                    "tool_order": tools_to_try,
+                                    "tool_index": i,
+                                    "group_index": group_index + 1,
+                                }
+                            },
+                        },
+                    )
 
                     gc.collect()
 
@@ -942,29 +982,51 @@ class MediaTrackerTeam:
         config: CrawlConfig,
         start_date: datetime,
         end_date: datetime,
-        stop_event: Optional[threading.Event] = None,
-        pause_event=threading.Event,
+        user_email: Optional[str] = None,
+        session_id: Optional[str] = None,
+        on_progress_update: Optional[callable] = None,
+        check_cancelled: Optional[callable] = None,
+        check_paused: Optional[callable] = None,
+        articles_so_far=None,
+        source_status_list=None,
     ):
         self.config = config
-        self.stop_event = stop_event or threading.Event()
-        self.pause_event = pause_event
+        self.session_id = session_id
+        self.user_email = user_email
         self.status = BotStatus()
-
+        self.check_cancelled = check_cancelled or (lambda: False)
+        self.check_paused = check_paused or (lambda: False)
+        self.articles_so_far = articles_so_far or []
+        self.on_progress_update = on_progress_update
         parser = ArticleParser()
         self.crawler = CrawlerAgent(
-            get_llm_model("openai", "gpt-4o-mini"), config, parser
+            get_llm_model("openai", "gpt-4o-mini"),
+            config,
+            parser,
+            session_id,
+            check_cancelled,
+            check_paused,
+            check_pause_or_cancel=self.check_pause_or_cancel,
+            user_email=user_email,
         )
-        self.crawler.pause_event = self.pause_event
-        self.crawler.stop_event = self.stop_event
         self.processor = ProcessorAgent(get_llm_model("openai", "gpt-4o"))
         self.reporter = ReportAgent(get_llm_model("openai", "gpt-4o"))
         self.start_date = start_date
         self.end_date = end_date
+        self.source_status_list = source_status_list or []
 
-    async def _check_pause(self):
-        while self.pause_event.is_set():
-            logger.info("⏸ Pipeline paused... waiting to resume.")
-            await asyncio.sleep(1)
+    async def check_pause_or_cancel(self):
+        if self.check_cancelled():
+            logger.info("⛔ Cancelled. Stop pipeline.")
+            raise asyncio.CancelledError("Pipeline is cancelled.")
+
+        while self.check_paused():
+            logger.info("⏸️  Pipeline paused. Waiting to resume...")
+            await asyncio.sleep(2)
+
+            if self.check_cancelled():
+                logger.info(f"[{self.session_id}] Task was cancelled during pause.")
+                raise asyncio.CancelledError("Cancelled during pause")
 
     async def run_full_pipeline(self) -> Optional[CompetitorReport]:
         """
@@ -975,7 +1037,11 @@ class MediaTrackerTeam:
         self.status.current_task = "Initializing pipeline"
         self.status.total_sources = len(self.config.media_sources)
         self.status.progress = 0.0
-        all_articles = []
+        # all_articles = self.articles_so_far.copy()
+
+        logger.info(
+            f"📅 Khoảng thời gian crawl dữ liệu: từ ngày {self.start_date.strftime('%d/%m/%Y')} đến ngày {self.end_date.strftime('%d/%m/%Y')}"
+        )
 
         try:
             # Step 1: Crawl data from media sources
@@ -985,24 +1051,68 @@ class MediaTrackerTeam:
             # Limit concurrent crawl tasks using Semaphore
             self.semaphore = asyncio.Semaphore(self.config.max_concurrent_sources)
 
-            async def bounded_crawl(media_source, industry_name, keywords):
-                async with self.semaphore:
-                    try:
-                        return await asyncio.wait_for(
-                            self.crawler.crawl_media_source(
-                                media_source=media_source,
-                                industry_name=industry_name,
-                                keywords=keywords,
-                                start_date=self.start_date,
-                                end_date=self.end_date,
-                            ),
-                            timeout=self.config.crawl_timeout,  # Timeout mỗi nguồn báo (VD: 30s)
-                        )
-                    except asyncio.TimeoutError:
-                        logger.warning(
-                            f"[{media_source.name}] ⏰ Timeout sau {self.config.crawl_timeout} giây."
-                        )
-                        return self.crawler.return_partial_result(media_source)
+            async def wrapped_crawl(media_source, industry_name, keywords):
+                # Nếu đã completed rồi thì skip
+                if any(
+                    s["source_name"] == media_source.name and s["status"] == "completed"
+                    for s in self.source_status_list
+                ):
+                    logger.info(
+                        f"[{media_source.name}] ✅ Đã hoàn thành từ trước, bỏ qua."
+                    )
+                    return media_source, None
+
+                try:
+                    await self.check_pause_or_cancel()
+                    result = await self.crawler.crawl_media_source(
+                        media_source=media_source,
+                        industry_name=industry_name,
+                        keywords=keywords,
+                        start_date=self.start_date,
+                        end_date=self.end_date,
+                    )
+
+                    if result and result.articles_found:
+                        self.articles_so_far.extend(result.articles_found)
+
+                    task_manager.update_task(
+                        self.user_email,
+                        self.session_id,
+                        {
+                            "articles_so_far": [
+                                a.model_dump(mode="json") for a in self.articles_so_far
+                            ],
+                            "source_status_list": self.source_status_list,
+                        },
+                    )
+
+                    return media_source, result
+
+                except asyncio.TimeoutError:
+                    logger.warning(
+                        f"[{media_source.name}] ⏰ Timeout sau {self.config.crawl_timeout} giây."
+                    )
+                    partial_result = self.crawler.return_partial_result(media_source)
+
+                    if partial_result.articles_found:
+                        self.articles_so_far.extend(partial_result.articles_found)
+
+                    self.source_status_list.append(
+                        {"source_name": media_source.name, "status": "failed"}
+                    )
+
+                    task_manager.update_task(
+                        self.user_email,
+                        self.session_id,
+                        {
+                            "articles_so_far": [
+                                a.model_dump(mode="json") for a in self.articles_so_far
+                            ],
+                            "source_status_list": self.source_status_list,
+                        },
+                    )
+
+                    return media_source, partial_result
 
             # Prepare all keywords
             # all_keywords = list(
@@ -1011,49 +1121,93 @@ class MediaTrackerTeam:
             tasks = []
             for industry_name, keywords in self.config.keywords.items():
                 for media_source in self.config.media_sources:
-                    tasks.append(bounded_crawl(media_source, industry_name, keywords))
+                    already_done = next(
+                        (
+                            s
+                            for s in self.source_status_list
+                            if s["source_name"] == media_source.name
+                        ),
+                        None,
+                    )
+                    if already_done and already_done["status"] == "completed":
+                        continue
+
+                    task = asyncio.create_task(
+                        wrapped_crawl(media_source, industry_name, keywords)
+                    )
+                    tasks.append((media_source, task))
 
             # Execute crawl tasks
-            for i, task in enumerate(asyncio.as_completed(tasks)):
-                await self._check_pause()
-                if self.stop_event.is_set():
-                    logger.warning("Pipeline stopped by user during crawling.")
-                    raise InterruptedError("Pipeline stopped by user during crawling.")
+            tasks_only = [t[1] for t in tasks]
+            results = await asyncio.gather(*tasks_only, return_exceptions=True)
+
+            for (media_source, _), result in zip(tasks, results):
+                await self.check_pause_or_cancel()
 
                 try:
-                    result = await task
+                    if isinstance(result, Exception):
+                        logger.error(
+                            f"[{media_source.name}] ❌ Lỗi: {result}", exc_info=True
+                        )
+                        self.source_status_list.append(
+                            {"source_name": media_source.name, "status": "failed"}
+                        )
+                        continue
+
+                    media_source, crawl_result = result
                     self.status.completed_sources += 1
-                    self.status.progress = (
-                        self.status.completed_sources / self.status.total_sources
-                    ) * 50.0
 
-                    if result.crawl_status == "success":
-                        all_articles.extend(result.articles_found)
-                        logger.info(
-                            f"Crawled {len(result.articles_found)} articles from {result.source_name}"
-                        )
-                    else:
-                        self.status.failed_sources += 1
-                        logger.warning(
-                            f"Crawl failed for {result.source_name}: {result.error_message}"
+                    crawl_status = (
+                        getattr(crawl_result, "crawl_status", "failed")
+                        if crawl_result
+                        else "failed"
+                    )
+                    status = "completed" if crawl_status == "success" else "failed"
+
+                    self.source_status_list.append(
+                        {"source_name": media_source.name, "status": status}
+                    )
+
+                    completed = len(
+                        [
+                            s
+                            for s in self.source_status_list
+                            if s["status"] == "completed"
+                        ]
+                    )
+                    failed = len(
+                        [s for s in self.source_status_list if s["status"] == "failed"]
+                    )
+
+                    if self.on_progress_update:
+                        self.on_progress_update(
+                            source_name=media_source.name,
+                            completed=completed,
+                            failed=failed,
+                            progress=(completed / self.status.total_sources) * 50.0,
+                            current_task=f"Crawling {media_source.name}",
                         )
 
-                    # Free memory after each source
                     gc.collect()
 
                 except asyncio.CancelledError:
                     logger.warning(f"Crawl task {i} cancelled.")
+                    for _, t in tasks:
+                        t.cancel()
                     self.status.failed_sources += 1
+                    raise
                 except Exception as e:
                     self.status.failed_sources += 1
                     logger.error(
                         f"Unexpected error crawling source {i + 1}: {e}", exc_info=True
                     )
 
-            logger.info(f"Crawling completed. Found {len(all_articles)} raw articles.")
+            if not self.articles_so_far:
+                logger.warning("⚠️ No articles found from crawling or cache.")
+                return None
 
-            if self.stop_event.is_set():
-                raise InterruptedError("Pipeline stopped by user after crawling.")
+            all_articles = self.articles_so_far.copy()
+            logger.info(f"Crawling completed. Found {len(all_articles)} raw articles.")
 
             # Step 2: Process articles in batches
             self.status.current_task = "Processing and analyzing articles"
@@ -1061,9 +1215,8 @@ class MediaTrackerTeam:
             batch_size = 10  # Process 20 articles per batch
             processed_articles = []
             for i in range(0, len(all_articles), batch_size):
-                await self._check_pause()
-                if self.stop_event.is_set():
-                    raise InterruptedError("Pipeline stopped by user after processing.")
+                await self.check_pause_or_cancel()
+
                 batch = all_articles[i : i + batch_size]
                 batch_processed = await self.processor.process_articles(
                     batch, self.config.keywords
@@ -1086,25 +1239,15 @@ class MediaTrackerTeam:
             date_range_str = f"Từ ngày {start_date.strftime('%d/%m/%Y')} đến ngày {end_date.strftime('%d/%m/%Y')}"
 
             report = None
-            await self._check_pause()
-            if self.stop_event.is_set():
-                raise InterruptedError(
-                    "Pipeline stopped by user before report generation."
-                )
-
             if not processed_articles:
                 logger.warning("No valid articles to generate report.")
                 return None
 
+            await self.check_pause_or_cancel()
+
             report = await self.reporter.generate_report(
                 processed_articles, date_range_str
             )
-
-            await self._check_pause()
-            if self.stop_event.is_set():
-                raise InterruptedError(
-                    "Pipeline stopped by user after report generation."
-                )
 
             if report is None:
                 logger.warning("No valid articles to generate report.")
@@ -1123,8 +1266,24 @@ class MediaTrackerTeam:
 
         except (InterruptedError, asyncio.CancelledError) as e:
             self.status.current_task = f"Stopped: {str(e)}"
-            logger.warning(f"Pipeline stopped or cancelled: {e}")
-            return None
+            for _, task in tasks:
+                task.cancel()
+            results = await asyncio.gather(
+                *[t[1] for t in tasks], return_exceptions=True
+            )
+            for (media_source, _), result in zip(tasks, results):
+                if isinstance(result, Exception):
+                    logger.error(f"[{media_source.name}] ❌ Lỗi: {result}")
+                    self.source_status_list.append(
+                        {"source_name": media_source.name, "status": "failed"}
+                    )
+                else:
+                    logger.info(f"[{media_source.name}] ✅ Crawl thành công")
+                    self.source_status_list.append(
+                        {"source_name": media_source.name, "status": "completed"}
+                    )
+            self.status.current_task = "Đã hủy"
+            raise
         except Exception as e:
             self.status.current_task = f"Failed: {str(e)}"
             logger.error(f"Pipeline failed: {e}", exc_info=True)
@@ -1136,6 +1295,7 @@ class MediaTrackerTeam:
                 self.status.progress = 100.0
             if "completed" not in self.status.current_task.lower():
                 self.status.current_task = "Ready"
+            self.cleanup()
             gc.collect()  # Final memory cleanup
 
     def get_status(self) -> BotStatus:

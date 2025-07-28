@@ -1,0 +1,83 @@
+{
+  "cache_version": "1.0",
+  "created_at": "2025-07-24T16:33:32.814194",
+  "ttl_hours": 8,
+  "crawl_status": "success",
+  "data": {
+    "source_name": "TRETHO",
+    "source_type": "Website",
+    "url": "webtretho.com",
+    "articles_found": [
+      {
+        "stt": 1,
+        "ngay_phat_hanh": "2025-06-24",
+        "dau_bao": "TRETHO",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Bí quyết chọn đúng loại dầu ăn để nấu nướng an toàn cho sức khỏe",
+        "tom_tat_noi_dung": "Bài viết trình bày các lợi ích của dầu Meizan Gold với các thành phần dinh dưỡng như vitamin E, A, và axit béo omega-3, omega-6, giúp bồi bổ sức khỏe và nâng cao hương vị món ăn. Đây là sự lựa chọn lý tưởng cho các bữa ăn an toàn và bổ dưỡng.",
+        "link_bai_bao": "https://www.webtretho.com/f/an-de-khoe-dep/bi-quyet-chon-dung-loai-dau-an-de-nau-nuong-an-toan-cho-suc-khoe",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-07-24T16:32:54.414686"
+      },
+      {
+        "stt": 2,
+        "ngay_phat_hanh": "2025-06-24",
+        "dau_bao": "TRETHO",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "8 dầu thực vật chất lượng, giá rẻ, đảm bảo an toàn cho sức khỏe cả nhà",
+        "tom_tat_noi_dung": "Bài viết giới thiệu một số loại dầu thực vật chất lượng cao, nhằm giúp người tiêu dùng lựa chọn sản phẩm an toàn và giá cả hợp lý cho gia đình. Những loại dầu này được khuyến cáo sử dụng để tăng cường dinh dưỡng cho các bữa ăn hàng ngày.",
+        "link_bai_bao": "https://www.webtretho.com/p/8-dau-thuc-vat-chat-luong-gia-re-dam-bao-an-toan-cho-suc-khoe-ca-nha",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-07-24T16:32:54.414686"
+      },
+      {
+        "stt": 3,
+        "ngay_phat_hanh": "2025-06-24",
+        "dau_bao": "TRETHO",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Dầu ăn - Bạn có đang sử dụng thứ \"độc hại\" mỗi ngày mà không biết?",
+        "tom_tat_noi_dung": "Bài viết cảnh báo về việc sử dụng dầu ăn bị xử lý ở nhiệt độ cao và các hóa chất độc hại như Hexane có trong dầu thực vật. Những thông tin này nhấn mạnh tầm quan trọng của việc lựa chọn dầu ăn an toàn cho sức khỏe người tiêu dùng.",
+        "link_bai_bao": "https://www.webtretho.com/f/bua-com-gia-dinh/dau-an-ban-co-dang-su-dung-thu-doc-hai-moi-ngay-ma-khong-biet",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-07-24T16:32:54.414686"
+      },
+      {
+        "stt": 4,
+        "ngay_phat_hanh": "2025-06-24",
+        "dau_bao": "TRETHO",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Sự thật về loại dầu ăn đắt gấp 10 và độc gấp 200 lần",
+        "tom_tat_noi_dung": "Bài viết phân tích tính chất độc hại của loại dầu ăn đắt tiền, cho thấy rằng những sản phẩm này có thể gây hại cho sức khỏe gấp nhiều lần so với dầu thông thường. Đặc biệt, nó cộng thêm rủi ro cho người tiêu dùng khi sử dụng thực phẩm không rõ nguồn gốc.",
+        "link_bai_bao": "https://www.webtretho.com/f/meo-hay-suc-khoe-va-doi-song/su-that-ve-loai-dau-an-dat-gap-10-va-doc-gap-200-lan-2160797",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-07-24T16:32:54.414686"
+      },
+      {
+        "stt": 5,
+        "ngay_phat_hanh": "2025-07-24",
+        "dau_bao": "TRETHO",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Dầu ăn hướng dương nhập khẩu từ nga \"kubanochka\".",
+        "tom_tat_noi_dung": "Bài viết giới thiệu về dầu ăn hướng dương Kubanochka nhập khẩu từ Nga, nhấn mạnh giá cả và chất lượng của sản phẩm này trên thị trường Việt Nam. Thông tin hữu ích cho những ai tìm kiếm nguồn cung cấp dầu ăn mới lạ và an toàn.",
+        "link_bai_bao": "https://www.webtretho.com/f/mua-gi-o-dau/dau-an-huong-duong-nhap-khau-tu-nga-kubanochka-2370850",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-07-24T16:32:54.415693"
+      }
+    ],
+    "crawl_status": "success",
+    "error_message": "",
+    "crawl_duration": 110.388686,
+    "crawl_timestamp": "2025-07-24T16:33:32.814194",
+    "retry_count": 0
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "cache_version": "1.0",
+  "created_at": "2025-08-03T03:48:12.668266",
+  "ttl_hours": 8,
+  "crawl_status": "success",
+  "data": {
+    "source_name": "CAFEF",
+    "source_type": "Website",
+    "url": "cafef.vn",
+    "articles_found": [
+      {
+        "stt": 1,
+        "ngay_phat_hanh": "2025-07-09",
+        "dau_bao": "CAFEF",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Trung Quốc không cho phép dùng sữa hoàn nguyên làm sữa tiệt trùng: Ngành sữa Việt Nam cần chú ý",
+        "tom_tat_noi_dung": "Theo quy định mới từ 16-9-2025, Trung Quốc sẽ chỉ cho phép nhập khẩu sữa tiệt trùng từ sữa tươi nguyên liệu, không chấp nhận sữa hoàn nguyên. Điều này đặt ra thách thức cho ngành sữa Việt Nam, yêu cầu phải tăng cường chất lượng và tuân thủ quy định xuất khẩu.",
+        "link_bai_bao": "https://cafef.vn/trung-quoc-khong-cho-phep-dung-sua-hoan-nguyen-lam-sua-tiet-trung-nganh-sua-viet-nam-can-chu-y-188250709192037847.chn",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-08-03T03:48:11.738817"
+      },
+      {
+        "stt": 3,
+        "ngay_phat_hanh": "2025-07-11",
+        "dau_bao": "CAFEF",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Chi tốn 1.500 đồng tạo ra 1 lít sữa từ sơn, dầu gội và urê",
+        "tom_tat_noi_dung": "Nghiên cứu chỉ ra chi phí thấp để sản xuất sữa giả trong một chiến dịch lớn đã gây lo ngại về chất lượng sữa trên thị trường. Đây là vấn đề cần sự chú ý từ cơ quan quản lý để bảo vệ sức khỏe người tiêu dùng.",
+        "link_bai_bao": "https://cafef.vn/chi-ton-1500-dong-tao-ra-1-lit-sua-tu-son-dau-goi-va-ure-ca-duong-day-sua-doc-bi-quet-sach-trong-72-gio-18825071114302847.chn",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-08-03T03:48:11.739816"
+      }
+    ],
+    "crawl_status": "success",
+    "error_message": "",
+    "crawl_duration": 388.802298,
+    "crawl_timestamp": "2025-08-03T03:48:12.667275",
+    "retry_count": 0
+  }
+}

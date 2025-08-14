@@ -1,0 +1,62 @@
+{
+  "overall_summary": {
+    "thoi_gian_trich_xuat": "Từ ngày 04/07/2025 đến ngày 03/08/2025",
+    "industries": [
+      {
+        "nganh_hang": "Sữa (UHT)",
+        "nhan_hang": [
+          "Kun"
+        ],
+        "cum_noi_dung": [
+          "Báo cáo tài chính"
+        ],
+        "so_luong_bai": 1,
+        "cac_dau_bao": [
+          "TIENPHONG"
+        ]
+      }
+    ],
+    "cac_dau_bao": [
+      "TIENPHONG"
+    ],
+    "tong_so_bai": 1
+  },
+  "industry_summaries": [
+    {
+      "nganh_hang": "Sữa (UHT)",
+      "nhan_hang": [
+        "Kun"
+      ],
+      "cum_noi_dung": [
+        "Báo cáo tài chính"
+      ],
+      "so_luong_bai": 1,
+      "cac_dau_bao": [
+        "TIENPHONG"
+      ]
+    }
+  ],
+  "articles": [
+    {
+      "stt": 2,
+      "ngay_phat_hanh": "2025-08-01",
+      "dau_bao": "TIENPHONG",
+      "cum_noi_dung": "Báo cáo tài chính",
+      "cum_noi_dung_chi_tiet": "Thông tin sản phẩm: Kun Sữa Lúa Mạch cải thiện sự phát triển toàn diện cho trẻ",
+      "tom_tat_noi_dung": "Bài viết đề cập đến sản phẩm Kun Sữa Lúa Mạch, một lựa chọn dinh dưỡng ưu việt cho trẻ em, với ba thành phần chính giúp nâng cao năng lực và sức đề kháng. Sản phẩm này được các chuyên gia khuyến nghị nhằm hỗ trợ sự phát triển toàn diện cho trẻ trong giai đoạn tăng trưởng.",
+      "link_bai_bao": "https://tienphong.vn/bi-quyet-kun-sua-lua-mach-bo-3-nang-luong-manh-me-chap-canh-con-yeu-khon-lon-toan-dien-post1765391.tpo",
+      "nganh_hang": "Sữa (UHT)",
+      "nhan_hang": [
+        "Kun"
+      ],
+      "keywords_found": [
+        "sữa",
+        "Kun"
+      ],
+      "crawl_timestamp": "2025-08-03T03:20:20.910214"
+    }
+  ],
+  "generated_at": "2025-08-03T03:20:27.299278",
+  "total_articles": 1,
+  "date_range": "Từ ngày 04/07/2025 đến ngày 03/08/2025"
+}

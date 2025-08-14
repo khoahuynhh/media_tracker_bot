@@ -1,0 +1,71 @@
+{
+  "overall_summary": {
+    "thoi_gian_trich_xuat": "2025-08-01T20:10:49.918240",
+    "industries": [
+      {
+        "nganh_hang": "Homecare",
+        "nhan_hang": [],
+        "cum_noi_dung": [
+          "Hoạt động doanh nghiệp và thông tin sản phẩm"
+        ],
+        "so_luong_bai": 2,
+        "cac_dau_bao": [
+          "THANHNIEN"
+        ]
+      }
+    ],
+    "cac_dau_bao": [
+      "THANHNIEN"
+    ],
+    "tong_so_bai": 2
+  },
+  "industry_summaries": [
+    {
+      "nganh_hang": "Homecare",
+      "nhan_hang": [],
+      "cum_noi_dung": [
+        "Hoạt động doanh nghiệp và thông tin sản phẩm"
+      ],
+      "so_luong_bai": 2,
+      "cac_dau_bao": [
+        "THANHNIEN"
+      ]
+    }
+  ],
+  "articles": [
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-08-01",
+      "dau_bao": "THANHNIEN",
+      "cum_noi_dung": "Hoạt động doanh nghiệp và thông tin sản phẩm",
+      "cum_noi_dung_chi_tiet": "Thông tin sản phẩm: Ưu điểm và tính năng của chất tẩy rửa đa năng",
+      "tom_tat_noi_dung": "Bài viết đề cập đến các sản phẩm chất tẩy rửa đa năng, bao gồm ưu điểm và tính năng của từng loại sản phẩm. Các nhà sản xuất cam kết tính an toàn cho người sử dụng và hiệu quả vượt trội trong việc làm sạch. Sự gia tăng nhu cầu về các sản phẩm này trong ngành hàng homecare cũng được bàn đến.",
+      "link_bai_bao": "https://thanhnien.vn/chat-tay-rua-tags795630.html",
+      "nganh_hang": "Homecare",
+      "nhan_hang": [],
+      "keywords_found": [
+        "chất tẩy rửa",
+        "homecare"
+      ],
+      "crawl_timestamp": "2025-08-01T20:10:49.918240"
+    },
+    {
+      "stt": 2,
+      "ngay_phat_hanh": "2025-07-23",
+      "dau_bao": "THANHNIEN",
+      "cum_noi_dung": "Hoạt động doanh nghiệp và thông tin sản phẩm",
+      "cum_noi_dung_chi_tiet": "Thông tin doanh nghiệp: Sản phẩm chất tẩy rửa của Việt Bảo Tín",
+      "tom_tat_noi_dung": "Bài viết giới thiệu sản phẩm chất tẩy rửa của công ty Việt Bảo Tín, nhấn mạnh sự tiện lợi và hiệu quả mà sản phẩm mang lại cho việc dọn dẹp trong gia đình. Các thông tin về quy trình sản xuất và cam kết chất lượng từ nhà sản xuất cũng được đề cập.",
+      "link_bai_bao": "https://thanhnien.vn/chat-tay-rua-viet-bao-tin-cho-cuoc-song-tien-loi-hon-185255821.htm",
+      "nganh_hang": "Homecare",
+      "nhan_hang": [],
+      "keywords_found": [
+        "chất tẩy rửa"
+      ],
+      "crawl_timestamp": "2025-08-01T20:10:49.918240"
+    }
+  ],
+  "generated_at": "2025-08-01T20:10:56.588311",
+  "total_articles": 2,
+  "date_range": "Từ ngày 02/07/2025 đến ngày 01/08/2025"
+}

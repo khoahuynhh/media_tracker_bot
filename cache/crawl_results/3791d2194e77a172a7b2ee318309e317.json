@@ -1,0 +1,31 @@
+{
+  "cache_version": "1.0",
+  "created_at": "2025-08-02T09:18:34.645479",
+  "ttl_hours": 8,
+  "crawl_status": "success",
+  "data": {
+    "source_name": "NGUOILAODONG",
+    "source_type": "Website",
+    "url": "nld.com.vn",
+    "articles_found": [
+      {
+        "stt": 1,
+        "ngay_phat_hanh": "2025-07-09",
+        "dau_bao": "NGUOILAODONG",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Trung Quốc không cho phép dùng sữa hoàn nguyên làm sữa tiệt trùng, ngành sữa Việt Nam cần chú ý",
+        "tom_tat_noi_dung": "Bài viết cập nhật quy định mới từ Trung Quốc liên quan đến việc sử dụng sữa hoàn nguyên trong sản xuất sữa tiệt trùng (sữa UHT). Việc này có thể ảnh hưởng đến ngành sữa Việt Nam, cụ thể là các công ty như Vinamilk và sự cạnh tranh trong thị trường sữa UHT. Ngành sữa cần chú ý và điều chỉnh để đáp ứng các tiêu chuẩn mới.",
+        "link_bai_bao": "https://nld.com.vn/trung-quoc-khong-cho-phep-dung-sua-hoan-nguyen-lam-sua-tiet-trung-nganh-sua-viet-nam-can-chu-y-196250709182916832.htm",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-08-02T09:07:26.226264"
+      }
+    ],
+    "crawl_status": "success",
+    "error_message": "",
+    "crawl_duration": 3654.184522,
+    "crawl_timestamp": "2025-08-02T09:18:34.645479",
+    "retry_count": 0
+  }
+}

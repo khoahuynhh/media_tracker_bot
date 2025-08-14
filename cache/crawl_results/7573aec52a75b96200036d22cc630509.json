@@ -1,0 +1,31 @@
+{
+  "cache_version": "1.0",
+  "created_at": "2025-08-02T14:00:23.273929",
+  "ttl_hours": 8,
+  "crawl_status": "success",
+  "data": {
+    "source_name": "NHADAUTU",
+    "source_type": "Website",
+    "url": "nhadautu.vn",
+    "articles_found": [
+      {
+        "stt": 1,
+        "ngay_phat_hanh": "2025-07-30",
+        "dau_bao": "NHADAUTU",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Chưa rõ",
+        "tom_tat_noi_dung": "",
+        "link_bai_bao": "https://nhadautu.vn/gia-nguyen-lieu-tang-anh-huong-den-loi-nhuan-vinamilk-d98095.html",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-08-02T13:57:29.650919"
+      }
+    ],
+    "crawl_status": "success",
+    "error_message": "",
+    "crawl_duration": 453.462217,
+    "crawl_timestamp": "2025-08-02T14:00:23.272936",
+    "retry_count": 0
+  }
+}

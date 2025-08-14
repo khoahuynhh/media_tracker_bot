@@ -1,0 +1,87 @@
+{
+  "overall_summary": {
+    "thoi_gian_trich_xuat": "Từ ngày 04/07/2025 đến ngày 03/08/2025",
+    "industries": [
+      {
+        "nganh_hang": "Sữa (UHT)",
+        "nhan_hang": [
+          "Vinamilk",
+          "TH True Milk"
+        ],
+        "cum_noi_dung": [
+          "Khác",
+          "Hoạt động doanh nghiệp và thông tin sản phẩm"
+        ],
+        "so_luong_bai": 2,
+        "cac_dau_bao": [
+          "TUOITRE"
+        ]
+      }
+    ],
+    "cac_dau_bao": [
+      "TUOITRE"
+    ],
+    "tong_so_bai": 2
+  },
+  "industry_summaries": [
+    {
+      "nganh_hang": "Sữa (UHT)",
+      "nhan_hang": [
+        "Vinamilk",
+        "TH True Milk"
+      ],
+      "cum_noi_dung": [
+        "Khác",
+        "Hoạt động doanh nghiệp và thông tin sản phẩm"
+      ],
+      "so_luong_bai": 2,
+      "cac_dau_bao": [
+        "TUOITRE"
+      ]
+    }
+  ],
+  "articles": [
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-03",
+      "dau_bao": "TUOITRE",
+      "cum_noi_dung": "Khác",
+      "cum_noi_dung_chi_tiet": "So sánh sản phẩm: So sánh sữa Vinamilk và TH True Milk",
+      "tom_tat_noi_dung": "Bài viết đi sâu vào việc so sánh hai thương hiệu sữa nổi tiếng tại Việt Nam, Vinamilk và TH True Milk. Nó phân tích các điểm khác nhau về chất lượng, nguyên liệu và giá trị dinh dưỡng của sản phẩm từ hai thương hiệu này. Cùng với đó, bài viết còn đưa ra những nhận định về sự phù hợp của sản phẩm với nhu cầu của người tiêu dùng.",
+      "link_bai_bao": "https://www.avakids.com/me-va-be/so-sanh-sua-vinamilk-va-th-true-milk-co-gi-khac-1438656",
+      "nganh_hang": "Sữa (UHT)",
+      "nhan_hang": [
+        "Vinamilk",
+        "TH True Milk"
+      ],
+      "keywords_found": [
+        "Vinamilk",
+        "TH True Milk",
+        "sữa"
+      ],
+      "crawl_timestamp": "2025-08-03T02:09:19.445933"
+    },
+    {
+      "stt": 2,
+      "ngay_phat_hanh": "2025-07-01",
+      "dau_bao": "TUOITRE",
+      "cum_noi_dung": "Hoạt động doanh nghiệp và thông tin sản phẩm",
+      "cum_noi_dung_chi_tiet": "Giới thiệu sản phẩm: Sữa tươi tiệt trùng Vinamilk có đường",
+      "tom_tat_noi_dung": "Bài viết giới thiệu sản phẩm sữa tươi tiệt trùng của Vinamilk. Chứa nguồn vitamin D3, A, C và selen giúp hỗ trợ miễn dịch và phát triển thể chất. Đây là một sản phẩm bổ sung dinh dưỡng lý tưởng cho trẻ, với tiêu chí an toàn và chất lượng cao.",
+      "link_bai_bao": "https://hasumart.com.vn/sua-tuoi-tiet-trung-vinamilk-co-duong-hop-1-lit.html",
+      "nganh_hang": "Sữa (UHT)",
+      "nhan_hang": [
+        "Vinamilk"
+      ],
+      "keywords_found": [
+        "Vinamilk",
+        "sữa tươi",
+        "sữa"
+      ],
+      "crawl_timestamp": "2025-08-03T02:09:19.445933"
+    }
+  ],
+  "generated_at": "2025-08-03T02:09:26.251321",
+  "total_articles": 2,
+  "date_range": "Từ ngày 04/07/2025 đến ngày 03/08/2025"
+}

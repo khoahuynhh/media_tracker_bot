@@ -1,0 +1,44 @@
+{
+  "cache_version": "1.1",
+  "created_at": "2025-08-05T14:51:53.593299",
+  "ttl_hours": 8,
+  "crawl_status": "success",
+  "data": {
+    "source_name": "PHAPLUAT",
+    "source_type": "Website",
+    "url": "plo.vn",
+    "articles_found": [
+      {
+        "stt": 1,
+        "ngay_phat_hanh": "2025-07-17",
+        "dau_bao": "PHAPLUAT",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Chưa rõ",
+        "tom_tat_noi_dung": "Vinamilk góp mặt tại Hội nghị Phát triển Châu Á 2025 diễn ra tại Singapore. Công ty đã có vai trò trung tâm tại sự kiện, giới thiệu những tiến bộ trong lĩnh vực dinh dưỡng và sữa UHT trong khu vực.",
+        "link_bai_bao": "https://laodong.vn/suc-khoe/dot-pha-6-hmo-buoc-tien-dinh-duong-cua-vinamilk-tai-dien-dan-dinh-duong-lon-nhat-chau-a-1541685.ldo",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-08-05T14:51:12.919696"
+      },
+      {
+        "stt": 2,
+        "ngay_phat_hanh": "2025-07-02",
+        "dau_bao": "PHAPLUAT",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Chưa rõ",
+        "tom_tat_noi_dung": "Vinamilk đã đạt doanh thu kỷ lục trong quý 2 năm 2025, nhờ vào những sản phẩm sữa UHT mới được ra mắt, cung cấp nguồn dinh dưỡng ổn định cho người tiêu dùng.",
+        "link_bai_bao": "https://laodong.vn/kinh-doanh/vinamilk-ghi-nhan-doanh-thu-quy-22025-cao-nhat-tu-truoc-den-nay-16745-ti-dong-1549729.ldo",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-08-05T14:51:12.920699"
+      }
+    ],
+    "crawl_status": "success",
+    "error_message": "",
+    "crawl_duration": 467.890045,
+    "crawl_timestamp": "2025-08-05T14:51:53.575612",
+    "retry_count": 0
+  }
+}

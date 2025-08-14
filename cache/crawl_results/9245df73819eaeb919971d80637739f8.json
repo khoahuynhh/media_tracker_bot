@@ -1,0 +1,31 @@
+{
+  "cache_version": "1.0",
+  "created_at": "2025-08-01T22:40:54.464221",
+  "ttl_hours": 8,
+  "crawl_status": "success",
+  "data": {
+    "source_name": "SUCKHOE&DOISONG",
+    "source_type": "Website",
+    "url": "suckhoedoisong.vn",
+    "articles_found": [
+      {
+        "stt": 1,
+        "ngay_phat_hanh": "2025-08-01",
+        "dau_bao": "SUCKHOE&DOISONG",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Cuộc thi cơ sở y tế xanh, sạch, đẹp lần I",
+        "tom_tat_noi_dung": "Cuộc thi cơ sở y tế xanh, sạch, đẹp lần I vừa được tổ chức nhằm khuyến khích các cơ sở y tế cải thiện môi trường làm việc. Sự tham gia đông đảo của các đơn vị cho thấy tinh thần và ý thức bảo vệ môi trường đã được nâng cao. Các hoạt động này không chỉ góp phần làm sạch không gian mà còn cải thiện chất lượng dịch vụ y tế tại các bệnh viện.",
+        "link_bai_bao": "https://suckhoedoisong.vn/chu-de/cuoc-thi-co-so-y-te-xanh-sach-dep-lan-i-4667.htm",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-08-01T22:40:28.392564"
+      }
+    ],
+    "crawl_status": "success",
+    "error_message": "",
+    "crawl_duration": 2151.019311,
+    "crawl_timestamp": "2025-08-01T22:40:54.463219",
+    "retry_count": 0
+  }
+}

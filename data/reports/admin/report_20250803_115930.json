@@ -1,0 +1,88 @@
+{
+  "overall_summary": {
+    "thoi_gian_trich_xuat": "2025-08-03T11:59:21.339111",
+    "industries": [
+      {
+        "nganh_hang": "Sữa (UHT)",
+        "nhan_hang": [],
+        "cum_noi_dung": [
+          "Khác",
+          "An toàn thực phẩm"
+        ],
+        "so_luong_bai": 3,
+        "cac_dau_bao": [
+          "CONGLY"
+        ]
+      }
+    ],
+    "cac_dau_bao": [
+      "CONGLY"
+    ],
+    "tong_so_bai": 3
+  },
+  "industry_summaries": [
+    {
+      "nganh_hang": "Sữa (UHT)",
+      "nhan_hang": [],
+      "cum_noi_dung": [
+        "Khác",
+        "An toàn thực phẩm"
+      ],
+      "so_luong_bai": 3,
+      "cac_dau_bao": [
+        "CONGLY"
+      ]
+    }
+  ],
+  "articles": [
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-29",
+      "dau_bao": "CONGLY",
+      "cum_noi_dung": "Khác",
+      "cum_noi_dung_chi_tiet": "Khác: Sữa nội địa và sự phân vân của người tiêu dùng trẻ",
+      "tom_tat_noi_dung": "",
+      "link_bai_bao": "https://congly.vn/sua-noi-tre-em-huong-di-lap-khoang-trong-tam-ly-chuong-sua-ngoai-487248.html",
+      "nganh_hang": "Sữa (UHT)",
+      "nhan_hang": [],
+      "keywords_found": [
+        "sữa"
+      ],
+      "crawl_timestamp": "2025-08-03T11:59:21.339111"
+    },
+    {
+      "stt": 2,
+      "ngay_phat_hanh": "2025-07-29",
+      "dau_bao": "CONGLY",
+      "cum_noi_dung": "Khác",
+      "cum_noi_dung_chi_tiet": "Khác: Tác động của sữa đối với sức khỏe người tiêu dùng",
+      "tom_tat_noi_dung": "",
+      "link_bai_bao": "https://congly.vn/uong-sua-ptag.html",
+      "nganh_hang": "Sữa (UHT)",
+      "nhan_hang": [],
+      "keywords_found": [
+        "sữa"
+      ],
+      "crawl_timestamp": "2025-08-03T11:59:21.339111"
+    },
+    {
+      "stt": 3,
+      "ngay_phat_hanh": "2025-07-29",
+      "dau_bao": "CONGLY",
+      "cum_noi_dung": "An toàn thực phẩm",
+      "cum_noi_dung_chi_tiet": "An toàn thực phẩm: Lưu ý sức khỏe khi tiêu thụ sữa",
+      "tom_tat_noi_dung": "",
+      "link_bai_bao": "https://congly.vn/6-sai-lam-khi-uong-sua-co-hai-cho-suc-khoe-89921.html",
+      "nganh_hang": "Sữa (UHT)",
+      "nhan_hang": [],
+      "keywords_found": [
+        "sữa",
+        "sức khỏe"
+      ],
+      "crawl_timestamp": "2025-08-03T11:59:21.339111"
+    }
+  ],
+  "generated_at": "2025-08-03T11:59:29.112415",
+  "total_articles": 3,
+  "date_range": "Từ ngày 04/07/2025 đến ngày 03/08/2025"
+}

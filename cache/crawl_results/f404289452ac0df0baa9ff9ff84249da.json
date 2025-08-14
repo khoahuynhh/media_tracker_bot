@@ -1,0 +1,31 @@
+{
+  "cache_version": "1.0",
+  "created_at": "2025-07-28T22:43:58.789507",
+  "ttl_hours": 8,
+  "crawl_status": "success",
+  "data": {
+    "source_name": "VNEXPRESS",
+    "source_type": "Website",
+    "url": "vnexpress.net",
+    "articles_found": [
+      {
+        "stt": 2,
+        "ngay_phat_hanh": "2025-07-03",
+        "dau_bao": "VNEXPRESS",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Giám đốc Công ty biến dầu ăn chăn nuôi thành thực phẩm cho người bị bắt",
+        "tom_tat_noi_dung": "Giám đốc của một công ty đã bị bắt giữ do liên quan đến việc sản xuất thực phẩm từ dầu ăn chăn nuôi không đạt tiêu chuẩn. Vụ việc đang thu hút sự quan tâm của dư luận và cơ quan chức năng đang tiến hành điều tra mở rộng.",
+        "link_bai_bao": "https://vnexpress.net/giam-doc-cong-ty-bien-dau-an-chan-nuoi-thanh-thuc-pham-cho-nguoi-bi-bat-4909807.html",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-07-28T22:38:19.022530"
+      }
+    ],
+    "crawl_status": "success",
+    "error_message": "",
+    "crawl_duration": 2301.225873,
+    "crawl_timestamp": "2025-07-28T22:43:58.789507",
+    "retry_count": 0
+  }
+}

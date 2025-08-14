@@ -1,0 +1,126 @@
+{
+  "overall_summary": {
+    "thoi_gian_trich_xuat": "Từ ngày 02/07/2025 đến ngày 01/08/2025",
+    "industries": [
+      {
+        "nganh_hang": "Homecare",
+        "nhan_hang": [],
+        "cum_noi_dung": [
+          "Khác"
+        ],
+        "so_luong_bai": 6,
+        "cac_dau_bao": [
+          "KENH14",
+          "CAFEF"
+        ]
+      }
+    ],
+    "cac_dau_bao": [],
+    "tong_so_bai": 6
+  },
+  "industry_summaries": [
+    {
+      "nganh_hang": "Homecare",
+      "nhan_hang": [],
+      "cum_noi_dung": [
+        "Khác"
+      ],
+      "so_luong_bai": 6,
+      "cac_dau_bao": [
+        "KENH14",
+        "CAFEF"
+      ]
+    }
+  ],
+  "articles": [
+    {
+      "stt": 3,
+      "ngay_phat_hanh": "2025-08-01",
+      "dau_bao": "KENH14",
+      "cum_noi_dung": "Khác",
+      "cum_noi_dung_chi_tiet": "Mẹo vặt: Mẹ đơn thân chia sẻ bí kíp sạch nhà",
+      "tom_tat_noi_dung": "Bài viết nói về một bà mẹ đơn thân có đam mê dọn dẹp nhà cửa sạch sẽ, chia sẻ các mẹo và sản phẩm mà cô sử dụng để giữ cho không gian sống luôn gọn gàng, trong đó có các sản phẩm tẩy rửa hiệu quả như gel tẩy bồn cầu.",
+      "link_bai_bao": "https://kenh14.vn/me-1-con-o-thue-nhung-dam-me-don-nha-sach-bong-ai-ngo-toan-bi-kip-de-va-re-tien-215241030171209883.chn",
+      "nganh_hang": "Homecare",
+      "nhan_hang": [],
+      "keywords_found": [
+        "gel tẩy bồn cầu"
+      ],
+      "crawl_timestamp": "2025-08-01T22:53:29.869718"
+    },
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-08-01",
+      "dau_bao": "KENH14",
+      "cum_noi_dung": "Khác",
+      "cum_noi_dung_chi_tiet": "Đánh giá sản phẩm: Top nước giặt đời tin dùng",
+      "tom_tat_noi_dung": "Bài viết tổng hợp và đánh giá 5 loại nước giặt tốt nhất hiện nay, nhấn mạnh các lựa chọn với giá cả phải chăng và chất lượng vượt trội. Các sản phẩm được giới thiệu có thể đáp ứng nhu cầu sử dụng hàng ngày cho các gia đình tại Việt Nam.",
+      "link_bai_bao": "https://kenh14.vn/top-5-nuoc-giat-doi-nay-toi-tin-tuong-gia-binh-dan-chat-luong-tot-khoi-ban-215250327151217713.chn",
+      "nganh_hang": "Homecare",
+      "nhan_hang": [],
+      "keywords_found": [
+        "nước giặt"
+      ],
+      "crawl_timestamp": "2025-08-01T22:53:29.869718"
+    },
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-02",
+      "dau_bao": "CAFEF",
+      "cum_noi_dung": "Khác",
+      "cum_noi_dung_chi_tiet": "Khuyến cáo: Sai lầm khi chỉ dùng xà phòng nhà bếp",
+      "tom_tat_noi_dung": "Bài viết đề cập đến một sản phẩm lau dọn trong nhà bếp mà nhiều người chưa biết đến, giúp làm sạch hiệu quả hơn so với việc chỉ sử dụng xà phòng thông thường. Các bí quyết để sử dụng hiệu quả chất tẩy rửa và bảo quản không gian sống sạch sẽ được nêu rõ.",
+      "link_bai_bao": "https://cafef.vn/nha-bep-co-1-thu-duoc-vi-ban-hon-ca-bon-cau-nhieu-nguoi-tuong-giat-sach-voi-xa-phong-la-xong-thi-sai-roi-188250409200008843.chn",
+      "nganh_hang": "Homecare",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-08-01T22:53:29.869718"
+    },
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-02",
+      "dau_bao": "CAFEF",
+      "cum_noi_dung": "Khác",
+      "cum_noi_dung_chi_tiet": "Khuyến cáo: Sai lầm khi chỉ dùng xà phòng nhà bếp",
+      "tom_tat_noi_dung": "Bài viết đề cập đến một sản phẩm lau dọn trong nhà bếp mà nhiều người chưa biết đến, giúp làm sạch hiệu quả hơn so với việc chỉ sử dụng xà phòng thông thường. Các bí quyết để sử dụng hiệu quả chất tẩy rửa và bảo quản không gian sống sạch sẽ được nêu rõ.",
+      "link_bai_bao": "https://cafef.vn/nha-bep-co-1-thu-duoc-vi-ban-hon-ca-bon-cau-nhieu-nguoi-tuong-giat-sach-voi-xa-phong-la-xong-thi-sai-roi-188250409200008843.chn",
+      "nganh_hang": "Homecare",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-08-01T22:53:29.869718"
+    },
+    {
+      "stt": 3,
+      "ngay_phat_hanh": "2025-08-01",
+      "dau_bao": "KENH14",
+      "cum_noi_dung": "Khác",
+      "cum_noi_dung_chi_tiet": "Mẹo vặt: Mẹ đơn thân chia sẻ bí kíp sạch nhà",
+      "tom_tat_noi_dung": "Bài viết nói về một bà mẹ đơn thân có đam mê dọn dẹp nhà cửa sạch sẽ, chia sẻ các mẹo và sản phẩm mà cô sử dụng để giữ cho không gian sống luôn gọn gàng, trong đó có các sản phẩm tẩy rửa hiệu quả như gel tẩy bồn cầu.",
+      "link_bai_bao": "https://kenh14.vn/me-1-con-o-thue-nhung-dam-me-don-nha-sach-bong-ai-ngo-toan-bi-kip-de-va-re-tien-215241030171209883.chn",
+      "nganh_hang": "Homecare",
+      "nhan_hang": [],
+      "keywords_found": [
+        "gel tẩy bồn cầu"
+      ],
+      "crawl_timestamp": "2025-08-01T22:53:29.869718"
+    },
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-08-01",
+      "dau_bao": "KENH14",
+      "cum_noi_dung": "Khác",
+      "cum_noi_dung_chi_tiet": "Đánh giá sản phẩm: Top nước giặt đời tin dùng",
+      "tom_tat_noi_dung": "Bài viết tổng hợp và đánh giá 5 loại nước giặt tốt nhất hiện nay, nhấn mạnh các lựa chọn với giá cả phải chăng và chất lượng vượt trội. Các sản phẩm được giới thiệu có thể đáp ứng nhu cầu sử dụng hàng ngày cho các gia đình tại Việt Nam.",
+      "link_bai_bao": "https://kenh14.vn/top-5-nuoc-giat-doi-nay-toi-tin-tuong-gia-binh-dan-chat-luong-tot-khoi-ban-215250327151217713.chn",
+      "nganh_hang": "Homecare",
+      "nhan_hang": [],
+      "keywords_found": [
+        "nước giặt"
+      ],
+      "crawl_timestamp": "2025-08-01T22:53:29.869718"
+    }
+  ],
+  "generated_at": "2025-08-01T22:53:38.119055",
+  "total_articles": 6,
+  "date_range": "Từ ngày 02/07/2025 đến ngày 01/08/2025"
+}

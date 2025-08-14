@@ -1,0 +1,44 @@
+{
+  "cache_version": "1.0",
+  "created_at": "2025-07-28T20:42:49.999759",
+  "ttl_hours": 8,
+  "crawl_status": "success",
+  "data": {
+    "source_name": "PHUNU",
+    "source_type": "Website",
+    "url": "phunuonline.com.vn",
+    "articles_found": [
+      {
+        "stt": 1,
+        "ngay_phat_hanh": "2025-06-24",
+        "dau_bao": "PHUNU",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Dầu cho thực ăn chăn nuôi thành dầu ăn cho người, Bộ Y tế nói gì?",
+        "tom_tat_noi_dung": "Bài viết đề cập đến việc dầu dành cho thực ăn chăn nuôi đã được chuyển đổi để sử dụng cho con người. Nhãn hàng Ofood của Công ty TNHH Sản xuất và XNK Nhật Minh Food là một ví dụ trong việc này, cùng với những thảo luận từ Bộ Y tế về tính an toàn của loại dầu này đối với sức khỏe con người.",
+        "link_bai_bao": "https://www.phunuonline.com.vn/dau-cho-thuc-an-chan-nuoi-thanh-dau-an-cho-nguoi-bo-y-te-noi-gi-a1553404.html",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-07-28T20:41:37.051120"
+      },
+      {
+        "stt": 2,
+        "ngay_phat_hanh": "2025-07-06",
+        "dau_bao": "PHUNU",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Lo ngại dầu ăn “bẩn”, người dân đổ xô đi ép dầu đạt chuẩn",
+        "tom_tat_noi_dung": "Bài báo mô tả tình hình lo ngại của người tiêu dùng về dầu ăn 'bẩn' trên thị trường, khiến người dân Nghệ An tìm đến các cơ sở ép dầu an toàn. Thị trường tham gia vào sự gia tăng giá trị của dầu ăn đạt chuẩn, lấy cảm hứng từ sự an toàn thực phẩm và sức khỏe người tiêu dùng.",
+        "link_bai_bao": "https://www.phunuonline.com.vn/lo-ngai-dau-an-ban-nguoi-dan-do-xo-di-ep-dau-dau-phong-a1554365.html",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-07-28T20:41:37.051120"
+      }
+    ],
+    "crawl_status": "success",
+    "error_message": "",
+    "crawl_duration": 854.70146,
+    "crawl_timestamp": "2025-07-28T20:42:49.960921",
+    "retry_count": 0
+  }
+}

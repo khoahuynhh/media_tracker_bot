@@ -1,0 +1,61 @@
+{
+  "overall_summary": {
+    "thoi_gian_trich_xuat": "2025-08-05T20:30:27.596318",
+    "industries": [
+      {
+        "nganh_hang": "Sữa (UHT)",
+        "nhan_hang": [
+          "Kun"
+        ],
+        "cum_noi_dung": [
+          "Ra mắt sản phẩm"
+        ],
+        "so_luong_bai": 1,
+        "cac_dau_bao": [
+          "TIENPHONG"
+        ]
+      }
+    ],
+    "cac_dau_bao": [
+      "TIENPHONG"
+    ],
+    "tong_so_bai": 1
+  },
+  "industry_summaries": [
+    {
+      "nganh_hang": "Sữa (UHT)",
+      "nhan_hang": [
+        "Kun"
+      ],
+      "cum_noi_dung": [
+        "Ra mắt sản phẩm"
+      ],
+      "so_luong_bai": 1,
+      "cac_dau_bao": [
+        "TIENPHONG"
+      ]
+    }
+  ],
+  "articles": [
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-08-05",
+      "dau_bao": "TIENPHONG",
+      "cum_noi_dung": "Ra mắt sản phẩm",
+      "cum_noi_dung_chi_tiet": "Ra mắt sản phẩm: Kun Sữa Lúa Mạch với công thức độc quyền",
+      "tom_tat_noi_dung": "Bài viết trình bày bí quyết về sản phẩm Kun Sữa Lúa Mạch với công thức độc quyền từ Viện Y học Ứng dụng Việt Nam. Sản phẩm này được giới thiệu là nguồn năng lượng mạnh mẽ cho trẻ em, bao gồm 3 thành phần chính. Bài viết nhấn mạnh lợi ích sức khỏe và sự phát triển của trẻ khi sử dụng sản phẩm.",
+      "link_bai_bao": "https://tienphong.vn/bi-quyet-kun-sua-lua-mach-bo-3-nang-luong-manh-me-chap-canh-con-yeu-khon-lon-toan-dien-post1765391.tpo",
+      "nganh_hang": "Sữa (UHT)",
+      "nhan_hang": [
+        "Kun"
+      ],
+      "keywords_found": [
+        "Kun"
+      ],
+      "crawl_timestamp": "2025-08-05T20:30:27.596318"
+    }
+  ],
+  "generated_at": "2025-08-05T20:30:34.441495",
+  "total_articles": 1,
+  "date_range": "Từ ngày 06/07/2025 đến ngày 05/08/2025"
+}

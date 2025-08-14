@@ -1,0 +1,31 @@
+{
+  "cache_version": "1.0",
+  "created_at": "2025-08-05T02:25:07.582835",
+  "ttl_hours": 8,
+  "crawl_status": "success",
+  "data": {
+    "source_name": "TOQUOC",
+    "source_type": "Website",
+    "url": "toquoc.vn",
+    "articles_found": [
+      {
+        "stt": 1,
+        "ngay_phat_hanh": "2025-07-21",
+        "dau_bao": "TOQUOC",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Ajinomoto nâng tầm sức khỏe người lao động qua các sáng kiến dinh dưỡng",
+        "tom_tat_noi_dung": "Ajinomoto Việt Nam đang đẩy mạnh các sáng kiến dinh dưỡng nhằm nâng cao sức khỏe và hạnh phúc cho nhân viên. Công ty đầu tư vào giáo dục dinh dưỡng và thể chất, với mỗi nhân viên được đào tạo khoảng 140 phút mỗi năm. Họ cũng khuyến khích các hoạt động thể chất thông qua các chương trình và cuộc thi như 'Mạnh thể chất, vững tinh thần', nhằm tạo ra một môi trường làm việc khỏe mạnh.",
+        "link_bai_bao": "https://thitruong.nld.com.vn/ajinomoto-nang-tam-suc-khoe-nguoi-lao-dong-qua-cac-sang-kien-dinh-duong-196250721154905135.htm",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-08-05T02:11:04.211991"
+      }
+    ],
+    "crawl_status": "success",
+    "error_message": "",
+    "crawl_duration": 911.924933,
+    "crawl_timestamp": "2025-08-05T02:25:07.582835",
+    "retry_count": 0
+  }
+}

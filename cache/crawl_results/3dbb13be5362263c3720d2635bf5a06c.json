@@ -1,0 +1,31 @@
+{
+  "cache_version": "1.0",
+  "created_at": "2025-07-28T22:24:39.947816",
+  "ttl_hours": 8,
+  "crawl_status": "success",
+  "data": {
+    "source_name": "SAIGONTIMESONLINE",
+    "source_type": "Website",
+    "url": "thesaigontimes.vn",
+    "articles_found": [
+      {
+        "stt": 2,
+        "ngay_phat_hanh": "2025-06-28",
+        "dau_bao": "SAIGONTIMESONLINE",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Những loại dầu ăn gây hại cho sức khỏe, không chỉ riêng dầu ăn chăn nuôi",
+        "tom_tat_noi_dung": "Bài viết phân tích các loại dầu ăn được chiết xuất từ dầu cọ và dầu nành, chỉ ra rằng những loại dầu này có thể ảnh hưởng tiêu cực đến sức khỏe con người. Việc pha trộn và chế biến những loại dầu kém chất lượng đã trở thành vấn đề chính trong ngành công nghiệp thực phẩm, dẫn đến sự quan tâm của người tiêu dùng về chất lượng dầu ăn.",
+        "link_bai_bao": "https://sgtt.thesaigontimes.vn/nhung-loai-dau-an-gay-hai-cho-suc-khoe-khong-chi-rieng-dau-an-chan-nuoi/",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-07-28T22:21:53.761117"
+      }
+    ],
+    "crawl_status": "success",
+    "error_message": "",
+    "crawl_duration": 1141.878894,
+    "crawl_timestamp": "2025-07-28T22:24:39.943817",
+    "retry_count": 0
+  }
+}

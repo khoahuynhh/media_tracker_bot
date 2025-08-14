@@ -1,0 +1,31 @@
+{
+  "cache_version": "1.0",
+  "created_at": "2025-07-30T11:18:12.698319",
+  "ttl_hours": 8,
+  "crawl_status": "success",
+  "data": {
+    "source_name": "TRETHO",
+    "source_type": "Website",
+    "url": "webtretho.com",
+    "articles_found": [
+      {
+        "stt": 1,
+        "ngay_phat_hanh": "2025-06-30",
+        "dau_bao": "TRETHO",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Gia vị chế biến sẵn: Tiện một, hại mỏi",
+        "tom_tat_noi_dung": "Bài viết đề cập đến việc sử dụng gia vị chế biến sẵn trong nấu ăn, mang lại sự tiện lợi nhưng cũng tiềm ẩn rủi ro về dinh dưỡng. Nhiều bà nội trợ chia sẻ kinh nghiệm và cách chọn lựa gia vị sao cho đảm bảo sức khỏe cho gia đình.",
+        "link_bai_bao": "https://www.webtretho.com/f/doc-bao-gium-ban/gia-vi-che-bien-san-tien-mot-hai-muoi-1742853",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-07-30T11:15:25.318837"
+      }
+    ],
+    "crawl_status": "success",
+    "error_message": "",
+    "crawl_duration": 949.745988,
+    "crawl_timestamp": "2025-07-30T11:18:12.689210",
+    "retry_count": 0
+  }
+}

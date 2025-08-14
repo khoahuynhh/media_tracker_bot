@@ -1,0 +1,207 @@
+{
+  "overall_summary": {
+    "thoi_gian_trich_xuat": "2025-07-30T10:29:49.981443",
+    "industries": [
+      {
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "cum_noi_dung": [
+          "An toàn thực phẩm",
+          "Hoạt động doanh nghiệp và thông tin sản phẩm",
+          "Khác"
+        ],
+        "so_luong_bai": 10,
+        "cac_dau_bao": [
+          "TRETHO",
+          "NHIPCAUDAUTU",
+          "CAFEF"
+        ]
+      }
+    ],
+    "cac_dau_bao": [
+      "TRETHO",
+      "NHIPCAUDAUTU",
+      "CAFEF"
+    ],
+    "tong_so_bai": 10
+  },
+  "industry_summaries": [
+    {
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "cum_noi_dung": [
+        "An toàn thực phẩm",
+        "Hoạt động doanh nghiệp và thông tin sản phẩm",
+        "Khác"
+      ],
+      "so_luong_bai": 10,
+      "cac_dau_bao": [
+        "TRETHO",
+        "NHIPCAUDAUTU",
+        "CAFEF"
+      ]
+    }
+  ],
+  "articles": [
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-06-30",
+      "dau_bao": "TRETHO",
+      "cum_noi_dung": "An toàn thực phẩm",
+      "cum_noi_dung_chi_tiet": "An toàn thực phẩm: Chọn dầu ăn an toàn và tốt cho sức khỏe",
+      "tom_tat_noi_dung": "Bài viết hướng dẫn cách chọn dầu ăn an toàn cho sức khỏe, nổi bật là lợi ích của dầu đậu nành và vitamin E. Tác giả nhấn mạnh việc lựa chọn dầu phù hợp không chỉ ảnh hưởng đến sức khỏe mà còn tạo ra hương vị cho món ăn. Dầu có thể cải thiện sức khỏe tim mạch và làm đẹp da hiệu quả.",
+      "link_bai_bao": "https://www.webtretho.com/f/an-de-khoe-dep/bi-quyet-chon-dung-loai-dau-an-de-nau-nuong-an-toan-cho-suc-khoe",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [
+        "dầu ăn",
+        "dầu đậu nành"
+      ],
+      "crawl_timestamp": "2025-07-30T10:29:49.980418"
+    },
+    {
+      "stt": 2,
+      "ngay_phat_hanh": "2025-07-25",
+      "dau_bao": "TRETHO",
+      "cum_noi_dung": "An toàn thực phẩm",
+      "cum_noi_dung_chi_tiet": "An toàn thực phẩm: Nguyên tắc bảo quản và sử dụng dầu đậu nành đúng cách",
+      "tom_tat_noi_dung": "Bài viết bàn về các mẹo và bí quyết khi chọn cũng như sử dụng dầu đậu nành, nhấn mạnh rằng sử dụng dầu trong điều kiện bảo quản không đúng có thể gây hại cho sức khỏe. Các khuyến cáo về cách bảo quản và cách sử dụng hiệu quả dầu đậu nành khi nấu nướng là phần trọng tâm.",
+      "link_bai_bao": "https://www.webtretho.com/f/cafe-webtretho/tron-bo-bi-kip-chon-va-su-dung-dau-dau-nanh-vua-ngon-vua-lanh-cho-ca-gia-dinh",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [
+        "dầu đậu nành"
+      ],
+      "crawl_timestamp": "2025-07-30T10:29:49.981443"
+    },
+    {
+      "stt": 3,
+      "ngay_phat_hanh": "2025-07-20",
+      "dau_bao": "TRETHO",
+      "cum_noi_dung": "An toàn thực phẩm",
+      "cum_noi_dung_chi_tiet": "An toàn thực phẩm: 8 loại dầu thực vật tốt cho sức khỏe gia đình",
+      "tom_tat_noi_dung": "Một danh sách gợi ý về tám loại dầu thực vật chất lượng đảm bảo sức khỏe với giá hợp lý, trong đó có dầu đậu nành Meizan. Bài viết nhấn mạnh lợi ích của việc sử dụng dầu thực vật tự nhiên và cách chúng có thể hỗ trợ sức khỏe người tiêu dùng.",
+      "link_bai_bao": "https://www.webtretho.com/p/8-dau-thuc-vat-chat-luong-gia-re-dam-bao-an-toan-cho-suc-khoe-ca-nha",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [
+        "dầu thực vật",
+        "dầu đậu nành"
+      ],
+      "crawl_timestamp": "2025-07-30T10:29:49.981443"
+    },
+    {
+      "stt": 4,
+      "ngay_phat_hanh": "2025-07-28",
+      "dau_bao": "TRETHO",
+      "cum_noi_dung": "An toàn thực phẩm",
+      "cum_noi_dung_chi_tiet": "An toàn thực phẩm: Phân tích lợi ích dinh dưỡng của dầu đậu nành janbee",
+      "tom_tat_noi_dung": "Bài viết phân tích các đặc điểm của dầu đậu nành janbee, cung cấp thông tin về các lợi ích dinh dưỡng mà loại dầu này mang lại. Những lời khuyên về cách chọn và kết hợp dầu đậu nành với các thực phẩm khác nhằm tối ưu hóa lợi ích sức khỏe cũng được đề cập.",
+      "link_bai_bao": "https://www.webtretho.com/f/dang-khoe-dang-dep/dau-dau-nanh-janbee-co-tot-khong-2583126",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [
+        "dầu đậu nành"
+      ],
+      "crawl_timestamp": "2025-07-30T10:29:49.981443"
+    },
+    {
+      "stt": 5,
+      "ngay_phat_hanh": "2025-07-10",
+      "dau_bao": "TRETHO",
+      "cum_noi_dung": "An toàn thực phẩm",
+      "cum_noi_dung_chi_tiet": "An toàn thực phẩm: Tiêu chí chọn và sử dụng dầu thực vật an toàn",
+      "tom_tat_noi_dung": "Bài viết đưa ra các tiêu chí để chọn loại dầu thực vật phù hợp cho nấu nướng, trong đó bao gồm dầu đậu nành. Các khuyến nghị về nhiệt độ sử dụng và cách bảo quản dầu cũng được trình bày, nhằm giúp người tiêu dùng có lựa chọn hợp lý và an toàn hơn trong việc chế biến thực phẩm.",
+      "link_bai_bao": "https://www.webtretho.com/f/nguyen-lieu-nau-nuong/dung-dau-thuc-vat-the-nao-thi-tot-2258447",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [
+        "dầu thực vật",
+        "dầu đậu nành"
+      ],
+      "crawl_timestamp": "2025-07-30T10:29:49.981443"
+    },
+    {
+      "stt": 2,
+      "ngay_phat_hanh": "2025-07-05",
+      "dau_bao": "TRETHO",
+      "cum_noi_dung": "Hoạt động doanh nghiệp và thông tin sản phẩm",
+      "cum_noi_dung_chi_tiet": "Thông tin sản phẩm: Dầu ăn hướng dương Kubanochka nhập khẩu từ Nga",
+      "tom_tat_noi_dung": "Bài viết giới thiệu chi tiết về sản phẩm dầu ăn hướng dương Kubanochka từ Nga, nhấn mạnh giá trị dinh dưỡng của sản phẩm như vitamin E và axit có lợi cho tim mạch. Nội dung bài viết cung cấp thông tin hữu ích cho những ai đang tìm kiếm nguồn dầu ăn chất lượng, tốt cho sức khỏe.",
+      "link_bai_bao": "https://www.webtretho.com/f/mua-gi-o-dau/dau-an-huong-duong-nhap-khau-tu-nga-kubanochka-2370850",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [
+        "dầu hướng dương"
+      ],
+      "crawl_timestamp": "2025-07-30T10:29:49.981443"
+    },
+    {
+      "stt": 3,
+      "ngay_phat_hanh": "2025-07-20",
+      "dau_bao": "TRETHO",
+      "cum_noi_dung": "An toàn thực phẩm",
+      "cum_noi_dung_chi_tiet": "An toàn thực phẩm: Phân tích tác hại của việc sử dụng dầu không rõ nguồn gốc",
+      "tom_tat_noi_dung": "Bài viết phân tích những loại dầu ăn đắt đỏ trên thị trường, lý do về giá trị dinh dưỡng và tác hại của việc sử dụng dầu không rõ nguồn gốc. Tác giả cũng đã chỉ ra những nguy cơ sức khỏe khi lựa chọn sai loại dầu, đặc biệt là các loại dễ oxy hóa.",
+      "link_bai_bao": "https://www.webtretho.com/f/meo-hay-suc-khoe-va-doi-song/su-that-ve-loai-dau-an-dat-gap-10-va-doc-gap-200-lan-2160797",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [
+        "dầu ăn"
+      ],
+      "crawl_timestamp": "2025-07-30T10:29:49.981443"
+    },
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-06-30",
+      "dau_bao": "NHIPCAUDAUTU",
+      "cum_noi_dung": "Hoạt động doanh nghiệp và thông tin sản phẩm",
+      "cum_noi_dung_chi_tiet": "Thông tin doanh nghiệp: Xu hướng nhập khẩu dầu đậu nành tại Việt Nam",
+      "tom_tat_noi_dung": "Việt Nam đã nhập khẩu 8 triệu tấn dầu đậu nành trong năm nay, với xu hướng gia tăng trong việc sử dụng dầu thực vật, cho thấy sự phát triển không ngừng của ngành dầu ăn trong nước. Vinasoy đã nhận giải thưởng quốc tế về đổi mới, khẳng định vị thế của mình trong ngành.",
+      "link_bai_bao": "https://m.nhipcaudautu.vn/dau-dau-nanh-tag.html",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [
+        "dầu đậu nành",
+        "dầu thực vật"
+      ],
+      "crawl_timestamp": "2025-07-30T10:29:49.981443"
+    },
+    {
+      "stt": 2,
+      "ngay_phat_hanh": "2025-07-10",
+      "dau_bao": "NHIPCAUDAUTU",
+      "cum_noi_dung": "Hoạt động doanh nghiệp và thông tin sản phẩm",
+      "cum_noi_dung_chi_tiet": "Thông tin doanh nghiệp: Dự án xây dựng nhà máy dầu ăn lớn nhất Việt Nam",
+      "tom_tat_noi_dung": "Dự án xây dựng nhà máy dầu ăn với tổng vốn đầu tư lên đến hơn 71,5 triệu USD sắp được hoàn thiện, hứa hẹn nâng cao công suất sản xuất và cung cấp sản phẩm dầu thực vật chất lượng cao, đáp ứng nhu cầu tiêu dùng ngày càng tăng tại Việt Nam.",
+      "link_bai_bao": "https://m.nhipcaudautu.vn/kinh-doanh/hon-70-trieu-usd-xay-nha-may-dau-an-lon-nhat-viet-nam-3276665/",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [
+        "nhà máy",
+        "dầu ăn",
+        "dầu thực vật"
+      ],
+      "crawl_timestamp": "2025-07-30T10:29:49.981443"
+    },
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-06-30",
+      "dau_bao": "CAFEF",
+      "cum_noi_dung": "Khác",
+      "cum_noi_dung_chi_tiet": "Khác: Chất lượng và giá trị dinh dưỡng của dầu Mamruko từ Nga",
+      "tom_tat_noi_dung": "Bài viết tìm hiểu về chất lượng và giá trị dinh dưỡng của dầu ăn cao cấp từ Nga, cụ thể là sản phẩm dầu hướng dưỡng Mamruko. Sản phẩm này nhắm đến đối tượng tiêu dùng đang tìm kiếm các loại dầu ăn an toàn và bổ dưỡng cho sức khỏe.",
+      "link_bai_bao": "https://cafef.vn/vu-dau-an-chan-nuoi-ho-bien-cho-nguoi-kinh-nghiem-3-dung-can-biet-188250630092652778.chn",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [
+        "dầu ăn",
+        "dầu hướng dương"
+      ],
+      "crawl_timestamp": "2025-07-30T10:29:55.373973"
+    }
+  ],
+  "generated_at": "2025-07-30T10:30:02.239616",
+  "total_articles": 10,
+  "date_range": "Từ ngày 30/06/2025 đến ngày 30/07/2025"
+}

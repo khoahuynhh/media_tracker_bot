@@ -1,0 +1,31 @@
+{
+  "cache_version": "1.0",
+  "created_at": "2025-08-05T00:38:47.691061",
+  "ttl_hours": 8,
+  "crawl_status": "success",
+  "data": {
+    "source_name": "HANOIMOI",
+    "source_type": "Website",
+    "url": "hanoimoi.vn",
+    "articles_found": [
+      {
+        "stt": 1,
+        "ngay_phat_hanh": "2025-07-21",
+        "dau_bao": "HANOIMOI",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Ajinomoto nâng tầm sức khỏe người lao động qua các sáng kiến dinh dưỡng",
+        "tom_tat_noi_dung": "",
+        "link_bai_bao": "https://thitruong.nld.com.vn/ajinomoto-nang-tam-suc-khoe-nguoi-lao-dong-qua-cac-sang-kien-dinh-duong-196250721154905135.htm",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-08-05T00:33:20.041749"
+      }
+    ],
+    "crawl_status": "success",
+    "error_message": "",
+    "crawl_duration": 862.90467,
+    "crawl_timestamp": "2025-08-05T00:38:47.689055",
+    "retry_count": 0
+  }
+}

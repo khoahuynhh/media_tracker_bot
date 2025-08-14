@@ -1,0 +1,44 @@
+{
+  "cache_version": "1.0",
+  "created_at": "2025-08-01T21:45:46.588580",
+  "ttl_hours": 8,
+  "crawl_status": "success",
+  "data": {
+    "source_name": "KENH14",
+    "source_type": "Website",
+    "url": "kenh14.vn",
+    "articles_found": [
+      {
+        "stt": 3,
+        "ngay_phat_hanh": "2025-08-01",
+        "dau_bao": "KENH14",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Mẹ 1 con ở thuê nhưng đam mê dọn nhà sạch bóng",
+        "tom_tat_noi_dung": "Bài viết nói về một bà mẹ đơn thân có đam mê dọn dẹp nhà cửa sạch sẽ, chia sẻ các mẹo và sản phẩm mà cô sử dụng để giữ cho không gian sống luôn gọn gàng, trong đó có các sản phẩm tẩy rửa hiệu quả như gel tẩy bồn cầu.",
+        "link_bai_bao": "https://kenh14.vn/me-1-con-o-thue-nhung-dam-me-don-nha-sach-bong-ai-ngo-toan-bi-kip-de-va-re-tien-215241030171209883.chn",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-08-01T21:44:54.591371"
+      },
+      {
+        "stt": 1,
+        "ngay_phat_hanh": "2025-08-01",
+        "dau_bao": "KENH14",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Top 5 nước giặt đời này tôi tin tưởng: Giá bình dân, chất lượng tốt",
+        "tom_tat_noi_dung": "Bài viết tổng hợp và đánh giá 5 loại nước giặt tốt nhất hiện nay, nhấn mạnh các lựa chọn với giá cả phải chăng và chất lượng vượt trội. Các sản phẩm được giới thiệu có thể đáp ứng nhu cầu sử dụng hàng ngày cho các gia đình tại Việt Nam.",
+        "link_bai_bao": "https://kenh14.vn/top-5-nuoc-giat-doi-nay-toi-tin-tuong-gia-binh-dan-chat-luong-tot-khoi-ban-215250327151217713.chn",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-08-01T21:45:46.190520"
+      }
+    ],
+    "crawl_status": "success",
+    "error_message": "",
+    "crawl_duration": 3084.37515,
+    "crawl_timestamp": "2025-08-01T21:45:46.586588",
+    "retry_count": 0
+  }
+}

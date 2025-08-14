@@ -5,6 +5,7 @@ This layer contains the core business logic and orchestrates the pipeline.
 It decouples the API (main.py) from the agents.
 """
 
+import os
 import asyncio
 import shutil
 import logging
@@ -15,37 +16,67 @@ from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional, DefaultDict
 from collections import defaultdict
 from jose import jwt, JWTError
+from jose.exceptions import ExpiredSignatureError
 from fastapi.security import OAuth2PasswordBearer
-from fastapi import HTTPException, Depends
+from fastapi import HTTPException, Depends, Request, status
 from openpyxl.utils import get_column_letter
 from openpyxl.styles import Alignment
 
 
 from .models import CompetitorReport, BotStatus, MediaType, Article
-from .agents import MediaTrackerTeam
+from .agents import MediaTrackerTeam, AgentManager
 from .configs import AppSettings
 from .task_state import task_manager
+
+# Attempt to import Celery task wrapper. If the `celery` package is not
+# installed or the module cannot be imported, we fall back to using
+# asyncio.create_task for background execution.
+try:
+    from .celery_worker import run_pipeline_task  # type: ignore[import]
+
+    CELERY_AVAILABLE = True
+except Exception:
+    run_pipeline_task = None  # type: ignore[assignment]
+    CELERY_AVAILABLE = False
 
 logger = logging.getLogger(__name__)
 
 SECRET_KEY = "your_secret_key"
 ALGORITHM = "HS256"
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/login")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "120"))
 
 
-def create_access_token(data: dict, expires_delta: timedelta = timedelta(hours=12)):
+def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()
-    expire = datetime.now(timezone.utc) + expires_delta
+    expire = datetime.now(timezone.utc) + (
+        expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    )
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 
-def get_current_user(token: str = Depends(oauth2_scheme)) -> str:
+def get_current_user(request: Request) -> str:
+    auth_header = request.headers.get("Authorization")
+    if not auth_header or not auth_header.startswith("Bearer "):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Token missing"
+        )
+
+    token = auth_header.split(" ")[1]
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(
+            token, SECRET_KEY, algorithms=[ALGORITHM]
+        )  # tự verify 'exp'
         return payload.get("sub")
+    except ExpiredSignatureError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Token expired"
+        )
     except JWTError:
-        raise HTTPException(status_code=401, detail="Token is invalid or expired")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
+        )
 
 
 class PipelineService:
@@ -59,6 +90,37 @@ class PipelineService:
         self.team: Optional[MediaTrackerTeam] = None
         self.status_by_source = {}
         self.user_email = user_email
+        self.agent_manager = AgentManager.get_instance()
+
+    def cancel_provider(self, session_id: str, provider: str) -> bool:
+        try:
+            ok = self.agent_manager.cancel_provider(
+                session_id=session_id, provider=provider
+            )
+            if ok:
+                import time
+
+                t0 = time.monotonic()
+                while time.monotonic() - t0 < 2.0:
+                    if not getattr(self.agent_manager, "is_running", lambda *_: False)(
+                        session_id, provider
+                    ):
+                        break
+                    time.sleep(0.05)
+            return ok
+        except Exception:
+            logging.exception(
+                "cancel_provider failed (session=%s, provider=%s)", session_id, provider
+            )
+            return False
+
+    def _source_key_of(self, s):
+        ref = getattr(s, "reference_name", None)
+        if ref:
+            return str(ref).strip().lower()
+        t = str(getattr(s, "type", "")).strip().lower()
+        d = str(getattr(s, "domain", "")).strip().lower()
+        return f"{t}|{d}"
 
     async def run_pipeline_logic(
         self,
@@ -67,6 +129,7 @@ class PipelineService:
         start_date: Optional[str] = None,
         end_date: Optional[str] = None,
         custom_keywords: Optional[Dict[str, List[str]]] = None,
+        selected_sources: Optional[List[str]] = None,
     ) -> Optional[CompetitorReport]:
         logger.info(f"[{session_id}] Starting media tracking pipeline...")
         self.current_session_id = session_id
@@ -76,6 +139,16 @@ class PipelineService:
 
         if custom_keywords:
             session_config.keywords = custom_keywords
+
+        # NEW: lọc theo selected_sources nếu user chọn
+        if selected_sources:
+            sel = {str(x).strip().lower() for x in selected_sources}
+
+            def _match(s):
+                return self._source_key_of(s) in sel
+
+            filtered = [s for s in session_config.media_sources if _match(s)]
+            session_config.media_sources = filtered
 
         if start_date and end_date:
             try:
@@ -140,6 +213,24 @@ class PipelineService:
 
     def resume_task_worker(self, session_id):
         logger.info(f"[{session_id}] Resuming pipeline execution (resume_task_worker)")
+        use_celery = CELERY_AVAILABLE and os.getenv("CELERY_ENABLED", "0") == "1"
+        if use_celery:
+            try:
+                # Dispatch resumed execution to Celery
+                run_pipeline_task.delay(
+                    session_id=session_id,
+                    user_email=self.user_email,
+                    start_date=None,
+                    end_date=None,
+                    custom_keywords=None,
+                    selected_sources=None,
+                )
+                return
+            except Exception as exc:
+                logger.exception(
+                    f"Failed to dispatch Celery resume task for session {session_id}: {exc}"
+                )
+        # Fallback to local async task
         asyncio.create_task(self._task_worker(session_id))
 
     def _update_task_progress(
@@ -264,6 +355,7 @@ class PipelineService:
                 start_date=params["start_date"],
                 end_date=params["end_date"],
                 custom_keywords=params["custom_keywords"],
+                selected_sources=params.get("selected_sources") or [],
             )
             task_manager.update_task(
                 self.user_email, session_id, {"status": "completed", "progress": 100.0}
@@ -309,8 +401,30 @@ class PipelineService:
                 )
 
     def run_background_task(
-        self, session_id, start_date=None, end_date=None, custom_keywords=None
+        self,
+        user_email,
+        session_id,
+        start_date=None,
+        end_date=None,
+        custom_keywords=None,
+        selected_sources=None,
     ):
+        if (
+            selected_sources
+            and isinstance(selected_sources, list)
+            and len(selected_sources) > 0
+        ):
+            sel = {str(x).strip().lower() for x in selected_sources}
+
+            def _match(s):
+                return self._source_key_of(s) in sel
+
+            media_sources = [
+                s for s in self.settings.crawl_config.media_sources if _match(s)
+            ]
+        else:
+            media_sources = self.settings.crawl_config.media_sources
+        total_sources = len(media_sources)
         task_data = {
             "session_id": session_id,
             "status": "pending",
@@ -323,9 +437,10 @@ class PipelineService:
                 "start_date": start_date,
                 "end_date": end_date,
                 "custom_keywords": custom_keywords,
+                "selected_sources": selected_sources or [],
             },
             "current_source": None,
-            "total_sources": len(self.settings.crawl_config.media_sources),
+            "total_sources": total_sources,
             "completed_sources": 0,
             "failed_sources": 0,
             "current_task": "Khởi động pipeline",
@@ -333,9 +448,52 @@ class PipelineService:
         }
 
         task_manager.add_task(self.user_email, task_data)
+        task_manager.set_task_attr(
+            self.user_email,
+            session_id,
+            "media_sources",
+            [
+                {
+                    "source_key": self._source_key_of(s),
+                    "name": s.name,
+                    "type": s.type,
+                    "domain": s.domain,
+                    "reference_name": getattr(s, "reference_name", None),
+                }
+                for s in media_sources
+            ],
+        )
 
-        # Khởi chạy task async
-        asyncio.create_task(self._task_worker(session_id))
+        # và lưu riêng danh sách key (dùng hiển thị/khôi phục)
+        task_manager.set_task_attr(
+            user_email,
+            session_id,
+            "selected_source_keys",
+            [self._source_key_of(s) for s in media_sources],
+        )
+
+        # Choose between Celery and local async task execution
+        use_celery = CELERY_AVAILABLE and os.getenv("CELERY_ENABLED", "0") == "1"
+        if use_celery:
+            # Dispatch to Celery worker; do not await
+            try:
+                run_pipeline_task.delay(
+                    session_id=session_id,
+                    user_email=user_email,
+                    start_date=start_date,
+                    end_date=end_date,
+                    custom_keywords=custom_keywords,
+                    selected_sources=selected_sources,
+                )
+            except Exception as exc:
+                logger.exception(
+                    f"Failed to dispatch Celery task for session {session_id}: {exc}"
+                )
+                # Fallback to local execution
+                asyncio.create_task(self._task_worker(session_id))
+        else:
+            # Fall back to local asynchronous execution
+            asyncio.create_task(self._task_worker(session_id))
 
         return session_id
 
@@ -499,6 +657,7 @@ class PipelineService:
                 for brand, articles in articles_by_brand.items():
                     first_article = articles[0]
                     sheet_name = f"Ngành {first_article.nganh_hang[:31]} - {brand[:25]}"  # Giới hạn tên sheet
+                    sheet_name = sheet_name[:31]  # Đảm bảo không quá 31 ký tự
                     df = pd.DataFrame(
                         [
                             {
@@ -518,7 +677,6 @@ class PipelineService:
                     )
                     # Sequence STT
                     df["STT"] = range(1, len(df) + 1)
-                    # Nếu muốn nó ở đầu tiên:
                     df = df[["STT"] + [col for col in df.columns if col != "STT"]]
                     df.to_excel(writer, sheet_name=sheet_name, index=False)
 

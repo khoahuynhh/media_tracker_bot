@@ -1,0 +1,31 @@
+{
+  "cache_version": "1.0",
+  "created_at": "2025-08-05T11:18:13.315353",
+  "ttl_hours": 8,
+  "crawl_status": "success",
+  "data": {
+    "source_name": "LAODONG",
+    "source_type": "Website",
+    "url": "laodong.vn",
+    "articles_found": [
+      {
+        "stt": 2,
+        "ngay_phat_hanh": "2025-07-17",
+        "dau_bao": "LAODONG",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Đột phá 6 HMO: Bước tiến dinh dưỡng của Vinamilk tại Diễn đàn dinh dưỡng lớn nhất châu Á",
+        "tom_tat_noi_dung": "Vinamilk đã giới thiệu sản phẩm mới với công thức dinh dưỡng 6 HMO tại diễn đàn dinh dưỡng châu Á, nhấn mạnh vai trò quan trọng của dinh dưỡng trong sự phát triển của trẻ em. Sự kiện thu hút sự quan tâm lớn từ cả các chuyên gia dinh dưỡng và phụ huynh, tạo đà cho việc nâng cao nhận thức về sản phẩm sữa UHT.",
+        "link_bai_bao": "https://laodong.vn/suc-khoe/dot-pha-6-hmo-buoc-tien-dinh-duong-cua-vinamilk-tai-dien-dan-dinh-duong-lon-nhat-chau-a-1541685.ldo",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-08-05T11:16:58.667468"
+      }
+    ],
+    "crawl_status": "success",
+    "error_message": "",
+    "crawl_duration": 434.314172,
+    "crawl_timestamp": "2025-08-05T11:18:13.308943",
+    "retry_count": 0
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "overall_summary": {
+    "thoi_gian_trich_xuat": "Từ ngày 03/07/2025 đến ngày 02/08/2025",
+    "industries": [
+      {
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "cum_noi_dung": [
+          "Khác"
+        ],
+        "so_luong_bai": 1,
+        "cac_dau_bao": [
+          "NHADAUTU"
+        ]
+      }
+    ],
+    "cac_dau_bao": [],
+    "tong_so_bai": 1
+  },
+  "industry_summaries": [
+    {
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "cum_noi_dung": [
+        "Khác"
+      ],
+      "so_luong_bai": 1,
+      "cac_dau_bao": [
+        "NHADAUTU"
+      ]
+    }
+  ],
+  "articles": [
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-30",
+      "dau_bao": "NHADAUTU",
+      "cum_noi_dung": null,
+      "cum_noi_dung_chi_tiet": "Chưa rõ",
+      "tom_tat_noi_dung": "",
+      "link_bai_bao": "https://nhadautu.vn/gia-nguyen-lieu-tang-anh-huong-den-loi-nhuan-vinamilk-d98095.html",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-08-02T13:57:29.650919"
+    }
+  ],
+  "generated_at": "2025-08-02T14:13:02.651615",
+  "total_articles": 1,
+  "date_range": "Từ ngày 03/07/2025 đến ngày 02/08/2025"
+}

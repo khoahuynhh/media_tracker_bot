@@ -1,0 +1,97 @@
+{
+  "overall_summary": {
+    "thoi_gian_trich_xuat": "Từ ngày 02/07/2025 đến ngày 31/07/2025",
+    "industries": [
+      {
+        "nganh_hang": "Sữa (UHT)",
+        "nhan_hang": [
+          "Vinamilk"
+        ],
+        "cum_noi_dung": [
+          "Báo cáo tài chính",
+          "Hoạt động doanh nghiệp và thông tin sản phẩm"
+        ],
+        "so_luong_bai": 3,
+        "cac_dau_bao": [
+          "LAODONG"
+        ]
+      }
+    ],
+    "cac_dau_bao": [
+      "LAODONG"
+    ],
+    "tong_so_bai": 3
+  },
+  "industry_summaries": [
+    {
+      "nganh_hang": "Sữa (UHT)",
+      "nhan_hang": [
+        "Vinamilk"
+      ],
+      "cum_noi_dung": [
+        "Báo cáo tài chính",
+        "Hoạt động doanh nghiệp và thông tin sản phẩm"
+      ],
+      "so_luong_bai": 3,
+      "cac_dau_bao": [
+        "LAODONG"
+      ]
+    }
+  ],
+  "articles": [
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-30",
+      "dau_bao": "LAODONG",
+      "cum_noi_dung": "Báo cáo tài chính",
+      "cum_noi_dung_chi_tiet": "Báo cáo tài chính: Vinamilk đạt doanh thu kỷ lục quý 2/2025",
+      "tom_tat_noi_dung": "",
+      "link_bai_bao": "https://laodong.vn/kinh-doanh/vinamilk-ghi-nhan-doanh-thu-quy-22025-cao-nhat-tu-truoc-den-nay-16745-ti-dong-1549729.ldo",
+      "nganh_hang": "Sữa (UHT)",
+      "nhan_hang": [
+        "Vinamilk"
+      ],
+      "keywords_found": [
+        "Vinamilk"
+      ],
+      "crawl_timestamp": "2025-08-05T12:39:03.653391"
+    },
+    {
+      "stt": 2,
+      "ngay_phat_hanh": "2025-07-17",
+      "dau_bao": "LAODONG",
+      "cum_noi_dung": "Hoạt động doanh nghiệp và thông tin sản phẩm",
+      "cum_noi_dung_chi_tiet": "Hoạt động doanh nghiệp: Bước tiến dinh dưỡng của Vinamilk tại diễn đàn châu Á",
+      "tom_tat_noi_dung": "",
+      "link_bai_bao": "https://laodong.vn/suc-khoe/dot-pha-6-hmo-buoc-tien-dinh-duong-cua-vinamilk-tai-dien-dan-dinh-duong-lon-nhat-chau-a-1541685.ldo",
+      "nganh_hang": "Sữa (UHT)",
+      "nhan_hang": [
+        "Vinamilk"
+      ],
+      "keywords_found": [
+        "Vinamilk"
+      ],
+      "crawl_timestamp": "2025-08-05T12:39:03.653391"
+    },
+    {
+      "stt": 3,
+      "ngay_phat_hanh": "2025-07-02",
+      "dau_bao": "LAODONG",
+      "cum_noi_dung": "Hoạt động doanh nghiệp và thông tin sản phẩm",
+      "cum_noi_dung_chi_tiet": "Giải thưởng: Vinamilk giành cú đúp giải thưởng quốc tế",
+      "tom_tat_noi_dung": "",
+      "link_bai_bao": "https://laodong.vn/kinh-doanh/vinamilk-gianh-cu-dup-giai-thuong-quoc-te-ve-ca-noi-dung-va-hinh-thuc-san-pham-quan-quan-co-gi-dac-biet-1533103.ldo",
+      "nganh_hang": "Sữa (UHT)",
+      "nhan_hang": [
+        "Vinamilk"
+      ],
+      "keywords_found": [
+        "Vinamilk"
+      ],
+      "crawl_timestamp": "2025-08-05T12:39:03.653391"
+    }
+  ],
+  "generated_at": "2025-08-05T12:39:09.913510",
+  "total_articles": 3,
+  "date_range": "Từ ngày 02/07/2025 đến ngày 31/07/2025"
+}

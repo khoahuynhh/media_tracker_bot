@@ -1,0 +1,31 @@
+{
+  "cache_version": "1.0",
+  "created_at": "2025-08-05T02:51:25.678201",
+  "ttl_hours": 8,
+  "crawl_status": "success",
+  "data": {
+    "source_name": "GIAODỤC&THOIĐAI",
+    "source_type": "Website",
+    "url": "giaoducthoidai.vn",
+    "articles_found": [
+      {
+        "stt": 1,
+        "ngay_phat_hanh": "2025-07-21",
+        "dau_bao": "GIAODỤC&THOIĐAI",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Ajinomoto nâng tầm sức khỏe người lao động qua các sáng kiến dinh dưỡng",
+        "tom_tat_noi_dung": "Ajinomoto Việt Nam đã phát động nhiều sáng kiến chăm sóc sức khỏe cho nhân viên, với các chương trình giáo dục dinh dưỡng và thúc đẩy hoạt động thể dục thể thao. Trung bình mỗi nhân viên được đào tạo về dinh dưỡng 140 phút/năm dưới sự hướng dẫn của chuyên gia, nhằm củng cố sức khỏe cả thể chất và tinh thần.",
+        "link_bai_bao": "https://thitruong.nld.com.vn/ajinomoto-nang-tam-suc-khoe-nguoi-lao-dong-qua-cac-sang-kien-dinh-duong-196250721154905135.htm",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-08-05T02:44:16.574349"
+      }
+    ],
+    "crawl_status": "success",
+    "error_message": "",
+    "crawl_duration": 963.726301,
+    "crawl_timestamp": "2025-08-05T02:51:25.670199",
+    "retry_count": 0
+  }
+}

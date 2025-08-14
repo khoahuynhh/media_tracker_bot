@@ -1,0 +1,44 @@
+{
+  "cache_version": "1.0",
+  "created_at": "2025-08-02T00:28:08.609281",
+  "ttl_hours": 8,
+  "crawl_status": "success",
+  "data": {
+    "source_name": "VOV",
+    "source_type": "Website",
+    "url": "vov.vn",
+    "articles_found": [
+      {
+        "stt": 3,
+        "ngay_phat_hanh": "2025-07-17",
+        "dau_bao": "VOV",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Phát gần 200 triệu đồng doanh nghiệp sản xuất hàng giả nhãn hiệu",
+        "tom_tat_noi_dung": "Bài viết báo cáo một cuộc điều tra tại Việt Nam phát hiện doanh nghiệp sản xuất hàng giả, trong đó có sản phẩm nước rửa chén. Hành động này gây ảnh hưởng tiêu cực đến người tiêu dùng và thị trường.",
+        "link_bai_bao": "https://vov.vn/thi-truong/phat-gan-200-trieu-dong-doanh-nghiep-san-xuat-hang-gia-nhan-hieu-d-nee-tauau-post1215289.vov",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-08-02T00:26:41.051602"
+      },
+      {
+        "stt": 1,
+        "ngay_phat_hanh": "2025-08-01",
+        "dau_bao": "VOV",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Chưa rõ",
+        "tom_tat_noi_dung": "Bài viết nhấn mạnh tầm quan trọng của việc chọn lựa sản phẩm nước giặt và xả vải phù hợp cho làn da nhạy cảm của trẻ, đặc biệt là trong mùa hè. Sự lựa chọn không đúng có thể dẫn đến nhiều vấn đề về da cho trẻ nhỏ và cần lưu ý các thành phần hóa học có trong sản phẩm.",
+        "link_bai_bao": "https://vov2.vov.vn/nuoc-giat-nuoc-xa-vai-can-trong-voi-lan-da-tre-25099.vov",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-08-02T00:28:08.374848"
+      }
+    ],
+    "crawl_status": "success",
+    "error_message": "",
+    "crawl_duration": 4703.261112,
+    "crawl_timestamp": "2025-08-02T00:28:08.608235",
+    "retry_count": 0
+  }
+}

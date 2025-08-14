@@ -1,0 +1,83 @@
+{
+  "overall_summary": {
+    "thoi_gian_trich_xuat": "Từ ngày 06/07/2025 đến ngày 05/08/2025",
+    "industries": [
+      {
+        "nganh_hang": "Gia vị",
+        "nhan_hang": [
+          "Ajinomoto Việt Nam"
+        ],
+        "cum_noi_dung": [
+          "Hoạt động doanh nghiệp và thông tin sản phẩm",
+          "Khác"
+        ],
+        "so_luong_bai": 2,
+        "cac_dau_bao": [
+          "BAOCHINHPHU",
+          "HANOIMOI"
+        ]
+      }
+    ],
+    "cac_dau_bao": [
+      "BAOCHINHPHU",
+      "HANOIMOI"
+    ],
+    "tong_so_bai": 2
+  },
+  "industry_summaries": [
+    {
+      "nganh_hang": "Gia vị",
+      "nhan_hang": [
+        "Ajinomoto Việt Nam"
+      ],
+      "cum_noi_dung": [
+        "Hoạt động doanh nghiệp và thông tin sản phẩm",
+        "Khác"
+      ],
+      "so_luong_bai": 2,
+      "cac_dau_bao": [
+        "BAOCHINHPHU",
+        "HANOIMOI"
+      ]
+    }
+  ],
+  "articles": [
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-21",
+      "dau_bao": "BAOCHINHPHU",
+      "cum_noi_dung": "Hoạt động doanh nghiệp và thông tin sản phẩm",
+      "cum_noi_dung_chi_tiet": "Khác: Ajinomoto triển khai sáng kiến nâng cao sức khỏe lao động",
+      "tom_tat_noi_dung": "Ajinomoto Việt Nam đã triển khai nhiều sáng kiến nhằm nâng cao sức khỏe của người lao động, bao gồm giáo dục dinh dưỡng, hoạt động thể chất, và các chương trình thể thao. Hàng năm, nhân viên được đào tạo về dinh dưỡng và hoạt động thể chất nhằm tạo ra một môi trường làm việc khỏe mạnh và hạnh phúc.",
+      "link_bai_bao": "https://thitruong.nld.com.vn/ajinomoto-nang-tam-suc-khoe-nguoi-lao-dong-qua-cac-sang-kien-dinh-duong-196250721154905135.htm",
+      "nganh_hang": "Gia vị",
+      "nhan_hang": [
+        "Ajinomoto Việt Nam"
+      ],
+      "keywords_found": [
+        "Ajinomoto Việt Nam"
+      ],
+      "crawl_timestamp": "2025-08-05T00:40:51.577641"
+    },
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-21",
+      "dau_bao": "HANOIMOI",
+      "cum_noi_dung": "Khác",
+      "cum_noi_dung_chi_tiet": "Khác: Ajinomoto nâng tầm sức khỏe người lao động với sáng kiến dinh dưỡng",
+      "tom_tat_noi_dung": "",
+      "link_bai_bao": "https://thitruong.nld.com.vn/ajinomoto-nang-tam-suc-khoe-nguoi-lao-dong-qua-cac-sang-kien-dinh-duong-196250721154905135.htm",
+      "nganh_hang": "Gia vị",
+      "nhan_hang": [
+        "Ajinomoto Việt Nam"
+      ],
+      "keywords_found": [
+        "Ajinomoto Việt Nam"
+      ],
+      "crawl_timestamp": "2025-08-05T00:40:51.577641"
+    }
+  ],
+  "generated_at": "2025-08-05T00:41:02.008806",
+  "total_articles": 2,
+  "date_range": "Từ ngày 06/07/2025 đến ngày 05/08/2025"
+}

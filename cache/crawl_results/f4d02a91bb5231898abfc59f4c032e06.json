@@ -1,0 +1,70 @@
+{
+  "cache_version": "1.0",
+  "created_at": "2025-07-28T22:54:02.647291",
+  "ttl_hours": 8,
+  "crawl_status": "success",
+  "data": {
+    "source_name": "24H",
+    "source_type": "Website",
+    "url": "24h.com.vn",
+    "articles_found": [
+      {
+        "stt": 1,
+        "ngay_phat_hanh": "2025-06-28",
+        "dau_bao": "24H",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Dầu Olive Pomace Basso 1L - Nam An Market",
+        "tom_tat_noi_dung": "Basso là thương hiệu nổi tiếng về dầu olive, cung cấp sản phẩm dầu Olive Pomace với tiêu chuẩn cao. Sản phẩm này không chỉ chất lượng mà còn thích hợp cho nhiều nhu cầu nấu ăn hàng ngày.",
+        "link_bai_bao": "https://namanmarket.com/products/dau-oliu-pomace-basso-1l-1949?srsltid=AfmBOoqrJxUEps0iavIL5V6St-0Yo65V_vHk9yregoYxQB69Icri954p",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-07-28T22:37:30.928307"
+      },
+      {
+        "stt": 2,
+        "ngay_phat_hanh": "2025-07-15",
+        "dau_bao": "24H",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Dầu olive Basso nguyên chất thơm ngon, tốt cho sức khỏe",
+        "tom_tat_noi_dung": "Dầu olive Basso là sản phẩm nhập khẩu từ Ý, nổi bật với hương vị thơm ngon và hàm lượng dinh dưỡng cao, tốt cho sức khỏe. Thương hiệu này có trên 110 năm kinh nghiệm trong ngành chế biến dầu olive.",
+        "link_bai_bao": "https://www.bachhoaxanh.com/kinh-nghiem-hay/dau-olive-basso-nguyen-chat-thom-ngon-tot-cho-suc-khoe-1393241",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-07-28T22:37:30.928307"
+      },
+      {
+        "stt": 3,
+        "ngay_phat_hanh": "2025-07-25",
+        "dau_bao": "24H",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Dầu olive Extra Virgin hiệу Latino Bella 250ml - Homefarm",
+        "tom_tat_noi_dung": "Latino Bella cung cấp loại dầu olive extra virgin 100% tự nhiên, được chiết xuất từ những trái olive tốt nhất. Sản phẩm này không chỉ dùng cho nấu ăn mà còn tốt cho sức khỏe.",
+        "link_bai_bao": "https://homefarm.vn/products/dau-extra-virgin-hieu-latino-bella-250ml?srsltid=AfmBOoqRLvvjrPKBcYahdGB6JmNr-HEjMIN6EgbcEOKnjXhwSRiGkBek",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-07-28T22:37:30.928833"
+      },
+      {
+        "stt": 4,
+        "ngay_phat_hanh": "2025-07-15",
+        "dau_bao": "24H",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Metro Chef - Extra Virgin Olive Oil 5L - Classic Deli",
+        "tom_tat_noi_dung": "Dầu olive Extra Virgin Metro Chef là lựa chọn hoàn hảo cho những ai yêu thích nấu ăn với chất lượng cao. Sản phẩm có độ ổn định cao, thích hợp để chế biến các món ăn.",
+        "link_bai_bao": "https://classicdeli.vn/danang/vn/hang-thc-pham-kho/2669-metro-chef-dau-oliu-extra-virgin-5l.html?srsltid=AfmBOopY9Ios6GRXU_0q3kAqbjvuQrqMCgqWwX2DFdJqYintCMHVwZGo",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-07-28T22:37:30.928833"
+      }
+    ],
+    "crawl_status": "success",
+    "error_message": "",
+    "crawl_duration": 2904.865501,
+    "crawl_timestamp": "2025-07-28T22:54:02.646286",
+    "retry_count": 0
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "cache_version": "1.0",
+  "created_at": "2025-07-28T21:53:21.234287",
+  "ttl_hours": 8,
+  "crawl_status": "success",
+  "data": {
+    "source_name": "SAIGONTIMESONLINE",
+    "source_type": "Website",
+    "url": "thesaigontimes.vn",
+    "articles_found": [
+      {
+        "stt": 2,
+        "ngay_phat_hanh": "2025-06-19",
+        "dau_bao": "SAIGONTIMESONLINE",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Chiến sự Israel - Iran đẩy giá dầu đậu nành và dầu cọ tăng vọt",
+        "tom_tat_noi_dung": "Tình hình xung đột giữa Israel và Iran đang khiến giá dầu đậu nành và dầu cọ tăng vọt do chi phí năng lượng gia tăng. Sự biến động này có thể làm ảnh hưởng đến giá cả thực phẩm trên thị trường toàn cầu.",
+        "link_bai_bao": "https://thesaigontimes.vn/chien-su-israel-iran-day-gia-dau-dau-nanh-va-dau-co-tang-vot/",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-07-28T21:47:15.144330"
+      }
+    ],
+    "crawl_status": "success",
+    "error_message": "",
+    "crawl_duration": 1738.750114,
+    "crawl_timestamp": "2025-07-28T21:53:21.230036",
+    "retry_count": 0
+  }
+}

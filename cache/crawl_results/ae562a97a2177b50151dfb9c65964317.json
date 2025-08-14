@@ -1,0 +1,31 @@
+{
+  "cache_version": "1.0",
+  "created_at": "2025-08-05T01:53:33.485908",
+  "ttl_hours": 8,
+  "crawl_status": "success",
+  "data": {
+    "source_name": "XAYDUNG",
+    "source_type": "Website",
+    "url": "baoxaydung.com.vn",
+    "articles_found": [
+      {
+        "stt": 1,
+        "ngay_phat_hanh": "2025-07-21",
+        "dau_bao": "XAYDUNG",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Chưa rõ",
+        "tom_tat_noi_dung": "",
+        "link_bai_bao": "https://thitruong.nld.com.vn/ajinomoto-nang-tam-suc-khoe-nguoi-lao-dong-qua-cac-sang-kien-dinh-duong-196250721154905135.htm",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-08-05T01:46:39.519138"
+      }
+    ],
+    "crawl_status": "success",
+    "error_message": "",
+    "crawl_duration": 457.239594,
+    "crawl_timestamp": "2025-08-05T01:53:33.484910",
+    "retry_count": 0
+  }
+}

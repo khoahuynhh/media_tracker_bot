@@ -4,10 +4,12 @@ Structured data models phù hợp với template report hiện tại
 """
 
 import json
+
 from typing import List, Optional, Dict, Any
 from datetime import datetime, date
 from enum import Enum
 from pydantic import BaseModel, Field, model_validator, field_validator, ConfigDict
+from difflib import get_close_matches
 
 
 class UserLogin(BaseModel):
@@ -33,6 +35,18 @@ class MediaType(str, Enum):
     TV_CHANNEL = "TV Channel"
 
 
+class MediaSource(BaseModel):
+    """Model cho nguồn media từ danh sách gốc"""
+
+    model_config = ConfigDict(use_enum_values=True)
+    # id: str = Field(..., description="Định danh duy nhất (khớp CSV)")
+    stt: int = Field(..., description="Số thứ tự")
+    name: str = Field(..., description="Tên media source")
+    type: MediaType = Field(..., description="Loại media")
+    domain: Optional[str] = Field(None, description="Domain cho website")
+    reference_name: Optional[str] = Field(None, description="Tên tham chiếu cho TV")
+
+
 class IndustryType(str, Enum):
     """Các ngành hàng theo template"""
 
@@ -41,7 +55,7 @@ class IndustryType(str, Enum):
     GAO_NGU_COC = "Gạo & Ngũ cốc"
     SUA_UHT = "Sữa (UHT)"
     BABY_FOOD = "Baby Food"
-    HOME_CARE = "Home Care"
+    HOME_CARE = "Homecare"
 
 
 class ContentCluster(str, Enum):
@@ -68,20 +82,12 @@ class KeywordManager:
             for kw in keywords:
                 if kw.lower() in text_lower:
                     return cluster
-        return "Khác"
+        return ContentCluster.OTHER.value
 
 
-class MediaSource(BaseModel):
-    """Model cho nguồn media từ danh sách gốc"""
-
-    # Sử dụng ConfigDict thay cho class Config
-    model_config = ConfigDict(use_enum_values=True)
-
-    stt: int = Field(..., description="Số thứ tự")
-    name: str = Field(..., description="Tên media source")
-    type: MediaType = Field(..., description="Loại media")
-    domain: Optional[str] = Field(None, description="Domain cho website")
-    reference_name: Optional[str] = Field(None, description="Tên tham chiếu cho TV")
+# Note: Removed duplicate MediaSource definition. The MediaSource class is defined once above
+# with fields including `id`, `stt`, `name`, `type`, `domain` and `reference_name`. This
+# duplicate definition (lacking the `id` field) has been removed to avoid confusion.
 
 
 class Article(BaseModel):
@@ -112,11 +118,12 @@ class Article(BaseModel):
     @field_validator("ngay_phat_hanh", mode="before")
     def parse_ngay_phat_hanh(cls, v):
         if isinstance(v, str):
-            # Thử parse dd/mm/yyyy trước
-            try:
-                return datetime.strptime(v, "%d/%m/%Y").date()
-            except ValueError:
-                pass
+            # Try to parse some standard format
+            for fmt in ("%d/%m/%Y", "%Y-%m-%d", "%Y/%m/%d", "%d-%m-%Y"):
+                try:
+                    return datetime.strptime(v.strip(), fmt).date()
+                except ValueError:
+                    continue
             # Thử parse ISO format YYYY-MM-DD (mặc định Pydantic hỗ trợ)
             try:
                 return datetime.fromisoformat(v).date()
@@ -134,10 +141,24 @@ class Article(BaseModel):
             return v
         return str(v) if v else "https://example.com"
 
+    @staticmethod
+    def normalize_cluster(value: str) -> str:
+        if not value:
+            return "Khác"
+        value = value.strip().lower()
+        for cluster in ContentCluster:
+            if cluster.value.lower() == value:
+                return cluster.value
+        return "Khác"
+
     @field_validator("cum_noi_dung", mode="before")
     def convert_cum_noi_dung(cls, v):
         if isinstance(v, str):
-            return ContentCluster(v)
+            normalized = cls.normalize_cluster(v)
+            try:
+                return ContentCluster(normalized)
+            except ValueError:
+                return ContentCluster.OTHER
         return v
 
 
@@ -159,8 +180,22 @@ class IndustrySummary(BaseModel):
     )
 
     @field_validator("cum_noi_dung", mode="before")
+    @classmethod
     def convert_cluster(cls, v):
-        return [ContentCluster(c) if isinstance(c, str) else c for c in v]
+        def to_enum(val: str):
+            try:
+                return ContentCluster(val)
+            except ValueError:
+                match = get_close_matches(val, [e.value for e in ContentCluster], n=1)
+                if match:
+                    return ContentCluster(match[0])
+                return ContentCluster.OTHER.value
+
+        if isinstance(v, str):
+            return [to_enum(v)]
+        if isinstance(v, list):
+            return [to_enum(c) if isinstance(c, str) else c for c in v]
+        raise TypeError("cum_noi_dung phải là danh sách chuỗi hoặc chuỗi đơn")
 
 
 class OverallSummary(BaseModel):
@@ -187,9 +222,7 @@ class OverallSummary(BaseModel):
 class CompetitorReport(BaseModel):
     """Model chính cho toàn bộ report - match với template hiện tại"""
 
-    # title: str = Field(
-    #     default="CALOFIC COMPETITOR REPORT", description="Tiêu đề report"
-    # )
+    title: str = Field(default="CHICOM COMPETITOR REPORT", description="Tiêu đề report")
     # subtitle: str = Field(
     #     default="PR & SOCIAL MONTHLY REPORT", description="Phụ đề report"
     # )
@@ -252,10 +285,10 @@ class CrawlConfig(BaseModel):
         default=50, description="Max articles mỗi source"
     )
     crawl_timeout: int = Field(
-        default=480, description="Timeout cho mỗi crawl (seconds)"
+        default=1920, description="Timeout cho mỗi crawl (seconds)"
     )
     total_pipeline_timeout: int = Field(
-        default=1800, description="Tổng timeout pipeline (giây)"
+        default=36000, description="Tổng timeout pipeline (giây)"
     )
     exclude_domains: List[str] = Field(default=[], description="Domains cần loại trừ")
 
@@ -270,6 +303,7 @@ class CrawlConfig(BaseModel):
     max_retries: int = Field(default=2, description="Max retries for failed sources")
     use_cache: bool = Field(default=True, description="Use caching for crawled data")
     cache_duration_hours: int = Field(default=8, description="Cache duration in hours")
+    use_hub_page: bool = False
 
 
 class CrawlResult(BaseModel):
@@ -366,7 +400,7 @@ class APIKeyStatus(BaseModel):
         default=False, description="OpenAI API key configured"
     )
     groq_configured: bool = Field(default=False, description="Groq API key configured")
-    default_provider: str = Field(default="openai", description="Default provider")
+    default_provider: str = Field(default="gemini", description="Default provider")
     openai_model: str = Field(default="gpt-4o-mini", description="OpenAI model")
     groq_model: str = Field(default="llama-3.1-70b-versatile", description="Groq model")
     last_updated: Optional[datetime] = Field(None, description="Last updated time")
@@ -388,6 +422,12 @@ class SystemHealth(BaseModel):
     last_health_check: datetime = Field(
         default_factory=datetime.now, description="Last health check"
     )
+
+
+class HubPageNotFound(Exception):
+    """Không tìm thấy Hub Page cho nguồn báo."""
+
+    pass
 
 
 class PipelineConfig(BaseModel):
@@ -659,17 +699,4 @@ def create_default_config() -> CrawlConfig:
     )
 
 
-if __name__ == "__main__":
-    # Test models
-    sample = create_sample_report()
-    print("✅ Enhanced Models created successfully!")
-    print(f"Sample report: {sample.title}")
-    print(f"Total articles: {sample.total_articles}")
-    print(f"Industries: {len(sample.industry_summaries)}")
-    print(f"Generated at: {sample.generated_at}")
-
-    # Test config
-    config = create_default_config()
-    print(f"✅ Default config created with {len(config.keywords)} industries")
-    print(f"Parallel crawling: {config.enable_parallel_crawling}")
-    print(f"Max concurrent: {config.max_concurrent_sources}")
+# Remove the test code block. In production, models are imported and used by other modules.

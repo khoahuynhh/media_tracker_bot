@@ -1,0 +1,44 @@
+{
+  "cache_version": "1.0",
+  "created_at": "2025-08-01T19:23:29.143262",
+  "ttl_hours": 8,
+  "crawl_status": "success",
+  "data": {
+    "source_name": "THANHNIEN",
+    "source_type": "Website",
+    "url": "thanhnien.vn",
+    "articles_found": [
+      {
+        "stt": 1,
+        "ngay_phat_hanh": "2025-08-01",
+        "dau_bao": "THANHNIEN",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Chất tẩy rửa - Báo Thanh Niên",
+        "tom_tat_noi_dung": "Bài viết đề cập đến các sản phẩm chất tẩy rửa đa năng, bao gồm ưu điểm và tính năng của từng loại sản phẩm. Các nhà sản xuất cam kết tính an toàn cho người sử dụng và hiệu quả vượt trội trong việc làm sạch. Sự gia tăng nhu cầu về các sản phẩm này trong ngành hàng homecare cũng được bàn đến.",
+        "link_bai_bao": "https://thanhnien.vn/chat-tay-rua-tags795630.html",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-08-01T19:20:56.018889"
+      },
+      {
+        "stt": 2,
+        "ngay_phat_hanh": "2025-07-23",
+        "dau_bao": "THANHNIEN",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Chất tẩy rửa Việt Bảo Tín - Cho cuộc sống tiện lợi hơn",
+        "tom_tat_noi_dung": "Bài viết giới thiệu sản phẩm chất tẩy rửa của công ty Việt Bảo Tín, nhấn mạnh sự tiện lợi và hiệu quả mà sản phẩm mang lại cho việc dọn dẹp trong gia đình. Các thông tin về quy trình sản xuất và cam kết chất lượng từ nhà sản xuất cũng được đề cập.",
+        "link_bai_bao": "https://thanhnien.vn/chat-tay-rua-viet-bao-tin-cho-cuoc-song-tien-loi-hon-185255821.htm",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-08-01T19:20:56.019889"
+      }
+    ],
+    "crawl_status": "success",
+    "error_message": "",
+    "crawl_duration": 1886.359153,
+    "crawl_timestamp": "2025-08-01T19:23:29.143262",
+    "retry_count": 0
+  }
+}

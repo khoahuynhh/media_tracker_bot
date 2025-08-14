@@ -1,0 +1,44 @@
+{
+  "cache_version": "1.1",
+  "created_at": "2025-08-05T14:52:00.061095",
+  "ttl_hours": 8,
+  "crawl_status": "success",
+  "data": {
+    "source_name": "ZINGNEWS",
+    "source_type": "Website",
+    "url": "zingnews.vn",
+    "articles_found": [
+      {
+        "stt": 1,
+        "ngay_phat_hanh": "2025-07-17",
+        "dau_bao": "ZINGNEWS",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Đột phá 6 HMO: Bước tiến dinh dưỡng của Vinamilk tại Diễn đàn dinh dưỡng lớn nhất châu Á",
+        "tom_tat_noi_dung": "Vinamilk tham gia với vai trò đại diện Việt Nam tại Hội nghị Phát triển Châu Á 2025 tại Singapore. Tại sự kiện này, hãng đã giới thiệu những bước tiến mới trong nghiên cứu và phát triển sản phẩm dinh dưỡng, hứa hẹn nâng cao giá trị sức khỏe cho người tiêu dùng.",
+        "link_bai_bao": "https://laodong.vn/suc-khoe/dot-pha-6-hmo-buoc-tien-dinh-duong-cua-vinamilk-tai-dien-dan-dinh-duong-lon-nhat-chau-a-1541685.ldo",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-08-05T14:51:23.557565"
+      },
+      {
+        "stt": 2,
+        "ngay_phat_hanh": "2025-07-02",
+        "dau_bao": "ZINGNEWS",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Vinamilk giành cú đúp giải thưởng quốc tế về cả nội dung và hình thức sản phẩm",
+        "tom_tat_noi_dung": "Tại Giải thưởng Đổi mới Ngành sữa Toàn cầu 2025, Vinamilk đã xuất sắc giành hai giải thưởng quan trọng cho sản phẩm sữa chua ngon nhất và thiết kế bao bì ấn tượng nhất, khẳng định uy tín và chất lượng của thương hiệu trên thị trường quốc tế.",
+        "link_bai_bao": "https://laodong.vn/kinh-doanh/vinamilk-gianh-cu-dup-giai-thuong-quoc-te-ve-ca-noi-dung-va-hinh-thuc-san-pham-quan-quan-co-gi-dac-biet-1533103.ldo",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-08-05T14:51:23.557565"
+      }
+    ],
+    "crawl_status": "success",
+    "error_message": "",
+    "crawl_duration": 474.721249,
+    "crawl_timestamp": "2025-08-05T14:52:00.059098",
+    "retry_count": 0
+  }
+}

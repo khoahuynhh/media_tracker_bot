@@ -1,0 +1,44 @@
+{
+  "cache_version": "1.0",
+  "created_at": "2025-07-30T10:13:10.570915",
+  "ttl_hours": 8,
+  "crawl_status": "success",
+  "data": {
+    "source_name": "NHIPCAUDAUTU",
+    "source_type": "Website",
+    "url": "nhipcaudautu.vn",
+    "articles_found": [
+      {
+        "stt": 1,
+        "ngay_phat_hanh": "2025-06-30",
+        "dau_bao": "NHIPCAUDAUTU",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Dầu đậu nành Tin tức - Nhip Cau Dau Tu",
+        "tom_tat_noi_dung": "Việt Nam đã nhập khẩu 8 triệu tấn dầu đậu nành trong năm nay, với xu hướng gia tăng trong việc sử dụng dầu thực vật, cho thấy sự phát triển không ngừng của ngành dầu ăn trong nước. Vinasoy đã nhận giải thưởng quốc tế về đổi mới, khẳng định vị thế của mình trong ngành.",
+        "link_bai_bao": "https://m.nhipcaudautu.vn/dau-dau-nanh-tag.html",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-07-30T10:09:53.012871"
+      },
+      {
+        "stt": 2,
+        "ngay_phat_hanh": "2025-07-10",
+        "dau_bao": "NHIPCAUDAUTU",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Hơn 70 triệu USD xây nhà máy dầu ăn lớn nhất Việt Nam",
+        "tom_tat_noi_dung": "Dự án xây dựng nhà máy dầu ăn với tổng vốn đầu tư lên đến hơn 71,5 triệu USD sắp được hoàn thiện, hứa hẹn nâng cao công suất sản xuất và cung cấp sản phẩm dầu thực vật chất lượng cao, đáp ứng nhu cầu tiêu dùng ngày càng tăng tại Việt Nam.",
+        "link_bai_bao": "https://m.nhipcaudautu.vn/kinh-doanh/hon-70-trieu-usd-xay-nha-may-dau-an-lon-nhat-viet-nam-3276665/",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-07-30T10:09:53.012871"
+      }
+    ],
+    "crawl_status": "success",
+    "error_message": "",
+    "crawl_duration": 1195.951073,
+    "crawl_timestamp": "2025-07-30T10:13:10.568391",
+    "retry_count": 0
+  }
+}

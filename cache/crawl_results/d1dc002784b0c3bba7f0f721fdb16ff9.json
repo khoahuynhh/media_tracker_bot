@@ -1,0 +1,31 @@
+{
+  "cache_version": "1.0",
+  "created_at": "2025-08-03T03:55:39.529501",
+  "ttl_hours": 8,
+  "crawl_status": "success",
+  "data": {
+    "source_name": "CAFEBIZ",
+    "source_type": "Website",
+    "url": "cafebiz.vn",
+    "articles_found": [
+      {
+        "stt": 2,
+        "ngay_phat_hanh": "2025-07-25",
+        "dau_bao": "CAFEBIZ",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Sữa Quốc tế Lof 'rớt' hơn 257 tỉ đồng góp vốn thành lập công ty con tại TP.HCM",
+        "tom_tat_noi_dung": "Sữa Quốc tế Lof đã chuyển nhượng 257,5 tỉ đồng để thành lập công ty con tại TP.HCM. Khối lượng vốn góp tại công ty mới này chiếm đến 99,8% tổng vốn đầu tư. Đây được coi là một bước tiến lớn trong việc mở rộng hoạt động của thương hiệu này trên thị trường.",
+        "link_bai_bao": "https://cafebiz.vn/sua-quoc-te-lof-rot-hon-257-ty-dong-gop-von-thanh-lap-cong-ty-con-tai-tphcm-176250726132632223.chn",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-08-03T03:52:25.768571"
+      }
+    ],
+    "crawl_status": "success",
+    "error_message": "",
+    "crawl_duration": 835.57953,
+    "crawl_timestamp": "2025-08-03T03:55:39.524015",
+    "retry_count": 0
+  }
+}

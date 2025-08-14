@@ -1,0 +1,53 @@
+{
+  "overall_summary": {
+    "thoi_gian_trich_xuat": "2025-08-02T16:47:42.510201",
+    "industries": [
+      {
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "cum_noi_dung": [
+          "Khác"
+        ],
+        "so_luong_bai": 1,
+        "cac_dau_bao": [
+          "THELEADER"
+        ]
+      }
+    ],
+    "cac_dau_bao": [
+      "THELEADER"
+    ],
+    "tong_so_bai": 1
+  },
+  "industry_summaries": [
+    {
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "cum_noi_dung": [
+        "Khác"
+      ],
+      "so_luong_bai": 1,
+      "cac_dau_bao": [
+        "THELEADER"
+      ]
+    }
+  ],
+  "articles": [
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-08-02",
+      "dau_bao": "THELEADER",
+      "cum_noi_dung": null,
+      "cum_noi_dung_chi_tiet": "Chưa rõ",
+      "tom_tat_noi_dung": "",
+      "link_bai_bao": "https://theleader.vn/tap-doan-th-tien-phong-xuat-khau-sua-sang-trung-quoc-d25089.html",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-08-02T16:47:42.510201"
+    }
+  ],
+  "generated_at": "2025-08-02T16:53:27.194609",
+  "total_articles": 1,
+  "date_range": "Từ ngày 03/07/2025 đến ngày 02/08/2025"
+}

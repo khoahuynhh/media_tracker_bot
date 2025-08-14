@@ -1,0 +1,78 @@
+{
+  "overall_summary": {
+    "thoi_gian_trich_xuat": "Từ ngày 05/07/2025 đến ngày 04/08/2025",
+    "industries": [
+      {
+        "nganh_hang": "Gia vị",
+        "nhan_hang": [
+          "Vedan Việt Nam"
+        ],
+        "cum_noi_dung": [
+          "Hoạt động doanh nghiệp và thông tin sản phẩm"
+        ],
+        "so_luong_bai": 2,
+        "cac_dau_bao": [
+          "TUOITRE",
+          "VNEXPRESS"
+        ]
+      }
+    ],
+    "cac_dau_bao": [],
+    "tong_so_bai": 2
+  },
+  "industry_summaries": [
+    {
+      "nganh_hang": "Gia vị",
+      "nhan_hang": [
+        "Vedan Việt Nam"
+      ],
+      "cum_noi_dung": [
+        "Hoạt động doanh nghiệp và thông tin sản phẩm"
+      ],
+      "so_luong_bai": 2,
+      "cac_dau_bao": [
+        "TUOITRE",
+        "VNEXPRESS"
+      ]
+    }
+  ],
+  "articles": [
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-23",
+      "dau_bao": "VNEXPRESS",
+      "cum_noi_dung": "Hoạt động doanh nghiệp và thông tin sản phẩm",
+      "cum_noi_dung_chi_tiet": "Hoạt động doanh nghiệp: Hành trình 30 năm của Vedan trong ẩm thực Việt",
+      "tom_tat_noi_dung": "Bài viết thực hiện một cái nhìn tổng quan về hành trình 30 năm của Vedan tại Việt Nam, nhấn mạnh vào vai trò của thương hiệu trong nền ẩm thực Việt. Vedan, với những sản phẩm gia vị của mình, đã trở thành một phần không thể thiếu trong nhiều món ăn của người dân Việt, cũng như có ảnh hưởng lớn đến thói quen tiêu dùng hàng ngày.",
+      "link_bai_bao": "https://tuoitre.vn/ba-thap-ky-gia-vi-vedan-thanh-nguoi-ban-trong-can-bep-viet-20250723102807914.htm",
+      "nganh_hang": "Gia vị",
+      "nhan_hang": [
+        "Vedan Việt Nam"
+      ],
+      "keywords_found": [
+        "Vedan Việt Nam"
+      ],
+      "crawl_timestamp": "2025-08-04T21:30:28.914396"
+    },
+    {
+      "stt": 2,
+      "ngay_phat_hanh": "2025-07-23",
+      "dau_bao": "TUOITRE",
+      "cum_noi_dung": "Hoạt động doanh nghiệp và thông tin sản phẩm",
+      "cum_noi_dung_chi_tiet": "Hoạt động doanh nghiệp: Sự phát triển của Vedan tại thị trường Việt Nam",
+      "tom_tat_noi_dung": "Bài viết tóm tắt hành trình 30 năm của Vedan tại Việt Nam, nhấn mạnh sự hiện diện không thể thiếu của gia vị Vedan trong các bữa ăn gia đình Việt. Bài báo nêu bật những cột mốc quan trọng trong lịch sử phát triển của công ty, từ khi thành lập cho đến những bước tiến trong công nghệ sản xuất và sự gắn bó với văn hóa ẩm thực Việt Nam.",
+      "link_bai_bao": "https://tuoitre.vn/ba-thap-ky-gia-vi-vedan-thanh-nguoi-ban-trong-can-bep-viet-20250723102807914.htm",
+      "nganh_hang": "Gia vị",
+      "nhan_hang": [
+        "Vedan Việt Nam"
+      ],
+      "keywords_found": [
+        "Vedan Việt Nam"
+      ],
+      "crawl_timestamp": "2025-08-04T21:30:28.914396"
+    }
+  ],
+  "generated_at": "2025-08-04T21:30:33.994210",
+  "total_articles": 2,
+  "date_range": "Từ ngày 05/07/2025 đến ngày 04/08/2025"
+}

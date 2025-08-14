@@ -1,0 +1,176 @@
+{
+  "overall_summary": {
+    "thoi_gian_trich_xuat": "Từ ngày 01/07/2025 đến ngày 31/07/2025",
+    "industries": [
+      {
+        "nganh_hang": "Sữa (UHT)",
+        "nhan_hang": [
+          "Vinamilk"
+        ],
+        "cum_noi_dung": [
+          "Khác",
+          "Báo cáo tài chính",
+          "Ra mắt sản phẩm",
+          "Hoạt động doanh nghiệp và thông tin sản phẩm"
+        ],
+        "so_luong_bai": 7,
+        "cac_dau_bao": [
+          "PHAPLUAT",
+          "ZINGNEWS",
+          "NGUOILAODONG"
+        ]
+      }
+    ],
+    "cac_dau_bao": [
+      "PHAPLUAT",
+      "ZINGNEWS",
+      "NGUOILAODONG"
+    ],
+    "tong_so_bai": 7
+  },
+  "industry_summaries": [
+    {
+      "nganh_hang": "Sữa (UHT)",
+      "nhan_hang": [
+        "Vinamilk"
+      ],
+      "cum_noi_dung": [
+        "Khác",
+        "Báo cáo tài chính",
+        "Ra mắt sản phẩm",
+        "Hoạt động doanh nghiệp và thông tin sản phẩm"
+      ],
+      "so_luong_bai": 7,
+      "cac_dau_bao": [
+        "PHAPLUAT",
+        "ZINGNEWS",
+        "NGUOILAODONG"
+      ]
+    }
+  ],
+  "articles": [
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-17",
+      "dau_bao": "PHAPLUAT",
+      "cum_noi_dung": "Khác",
+      "cum_noi_dung_chi_tiet": "Hội thảo quốc tế: Vinamilk giới thiệu nâng cấp dinh dưỡng tại Châu Á",
+      "tom_tat_noi_dung": "Vinamilk góp mặt tại Hội nghị Phát triển Châu Á 2025 diễn ra tại Singapore. Công ty đã có vai trò trung tâm tại sự kiện, giới thiệu những tiến bộ trong lĩnh vực dinh dưỡng và sữa UHT trong khu vực.",
+      "link_bai_bao": "https://laodong.vn/suc-khoe/dot-pha-6-hmo-buoc-tien-dinh-duong-cua-vinamilk-tai-dien-dan-dinh-duong-lon-nhat-chau-a-1541685.ldo",
+      "nganh_hang": "Sữa (UHT)",
+      "nhan_hang": [
+        "Vinamilk"
+      ],
+      "keywords_found": [
+        "Vinamilk"
+      ],
+      "crawl_timestamp": "2025-08-05T14:54:23.777100"
+    },
+    {
+      "stt": 2,
+      "ngay_phat_hanh": "2025-07-02",
+      "dau_bao": "PHAPLUAT",
+      "cum_noi_dung": "Báo cáo tài chính",
+      "cum_noi_dung_chi_tiet": "Báo cáo tài chính: Vinamilk đạt doanh thu kỷ lục quý 2/2025 nhờ sản phẩm sữa UHT mới",
+      "tom_tat_noi_dung": "Vinamilk đã đạt doanh thu kỷ lục trong quý 2 năm 2025, nhờ vào những sản phẩm sữa UHT mới được ra mắt, cung cấp nguồn dinh dưỡng ổn định cho người tiêu dùng.",
+      "link_bai_bao": "https://laodong.vn/kinh-doanh/vinamilk-ghi-nhan-doanh-thu-quy-22025-cao-nhat-tu-truoc-den-nay-16745-ti-dong-1549729.ldo",
+      "nganh_hang": "Sữa (UHT)",
+      "nhan_hang": [
+        "Vinamilk"
+      ],
+      "keywords_found": [
+        "doanh thu",
+        "Vinamilk"
+      ],
+      "crawl_timestamp": "2025-08-05T14:54:23.777100"
+    },
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-17",
+      "dau_bao": "ZINGNEWS",
+      "cum_noi_dung": "Khác",
+      "cum_noi_dung_chi_tiet": "Hội thảo quốc tế: Vinamilk giới thiệu nâng cấp dinh dưỡng tại Hội nghị Châu Á",
+      "tom_tat_noi_dung": "Vinamilk tham gia với vai trò đại diện Việt Nam tại Hội nghị Phát triển Châu Á 2025 tại Singapore. Tại sự kiện này, hãng đã giới thiệu những bước tiến mới trong nghiên cứu và phát triển sản phẩm dinh dưỡng, hứa hẹn nâng cao giá trị sức khỏe cho người tiêu dùng.",
+      "link_bai_bao": "https://laodong.vn/suc-khoe/dot-pha-6-hmo-buoc-tien-dinh-duong-cua-vinamilk-tai-dien-dan-dinh-duong-lon-nhat-chau-a-1541685.ldo",
+      "nganh_hang": "Sữa (UHT)",
+      "nhan_hang": [
+        "Vinamilk"
+      ],
+      "keywords_found": [
+        "Vinamilk"
+      ],
+      "crawl_timestamp": "2025-08-05T14:54:23.777100"
+    },
+    {
+      "stt": 2,
+      "ngay_phat_hanh": "2025-07-02",
+      "dau_bao": "ZINGNEWS",
+      "cum_noi_dung": "Ra mắt sản phẩm",
+      "cum_noi_dung_chi_tiet": "Sự kiện quốc tế: Vinamilk giành giải thưởng về sữa chua và bao bì",
+      "tom_tat_noi_dung": "Tại Giải thưởng Đổi mới Ngành sữa Toàn cầu 2025, Vinamilk đã xuất sắc giành hai giải thưởng quan trọng cho sản phẩm sữa chua ngon nhất và thiết kế bao bì ấn tượng nhất, khẳng định uy tín và chất lượng của thương hiệu trên thị trường quốc tế.",
+      "link_bai_bao": "https://laodong.vn/kinh-doanh/vinamilk-gianh-cu-dup-giai-thuong-quoc-te-ve-ca-noi-dung-va-hinh-thuc-san-pham-quan-quan-co-gi-dac-biet-1533103.ldo",
+      "nganh_hang": "Sữa (UHT)",
+      "nhan_hang": [
+        "Vinamilk"
+      ],
+      "keywords_found": [
+        "Vinamilk"
+      ],
+      "crawl_timestamp": "2025-08-05T14:54:23.777100"
+    },
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-17",
+      "dau_bao": "NGUOILAODONG",
+      "cum_noi_dung": "Khác",
+      "cum_noi_dung_chi_tiet": "Hội thảo quốc tế: Vinamilk thảo luận phát triển dinh dưỡng tại Châu Á",
+      "tom_tat_noi_dung": "Vinamilk đã tham gia với vai trò đại diện Việt Nam tại Hội nghị Phát triển Châu Á 2025, diễn ra tại Singapore. Sự kiện này nhằm thảo luận các giải pháp dinh dưỡng và phát triển cho trẻ em trong khu vực.",
+      "link_bai_bao": "https://laodong.vn/suc-khoe/dot-pha-6-hmo-buoc-tien-dinh-duong-cua-vinamilk-tai-dien-dan-dinh-duong-lon-nhat-chau-a-1541685.ldo",
+      "nganh_hang": "Sữa (UHT)",
+      "nhan_hang": [
+        "Vinamilk"
+      ],
+      "keywords_found": [
+        "Vinamilk"
+      ],
+      "crawl_timestamp": "2025-08-05T14:54:23.778092"
+    },
+    {
+      "stt": 2,
+      "ngay_phat_hanh": "2025-07-02",
+      "dau_bao": "NGUOILAODONG",
+      "cum_noi_dung": "Ra mắt sản phẩm",
+      "cum_noi_dung_chi_tiet": "Sự kiện quốc tế: Vinamilk giành giải thưởng về sữa chua và bao bì nổi bật",
+      "tom_tat_noi_dung": "Vinamilk đã giành được hai giải thưởng tại Giải thưởng Đổi mới Ngành sữa Toàn cầu 2025, nhấn mạnh sản phẩm sữa chua ngon nhất và thiết kế bao bì xuất sắc nhất, thể hiện sự sáng tạo trong ngành.",
+      "link_bai_bao": "https://laodong.vn/kinh-doanh/vinamilk-gianh-cu-dup-giai-thuong-quoc-te-ve-ca-noi-dung-va-hinh-thuc-san-pham-quan-quan-co-gi-dac-biet-1533103.ldo",
+      "nganh_hang": "Sữa (UHT)",
+      "nhan_hang": [
+        "Vinamilk"
+      ],
+      "keywords_found": [
+        "Vinamilk"
+      ],
+      "crawl_timestamp": "2025-08-05T14:54:23.778092"
+    },
+    {
+      "stt": 3,
+      "ngay_phat_hanh": "2025-07-02",
+      "dau_bao": "NGUOILAODONG",
+      "cum_noi_dung": "Hoạt động doanh nghiệp và thông tin sản phẩm",
+      "cum_noi_dung_chi_tiet": "Tuyển dụng: Vinamilk triển khai Vinamilk Graduate Talent Program 2025 cho Gen Z",
+      "tom_tat_noi_dung": "Vinamilk đã khởi động chương trình Vinamilk Graduate Talent Program 2025, thu hút nhân tài Gen Z, nhằm phát triển lực lượng lao động chất lượng trong ngành sữa tại Việt Nam.",
+      "link_bai_bao": "https://laodong.vn/xa-hoi/cong-ty-sua-hang-dau-viet-nam-mo-don-tim-kiem-nhan-luc-tai-nang-tre-1533674.ldo",
+      "nganh_hang": "Sữa (UHT)",
+      "nhan_hang": [
+        "Vinamilk"
+      ],
+      "keywords_found": [
+        "Vinamilk"
+      ],
+      "crawl_timestamp": "2025-08-05T14:54:23.778092"
+    }
+  ],
+  "generated_at": "2025-08-05T14:54:29.594365",
+  "total_articles": 7,
+  "date_range": "Từ ngày 01/07/2025 đến ngày 31/07/2025"
+}

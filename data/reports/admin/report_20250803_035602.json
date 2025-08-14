@@ -1,0 +1,103 @@
+{
+  "overall_summary": {
+    "thoi_gian_trich_xuat": "2025-08-03T03:55:53.888493",
+    "industries": [
+      {
+        "nganh_hang": "Sữa (UHT)",
+        "nhan_hang": [
+          "Lof"
+        ],
+        "cum_noi_dung": [
+          "Hoạt động doanh nghiệp và thông tin sản phẩm",
+          "Khác"
+        ],
+        "so_luong_bai": 3,
+        "cac_dau_bao": [
+          "BAOCONGTHUONG",
+          "CAFEF",
+          "CAFEBIZ"
+        ]
+      }
+    ],
+    "cac_dau_bao": [
+      "BAOCONGTHUONG",
+      "CAFEF",
+      "CAFEBIZ"
+    ],
+    "tong_so_bai": 3
+  },
+  "industry_summaries": [
+    {
+      "nganh_hang": "Sữa (UHT)",
+      "nhan_hang": [
+        "Lof"
+      ],
+      "cum_noi_dung": [
+        "Hoạt động doanh nghiệp và thông tin sản phẩm",
+        "Khác"
+      ],
+      "so_luong_bai": 3,
+      "cac_dau_bao": [
+        "BAOCONGTHUONG",
+        "CAFEF",
+        "CAFEBIZ"
+      ]
+    }
+  ],
+  "articles": [
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-08",
+      "dau_bao": "BAOCONGTHUONG",
+      "cum_noi_dung": "Hoạt động doanh nghiệp và thông tin sản phẩm",
+      "cum_noi_dung_chi_tiet": "Chính sách quốc gia: Trung Quốc thay đổi tiêu chuẩn sữa tiệt trùng",
+      "tom_tat_noi_dung": "Từ ngày 16/9/2025, Trung Quốc sẽ chỉ công nhận sữa tiệt trùng làm từ sữa tươi nguyên liệu, không chấp nhận sản phẩm sử dụng sữa hoàn nguyên. Điều này được coi là động lực thúc đẩy ngành sản xuất sữa trong nước, cải thiện chất lượng sản phẩm.",
+      "link_bai_bao": "https://congthuong.vn/trung-quoc-thay-doi-tieu-chuan-sua-tiet-trung-bo-khai-niem-sua-hoan-nguyen-409613.html",
+      "nganh_hang": "Sữa (UHT)",
+      "nhan_hang": [],
+      "keywords_found": [
+        "sữa tươi",
+        "sữa"
+      ],
+      "crawl_timestamp": "2025-08-03T03:55:53.887468"
+    },
+    {
+      "stt": 2,
+      "ngay_phat_hanh": "2025-07-09",
+      "dau_bao": "CAFEF",
+      "cum_noi_dung": "Khác",
+      "cum_noi_dung_chi_tiet": "Chính sách quốc gia: Ngành sữa Việt Nam đối mặt thách thức từ quy định Trung Quốc",
+      "tom_tat_noi_dung": "Theo quy định mới từ 16-9-2025, Trung Quốc sẽ chỉ cho phép nhập khẩu sữa tiệt trùng từ sữa tươi nguyên liệu, không chấp nhận sữa hoàn nguyên. Điều này đặt ra thách thức cho ngành sữa Việt Nam, yêu cầu phải tăng cường chất lượng và tuân thủ quy định xuất khẩu.",
+      "link_bai_bao": "https://cafef.vn/trung-quoc-khong-cho-phep-dung-sua-hoan-nguyen-lam-sua-tiet-trung-nganh-sua-viet-nam-can-chu-y-188250709192037847.chn",
+      "nganh_hang": "Sữa (UHT)",
+      "nhan_hang": [],
+      "keywords_found": [
+        "sữa tươi",
+        "sữa"
+      ],
+      "crawl_timestamp": "2025-08-03T03:55:53.888493"
+    },
+    {
+      "stt": 3,
+      "ngay_phat_hanh": "2025-07-25",
+      "dau_bao": "CAFEBIZ",
+      "cum_noi_dung": "Hoạt động doanh nghiệp và thông tin sản phẩm",
+      "cum_noi_dung_chi_tiet": "Thông tin doanh nghiệp: Lof đầu tư mở rộng với công ty con tại TP.HCM",
+      "tom_tat_noi_dung": "Sữa Quốc tế Lof đã chuyển nhượng 257,5 tỉ đồng để thành lập công ty con tại TP.HCM. Khối lượng vốn góp tại công ty mới này chiếm đến 99,8% tổng vốn đầu tư. Đây được coi là một bước tiến lớn trong việc mở rộng hoạt động của thương hiệu này trên thị trường.",
+      "link_bai_bao": "https://cafebiz.vn/sua-quoc-te-lof-rot-hon-257-ty-dong-gop-von-thanh-lap-cong-ty-con-tai-tphcm-176250726132632223.chn",
+      "nganh_hang": "Sữa (UHT)",
+      "nhan_hang": [
+        "Lof"
+      ],
+      "keywords_found": [
+        "sữa tươi",
+        "sữa",
+        "Lof"
+      ],
+      "crawl_timestamp": "2025-08-03T03:55:53.888493"
+    }
+  ],
+  "generated_at": "2025-08-03T03:56:01.644371",
+  "total_articles": 3,
+  "date_range": "Từ ngày 04/07/2025 đến ngày 03/08/2025"
+}

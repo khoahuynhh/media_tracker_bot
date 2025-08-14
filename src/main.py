@@ -9,19 +9,34 @@ import json
 import sys
 import asyncio
 import uvicorn
+import httpx
+
 
 from fastapi import FastAPI, Request, HTTPException, Depends, status
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
+from fastapi.responses import (
+    HTMLResponse,
+    FileResponse,
+    JSONResponse,
+    StreamingResponse,
+)
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from typing import Dict
 from jose import JWTError, jwt
+from jose.exceptions import ExpiredSignatureError
+from dotenv import load_dotenv
+from typing import List
 
+load_dotenv()
 if sys.platform.startswith("win"):
-    asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
+    try:
+        asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
+    except Exception:
+        pass
 
 # Setup logging before other imports
+os.makedirs("logs", exist_ok=True)
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -33,12 +48,14 @@ logging.basicConfig(
 
 # Import modules
 from .task_state import task_manager
+from .event import event_bus, decision_bus, sse_response, RunDecision
 from .models import (
     CrawlConfig,
     CompetitorReport,
     create_sample_report,
     UserLogin,
     USER_DB,
+    MediaSource,
 )
 from .configs import settings
 from .services import (
@@ -48,11 +65,20 @@ from .services import (
     SECRET_KEY,
     ALGORITHM,
 )
+from .agents import AgentManager
 
 # Save pipeline according to email user
 user_pipelines: Dict[str, PipelineService] = {}
-
 logger = logging.getLogger(__name__)
+
+# Map tra cứu nguồn theo key chuẩn
+SOURCE_BY_KEY: Dict[str, dict] = {
+    settings.normalize_source_key(s.model_dump() if hasattr(s, "model_dump") else s): (
+        s.model_dump() if hasattr(s, "model_dump") else s
+    )
+    for s in settings.crawl_config.media_sources
+}
+ALLOWED_KEYS = set(SOURCE_BY_KEY.keys())
 
 
 @asynccontextmanager
@@ -63,6 +89,24 @@ async def lifespan(app: FastAPI):
     logger.info("--- Media Tracker Bot Server is shutting down ---")
 
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # ===== STARTUP =====
+    try:
+        task_manager.load_tasks()  # an toàn: đã có fallback JSON corrupt
+        logger.info("Task manager loaded.")
+        # TODO: mở DB connection / warmup model nếu cần
+    except Exception:
+        logger.exception("Startup failed (continuing with degraded features).")
+    yield
+    # ===== SHUTDOWN =====
+    try:
+        # TODO: đóng DB connection / flush queue nếu cần
+        logger.info("Shutdown cleanup done.")
+    except Exception:
+        logger.exception("Shutdown cleanup failed.")
+
+
 # Initialize FastAPI app
 app = FastAPI(
     title="Media Tracker Bot API",
@@ -71,12 +115,24 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# ---- CORS từ ENV ----
+allowed_origins = [
+    o.strip() for o in os.getenv("ALLOWED_ORIGINS", "").split(",") if o.strip()
+]
+allow_origin_regex = os.getenv("ALLOWED_ORIGIN_REGEX") or None
+allow_credentials = True  # nếu cần gửi cookie/Authorization
+cors_max_age = int(os.getenv("CORS_MAX_AGE", "86400"))  # cache preflight 1 ngày
+
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=allowed_origins,  # ưu tiên danh sách cụ thể
+    allow_origin_regex=allow_origin_regex,  # hoặc regex wildcard subdomain
+    allow_credentials=allow_credentials,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["Content-Disposition"],  # để FE thấy tên file khi tải xlsx
+    max_age=cors_max_age,
 )
 
 # Mount thư mục static để phục vụ frontend
@@ -96,6 +152,7 @@ def login(user: UserLogin):
     token_data = {"sub": user.email, "role": user_record["role"]}
 
     token = create_access_token(token_data)
+    print("Generated token:", token)
     return {"access_token": token, "token_type": "bearer", "role": user_record["role"]}
 
 
@@ -108,21 +165,8 @@ def get_pipeline_for_user(user_email: str) -> PipelineService:
 
 
 @app.get("/api/auth/check")
-def check_token(request: Request):
-    auth_header = request.headers.get("Authorization")
-    if not auth_header or not auth_header.startswith("Bearer "):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Token missing"
-        )
-
-    token = auth_header.split(" ")[1]
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        return {"message": "Token is valid", "user": payload.get("sub")}
-    except JWTError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
-        )
+def check_token(current_user: str = Depends(get_current_user)):
+    return {"message": "Token is valid", "user": current_user}
 
 
 @app.get("/", response_class=HTMLResponse, include_in_schema=False)
@@ -136,23 +180,59 @@ async def get_frontend():
     )
 
 
+@app.post("/api/settings")
+def save_settings(body: dict, current_user: str = Depends(get_current_user)):
+    """
+    Back-compat: update API keys/default provider/model using the same unified code path.
+    """
+    try:
+        normalized = {
+            "openai_api_key": body.get("openai_api_key"),
+            "groq_api_key": body.get("groq_api_key"),
+            "google_api_key": body.get("google_api_key"),
+            "default_provider": body.get("default_provider"),
+            "default_model": body.get("default_model"),
+        }
+        status_after = settings.update_api_keys(normalized)
+        logger.info(
+            "[%s] API keys updated via /api/settings. Provider=%s, Model=%s",
+            current_user,
+            status_after.get("default_provider"),
+            status_after.get("default_model_id"),
+        )
+        return JSONResponse(content=status_after)
+    except Exception as e:
+        logger.error("Error in /api/settings: %s", e, exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @app.post("/api/run")
 async def run_pipeline_endpoint(
     request: Request,
     current_user: str = Depends(get_current_user),
 ):
     data = await request.json()
-    pipeline_service = get_pipeline_for_user(current_user)
+    selected_sources = data.get("selected_sources") or []
+    selected_sources = [
+        str(k).strip().lower() for k in selected_sources if isinstance(k, (str, int))
+    ]
+    valid_keys = [k for k in selected_sources if k in ALLOWED_KEYS]
 
+    if not valid_keys:
+        return JSONResponse({"message": "No valid sources selected"}, status_code=400)
+
+    pipeline_service = get_pipeline_for_user(current_user)
     session_id = data.get("session_id")  # Nhận session_id từ FE
     logger.info(f"✅ [API] /api/run nhận session_id={session_id}, user={current_user}")
 
     # Call celery task
     pipeline_service.run_background_task(
+        user_email=current_user,
         session_id=session_id,
         start_date=data.get("start_date"),
         end_date=data.get("end_date"),
         custom_keywords=data.get("custom_keywords"),
+        selected_sources=valid_keys,
     )
 
     return {"message": "Task started", "session_id": session_id}
@@ -225,6 +305,9 @@ async def update_config(config_update: dict):
         current_config = settings.crawl_config.model_dump()
         # Cập nhật các trường từ request
         current_config.update(config_update)
+        if "selected_sources" in config_update:
+            if not isinstance(config_update["selected_sources"], list):
+                raise ValueError("selected_sources must be a list of source IDs")
 
         # Validate lại với Pydantic model
         new_config = CrawlConfig(**current_config)
@@ -274,53 +357,80 @@ async def update_api_keys(
     api_keys: dict, current_user: str = Depends(get_current_user)
 ):
     """
-    Update API keys in the .env file.
-    WARNING: This is a potential security risk in a production environment.
-    It's included for compatibility with the existing frontend.
+    Update API keys and default provider/model in the .env using a single, safe path.
+    SECURITY: requires auth; uses dotenv.set_key instead of manual file writes.
     """
     try:
-        env_file = settings.project_root / ".env"
+        # Chuẩn hóa keys từ FE -> keys nội bộ
+        normalized = {
+            "openai_api_key": api_keys.get("openai_api_key"),
+            "groq_api_key": api_keys.get("groq_api_key"),
+            "google_api_key": api_keys.get("google_api_key"),
+            "default_provider": api_keys.get("default_provider"),
+            "default_model": api_keys.get("default_model"),
+        }
 
-        # Đọc file .env hiện tại
-        env_content = {}
-        if env_file.exists():
-            with open(env_file, "r", encoding="utf-8") as f:
-                for line in f:
-                    line = line.strip()
-                    if line and not line.startswith("#") and "=" in line:
-                        key, value = line.split("=", 1)
-                        env_content[key.strip()] = value.strip()
-
-        # Cập nhật với các giá trị mới
-        if "openai_api_key" in api_keys:
-            env_content["OPENAI_API_KEY"] = api_keys["openai_api_key"]
-        if "groq_api_key" in api_keys:
-            env_content["GROQ_API_KEY"] = api_keys["groq_api_key"]
-        if "default_provider" in api_keys:
-            env_content["DEFAULT_MODEL_PROVIDER"] = api_keys["default_provider"]
-
-        # Ghi lại vào file .env
-        with open(env_file, "w", encoding="utf-8") as f:
-            for key, value in env_content.items():
-                f.write(f"{key}={value}\n")
-
-        # Tải lại biến môi trường
-        settings._setup_environment()
-
+        status_after = settings.update_api_keys(normalized)
+        logger.info(
+            "[%s] API keys updated via /api/api-keys/update. Provider=%s, Model=%s",
+            current_user,
+            status_after.get("default_provider"),
+            status_after.get("default_model_id"),
+        )
         return JSONResponse(
             content={
-                "message": "API keys updated successfully. The application might need a restart to use new keys.",
-                "status": settings.get_api_key_status(),
+                "message": "API keys updated successfully.",
+                "status": status_after,
             }
         )
     except Exception as e:
-        logger.error(f"Error updating API keys: {e}", exc_info=True)
+        logger.error("Error updating API keys: %s", e, exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/models/check")
+async def check_model(
+    provider: str, model: str, current_user: str = Depends(get_current_user)
+):
+    try:
+        if provider == "openai":
+            api_key = os.getenv("OPENAI_API_KEY", "")
+            if not api_key:
+                raise HTTPException(400, "OpenAI key not configured")
+            headers = {"Authorization": f"Bearer {api_key}"}
+            async with httpx.AsyncClient(timeout=15.0) as client:
+                r = await client.get(
+                    "https://api.openai.com/v1/models", headers=headers
+                )
+                r.raise_for_status()
+                ok = any(m.get("id") == model for m in r.json().get("data", []))
+                return {"ok": ok}
+        elif provider == "groq":
+            api_key = os.getenv("GROQ_API_KEY", "")
+            if not api_key:
+                raise HTTPException(400, "Groq key not configured")
+            headers = {"Authorization": f"Bearer {api_key}"}
+            async with httpx.AsyncClient(timeout=15.0) as client:
+                r = await client.get(
+                    "https://api.groq.com/openai/v1/models", headers=headers
+                )
+                r.raise_for_status()
+                ok = any(m.get("id") == model for m in r.json().get("data", []))
+                return {"ok": ok}
+        elif provider == "gemini":
+            # Gemini không có endpoint /models dạng OpenAI; có thể skip hoặc luôn ok
+            return {"ok": True}
+        else:
+            raise HTTPException(400, "Unknown provider")
+    except httpx.HTTPError as e:
+        raise HTTPException(502, f"Provider check failed: {e}")
 
 
 @app.get("/api/reports/list")
 def list_all_reports(current_user: str = Depends(get_current_user)):
-    user_dir = os.path.join(settings.reports_dir, current_user)
+    pipeline = PipelineService(app_settings=settings, user_email=current_user)
+    sanitized = pipeline._sanitize_user_name(current_user)
+    user_dir = os.path.join(settings.reports_dir, sanitized)
     if not os.path.exists(user_dir):
         return []
 
@@ -368,6 +478,7 @@ def download_named_report(filename: str, current_user: str = Depends(get_current
         path,
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         filename=filename,
+        headers={"Cache-Control": "no-store"},
     )
 
 
@@ -397,5 +508,108 @@ def cancel_task(session_id: str, current_user: str = Depends(get_current_user)):
     return {"message": "Task cancelled"}
 
 
+# ==== SSE: Real-time task status updates ====
+# This endpoint streams the list of tasks for the current user over Server-Sent Events (SSE).
+# The client can subscribe to this endpoint instead of polling `/api/tasks` to get live updates.
+@app.get("/api/tasks/events")
+async def sse_tasks_events(current_user: str = Depends(get_current_user)):
+    async def event_gen():
+        prev_tasks = None
+        while True:
+            # Fetch current tasks for the authenticated user
+            tasks = task_manager.get_tasks(current_user)
+            # Only emit when there is a change to avoid flooding the client
+            if tasks != prev_tasks:
+                prev_tasks = tasks
+                # Serialize tasks as JSON; ensure_ascii=False to retain UTF-8
+                yield f"data: {json.dumps(tasks, ensure_ascii=False)}\n\n"
+            # Sleep briefly to throttle updates; adjust interval as needed
+            await asyncio.sleep(2)
+
+    headers = {
+        "Cache-Control": "no-cache",
+        "Content-Type": "text/event-stream",
+        "Connection": "keep-alive",
+    }
+    return StreamingResponse(event_gen(), headers=headers)
+
+
+# ---------- Media sources endpoints ----------
+
+
+@app.get("/api/media-sources", response_model=List[MediaSource])
+async def get_media_sources(current_user: str = Depends(get_current_user)):
+    out = []
+    for s in settings.crawl_config.media_sources:
+        d = s.model_dump(mode="json")
+        d["source_key"] = (
+            d.get("reference_name") or f"{d.get('type')}|{d.get('domain')}"
+        )
+        out.append(d)
+    return JSONResponse(content=out)
+
+
+@app.get("/api/media-sources/default", response_model=List[MediaSource])
+async def get_default_media_sources_api(current_user: str = Depends(get_current_user)):
+    """Trả riêng danh sách default để FE hiển thị preselect (tuỳ UX)."""
+    return JSONResponse(
+        content=[
+            s.model_dump(mode="json") for s in settings.get_default_media_sources()
+        ]
+    )
+
+
+# ==== SSE: FE lắng nghe sự kiện theo session_id ====
+@app.get("/api/events/{session_id}")
+async def sse_events(session_id: str):
+    q = event_bus.q(session_id)
+
+    async def gen():
+        while True:
+            evt = await q.get()
+            yield f"data: {json.dumps(evt, ensure_ascii=False)}\n\n"
+
+    headers = {
+        "Cache-Control": "no-cache",
+        "Content-Type": "text/event-stream",
+        "Connection": "keep-alive",
+    }
+    return StreamingResponse(gen(), headers=headers)
+
+
+@app.post("/api/run/decision")
+async def post_run_decision(body: RunDecision):
+    await decision_bus.publish(body.session_id, body.model_dump())
+    return {"ok": True}
+
+
+# ==== Cancel a single provider inside a running session ====
+@app.post("/api/agents/{session_id}/providers/{provider}/cancel")
+def cancel_provider_endpoint(
+    session_id: str,
+    provider: str,
+    current_user: str = Depends(get_current_user),
+):
+    pipeline_service = get_pipeline_for_user(current_user)
+    ok = pipeline_service.cancel_provider(session_id=session_id, provider=provider)
+    if not ok:
+        # Idempotent: trả 200 ngay cả khi không tìm thấy để FE không lặp vô hạn
+        return {
+            "message": f"No running provider '{provider}' for session {session_id} (or already stopped)."
+        }
+    return {"message": f"Provider '{provider}' cancelled for session {session_id}."}
+
+
+# Note: the duplicate /api/events/{session_id} definition that returned sse_response has
+# been removed. The earlier streaming version of sse_events defined above will be used.
+
+
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True, reload_dirs=["src"])
+    uvicorn.run(
+        "main:app",
+        host="0.0.0.0",
+        port=8000,
+        reload=True,
+        reload_dirs=["src"],
+        workers=1,
+    )

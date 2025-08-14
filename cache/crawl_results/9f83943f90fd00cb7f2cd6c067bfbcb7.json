@@ -1,0 +1,57 @@
+{
+  "cache_version": "1.0",
+  "created_at": "2025-08-01T12:03:36.836183",
+  "ttl_hours": 8,
+  "crawl_status": "success",
+  "data": {
+    "source_name": "NHADAUTU",
+    "source_type": "Website",
+    "url": "nhadautu.vn",
+    "articles_found": [
+      {
+        "stt": 1,
+        "ngay_phat_hanh": "2025-07-01",
+        "dau_bao": "NHADAUTU",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Sữa Tươi Tiệt Trùng Ít Đường Lof Kun Lốc 4 Hộp 180ml - LOTTE Mart",
+        "tom_tat_noi_dung": "Sữa Tươi Tiệt Trùng Ít Đường của Lof Kun cung cấp dinh dưỡng cho trẻ em, với thành phần vitamin K2, D3, A và các khoáng chất cần thiết, giúp nâng cao sức đề kháng. Sản phẩm phù hợp cho đối tượng từ 2 tuổi trở lên.",
+        "link_bai_bao": "https://www.lottemart.vn/vi-ptt/product/kun-uht-less-sugar-milk-180ml-x-4-boxes-8936025774355-p71729?srsltid=AfmBOorpiagVFe3nGm_htkbr90dfUZM5Mdr2jZjLoLBv3w2AVwaEEc1x",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-08-01T11:22:07.346557"
+      },
+      {
+        "stt": 2,
+        "ngay_phat_hanh": "2025-07-01",
+        "dau_bao": "NHADAUTU",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Lốc sữa tươi tiệt trùng ít đường LOF Kun 100% Sữa tươi 180ml",
+        "tom_tat_noi_dung": "Sản phẩm Lốc sữa tiệt trùng ít đường LOF Kun được chứng nhận đạt tiêu chuẩn dinh dưỡng, an toàn cho trẻ em, giúp phát triển thể chất và nâng cao sức khỏe. Thích hợp cho bé từ 2 tuổi trở lên.",
+        "link_bai_bao": "https://shopee.vn/L%E1%BB%91c-s%E1%BB%AFa-t%C6%B0%C6%A1i-ti%E1%BB%87t-tr%C3%B9ng-%C3%ADt-%C4%91%C6%B0%E1%BB%9Dng-LOF-Kun-100-S%E1%BB%AFa-t%C6%B0%C6%A1i-180ml-i.73102088.25821498879",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-08-01T11:22:07.346557"
+      },
+      {
+        "stt": 3,
+        "ngay_phat_hanh": "2025-08-01",
+        "dau_bao": "NHADAUTU",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Sữa Tươi Tiệt Trùng Lof Kun Ít Đường Lốc 4 Hộp 180ml - LOTTE Mart",
+        "tom_tat_noi_dung": "Sữa Tươi Tiệt Trùng Lof Kun với ít đường rất lý tưởng cho trẻ, bổ sung vitamin và khoáng chất thiết yếu. Sản phẩm này không chỉ tăng cường sức khỏe mà còn hỗ trợ sự phát triển toàn diện của trẻ.",
+        "link_bai_bao": "https://www.lottemart.vn/en-nsg/product/sttt-lof-kun-co-duong-180ml-4-8936025774331-p59587?srsltid=AfmBOorr3uauN-DOltQT_083JgIuF_GjPl-5A5IaZ_Wk54ElO-XTxThg",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-08-01T11:22:07.347579"
+      }
+    ],
+    "crawl_status": "success",
+    "error_message": "",
+    "crawl_duration": 7377.466352,
+    "crawl_timestamp": "2025-08-01T12:03:36.835177",
+    "retry_count": 0
+  }
+}

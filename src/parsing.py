@@ -58,7 +58,9 @@ class ArticleParser:
             if content.strip().startswith("[") or content.strip().startswith("{"):
                 data = json.loads(content)
                 if isinstance(data, list):
-                    return self._parse_from_json_list(data, media_source)
+                    data = [it for it in data if isinstance(it, dict)]
+                    if data:
+                        return self._parse_from_json_list(data, media_source)
                 elif isinstance(data, dict):
                     # Ưu tiên key "articles" nếu có
                     if "articles" in data and isinstance(data["articles"], list):
@@ -68,6 +70,7 @@ class ArticleParser:
                     for key in data:
                         if isinstance(data[key], list):
                             return self._parse_from_json_list(data[key], media_source)
+                    return self._parse_from_json_list([data], media_source)
         except json.JSONDecodeError:
             logger.warning("Content is not valid JSON. Falling back to text parsing.")
 
@@ -79,9 +82,13 @@ class ArticleParser:
         """Creates a list of Article objects from a list of dictionaries."""
         articles = []
         for i, item in enumerate(data):
+            if not isinstance(item, dict):
+                logger.warning(f"[Parser] Bỏ qua item không phải object: {item!r}")
+                continue
             try:
                 raw_link = (
                     item.get("link")
+                    or item.get("Link")
                     or item.get("url")
                     or item.get("link bài báo")
                     or item.get("link_bài_báo")
@@ -96,6 +103,8 @@ class ArticleParser:
                     or item.get("tóm_tắt_nội_dung")
                     or item.get("tóm tắt nội dung")
                     or item.get("tóm tắt")
+                    or item.get("tóm_tắt")
+                    or item.get("Tóm tắt")
                     or ""
                 )
                 if (
@@ -110,6 +119,7 @@ class ArticleParser:
                     item.get("date")
                     or item.get("ngày_phát_hành")
                     or item.get("ngày phát hành")
+                    or item.get("Ngày phát hành")
                 )
                 if isinstance(raw_date, str):
                     try:
@@ -123,8 +133,33 @@ class ArticleParser:
                     dt_obj = raw_date
                 else:
                     dt_obj = datetime.now()
-
                 ngay_phat_hanh = dt_obj.date()
+
+                # Chuẩn hóa ngành hàng
+                INDUSTRY_ALIASES = {
+                    "sữa": IndustryType.SUA_UHT,
+                    "sua": IndustryType.SUA_UHT,
+                    "sữa (uht)": IndustryType.SUA_UHT,
+                    "gạo": IndustryType.GAO_NGU_COC,
+                    "gao": IndustryType.GAO_NGU_COC,
+                    "ngũ cốc": IndustryType.GAO_NGU_COC,
+                    "gia vị": IndustryType.GIA_VI,
+                    "gia vi": IndustryType.GIA_VI,
+                    "dầu ăn": IndustryType.DAU_AN,
+                    "dau an": IndustryType.DAU_AN,
+                    "baby food": IndustryType.BABY_FOOD,
+                    "thức ăn trẻ em": IndustryType.BABY_FOOD,
+                    "homecare": IndustryType.HOME_CARE,
+                    "home care": IndustryType.HOME_CARE,
+                }
+
+                def normalize_industry(nganh: str) -> IndustryType:
+                    nganh = nganh.strip().lower()
+                    return INDUSTRY_ALIASES.get(
+                        nganh, IndustryType.DAU_AN
+                    )  # fallback nếu không khớp
+
+                nganh_raw = item.get("nganh_hang", "")
 
                 article = Article(
                     stt=item.get("stt", i + 1),
@@ -133,10 +168,11 @@ class ArticleParser:
                     cum_noi_dung=None,
                     cum_noi_dung_chi_tiet=item.get("tiêu đề")
                     or item.get("title")
+                    or item.get("Tiêu đề")
                     or "Chưa rõ",
                     tom_tat_noi_dung=raw_summary.strip(),
                     link_bai_bao=resolved_link,
-                    nganh_hang=item.get("nganh_hang", IndustryType.DAU_AN),
+                    nganh_hang=normalize_industry(nganh_raw),
                     nhan_hang=item.get("nhan_hang", []),
                     keywords_found=item.get("keywords_found", []),
                 )
@@ -199,7 +235,7 @@ class ArticleParser:
         """
 
         if (
-            "không tìm thấy bài viết nào"
+            "không tìm thấy bài viết nào" in content.lower()
             or "chưa có bài viết nào thỏa mãn điều kiện tìm kiếm" in content.lower()
         ):
             logger.warning("[Parser] Bỏ qua vì nội dung xác nhận không có bài viết.")
@@ -239,14 +275,16 @@ class ArticleParser:
                 title_match = re.search(
                     r"(?:Tiêu đề|Title)\s*:\s*(.*)", cleaned_block, re.IGNORECASE
                 )
+                title = title_match.group(1).strip() if title_match else ""
+
                 date_match = re.search(
                     r"(?:Ngày|Date)\s*:\s*(.*)", cleaned_block, re.IGNORECASE
                 )
 
-                title = title_match.group(1).strip() if title_match else ""
-                date_str = (
-                    date_match.group(1).strip() if date_match else datetime.now().date()
-                )
+                if date_match:
+                    date_str = date_match.group(1).strip()
+                else:
+                    continue
 
                 # Phần còn lại của khối văn bản đã được làm sạch chính là tóm tắt
                 summary_text = cleaned_block

@@ -1,0 +1,44 @@
+{
+  "cache_version": "1.0",
+  "created_at": "2025-08-01T11:22:44.042736",
+  "ttl_hours": 8,
+  "crawl_status": "success",
+  "data": {
+    "source_name": "VTVNEWS",
+    "source_type": "Website",
+    "url": "vtv.vn",
+    "articles_found": [
+      {
+        "stt": 1,
+        "ngay_phat_hanh": "2025-08-01",
+        "dau_bao": "VTVNEWS",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "uống sữa hàng ngày - VTV.vn",
+        "tom_tat_noi_dung": "Bài viết mô tả lợi ích của việc uống sữa hàng ngày, nhấn mạnh rằng sữa cung cấp nhiều chất dinh dưỡng cần thiết như protein, vitamin, và canxi để duy trì sức khỏe. Các bên liên quan trong bài viết bao gồm các chuyên gia dinh dưỡng và người tiêu dùng.",
+        "link_bai_bao": "https://vtv.vn/uong-sua-hang-ngay.html",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-08-01T11:22:35.056816"
+      },
+      {
+        "stt": 2,
+        "ngay_phat_hanh": "2025-08-01",
+        "dau_bao": "VTVNEWS",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Gần 600 loại sữa bị làm giả với số lượng lớn, thu lợi gần 500 tỷ đồng",
+        "tom_tat_noi_dung": "Bài viết đưa ra thông tin quan trọng về việc gần 600 loại sữa bị làm giả ở Việt Nam, gây thiệt hại lớn cho người tiêu dùng. Cơ quan chức năng đang tiến hành các biện pháp xử lý để ngăn chặn tình trạng này, bảo vệ quyền lợi người tiêu dùng và ổn định thị trường sữa.",
+        "link_bai_bao": "https://vtv.vn/phap-luat/gan-600-loai-sua-bi-lam-gia-voi-so-luong-lon-thu-loi-gan-500-ty-dong-20250411182123972.htm",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-08-01T11:22:35.056816"
+      }
+    ],
+    "crawl_status": "success",
+    "error_message": "",
+    "crawl_duration": 4924.282428,
+    "crawl_timestamp": "2025-08-01T11:22:44.007144",
+    "retry_count": 0
+  }
+}

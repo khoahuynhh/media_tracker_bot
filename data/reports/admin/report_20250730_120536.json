@@ -1,0 +1,53 @@
+{
+  "overall_summary": {
+    "thoi_gian_trich_xuat": "Từ ngày 30/06/2025 đến ngày 30/07/2025",
+    "industries": [
+      {
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "cum_noi_dung": [
+          "Khác"
+        ],
+        "so_luong_bai": 1,
+        "cac_dau_bao": [
+          "TRETHO"
+        ]
+      }
+    ],
+    "cac_dau_bao": [
+      "TRETHO"
+    ],
+    "tong_so_bai": 1
+  },
+  "industry_summaries": [
+    {
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "cum_noi_dung": [
+        "Khác"
+      ],
+      "so_luong_bai": 1,
+      "cac_dau_bao": [
+        "TRETHO"
+      ]
+    }
+  ],
+  "articles": [
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-06-30",
+      "dau_bao": "TRETHO",
+      "cum_noi_dung": null,
+      "cum_noi_dung_chi_tiet": "Gia vị chế biến sẵn: Tiện một, hại mỏi",
+      "tom_tat_noi_dung": "Bài viết đề cập đến việc sử dụng gia vị chế biến sẵn trong nấu ăn, mang lại sự tiện lợi nhưng cũng tiềm ẩn rủi ro về dinh dưỡng. Nhiều bà nội trợ chia sẻ kinh nghiệm và cách chọn lựa gia vị sao cho đảm bảo sức khỏe cho gia đình.",
+      "link_bai_bao": "https://www.webtretho.com/f/doc-bao-gium-ban/gia-vi-che-bien-san-tien-mot-hai-muoi-1742853",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-07-30T11:15:25.318837"
+    }
+  ],
+  "generated_at": "2025-07-30T12:05:34.961357",
+  "total_articles": 1,
+  "date_range": "Từ ngày 30/06/2025 đến ngày 30/07/2025"
+}

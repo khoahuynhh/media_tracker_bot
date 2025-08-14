@@ -1,0 +1,31 @@
+{
+  "cache_version": "1.0",
+  "created_at": "2025-07-30T10:06:58.531155",
+  "ttl_hours": 8,
+  "crawl_status": "success",
+  "data": {
+    "source_name": "DOANHNHANSAIGON",
+    "source_type": "Website",
+    "url": "doanhnhansaigon.vn",
+    "articles_found": [
+      {
+        "stt": 2,
+        "ngay_phat_hanh": "2025-07-30",
+        "dau_bao": "DOANHNHANSAIGON",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Chưa rõ",
+        "tom_tat_noi_dung": "",
+        "link_bai_bao": "https://doanhnhansaigon.vn/kem-vong-quanh-the-gioi-265276.html",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-07-30T10:06:52.884097"
+      }
+    ],
+    "crawl_status": "success",
+    "error_message": "",
+    "crawl_duration": 823.235278,
+    "crawl_timestamp": "2025-07-30T10:06:57.938425",
+    "retry_count": 0
+  }
+}

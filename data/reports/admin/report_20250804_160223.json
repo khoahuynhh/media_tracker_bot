@@ -1,0 +1,80 @@
+{
+  "overall_summary": {
+    "thoi_gian_trich_xuat": "Từ ngày 05/07/2025 đến ngày 04/08/2025",
+    "industries": [
+      {
+        "nganh_hang": "Sữa (UHT)",
+        "nhan_hang": [
+          "Vinamilk"
+        ],
+        "cum_noi_dung": [
+          "Ra mắt sản phẩm",
+          "Báo cáo tài chính"
+        ],
+        "so_luong_bai": 2,
+        "cac_dau_bao": [
+          "LAODONG"
+        ]
+      }
+    ],
+    "cac_dau_bao": [
+      "LAODONG"
+    ],
+    "tong_so_bai": 2
+  },
+  "industry_summaries": [
+    {
+      "nganh_hang": "Sữa (UHT)",
+      "nhan_hang": [
+        "Vinamilk"
+      ],
+      "cum_noi_dung": [
+        "Ra mắt sản phẩm",
+        "Báo cáo tài chính"
+      ],
+      "so_luong_bai": 2,
+      "cac_dau_bao": [
+        "LAODONG"
+      ]
+    }
+  ],
+  "articles": [
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-17",
+      "dau_bao": "LAODONG",
+      "cum_noi_dung": "Ra mắt sản phẩm",
+      "cum_noi_dung_chi_tiet": "Ra mắt sản phẩm: Vinamilk giới thiệu sữa UHT cải tiến với 6 HMO",
+      "tom_tat_noi_dung": "Vinamilk đã tham gia với vai trò diễn giả tại Hội nghị Phát triển Châu Á 2025, nơi giới thiệu các sản phẩm dinh dưỡng mới, đặc biệt là các sản phẩm sữa UHT cải tiến với 6 HMO. Sự tham gia này đánh dấu một bước tiến lớn trong định hướng phát triển của hãng trong ngành sữa.",
+      "link_bai_bao": "https://laodong.vn/suc-khoe/dot-pha-6-hmo-buoc-tien-dinh-duong-cua-vinamilk-tai-dien-dan-dinh-duong-lon-nhat-chau-a-1541685.ldo",
+      "nganh_hang": "Sữa (UHT)",
+      "nhan_hang": [
+        "Vinamilk"
+      ],
+      "keywords_found": [
+        "Vinamilk"
+      ],
+      "crawl_timestamp": "2025-08-04T16:02:16.625448"
+    },
+    {
+      "stt": 2,
+      "ngay_phat_hanh": "2025-07-17",
+      "dau_bao": "LAODONG",
+      "cum_noi_dung": "Báo cáo tài chính",
+      "cum_noi_dung_chi_tiet": "Báo cáo tài chính: Vinamilk đạt doanh thu quốc tế vượt 20%",
+      "tom_tat_noi_dung": "Vinamilk đã thành công trong việc mở rộng thị trường nước ngoài, đóng góp hơn 20% doanh thu. Hãng đã thực hiện các cải tiến trong quy trình sản xuất sữa UHT và marketing, giúp tăng cường vị thế trong nước và quốc tế.",
+      "link_bai_bao": "https://news.laodong.vn/kinh-doanh/thi-truong-nuoc-ngoai-lan-dau-tien-dong-gop-tren-20-doanh-thu-cua-vinamilk-1500625.ldo",
+      "nganh_hang": "Sữa (UHT)",
+      "nhan_hang": [
+        "Vinamilk"
+      ],
+      "keywords_found": [
+        "Vinamilk"
+      ],
+      "crawl_timestamp": "2025-08-04T16:02:16.626451"
+    }
+  ],
+  "generated_at": "2025-08-04T16:02:21.920282",
+  "total_articles": 2,
+  "date_range": "Từ ngày 05/07/2025 đến ngày 04/08/2025"
+}

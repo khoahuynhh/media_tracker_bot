@@ -1,0 +1,96 @@
+{
+  "cache_version": "1.0",
+  "created_at": "2025-07-28T20:42:07.435774",
+  "ttl_hours": 8,
+  "crawl_status": "success",
+  "data": {
+    "source_name": "TRETHO",
+    "source_type": "Website",
+    "url": "webtretho.com",
+    "articles_found": [
+      {
+        "stt": 1,
+        "ngay_phat_hanh": "2025-07-28",
+        "dau_bao": "TRETHO",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Bí quyết chọn đúng loại dầu ăn để nấu nướng an toàn cho sức khỏe",
+        "tom_tat_noi_dung": "Bài viết cung cấp hướng dẫn về cách chọn lựa dầu ăn dinh dưỡng, nhấn mạnh những loại dầu an toàn và tốt cho sức khỏe. Người tiêu dùng cần nắm rõ thông tin về các loại dầu như dầu ô liu, dầu đậu nành, và những mức giá phù hợp để bảo vệ sức khỏe gia đình.",
+        "link_bai_bao": "https://www.webtretho.com/f/an-de-khoe-dep/bi-quyet-chon-dung-loai-dau-an-de-nau-nuong-an-toan-cho-suc-khoe",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-07-28T20:41:01.612281"
+      },
+      {
+        "stt": 2,
+        "ngay_phat_hanh": "2025-07-28",
+        "dau_bao": "TRETHO",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Dầu ăn - Bạn có đang sử dụng thứ \"độc hại\" mỗi ngày mà không biết?",
+        "tom_tat_noi_dung": "Bài viết cảnh giác người tiêu dùng về các loại dầu ăn có thể chứa chất độc hại, từ đó khuyến nghị nên sử dụng dầu ô liu nguyên chất cho các món salad và nấu ăn nhẹ. Nội dung nhấn mạnh tầm quan trọng của việc tìm hiểu về nguồn gốc và chất lượng dầu sử dụng hàng ngày.",
+        "link_bai_bao": "https://www.webtretho.com/f/bua-com-gia-dinh/dau-an-ban-co-dang-su-dung-thu-doc-hai-moi-ngay-ma-khong-biet",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-07-28T20:41:01.613972"
+      },
+      {
+        "stt": 3,
+        "ngay_phat_hanh": "2025-07-28",
+        "dau_bao": "TRETHO",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Sự thật về loại dầu ăn đắt gấp 10 và độc gấp 200 lần",
+        "tom_tat_noi_dung": "Bài viết chỉ ra rằng dầu hướng dương và dầu ô liu có thể quảng cáo với giá cao nhưng thực chất lại không mang lại lợi ích sức khỏe như mong đợi. Các thông tin này nhấn mạnh cần thận trọng trong việc lựa chọn dầu ăn để tránh rủi ro cho sức khỏe.",
+        "link_bai_bao": "https://www.webtretho.com/f/meo-hay-suc-khoe-va-doi-song/su-that-ve-loai-dau-an-dat-gap-10-va-doc-gap-200-lan-2160797",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-07-28T20:41:01.613972"
+      },
+      {
+        "stt": 4,
+        "ngay_phat_hanh": "2025-07-28",
+        "dau_bao": "TRETHO",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "4 kiểu dùng dầu ăn khiến sức khỏe bị tổn hại mà nhà nào cũng mắc phải",
+        "tom_tat_noi_dung": "Bài viết bàn về những thói quen sai lầm khi sử dụng dầu ăn trong chế độ ăn uống hàng ngày. Các tác hại tiềm ẩn từ việc sử dụng bừa bãi loại dầu này có thể gây ảnh hưởng lớn đến sức khỏe, khuyến khích người đọc điều chỉnh thói quen ăn uống của mình.",
+        "link_bai_bao": "https://www.webtretho.com/p/4-kieu-dung-dau-an-khien-suc-khoe-bi-ton-hai-ma-nha-nao-cung-mac-phai",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-07-28T20:41:01.613972"
+      },
+      {
+        "stt": 1,
+        "ngay_phat_hanh": "2025-04-29",
+        "dau_bao": "TRETHO",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Xin kinh nghiệm dưỡng da từ dầu oliu. - Webtretho",
+        "tom_tat_noi_dung": "Bài viết chia sẻ kinh nghiệm sử dụng dầu ô liu cho việc chăm sóc da, nêu bật những lợi ích và tác dụng của dầu ô liu trong việc giữ ẩm và làm mềm da. Ngoài ra, tác giả cũng đề cập đến việc lựa chọn loại dầu ô liu phù hợp để có hiệu quả tốt nhất.",
+        "link_bai_bao": "https://www.webtretho.com/f/da-dep/xin-kinh-nghiem-duong-da-tu-dau-o-liu-1933060",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-07-28T20:42:07.060085"
+      },
+      {
+        "stt": 2,
+        "ngay_phat_hanh": "2025-05-17",
+        "dau_bao": "TRETHO",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Dầu Oliu Và Dầu Thầu Dầu: Sự Kết Hợp Hoàn Hảo Để Làm Trắng ...",
+        "tom_tat_noi_dung": "Bài viết bàn về việc kết hợp dầu ô liu với các loại dầu khác để cải thiện tình trạng da. Những hiệu quả đáng kể của dầu ô liu trong việc chống viêm và làm dịu da đã được thể hiện như là một giải pháp tự nhiên trong làm đẹp.",
+        "link_bai_bao": "https://www.webtretho.com/f/kinh-nghiem-lam-dep/dau-oliu-va-dau-thau-dau-su-ket-hop-hoan-hao-de-lam-trang-da-mat",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-07-28T20:42:07.060085"
+      }
+    ],
+    "crawl_status": "success",
+    "error_message": "",
+    "crawl_duration": 812.17728,
+    "crawl_timestamp": "2025-07-28T20:42:07.395728",
+    "retry_count": 0
+  }
+}

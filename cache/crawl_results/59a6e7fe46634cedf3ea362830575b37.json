@@ -1,0 +1,31 @@
+{
+  "cache_version": "1.0",
+  "created_at": "2025-08-02T16:49:11.615960",
+  "ttl_hours": 8,
+  "crawl_status": "success",
+  "data": {
+    "source_name": "THELEADER",
+    "source_type": "Website",
+    "url": "theleader.vn",
+    "articles_found": [
+      {
+        "stt": 1,
+        "ngay_phat_hanh": "2025-08-02",
+        "dau_bao": "THELEADER",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Chưa rõ",
+        "tom_tat_noi_dung": "",
+        "link_bai_bao": "https://theleader.vn/tap-doan-th-tien-phong-xuat-khau-sua-sang-trung-quoc-d25089.html",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-08-02T16:47:42.510201"
+      }
+    ],
+    "crawl_status": "success",
+    "error_message": "",
+    "crawl_duration": 1043.192612,
+    "crawl_timestamp": "2025-08-02T16:49:11.614954",
+    "retry_count": 0
+  }
+}

@@ -1,0 +1,175 @@
+{
+  "overall_summary": {
+    "thoi_gian_trich_xuat": "Từ ngày 29/04/2025 đến ngày 28/07/2025",
+    "industries": [
+      {
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "cum_noi_dung": [
+          "An toàn thực phẩm",
+          "Chiến dịch Marketing",
+          "Khác"
+        ],
+        "so_luong_bai": 8,
+        "cac_dau_bao": [
+          "TRETHO",
+          "PHUNU"
+        ]
+      }
+    ],
+    "cac_dau_bao": [
+      "TRETHO",
+      "PHUNU"
+    ],
+    "tong_so_bai": 8
+  },
+  "industry_summaries": [
+    {
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "cum_noi_dung": [
+        "An toàn thực phẩm",
+        "Chiến dịch Marketing",
+        "Khác"
+      ],
+      "so_luong_bai": 8,
+      "cac_dau_bao": [
+        "TRETHO",
+        "PHUNU"
+      ]
+    }
+  ],
+  "articles": [
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-28",
+      "dau_bao": "TRETHO",
+      "cum_noi_dung": "Khác",
+      "cum_noi_dung_chi_tiet": "Hướng dẫn chọn dầu ăn: An toàn và tốt cho sức khỏe gia đình",
+      "tom_tat_noi_dung": "Bài viết cung cấp hướng dẫn về cách chọn lựa dầu ăn dinh dưỡng, nhấn mạnh những loại dầu an toàn và tốt cho sức khỏe. Người tiêu dùng cần nắm rõ thông tin về các loại dầu như dầu ô liu, dầu đậu nành, và những mức giá phù hợp để bảo vệ sức khỏe gia đình.",
+      "link_bai_bao": "https://www.webtretho.com/f/an-de-khoe-dep/bi-quyet-chon-dung-loai-dau-an-de-nau-nuong-an-toan-cho-suc-khoe",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [
+        "dầu ăn",
+        "dầu oliu",
+        "dầu nành"
+      ],
+      "crawl_timestamp": "2025-07-28T20:44:31.447114"
+    },
+    {
+      "stt": 2,
+      "ngay_phat_hanh": "2025-07-28",
+      "dau_bao": "TRETHO",
+      "cum_noi_dung": "An toàn thực phẩm",
+      "cum_noi_dung_chi_tiet": "Cảnh báo sử dụng dầu ăn hàng ngày có thể độc hại",
+      "tom_tat_noi_dung": "Bài viết cảnh giác người tiêu dùng về các loại dầu ăn có thể chứa chất độc hại, từ đó khuyến nghị nên sử dụng dầu ô liu nguyên chất cho các món salad và nấu ăn nhẹ. Nội dung nhấn mạnh tầm quan trọng của việc tìm hiểu về nguồn gốc và chất lượng dầu sử dụng hàng ngày.",
+      "link_bai_bao": "https://www.webtretho.com/f/bua-com-gia-dinh/dau-an-ban-co-dang-su-dung-thu-doc-hai-moi-ngay-ma-khong-biet",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [
+        "dầu ăn",
+        "dầu oliu"
+      ],
+      "crawl_timestamp": "2025-07-28T20:44:31.447114"
+    },
+    {
+      "stt": 3,
+      "ngay_phat_hanh": "2025-07-28",
+      "dau_bao": "TRETHO",
+      "cum_noi_dung": "Chiến dịch Marketing",
+      "cum_noi_dung_chi_tiet": "Sự thật về dầu hướng dương và dầu ô liu đắt đỏ",
+      "tom_tat_noi_dung": "Bài viết chỉ ra rằng dầu hướng dương và dầu ô liu có thể quảng cáo với giá cao nhưng thực chất lại không mang lại lợi ích sức khỏe như mong đợi. Các thông tin này nhấn mạnh cần thận trọng trong việc lựa chọn dầu ăn để tránh rủi ro cho sức khỏe.",
+      "link_bai_bao": "https://www.webtretho.com/f/meo-hay-suc-khoe-va-doi-song/su-that-ve-loai-dau-an-dat-gap-10-va-doc-gap-200-lan-2160797",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [
+        "dầu ăn",
+        "dầu hướng dương",
+        "dầu oliu"
+      ],
+      "crawl_timestamp": "2025-07-28T20:44:31.447114"
+    },
+    {
+      "stt": 4,
+      "ngay_phat_hanh": "2025-07-28",
+      "dau_bao": "TRETHO",
+      "cum_noi_dung": "Khác",
+      "cum_noi_dung_chi_tiet": "Thói quen sai lầm khi sử dụng dầu ăn hàng ngày",
+      "tom_tat_noi_dung": "Bài viết bàn về những thói quen sai lầm khi sử dụng dầu ăn trong chế độ ăn uống hàng ngày. Các tác hại tiềm ẩn từ việc sử dụng bừa bãi loại dầu này có thể gây ảnh hưởng lớn đến sức khỏe, khuyến khích người đọc điều chỉnh thói quen ăn uống của mình.",
+      "link_bai_bao": "https://www.webtretho.com/p/4-kieu-dung-dau-an-khien-suc-khoe-bi-ton-hai-ma-nha-nao-cung-mac-phai",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [
+        "dầu ăn"
+      ],
+      "crawl_timestamp": "2025-07-28T20:44:31.447114"
+    },
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-04-29",
+      "dau_bao": "TRETHO",
+      "cum_noi_dung": "Khác",
+      "cum_noi_dung_chi_tiet": "Chăm sóc da: Kinh nghiệm dùng dầu ô liu",
+      "tom_tat_noi_dung": "Bài viết chia sẻ kinh nghiệm sử dụng dầu ô liu cho việc chăm sóc da, nêu bật những lợi ích và tác dụng của dầu ô liu trong việc giữ ẩm và làm mềm da. Ngoài ra, tác giả cũng đề cập đến việc lựa chọn loại dầu ô liu phù hợp để có hiệu quả tốt nhất.",
+      "link_bai_bao": "https://www.webtretho.com/f/da-dep/xin-kinh-nghiem-duong-da-tu-dau-o-liu-1933060",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [
+        "dầu oliu"
+      ],
+      "crawl_timestamp": "2025-07-28T20:44:31.447114"
+    },
+    {
+      "stt": 2,
+      "ngay_phat_hanh": "2025-05-17",
+      "dau_bao": "TRETHO",
+      "cum_noi_dung": "Khác",
+      "cum_noi_dung_chi_tiet": "Làm đẹp tự nhiên: Kết hợp dầu ô liu và dầu khác",
+      "tom_tat_noi_dung": "Bài viết bàn về việc kết hợp dầu ô liu với các loại dầu khác để cải thiện tình trạng da. Những hiệu quả đáng kể của dầu ô liu trong việc chống viêm và làm dịu da đã được thể hiện như là một giải pháp tự nhiên trong làm đẹp.",
+      "link_bai_bao": "https://www.webtretho.com/f/kinh-nghiem-lam-dep/dau-oliu-va-dau-thau-dau-su-ket-hop-hoan-hao-de-lam-trang-da-mat",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [
+        "dầu oliu"
+      ],
+      "crawl_timestamp": "2025-07-28T20:44:31.447114"
+    },
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-06-24",
+      "dau_bao": "PHUNU",
+      "cum_noi_dung": "An toàn thực phẩm",
+      "cum_noi_dung_chi_tiet": "Dầu cho chăn nuôi thành dầu ăn người: Ý kiến từ Bộ Y tế",
+      "tom_tat_noi_dung": "Bài viết đề cập đến việc dầu dành cho thực ăn chăn nuôi đã được chuyển đổi để sử dụng cho con người. Nhãn hàng Ofood của Công ty TNHH Sản xuất và XNK Nhật Minh Food là một ví dụ trong việc này, cùng với những thảo luận từ Bộ Y tế về tính an toàn của loại dầu này đối với sức khỏe con người.",
+      "link_bai_bao": "https://www.phunuonline.com.vn/dau-cho-thuc-an-chan-nuoi-thanh-dau-an-cho-nguoi-bo-y-te-noi-gi-a1553404.html",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [
+        "dầu ăn",
+        "sức khỏe"
+      ],
+      "crawl_timestamp": "2025-07-28T20:44:31.447114"
+    },
+    {
+      "stt": 2,
+      "ngay_phat_hanh": "2025-07-06",
+      "dau_bao": "PHUNU",
+      "cum_noi_dung": "An toàn thực phẩm",
+      "cum_noi_dung_chi_tiet": "Người dân đổ xô ép dầu đạt chuẩn vì lo ngại dầu bẩn",
+      "tom_tat_noi_dung": "Bài báo mô tả tình hình lo ngại của người tiêu dùng về dầu ăn 'bẩn' trên thị trường, khiến người dân Nghệ An tìm đến các cơ sở ép dầu an toàn. Thị trường tham gia vào sự gia tăng giá trị của dầu ăn đạt chuẩn, lấy cảm hứng từ sự an toàn thực phẩm và sức khỏe người tiêu dùng.",
+      "link_bai_bao": "https://www.phunuonline.com.vn/lo-ngai-dau-an-ban-nguoi-dan-do-xo-di-ep-dau-dau-phong-a1554365.html",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [
+        "dầu ăn",
+        "an toàn thực phẩm",
+        "sức khỏe"
+      ],
+      "crawl_timestamp": "2025-07-28T20:44:31.448136"
+    }
+  ],
+  "generated_at": "2025-07-28T20:44:41.386631",
+  "total_articles": 8,
+  "date_range": "Từ ngày 29/04/2025 đến ngày 28/07/2025"
+}

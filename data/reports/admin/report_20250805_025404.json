@@ -1,0 +1,62 @@
+{
+  "overall_summary": {
+    "thoi_gian_trich_xuat": "Từ ngày 06/07/2025 đến ngày 05/08/2025",
+    "industries": [
+      {
+        "nganh_hang": "Gia vị",
+        "nhan_hang": [
+          "Ajinomoto Việt Nam"
+        ],
+        "cum_noi_dung": [
+          "Khác"
+        ],
+        "so_luong_bai": 1,
+        "cac_dau_bao": [
+          "GIAODỤC&THOIĐAI"
+        ]
+      }
+    ],
+    "cac_dau_bao": [
+      "GIAODỤC&THOIĐAI"
+    ],
+    "tong_so_bai": 1
+  },
+  "industry_summaries": [
+    {
+      "nganh_hang": "Gia vị",
+      "nhan_hang": [
+        "Ajinomoto Việt Nam"
+      ],
+      "cum_noi_dung": [
+        "Khác"
+      ],
+      "so_luong_bai": 1,
+      "cac_dau_bao": [
+        "GIAODỤC&THOIĐAI"
+      ]
+    }
+  ],
+  "articles": [
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-21",
+      "dau_bao": "GIAODỤC&THOIĐAI",
+      "cum_noi_dung": "Hoạt động doanh nghiệp và thông tin sản phẩm",
+      "cum_noi_dung_chi_tiet": "Khác: Ajinomoto triển khai các sáng kiến dinh dưỡng cho nhân viên",
+      "tom_tat_noi_dung": "Ajinomoto Việt Nam đã phát động nhiều sáng kiến chăm sóc sức khỏe cho nhân viên, với các chương trình giáo dục dinh dưỡng và thúc đẩy hoạt động thể dục thể thao. Trung bình mỗi nhân viên được đào tạo về dinh dưỡng 140 phút/năm dưới sự hướng dẫn của chuyên gia, nhằm củng cố sức khỏe cả thể chất và tinh thần.",
+      "link_bai_bao": "https://thitruong.nld.com.vn/ajinomoto-nang-tam-suc-khoe-nguoi-lao-dong-qua-cac-sang-kien-dinh-duong-196250721154905135.htm",
+      "nganh_hang": "Gia vị",
+      "nhan_hang": [
+        "Ajinomoto Việt Nam"
+      ],
+      "keywords_found": [
+        "Ajinomoto Việt Nam",
+        "sức khỏe"
+      ],
+      "crawl_timestamp": "2025-08-05T02:53:58.625203"
+    }
+  ],
+  "generated_at": "2025-08-05T02:54:02.967536",
+  "total_articles": 1,
+  "date_range": "Từ ngày 06/07/2025 đến ngày 05/08/2025"
+}

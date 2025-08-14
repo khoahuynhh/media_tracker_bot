@@ -1,0 +1,44 @@
+{
+  "cache_version": "1.0",
+  "created_at": "2025-08-03T02:01:35.685449",
+  "ttl_hours": 8,
+  "crawl_status": "success",
+  "data": {
+    "source_name": "TUOITRE",
+    "source_type": "Website",
+    "url": "tuoitre.vn",
+    "articles_found": [
+      {
+        "stt": 1,
+        "ngay_phat_hanh": "2025-07-03",
+        "dau_bao": "TUOITRE",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "So sánh sữa Vinamilk và TH True Milk có gì khác nhau? Loại nào tốt hơn?",
+        "tom_tat_noi_dung": "Bài viết đi sâu vào việc so sánh hai thương hiệu sữa nổi tiếng tại Việt Nam, Vinamilk và TH True Milk. Nó phân tích các điểm khác nhau về chất lượng, nguyên liệu và giá trị dinh dưỡng của sản phẩm từ hai thương hiệu này. Cùng với đó, bài viết còn đưa ra những nhận định về sự phù hợp của sản phẩm với nhu cầu của người tiêu dùng.",
+        "link_bai_bao": "https://www.avakids.com/me-va-be/so-sanh-sua-vinamilk-va-th-true-milk-co-gi-khac-1438656",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-08-03T01:57:58.159674"
+      },
+      {
+        "stt": 2,
+        "ngay_phat_hanh": "2025-07-01",
+        "dau_bao": "TUOITRE",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Sữa tươi tiệt trùng Vinamilk có đường hộp 1 lít",
+        "tom_tat_noi_dung": "Bài viết giới thiệu sản phẩm sữa tươi tiệt trùng của Vinamilk. Chứa nguồn vitamin D3, A, C và selen giúp hỗ trợ miễn dịch và phát triển thể chất. Đây là một sản phẩm bổ sung dinh dưỡng lý tưởng cho trẻ, với tiêu chí an toàn và chất lượng cao.",
+        "link_bai_bao": "https://hasumart.com.vn/sua-tuoi-tiet-trung-vinamilk-co-duong-hop-1-lit.html",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-08-03T01:57:58.160701"
+      }
+    ],
+    "crawl_status": "success",
+    "error_message": "",
+    "crawl_duration": 985.651638,
+    "crawl_timestamp": "2025-08-03T02:01:35.682752",
+    "retry_count": 0
+  }
+}

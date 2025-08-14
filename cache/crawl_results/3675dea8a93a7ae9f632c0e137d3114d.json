@@ -1,0 +1,31 @@
+{
+  "cache_version": "1.0",
+  "created_at": "2025-08-02T01:57:35.081471",
+  "ttl_hours": 8,
+  "crawl_status": "success",
+  "data": {
+    "source_name": "BAOCONGTHUONG",
+    "source_type": "Website",
+    "url": "congthuong.vn",
+    "articles_found": [
+      {
+        "stt": 1,
+        "ngay_phat_hanh": "2025-07-08",
+        "dau_bao": "BAOCONGTHUONG",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Trung Quốc thay đổi tiêu chuẩn sữa tiết trùng, bỏ sữa hoàn nguyên và việc ...",
+        "tom_tat_noi_dung": "Từ 16/9/2025, Trung Quốc sẽ chỉ công nhận sữa tiết trùng làm từ sữa tươi nguyên liệu, không chấp nhận sản phẩm sử dụng sữa hoàn nguyên. Quy định này nhằm nâng cao chất lượng sản phẩm sữa và bảo vệ sức khoẻ người tiêu dùng trong bối cảnh thị trường sữa toàn cầu đang cạnh tranh mạnh mẽ.",
+        "link_bai_bao": "https://congthuong.vn/trung-quoc-thay-doi-tieu-chuan-sua-tiet-trung-bo-khai-niem-sua-hoan-nguyen-409613.html",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-08-02T01:57:31.723093"
+      }
+    ],
+    "crawl_status": "success",
+    "error_message": "",
+    "crawl_duration": 2763.833014,
+    "crawl_timestamp": "2025-08-02T01:57:35.081471",
+    "retry_count": 0
+  }
+}

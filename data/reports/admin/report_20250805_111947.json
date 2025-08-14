@@ -1,0 +1,61 @@
+{
+  "overall_summary": {
+    "thoi_gian_trich_xuat": "Từ ngày 01/07/2025 đến ngày 31/07/2025",
+    "industries": [
+      {
+        "nganh_hang": "Sữa (UHT)",
+        "nhan_hang": [
+          "Vinamilk"
+        ],
+        "cum_noi_dung": [
+          "Ra mắt sản phẩm"
+        ],
+        "so_luong_bai": 1,
+        "cac_dau_bao": [
+          "LAODONG"
+        ]
+      }
+    ],
+    "cac_dau_bao": [
+      "LAODONG"
+    ],
+    "tong_so_bai": 1
+  },
+  "industry_summaries": [
+    {
+      "nganh_hang": "Sữa (UHT)",
+      "nhan_hang": [
+        "Vinamilk"
+      ],
+      "cum_noi_dung": [
+        "Ra mắt sản phẩm"
+      ],
+      "so_luong_bai": 1,
+      "cac_dau_bao": [
+        "LAODONG"
+      ]
+    }
+  ],
+  "articles": [
+    {
+      "stt": 2,
+      "ngay_phat_hanh": "2025-07-17",
+      "dau_bao": "LAODONG",
+      "cum_noi_dung": "Ra mắt sản phẩm",
+      "cum_noi_dung_chi_tiet": "Ra mắt sản phẩm: Vinamilk giới thiệu công thức dinh dưỡng 6 HMO tại Diễn đàn châu Á",
+      "tom_tat_noi_dung": "Vinamilk đã giới thiệu sản phẩm mới với công thức dinh dưỡng 6 HMO tại diễn đàn dinh dưỡng châu Á, nhấn mạnh vai trò quan trọng của dinh dưỡng trong sự phát triển của trẻ em. Sự kiện thu hút sự quan tâm lớn từ cả các chuyên gia dinh dưỡng và phụ huynh, tạo đà cho việc nâng cao nhận thức về sản phẩm sữa UHT.",
+      "link_bai_bao": "https://laodong.vn/suc-khoe/dot-pha-6-hmo-buoc-tien-dinh-duong-cua-vinamilk-tai-dien-dan-dinh-duong-lon-nhat-chau-a-1541685.ldo",
+      "nganh_hang": "Sữa (UHT)",
+      "nhan_hang": [
+        "Vinamilk"
+      ],
+      "keywords_found": [
+        "Vinamilk"
+      ],
+      "crawl_timestamp": "2025-08-05T11:19:38.007724"
+    }
+  ],
+  "generated_at": "2025-08-05T11:19:45.771815",
+  "total_articles": 1,
+  "date_range": "Từ ngày 01/07/2025 đến ngày 31/07/2025"
+}

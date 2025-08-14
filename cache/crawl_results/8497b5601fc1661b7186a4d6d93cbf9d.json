@@ -1,0 +1,31 @@
+{
+  "cache_version": "1.0",
+  "created_at": "2025-07-28T22:58:31.278061",
+  "ttl_hours": 8,
+  "crawl_status": "success",
+  "data": {
+    "source_name": "ZNEWS",
+    "source_type": "Website",
+    "url": "znews.vn",
+    "articles_found": [
+      {
+        "stt": 1,
+        "ngay_phat_hanh": "2025-06-28",
+        "dau_bao": "ZNEWS",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Chưa rõ",
+        "tom_tat_noi_dung": "",
+        "link_bai_bao": "https://znews.vn/oc-thanh-van-hao-hung-tham-quan-day-chuyen-san-xuat-dau-an-tu-ca-post909681.html",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-07-28T22:38:21.033814"
+      }
+    ],
+    "crawl_status": "success",
+    "error_message": "",
+    "crawl_duration": 3173.59377,
+    "crawl_timestamp": "2025-07-28T22:58:31.276525",
+    "retry_count": 0
+  }
+}

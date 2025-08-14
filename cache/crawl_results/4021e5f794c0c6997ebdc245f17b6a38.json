@@ -1,0 +1,57 @@
+{
+  "cache_version": "1.0",
+  "created_at": "2025-08-03T11:55:07.878364",
+  "ttl_hours": 8,
+  "crawl_status": "success",
+  "data": {
+    "source_name": "CONGLY",
+    "source_type": "Website",
+    "url": "congly.vn",
+    "articles_found": [
+      {
+        "stt": 1,
+        "ngay_phat_hanh": "2025-07-29",
+        "dau_bao": "CONGLY",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Chưa rõ",
+        "tom_tat_noi_dung": "",
+        "link_bai_bao": "https://congly.vn/sua-noi-tre-em-huong-di-lap-khoang-trong-tam-ly-chuong-sua-ngoai-487248.html",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-08-03T11:55:07.566206"
+      },
+      {
+        "stt": 2,
+        "ngay_phat_hanh": "2025-07-29",
+        "dau_bao": "CONGLY",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Chưa rõ",
+        "tom_tat_noi_dung": "",
+        "link_bai_bao": "https://congly.vn/uong-sua-ptag.html",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-08-03T11:55:07.566206"
+      },
+      {
+        "stt": 3,
+        "ngay_phat_hanh": "2025-07-29",
+        "dau_bao": "CONGLY",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Chưa rõ",
+        "tom_tat_noi_dung": "",
+        "link_bai_bao": "https://congly.vn/6-sai-lam-khi-uong-sua-co-hai-cho-suc-khoe-89921.html",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-08-03T11:55:07.566206"
+      }
+    ],
+    "crawl_status": "success",
+    "error_message": "",
+    "crawl_duration": 591.707418,
+    "crawl_timestamp": "2025-08-03T11:55:07.877362",
+    "retry_count": 0
+  }
+}

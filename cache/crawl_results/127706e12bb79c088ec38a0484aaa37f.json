@@ -1,0 +1,57 @@
+{
+  "cache_version": "1.0",
+  "created_at": "2025-07-28T22:25:04.726622",
+  "ttl_hours": 8,
+  "crawl_status": "success",
+  "data": {
+    "source_name": "KENH14",
+    "source_type": "Website",
+    "url": "kenh14.vn",
+    "articles_found": [
+      {
+        "stt": 1,
+        "ngay_phat_hanh": "2025-06-28",
+        "dau_bao": "KENH14",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Loại dầu ăn nào chịu được nhiệt độ cao, dùng chiên rán tốt nhất?",
+        "tom_tat_noi_dung": "Bài viết phân tích các loại dầu ăn phù hợp cho việc chế biến thực phẩm ở nhiệt độ cao, như dầu cám gạo và dầu hướng dương. Dầu hướng dương được nhắc đến như một lựa chọn an toàn và ngon miệng để chiên rán nhiều món ăn.",
+        "link_bai_bao": "https://kenh14.vn/loai-dau-an-nao-chiu-duoc-nhiet-do-cao-dung-chien-ran-tot-nhat-215241122203426481.chn",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-07-28T22:21:51.148213"
+      },
+      {
+        "stt": 2,
+        "ngay_phat_hanh": "2025-06-28",
+        "dau_bao": "KENH14",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Chọn dầu ăn thế nào tốt? Hãy nhớ 2 điểm này - Kenh14",
+        "tom_tat_noi_dung": "Bài viết hướng dẫn cách chọn dầu ăn tốt cho sức khỏe, nhấn mạnh đến các loại dầu như dầu hướng dương, dầu ăn từ thực vật và dầu đậu nành. Hai điều quan trọng được đưa ra là nguồn gốc và thành phần dinh dưỡng của dầu.",
+        "link_bai_bao": "https://kenh14.vn/chon-dau-an-the-nao-tot-hay-nho-2-diem-nay-215250326115005068.chn",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-07-28T22:21:51.148213"
+      },
+      {
+        "stt": 3,
+        "ngay_phat_hanh": "2025-06-28",
+        "dau_bao": "KENH14",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Thường xuyên sử dụng 3 loại dầu ăn này, ung thư gan lúc nào không hay",
+        "tom_tat_noi_dung": "Bài viết cảnh báo về sự ảnh hưởng của ba loại dầu ăn phổ biến đến sức khỏe, đặc biệt là nguy cơ ung thư gan. Dầu hướng dương, dầu đậu nành và dầu cọ là những loại được nêu tên, cùng thảo luận về tác động tiêu cực của chúng.",
+        "link_bai_bao": "https://kenh14.vn/thuong-xuyen-su-dung-3-loai-dau-an-nay-ung-thu-gan-luc-nao-khong-hay-215250226100728045.chn",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-07-28T22:21:51.148213"
+      }
+    ],
+    "crawl_status": "success",
+    "error_message": "",
+    "crawl_duration": 1166.975872,
+    "crawl_timestamp": "2025-07-28T22:25:04.726622",
+    "retry_count": 0
+  }
+}

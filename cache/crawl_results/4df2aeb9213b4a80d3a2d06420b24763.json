@@ -1,0 +1,44 @@
+{
+  "cache_version": "1.1",
+  "created_at": "2025-08-05T13:02:05.558528",
+  "ttl_hours": 8,
+  "crawl_status": "success",
+  "data": {
+    "source_name": "LAODONG",
+    "source_type": "Website",
+    "url": "laodong.vn",
+    "articles_found": [
+      {
+        "stt": 1,
+        "ngay_phat_hanh": "2025-08-05",
+        "dau_bao": "LAODONG",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Vinamilk ghi nhận doanh thu quý 2.2025 cao nhất từ trước đến nay",
+        "tom_tat_noi_dung": "Theo báo cáo \"Dấu chân thương hiệu 2025\" do Kantar phát hành tháng 6.2025, Vinamilk tiếp tục là thương hiệu sữa được chọn mua nhiều nhất sau 13 năm liên tục. Điều này nhấn mạnh vị thế dẫn đầu của Vinamilk trong ngành công nghiệp sữa tại Việt Nam.",
+        "link_bai_bao": "https://laodong.vn/kinh-doanh/vinamilk-ghi-nhan-doanh-thu-quy-22025-cao-nhat-tu-truoc-den-nay-16745-ti-dong-1549729.ldo",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-08-05T13:02:05.389763"
+      },
+      {
+        "stt": 2,
+        "ngay_phat_hanh": "2025-07-02",
+        "dau_bao": "LAODONG",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Công ty sữa hàng đầu Việt Nam mở đơn tìm kiếm nhân lực tài năng trẻ",
+        "tom_tat_noi_dung": "Vừa “lên sóng” chừa lâu, chương trình Vinamilk Graduate Talent Program (GTP) 2025 đã tạo hiệu ứng tích cực, thu hút nhiều ứng viên trẻ. Chương trình này nhằm tìm kiếm và đào tạo các tài năng trẻ cho tương lai của Vinamilk, giúp công ty phát triển bền vững.",
+        "link_bai_bao": "https://laodong.vn/xa-hoi/cong-ty-sua-hang-dau-viet-nam-mo-don-tim-kiem-nhan-luc-tai-nang-tre-1533674.ldo",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-08-05T13:02:05.389763"
+      }
+    ],
+    "crawl_status": "success",
+    "error_message": "",
+    "crawl_duration": 19.733145,
+    "crawl_timestamp": "2025-08-05T13:02:05.558528",
+    "retry_count": 0
+  }
+}

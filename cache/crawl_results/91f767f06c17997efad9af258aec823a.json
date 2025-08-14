@@ -1,0 +1,31 @@
+{
+  "cache_version": "1.0",
+  "created_at": "2025-08-04T21:29:22.392653",
+  "ttl_hours": 8,
+  "crawl_status": "success",
+  "data": {
+    "source_name": "TUOITRE",
+    "source_type": "Website",
+    "url": "tuoitre.vn",
+    "articles_found": [
+      {
+        "stt": 1,
+        "ngay_phat_hanh": "2025-07-23",
+        "dau_bao": "TUOITRE",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "‘Ba thập kỷ, gia vị Vedan thành người bạn trong căn bếp Việt’",
+        "tom_tat_noi_dung": "Bài viết tóm tắt hành trình 30 năm của Vedan tại Việt Nam, nhấn mạnh sự hiện diện không thể thiếu của gia vị Vedan trong các bữa ăn gia đình Việt. Bài báo nêu bật những cột mốc quan trọng trong lịch sử phát triển của công ty, từ khi thành lập cho đến những bước tiến trong công nghệ sản xuất và sự gắn bó với văn hóa ẩm thực Việt Nam.",
+        "link_bai_bao": "https://tuoitre.vn/ba-thap-ky-gia-vi-vedan-thanh-nguoi-ban-trong-can-bep-viet-20250723102807914.htm",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-08-04T21:25:39.635337"
+      }
+    ],
+    "crawl_status": "success",
+    "error_message": "",
+    "crawl_duration": 741.845652,
+    "crawl_timestamp": "2025-08-04T21:29:22.390643",
+    "retry_count": 0
+  }
+}

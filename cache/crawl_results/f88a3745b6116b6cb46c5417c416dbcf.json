@@ -1,0 +1,83 @@
+{
+  "cache_version": "1.0",
+  "created_at": "2025-08-01T11:08:21.668910",
+  "ttl_hours": 8,
+  "crawl_status": "success",
+  "data": {
+    "source_name": "TIENPHONG",
+    "source_type": "Website",
+    "url": "tienphong.vn",
+    "articles_found": [
+      {
+        "stt": 1,
+        "ngay_phat_hanh": "2025-07-01",
+        "dau_bao": "TIENPHONG",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Sữa Tươi Tiệt Trùng Ít Đường Lof Kun Lộc 4 Hộp 180ml - LOTTE Mart",
+        "tom_tat_noi_dung": "Sữa Tươi Tiệt Trùng Ít Đường Lof Kun giúp bé cao lớn hơn và tăng cường sức đề kháng với nhiều vitamin và khoáng chất cần thiết, phù hợp cho sức khỏe trẻ nhỏ.",
+        "link_bai_bao": "https://www.lottemart.vn/vi-nsg/product/kun-uht-less-sugar-milk-180ml-x-4-boxes-8936025774355-p71729?srsltid=AfmBOoq7tQDiC3uAzfukbjOKZBOGXd39OKLnGFsp0GBAgEigq6KZWpVH",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-08-01T10:10:48.032988"
+      },
+      {
+        "stt": 2,
+        "ngay_phat_hanh": "2025-07-01",
+        "dau_bao": "TIENPHONG",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "KUN 100% Sữa Tươi - Công ty Cổ phần Sữa Quốc tế Lof",
+        "tom_tat_noi_dung": "KUN mang đến dòng sản phẩm sữa tươi cao cấp, nhằm cung cấp dinh dưỡng toàn diện cho trẻ em, khuyến khích sự phát triển tự nhiên và khỏe mạnh.",
+        "link_bai_bao": "https://www.lof.vn/brand/kun?type=5",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-08-01T10:10:48.033991"
+      },
+      {
+        "stt": 3,
+        "ngay_phat_hanh": "2025-07-01",
+        "dau_bao": "TIENPHONG",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Lộc sữa tươi tiệt trùng ít đường LOF Kun 100% Sữa tươi 180ml",
+        "tom_tat_noi_dung": "Sản phẩm sữa tươi tiệt trùng này đảm bảo cung cấp đầy đủ dưỡng chất cho trẻ em, giúp duy trì sức khỏe và sự phát triển tốt nhất.",
+        "link_bai_bao": "https://shopee.vn/L%E1%BB%91c-s%E1%BB%AFa-t%C6%B0%C6%A1i-ti%E1%BB%87t-tr%C3%B9ng-%C3%ADt-%C4%91%C6%B0%E1%BB%9Dng-LOF-Kun-100-S%E1%BB%AFa-t%C6%B0%C6%A1i-180ml-i.73102088.25821498879",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-08-01T10:10:48.033991"
+      },
+      {
+        "stt": 4,
+        "ngay_phat_hanh": "2025-07-01",
+        "dau_bao": "TIENPHONG",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Lộc sữa tươi tiệt trùng ít đường Kun hộp 180ml (4 Hộp) - Kingfoodmart",
+        "tom_tat_noi_dung": "Sữa Kun là lựa chọn lý tưởng cho các bậc phụ huynh muốn tăng cường dinh dưỡng cho con cái với chất lượng và giá cả hợp lý.",
+        "link_bai_bao": "https://kingfoodmart.com/sua-tiet-trung/loc-sua-tuoi-tiet-trung-it-duong-kun-hop-180ml-4-hop-62640?srsltid=AfmBOooZAnDlHlnl07xhNFhGL84lH8Y-OokR5Bu5y2DQaxfYbjZzh8jr",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-08-01T10:10:48.033991"
+      },
+      {
+        "stt": 5,
+        "ngay_phat_hanh": "2025-07-01",
+        "dau_bao": "TIENPHONG",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Lộc sữa tươi tiệt trùng ít đường Kun hộp 180ml (4 Hộp) - OneLife",
+        "tom_tat_noi_dung": "Một sản phẩm sữa tươi chất lượng cao dành cho trẻ em, cung cấp đầy đủ dưỡng chất cần thiết cho sự phát triển toàn diện.",
+        "link_bai_bao": "https://onelife.vn/sua-tiet-trung/loc-sua-tuoi-tiet-trung-it-duong-kun-hop-180ml-4-hop-62640",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-08-01T10:10:48.033991"
+      }
+    ],
+    "crawl_status": "success",
+    "error_message": "",
+    "crawl_duration": 4063.443393,
+    "crawl_timestamp": "2025-08-01T11:08:21.668910",
+    "retry_count": 0
+  }
+}

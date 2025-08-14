@@ -1,0 +1,31 @@
+{
+  "cache_version": "1.0",
+  "created_at": "2025-08-05T02:23:10.236123",
+  "ttl_hours": 8,
+  "crawl_status": "success",
+  "data": {
+    "source_name": "VIETNAMFINANCE",
+    "source_type": "Website",
+    "url": "vietnamfinance.vn",
+    "articles_found": [
+      {
+        "stt": 1,
+        "ngay_phat_hanh": "2025-07-21",
+        "dau_bao": "VIETNAMFINANCE",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Ajinomoto nâng tầm sức khỏe người lao động qua các sáng kiến dinh dưỡng",
+        "tom_tat_noi_dung": "Ajinomoto Việt Nam đã thực hiện nhiều sáng kiến nhằm nâng cao sức khỏe và hạnh phúc của người lao động. Công ty tập trung vào giáo dục dinh dưỡng, tổ chức các khóa đào tạo và khuyến khích hoạt động thể dục thể thao. Điều này không chỉ giúp nâng cao sức khỏe mà còn tạo ra một môi trường làm việc tích cực và gắn kết hơn giữa các nhân viên.",
+        "link_bai_bao": "https://thitruong.nld.com.vn/ajinomoto-nang-tam-suc-khoe-nguoi-lao-dong-qua-cac-sang-kien-dinh-duong-196250721154905135.htm",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-08-05T02:11:03.629883"
+      }
+    ],
+    "crawl_status": "success",
+    "error_message": "",
+    "crawl_duration": 795.51116,
+    "crawl_timestamp": "2025-08-05T02:23:10.232149",
+    "retry_count": 0
+  }
+}

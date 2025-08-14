@@ -1,0 +1,31 @@
+{
+  "cache_version": "1.0",
+  "created_at": "2025-08-01T21:50:57.095254",
+  "ttl_hours": 8,
+  "crawl_status": "success",
+  "data": {
+    "source_name": "CAFEF",
+    "source_type": "Website",
+    "url": "cafef.vn",
+    "articles_found": [
+      {
+        "stt": 1,
+        "ngay_phat_hanh": "2025-07-02",
+        "dau_bao": "CAFEF",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Nhà bếp có 1 thứ được ví bản hơn cả bồn cầu, nhiều người tưởng giặt sạch với xà phòng là xong thì sai rồi",
+        "tom_tat_noi_dung": "Bài viết đề cập đến một sản phẩm lau dọn trong nhà bếp mà nhiều người chưa biết đến, giúp làm sạch hiệu quả hơn so với việc chỉ sử dụng xà phòng thông thường. Các bí quyết để sử dụng hiệu quả chất tẩy rửa và bảo quản không gian sống sạch sẽ được nêu rõ.",
+        "link_bai_bao": "https://cafef.vn/nha-bep-co-1-thu-duoc-vi-ban-hon-ca-bon-cau-nhieu-nguoi-tuong-giat-sach-voi-xa-phong-la-xong-thi-sai-roi-188250409200008843.chn",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-08-01T21:48:45.164634"
+      }
+    ],
+    "crawl_status": "success",
+    "error_message": "",
+    "crawl_duration": 3395.054586,
+    "crawl_timestamp": "2025-08-01T21:50:57.093264",
+    "retry_count": 0
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "cache_version": "1.0",
+  "created_at": "2025-08-03T03:19:01.828755",
+  "ttl_hours": 8,
+  "crawl_status": "success",
+  "data": {
+    "source_name": "TIENPHONG",
+    "source_type": "Website",
+    "url": "tienphong.vn",
+    "articles_found": [
+      {
+        "stt": 2,
+        "ngay_phat_hanh": "2025-08-01",
+        "dau_bao": "TIENPHONG",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Bí quyết Kun Sữa Lúa Mạch: Bộ 3 năng lượng mạnh mẽ, chắp cánh cho con yêu khôn lớn toàn diện",
+        "tom_tat_noi_dung": "Bài viết đề cập đến sản phẩm Kun Sữa Lúa Mạch, một lựa chọn dinh dưỡng ưu việt cho trẻ em, với ba thành phần chính giúp nâng cao năng lực và sức đề kháng. Sản phẩm này được các chuyên gia khuyến nghị nhằm hỗ trợ sự phát triển toàn diện cho trẻ trong giai đoạn tăng trưởng.",
+        "link_bai_bao": "https://tienphong.vn/bi-quyet-kun-sua-lua-mach-bo-3-nang-luong-manh-me-chap-canh-con-yeu-khon-lon-toan-dien-post1765391.tpo",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-08-03T03:15:54.356962"
+      }
+    ],
+    "crawl_status": "success",
+    "error_message": "",
+    "crawl_duration": 1182.588245,
+    "crawl_timestamp": "2025-08-03T03:19:01.825748",
+    "retry_count": 0
+  }
+}

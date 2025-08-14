@@ -1,0 +1,121 @@
+{
+  "overall_summary": {
+    "thoi_gian_trich_xuat": "Từ ngày 06/07/2025 đến ngày 05/08/2025",
+    "industries": [
+      {
+        "nganh_hang": "Gia vị",
+        "nhan_hang": [
+          "Ajinomoto Việt Nam",
+          "Vedan Việt Nam"
+        ],
+        "cum_noi_dung": [
+          "Hoạt động doanh nghiệp và thông tin sản phẩm",
+          "Khác"
+        ],
+        "so_luong_bai": 4,
+        "cac_dau_bao": [
+          "VIETNAMFINANCE",
+          "TOQUOC",
+          "DOISONG&PHAPLUAT",
+          "VIETNAMPLUS"
+        ]
+      }
+    ],
+    "cac_dau_bao": [
+      "VIETNAMFINANCE",
+      "TOQUOC",
+      "DOISONG&PHAPLUAT",
+      "VIETNAMPLUS"
+    ],
+    "tong_so_bai": 4
+  },
+  "industry_summaries": [
+    {
+      "nganh_hang": "Gia vị",
+      "nhan_hang": [
+        "Ajinomoto Việt Nam",
+        "Vedan Việt Nam"
+      ],
+      "cum_noi_dung": [
+        "Hoạt động doanh nghiệp và thông tin sản phẩm",
+        "Khác"
+      ],
+      "so_luong_bai": 4,
+      "cac_dau_bao": [
+        "VIETNAMFINANCE",
+        "TOQUOC",
+        "DOISONG&PHAPLUAT",
+        "VIETNAMPLUS"
+      ]
+    }
+  ],
+  "articles": [
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-21",
+      "dau_bao": "VIETNAMFINANCE",
+      "cum_noi_dung": "Hoạt động doanh nghiệp và thông tin sản phẩm",
+      "cum_noi_dung_chi_tiet": "Khác: Ajinomoto Việt Nam sáng kiến về dinh dưỡng cho nhân viên",
+      "tom_tat_noi_dung": "Ajinomoto Việt Nam đã thực hiện nhiều sáng kiến nhằm nâng cao sức khỏe và hạnh phúc của người lao động. Công ty tập trung vào giáo dục dinh dưỡng, tổ chức các khóa đào tạo và khuyến khích hoạt động thể dục thể thao. Điều này không chỉ giúp nâng cao sức khỏe mà còn tạo ra một môi trường làm việc tích cực và gắn kết hơn giữa các nhân viên.",
+      "link_bai_bao": "https://thitruong.nld.com.vn/ajinomoto-nang-tam-suc-khoe-nguoi-lao-dong-qua-cac-sang-kien-dinh-duong-196250721154905135.htm",
+      "nganh_hang": "Gia vị",
+      "nhan_hang": [
+        "Ajinomoto Việt Nam"
+      ],
+      "keywords_found": [
+        "Ajinomoto Việt Nam"
+      ],
+      "crawl_timestamp": "2025-08-05T02:31:23.658379"
+    },
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-23",
+      "dau_bao": "DOISONG&PHAPLUAT",
+      "cum_noi_dung": "Khác",
+      "cum_noi_dung_chi_tiet": "Khác: Ba thập kỷ gia vị Vedan trong bếp Việt",
+      "tom_tat_noi_dung": "",
+      "link_bai_bao": "https://tuoitre.vn/ba-thap-ky-gia-vi-vedan-thanh-nguoi-ban-trong-can-bep-viet-20250723102807914.htm",
+      "nganh_hang": "Gia vị",
+      "nhan_hang": [
+        "Vedan Việt Nam"
+      ],
+      "keywords_found": [
+        "Vedan Việt Nam"
+      ],
+      "crawl_timestamp": "2025-08-05T02:31:23.658379"
+    },
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-21",
+      "dau_bao": "TOQUOC",
+      "cum_noi_dung": "Hoạt động doanh nghiệp và thông tin sản phẩm",
+      "cum_noi_dung_chi_tiet": "Khác: Ajinomoto Việt Nam đẩy mạnh sáng kiến dinh dưỡng",
+      "tom_tat_noi_dung": "Ajinomoto Việt Nam đang đẩy mạnh các sáng kiến dinh dưỡng nhằm nâng cao sức khỏe và hạnh phúc cho nhân viên. Công ty đầu tư vào giáo dục dinh dưỡng và thể chất, với mỗi nhân viên được đào tạo khoảng 140 phút mỗi năm. Họ cũng khuyến khích các hoạt động thể chất thông qua các chương trình và cuộc thi như 'Mạnh thể chất, vững tinh thần', nhằm tạo ra một môi trường làm việc khỏe mạnh.",
+      "link_bai_bao": "https://thitruong.nld.com.vn/ajinomoto-nang-tam-suc-khoe-nguoi-lao-dong-qua-cac-sang-kien-dinh-duong-196250721154905135.htm",
+      "nganh_hang": "Gia vị",
+      "nhan_hang": [
+        "Ajinomoto Việt Nam"
+      ],
+      "keywords_found": [
+        "Ajinomoto Việt Nam"
+      ],
+      "crawl_timestamp": "2025-08-05T02:31:23.658379"
+    },
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-21",
+      "dau_bao": "VIETNAMPLUS",
+      "cum_noi_dung": "Khác",
+      "cum_noi_dung_chi_tiet": "Khác: Bài viết về sáng kiến dinh dưỡng của Ajinomoto",
+      "tom_tat_noi_dung": "",
+      "link_bai_bao": "https://thitruong.nld.com.vn/ajinomoto-nang-tam-suc-khoe-nguoi-lao-dong-qua-cac-sang-kien-dinh-duong-196250721154905135.htm",
+      "nganh_hang": "Gia vị",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-08-05T02:31:23.659378"
+    }
+  ],
+  "generated_at": "2025-08-05T02:31:29.538170",
+  "total_articles": 4,
+  "date_range": "Từ ngày 06/07/2025 đến ngày 05/08/2025"
+}

@@ -1,5 +1,5 @@
 # Sử dụng một base image Python gọn nhẹ
-FROM python:3.9-slim
+FROM python:3.10-slim
 
 # Thiết lập biến môi trường để Python không buffer output
 ENV PYTHONUNBUFFERED 1

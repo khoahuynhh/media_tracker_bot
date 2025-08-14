@@ -1,0 +1,31 @@
+{
+  "cache_version": "1.0",
+  "created_at": "2025-08-02T00:19:14.014767",
+  "ttl_hours": 8,
+  "crawl_status": "success",
+  "data": {
+    "source_name": "NHIPCAUDAUTU",
+    "source_type": "Website",
+    "url": "nhipcaudautu.vn",
+    "articles_found": [
+      {
+        "stt": 1,
+        "ngay_phat_hanh": "2025-08-01",
+        "dau_bao": "NHIPCAUDAUTU",
+        "cum_noi_dung": null,
+        "cum_noi_dung_chi_tiet": "Ngành hàng Homecare: Bất ngờ với cách OMO Matic hóa rượu mới ...",
+        "tom_tat_noi_dung": "OMO Matic đã thực hiện chiến dịch quảng bá mới mẻ mang tên OMO Matic Thiên Nhiên, thể hiện sự đổi mới trong ngành hàng Homecare. Chiến dịch này không chỉ đưa ra các sản phẩm mới mà còn tạo ra sự chú ý lớn trong truyền thông và tiếp thị, khẳng định vị thế của OMO trên thị trường.",
+        "link_bai_bao": "https://advertisingvietnam.com/nganh-hang-homecare-bat-ngo-voi-cach-omo-hoa-ruou-moi-trong-binh-cu",
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "keywords_found": [],
+        "crawl_timestamp": "2025-08-02T00:10:01.374880"
+      }
+    ],
+    "crawl_status": "success",
+    "error_message": "",
+    "crawl_duration": 4168.502998,
+    "crawl_timestamp": "2025-08-02T00:19:14.013768",
+    "retry_count": 0
+  }
+}

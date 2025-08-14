@@ -1,0 +1,83 @@
+{
+  "overall_summary": {
+    "thoi_gian_trich_xuat": "Từ ngày 06/07/2025 đến ngày 05/08/2025",
+    "industries": [
+      {
+        "nganh_hang": "Gia vị",
+        "nhan_hang": [
+          "Ajinomoto Việt Nam",
+          "Vedan Việt Nam"
+        ],
+        "cum_noi_dung": [
+          "Hoạt động doanh nghiệp và thông tin sản phẩm"
+        ],
+        "so_luong_bai": 2,
+        "cac_dau_bao": [
+          "SGGP",
+          "BAODAKLAK"
+        ]
+      }
+    ],
+    "cac_dau_bao": [
+      "SGGP",
+      "BAODAKLAK"
+    ],
+    "tong_so_bai": 2
+  },
+  "industry_summaries": [
+    {
+      "nganh_hang": "Gia vị",
+      "nhan_hang": [
+        "Ajinomoto Việt Nam",
+        "Vedan Việt Nam"
+      ],
+      "cum_noi_dung": [
+        "Hoạt động doanh nghiệp và thông tin sản phẩm"
+      ],
+      "so_luong_bai": 2,
+      "cac_dau_bao": [
+        "SGGP",
+        "BAODAKLAK"
+      ]
+    }
+  ],
+  "articles": [
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-21",
+      "dau_bao": "SGGP",
+      "cum_noi_dung": "Hoạt động doanh nghiệp và thông tin sản phẩm",
+      "cum_noi_dung_chi_tiet": "Hoạt động doanh nghiệp: Ajinomoto Việt Nam nâng cao sức khỏe nhân viên qua dinh dưỡng",
+      "tom_tat_noi_dung": "Ajinomoto Việt Nam tập trung vào sức khỏe của nhân viên thông qua các sáng kiến dinh dưỡng và hoạt động thể chất. Công ty đầu tư vào giáo dục dinh dưỡng, với mỗi nhân viên được đào tạo khoảng 140 phút về dinh dưỡng mỗi năm. Hoạt động thể chất cũng được khuyến khích qua các bài giảng và cuộc thi, nhằm nâng cao sức khỏe và tinh thần đội ngũ lao động.",
+      "link_bai_bao": "https://thitruong.nld.com.vn/ajinomoto-nang-tam-suc-khoe-nguoi-lao-dong-qua-cac-sang-kien-dinh-duong-196250721154905135.htm",
+      "nganh_hang": "Gia vị",
+      "nhan_hang": [
+        "Ajinomoto Việt Nam"
+      ],
+      "keywords_found": [
+        "Ajinomoto Việt Nam"
+      ],
+      "crawl_timestamp": "2025-08-05T02:02:30.579896"
+    },
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-23",
+      "dau_bao": "BAODAKLAK",
+      "cum_noi_dung": "Hoạt động doanh nghiệp và thông tin sản phẩm",
+      "cum_noi_dung_chi_tiet": "Thông tin sản phẩm: Gia vị Vedan - người bạn trong căn bếp Việt",
+      "tom_tat_noi_dung": "Bài viết tóm tắt hành trình 30 năm của Vedan Việt Nam trong ngành gia vị, từ khi thành lập đến nay. Gia vị Vedan đã trở thành một phần không thể thiếu trong căn bếp của nhiều gia đình Việt, nhấn mạnh tầm quan trọng của sản phẩm trong ẩm thực và đời sống hàng ngày.",
+      "link_bai_bao": "https://tuoitre.vn/ba-thap-ky-gia-vi-vedan-thanh-nguoi-ban-trong-can-bep-viet-20250723102807914.htm",
+      "nganh_hang": "Gia vị",
+      "nhan_hang": [
+        "Vedan Việt Nam"
+      ],
+      "keywords_found": [
+        "Vedan Việt Nam"
+      ],
+      "crawl_timestamp": "2025-08-05T02:02:30.580899"
+    }
+  ],
+  "generated_at": "2025-08-05T02:02:36.353512",
+  "total_articles": 2,
+  "date_range": "Từ ngày 06/07/2025 đến ngày 05/08/2025"
+}

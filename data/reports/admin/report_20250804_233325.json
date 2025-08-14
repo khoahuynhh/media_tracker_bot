@@ -1,0 +1,61 @@
+{
+  "overall_summary": {
+    "thoi_gian_trich_xuat": "2025-08-04T23:33:18.138641",
+    "industries": [
+      {
+        "nganh_hang": "Gia vị",
+        "nhan_hang": [
+          "Vedan Việt Nam"
+        ],
+        "cum_noi_dung": [
+          "Khác"
+        ],
+        "so_luong_bai": 1,
+        "cac_dau_bao": [
+          "CAFEBIZ"
+        ]
+      }
+    ],
+    "cac_dau_bao": [
+      "CAFEBIZ"
+    ],
+    "tong_so_bai": 1
+  },
+  "industry_summaries": [
+    {
+      "nganh_hang": "Gia vị",
+      "nhan_hang": [
+        "Vedan Việt Nam"
+      ],
+      "cum_noi_dung": [
+        "Khác"
+      ],
+      "so_luong_bai": 1,
+      "cac_dau_bao": [
+        "CAFEBIZ"
+      ]
+    }
+  ],
+  "articles": [
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-23",
+      "dau_bao": "CAFEBIZ",
+      "cum_noi_dung": "Khác",
+      "cum_noi_dung_chi_tiet": "Khác: Vedan trở thành người bạn trong căn bếp Việt suốt ba thập kỷ",
+      "tom_tat_noi_dung": "",
+      "link_bai_bao": "https://tuoitre.vn/ba-thap-ky-gia-vi-vedan-thanh-nguoi-ban-trong-can-bep-viet-20250723102807914.htm",
+      "nganh_hang": "Gia vị",
+      "nhan_hang": [
+        "Vedan Việt Nam"
+      ],
+      "keywords_found": [
+        "Vedan Việt Nam"
+      ],
+      "crawl_timestamp": "2025-08-04T23:33:18.138641"
+    }
+  ],
+  "generated_at": "2025-08-04T23:33:23.993218",
+  "total_articles": 1,
+  "date_range": "Từ ngày 05/07/2025 đến ngày 04/08/2025"
+}

@@ -1,0 +1,97 @@
+{
+  "overall_summary": {
+    "thoi_gian_trich_xuat": "Từ ngày 05/07/2025 đến ngày 04/08/2025",
+    "industries": [
+      {
+        "nganh_hang": "Gia vị",
+        "nhan_hang": [
+          "Ajinomoto Việt Nam"
+        ],
+        "cum_noi_dung": [
+          "Chương trình CSR"
+        ],
+        "so_luong_bai": 1,
+        "cac_dau_bao": [
+          "NGUOILAODONG"
+        ]
+      },
+      {
+        "nganh_hang": "Dầu ăn",
+        "nhan_hang": [],
+        "cum_noi_dung": [
+          "Khác"
+        ],
+        "so_luong_bai": 1,
+        "cac_dau_bao": [
+          "NGUOILAODONG"
+        ]
+      }
+    ],
+    "cac_dau_bao": [
+      "NGUOILAODONG"
+    ],
+    "tong_so_bai": 2
+  },
+  "industry_summaries": [
+    {
+      "nganh_hang": "Gia vị",
+      "nhan_hang": [
+        "Ajinomoto Việt Nam"
+      ],
+      "cum_noi_dung": [
+        "Chương trình CSR"
+      ],
+      "so_luong_bai": 1,
+      "cac_dau_bao": [
+        "NGUOILAODONG"
+      ]
+    },
+    {
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "cum_noi_dung": [
+        "Khác"
+      ],
+      "so_luong_bai": 1,
+      "cac_dau_bao": [
+        "NGUOILAODONG"
+      ]
+    }
+  ],
+  "articles": [
+    {
+      "stt": 1,
+      "ngay_phat_hanh": "2025-07-21",
+      "dau_bao": "NGUOILAODONG",
+      "cum_noi_dung": "Chương trình CSR",
+      "cum_noi_dung_chi_tiet": "CSR: Ajinomoto nâng cao sức khỏe qua sáng kiến dinh dưỡng cho người lao động",
+      "tom_tat_noi_dung": "",
+      "link_bai_bao": "https://thitruong.nld.com.vn/ajinomoto-nang-tam-suc-khoe-nguoi-lao-dong-qua-cac-sang-kien-dinh-duong-196250721154905135.htm",
+      "nganh_hang": "Gia vị",
+      "nhan_hang": [
+        "Ajinomoto Việt Nam"
+      ],
+      "keywords_found": [
+        "sức khỏe",
+        "Ajinomoto Việt Nam"
+      ],
+      "crawl_timestamp": "2025-08-04T22:53:43.699233"
+    },
+    {
+      "stt": 2,
+      "ngay_phat_hanh": "2025-07-25",
+      "dau_bao": "NGUOILAODONG",
+      "cum_noi_dung": "Khác",
+      "cum_noi_dung_chi_tiet": "Khác: Báo Người Lao Động kỷ niệm 50 năm thành lập",
+      "tom_tat_noi_dung": "",
+      "link_bai_bao": "https://nld.com.vn/bao-nguoi-lao-dong-long-trong-ky-niem-50-nam-thanh-lap-196250725154420573.htm",
+      "nganh_hang": "Dầu ăn",
+      "nhan_hang": [],
+      "keywords_found": [],
+      "crawl_timestamp": "2025-08-04T22:53:43.699233"
+    }
+  ],
+  "generated_at": "2025-08-04T22:53:49.613698",
+  "total_articles": 2,
+  "date_range": "Từ ngày 05/07/2025 đến ngày 04/08/2025"
+}

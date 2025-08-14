@@ -24,11 +24,11 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
   <!-- Load the updated utils script from the root -->
-  <script src="/static/assets/js/utils.js"></script>
+  <script src="/static/assets/js/utils.js?v=20250815"></script>
 
   <!--Dashboard-->
   <!-- Load the updated dashboard styles directly from the root -->
-  <link rel="stylesheet" href="/static/assets/css/dashboard.css" />
+  <link rel="stylesheet" href="/static/assets/css/dashboard.css?v=20250815" />
 </head>
 
 <body>
@@ -115,9 +115,8 @@
                 <div class="col-12 col-md-6">
                   <div class="d-flex align-items-center mb-3">
                     <span class="label-fixed me-3">Status:</span>
-                    <span id="statusBadge" class="status-badge status-idle">
-                      <i class="fas fa-circle-notch me-1"></i>
-                      Idle
+                    <span id="statusBadge" class="status-badge status-idle" role="status" aria-live="polite">
+                      <i class="fas fa-circle-notch me-1"></i>Idle
                     </span>
                   </div>
                   <div class="d-flex align-items-center mb-3">
@@ -388,7 +387,7 @@
 
     <!-- Configure Modal -->
     <div class="modal fade" id="configModal" tabindex="-1">
-      <div class="modal-dialog modal-lg">
+      <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">
@@ -528,7 +527,7 @@
 
     <!-- Settings Modal -->
     <div class="modal fade" id="settingsModal" tabindex="-1">
-      <div class="modal-dialog modal-lg">
+      <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">Cài đặt hệ thống</h5>
@@ -722,15 +721,26 @@
     // Initialize dashboard
     document.addEventListener("DOMContentLoaded", async () => {
       const token = localStorage.getItem("token");
+      const savedIndustry = localStorage.getItem("ui_filter_industry") || "";
+      const savedQuery = localStorage.getItem("ui_filter_q") || "";
 
       const loginDiv = document.getElementById("loginContainer");
       const dashboardDiv = document.getElementById("dashboardContainer");
       const loadingScreen = document.getElementById("loadingScreen");
+      const industryEl = document.getElementById("industryFilter");
+      const searchEl = document.getElementById("searchInput");
 
       // Ẩn UI, hiện loading
       loginDiv.style.display = "none";
       dashboardDiv.style.display = "none";
       loadingScreen.style.display = "flex";
+
+      if (industryEl) industryEl.value = savedIndustry;
+      if (searchEl) searchEl.value = savedQuery;
+
+      // Gọi lại hàm lọc để đồng bộ bảng ngay sau khi gán giá trị
+      if (typeof filterArticles === "function") filterArticles();
+      else if (typeof updateArticlesTable === "function") updateArticlesTable();
 
       if (!token) {
         loadingScreen.style.display = "none";
@@ -755,8 +765,9 @@
           setupEventListeners();
           loadingScreen.style.display = "none";
         } else if (response.status === 401) {
-          // ❌ Token hết hạn
+          // Token expired
           localStorage.removeItem("token");
+          loadingScreen.style.display = "none";
           showLogin();
         } else {
           console.error("Auth check failed:", response.status);
@@ -859,21 +870,36 @@
         .getElementById("cancelBtn")
         .addEventListener("click", cancelPipeline);
 
-      // Search and filter
-      document
-        .getElementById("searchInput")
-        .addEventListener("input", debounce(filterArticles, 300));
-      document
-        .getElementById("industryFilter")
-        .addEventListener("change", filterArticles);
+      // Search (ghi LS + debounce)
+      const searchEl = document.getElementById("searchInput");
+      searchEl?.addEventListener(
+        "input",
+        debounce((e) => {
+          localStorage.setItem("ui_filter_q", e.target.value || "");
+          filterArticles();
+        }, 300)
+      );
+
+      // Industry filter (ghi LS)
+      const industryEl = document.getElementById("industryFilter");
+      industryEl?.addEventListener("change", (e) => {
+        localStorage.setItem("ui_filter_industry", e.target.value || "");
+        filterArticles();
+      });
 
       // Settings modal
       document
         .querySelector("#settingsLink")
-        .addEventListener("click", function (e) {
+        .addEventListener("click", async (e) => {
           e.preventDefault();
-          loadSettings();
-          new bootstrap.Modal(document.getElementById("settingsModal")).show();
+          showModal("settingsModal");
+          const body = document.querySelector("#settingsModal .modal-body");
+          const ov = showOverlay(body);
+          try {
+            await loadSettings();
+          } finally {
+            hideOverlay(ov);
+          }
         });
     }
 
@@ -908,18 +934,19 @@
     }
 
     function showLoadingState() {
-      const elements = ["summaryTableBody", "articlesTableBody"];
-      elements.forEach((id) => {
-        const element = document.getElementById(id);
-        if (element) {
-          element.innerHTML = `
-                            <tr>
-                            <td colspan="7" class="text-center loading-state">
-                                <i class="fas fa-spinner fa-spin me-2"></i>
-                                Đang tải dữ liệu...
-                            </td>
-                        </tr>
-                    `;
+      const map = {
+        summaryTableBody: 5,
+        articlesTableBody: 7,
+      };
+      Object.entries(map).forEach(([id, cols]) => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.innerHTML = `
+        <tr>
+          <td colspan="${cols}" class="text-center loading-state">
+            <i class="fas fa-spinner fa-spin me-2"></i> Đang tải dữ liệu...
+          </td>
+        </tr>`;
         }
       });
     }
@@ -1620,8 +1647,6 @@
       }, 3000);
     }
 
-
-
     // Event handlers
     async function runPipeline() {
       const session_id = generateSessionId();
@@ -1629,6 +1654,8 @@
       openEventStream(session_id);
       localStorage.setItem("currentSessionId", session_id);
 
+      const runBtn = document.getElementById("runBtn");
+      setBtnLoading(runBtn, true, "Đang khởi động…");
       // Guard 1: phải có nguồn
       const selectedSources = getSavedSelectedSources();
       if (!selectedSources.length) {
@@ -1680,6 +1707,8 @@
         console.error(error);
         addActivityLog("Error", "Lỗi khi khởi động pipeline: " + error.message, "error");
         showAlert?.("danger", "Lỗi!", error.message);
+      } finally {
+        if (!runBtn.disabled) setBtnLoading(runBtn, false);
       }
     }
 
@@ -1892,6 +1921,18 @@
       updateMediaChart();
     }
 
+    // ----- Color palette helper (10 màu an toàn + fallback) -----
+    function palette(i) {
+      const base = [
+        "#4e79a7", "#f28e2b", "#e15759", "#76b7b2", "#59a14f",
+        "#edc948", "#b07aa1", "#ff9da7", "#9c755f", "#bab0ab"
+      ];
+      if (i < base.length) return base[i];
+      // Fallback khi >10 nhãn: quay vòng theo "golden angle"
+      const hue = (i * 137.508) % 360;
+      return `hsl(${Math.round(hue)} 60% 55%)`;
+    }
+
     function updateIndustryChart() {
       const ctx = document.getElementById("industryChart").getContext("2d");
 
@@ -1910,11 +1951,7 @@
       const industries = currentReport.overall_summary.industries;
       const labels = industries.map(industry => industry.nganh_hang);
       const data = industries.map(industry => industry.so_luong_bai);
-
-      const colors = [
-        "#c0392b", "#e74c3c", "#ff7675", "#d63031", "#ff6b6b",
-        "#f39c12", "#e67e22", "#d35400", "#fab1a0", "#ff9f43"
-      ];
+      const colors = labels.map((_, i) => palette(i));
 
       industryChart = new Chart(ctx, {
         type: "doughnut",
@@ -1989,11 +2026,7 @@
 
       const labels = sortedMedia.map(item => item[0]);
       const data = sortedMedia.map(item => item[1]);
-
-      const colors = [
-        "#c0392b", "#e74c3c", "#ff7675", "#d63031", "#ff6b6b",
-        "#f39c12", "#e67e22", "#d35400", "#fab1a0", "#ff9f43"
-      ];
+      const colors = labels.map((_, i) => palette(i));
 
       mediaChart = new Chart(ctx, {
         type: "bar",
@@ -2003,7 +2036,7 @@
             label: "Số bài báo",
             data: data,
             backgroundColor: colors,
-            borderColor: "#b03a2e",
+            borderColor: labels.map(() => "#333"),
             borderWidth: 1,
             hoverBackgroundColor: "#e74c3c"
           }]
@@ -2015,9 +2048,10 @@
             legend: { display: false },
             title: {
               display: true,
-              text: "Top 10 Nguồn Tin & Ngành Hàng",
-              color: "#000",
-              font: { size: 16, weight: "bold" }
+              // text: "Top 10 Nguồn Tin & Ngành Hàng",
+              color: "#222", // màu đồng bộ theme sáng
+              font: { size: 16, weight: "bold" },
+              padding: { top: 0, bottom: 15 }
             },
             tooltip: {
               callbacks: {
@@ -2033,16 +2067,39 @@
           scales: {
             y: {
               beginAtZero: true,
-              ticks: { color: "#000", precision: 0 },
-              grid: { color: "#ddd" }
+              ticks: {
+                color: "#444",
+                precision: 0,
+                font: { size: 13 }
+              },
+              grid: { color: "#e0e0e0" },
+              title: {
+                display: true,
+                text: "Số lượng bài báo",
+                color: "#222",
+                font: { size: 15, weight: "bold" },
+                padding: { top: 0, bottom: 10 }
+              }
             },
             x: {
               ticks: {
-                color: "#000",
-                maxRotation: 45,
-                minRotation: 45
+                color: "#444",
+                maxRotation: 45, // ✅ giữ góc 45° cho dễ đọc
+                minRotation: 45,
+                font: { size: 10 },
+                callback: function (value) {
+                  let label = this.getLabelForValue(value);
+                  return label.length > 20 ? label.slice(0, 20) + '…' : label;
+                }
               },
-              grid: { display: false }
+              grid: { display: false },
+              title: {
+                display: true,
+                text: "Nguồn tin & Ngành hàng",
+                color: "#222",
+                font: { size: 15, weight: "bold" },
+                padding: { top: 10 },
+              }
             }
           }
         }
@@ -2066,15 +2123,28 @@
       }
     }
 
-    async function showConfigModal() {
-      await loadCurrentConfig();
-      await loadKeywordConfiguration();
-      await loadPipelineMediaPicker();
+    function showConfigModal() {
+      showModal("configModal");
 
-      const container = document.getElementById("keywordContainer");
-      if (!container.querySelector(".industryName")) addIndustry();
+      const body = document.querySelector('#configModal .modal-body');
+      const footer = document.querySelector('#configModal .modal-footer');
+      const ov = showOverlay(body);
+      footer?.querySelectorAll('button').forEach(b => b.disabled = true);
 
-      new bootstrap.Modal(document.getElementById("configModal")).show();
+      Promise.all([
+        loadCurrentConfig(),
+        loadKeywordConfiguration(),
+        loadPipelineMediaPicker()
+      ])
+        .then(() => {
+          const container = document.getElementById("keywordContainer");
+          if (!container.querySelector(".industryName")) addIndustry();
+        })
+        .catch(err => console.error(err))
+        .finally(() => {
+          hideOverlay(ov);
+          footer?.querySelectorAll('button').forEach(b => b.disabled = false);
+        });
     }
 
     function renderKeywordInputs(industries) {
@@ -2141,21 +2211,6 @@
       button.closest(".mb-3").remove();
     }
 
-    // FIXED: Reset keywords từ backend
-    async function resetKeywords() {
-      try {
-        // Load default keywords từ backend
-        await loadKeywordConfiguration();
-        addActivityLog(
-          "Keywords Reset",
-          "Keywords đã được reset về mặc định"
-        );
-      } catch (error) {
-        console.error("Error resetting keywords:", error);
-        addActivityLog("Error", "Lỗi khi reset keywords", "error");
-      }
-    }
-
     function collectKeywordConfiguration() {
       const start_date = document.getElementById("startDate").value || null;
       const end_date = document.getElementById("endDate").value || null;
@@ -2188,7 +2243,7 @@
       try {
         const cfg = collectKeywordConfiguration(); // {start_date, end_date, custom_keywords}
 
-        // Lưu LS (nguồn, ngày, keywords)
+        // Lưu LS
         const selectedSources = Array.from(PIPELINE_SELECTED_MEDIA);
         ls.setJSON(LS.SOURCES, selectedSources);
         if (cfg.start_date) ls.set(LS.START, cfg.start_date);
@@ -2196,18 +2251,35 @@
         if (cfg.custom_keywords) ls.setJSON(LS.KW, cfg.custom_keywords); else ls.del(LS.KW);
         ls.set(LS.UPDATED, new Date().toISOString());
 
-        // (Tùy chọn) sync BE cho sources/dates nếu cần theo dõi: KHÔNG gửi keywords
-        try {
-          await fetch("/api/config", {
+        // 1) Lưu keywords vào BE (đây mới là cái ghi keywords.json)
+        if (cfg.custom_keywords) {
+          const kwRes = await fetch("/api/keywords", {
             method: "POST",
             headers: { "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem("token")}` },
-            body: JSON.stringify({ selected_sources: selectedSources, start_date: cfg.start_date, end_date: cfg.end_date }),
+            body: JSON.stringify(cfg.custom_keywords),
           });
-        } catch { }
+          if (!kwRes.ok) {
+            const err = await kwRes.text();
+            throw new Error("Lưu keywords thất bại: " + err);
+          }
+        }
 
-        addActivityLog("Config Saved", "Đã lưu cấu hình vào máy (và sync BE phần cần).");
+        // 2) (Tuỳ chọn) Sync các tham số khác vào /api/config nếu cần
+        const cfgRes = await fetch("/api/config", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem("token")}` },
+          body: JSON.stringify({
+            selected_sources: selectedSources,
+            // đừng gửi custom_keywords/start_date/end_date vào /api/config nữa
+          }),
+        });
+        if (!cfgRes.ok) {
+          const err = await cfgRes.text();
+          throw new Error("Lưu config thất bại: " + err);
+        }
+
+        addActivityLog("Config Saved", "Đã lưu cấu hình và keywords vào BE.");
         showAlert?.("success", "Đã lưu", "Cấu hình đã được lưu.");
-
         bootstrap.Modal.getInstance(document.getElementById('configModal'))?.hide();
       } catch (err) {
         console.error("saveConfigInModal error:", err);
@@ -2824,9 +2896,27 @@
       if (badge) badge.textContent = `${cnt}/${PIPELINE_MAX_MEDIA_SOURCES}`;
 
       const lockRest = cnt >= PIPELINE_MAX_MEDIA_SOURCES;
-      document.querySelectorAll(".pipeline-media-cb").forEach(cb => {
-        if (!cb.checked) cb.disabled = lockRest;
-        else cb.disabled = false;
+
+      document.querySelectorAll("#pipelineMediaList .source-card").forEach(card => {
+        const pill = card.querySelector(".toggle-pill");
+        const id = pill?.dataset.id;
+        const checked = id ? PIPELINE_SELECTED_MEDIA.has(id) : false;
+
+        // Bật/tắt overlay "đã đủ 5" với item CHƯA chọn khi đủ limit
+        let overlay = card.querySelector(".limit-badge");
+        if (lockRest && !checked) {
+          if (!overlay) {
+            overlay = document.createElement("div");
+            overlay.className = "limit-badge";
+            card.appendChild(overlay);
+          }
+          card.classList.add("disabled");
+          pill?.setAttribute("aria-checked", "false");
+        } else {
+          overlay?.remove();
+          card.classList.remove("disabled");
+          pill?.setAttribute("aria-checked", String(checked));
+        }
       });
     }
 
@@ -2835,6 +2925,13 @@
     }
 
     async function loadPipelineMediaPicker() {
+      const host = document.querySelector('#pipelineMediaList')?.closest('.card, .modal-body')
+        || document.querySelector('#configModal .modal-body');
+      const search = document.getElementById("pipelineMediaSearch");
+      const clearBtn = document.getElementById("pipelineMediaClearBtn");
+
+      const ov = showOverlay(host);
+      [search, clearBtn].forEach(el => el && (el.disabled = true));
       try {
         const listRes = await fetch("/api/media-sources", {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -2858,6 +2955,7 @@
         PIPELINE_SELECTED_MEDIA = new Set(preselected);
 
         renderPipelineMediaUI();
+        updatePipelineMediaCounterAndLock();
 
         const search = document.getElementById("pipelineMediaSearch");
         const clearBtn = document.getElementById("pipelineMediaClearBtn");
@@ -2877,12 +2975,15 @@
       } catch (err) {
         console.error("loadPipelineMediaPicker error:", err);
         showAlert?.("danger", "Lỗi tải Media Sources", String(err.message || err));
+      } finally {
+        hideOverlay(ov);
+        [search, clearBtn].forEach(el => el && (el.disabled = false));
       }
     }
 
     // Status polling
     function startStatusPolling() {
-      statusInterval = setInterval(loadStatus, 3000); // Poll every 3 seconds
+      statusInterval = setInterval(loadStatus, 5000); // Poll every 5  seconds
     }
 
     function startIntensivePolling() {
@@ -2940,14 +3041,12 @@
 
     // Keyboard shortcuts
     document.addEventListener("keydown", function (e) {
+      if ((e.altKey && e.key.toLowerCase() === "r")) {
+        e.preventDefault();
+        if (!document.getElementById("runBtn").disabled) runPipeline();
+      }
       if (e.ctrlKey || e.metaKey) {
         switch (e.key) {
-          case "r":
-            e.preventDefault();
-            if (!document.getElementById("runBtn").disabled) {
-              runPipeline();
-            }
-            break;
           case "f":
             e.preventDefault();
             document.getElementById("searchInput").focus();
@@ -3061,8 +3160,13 @@
     async function loadReportList() {
       const token = localStorage.getItem("token");
       const tableBody = document.getElementById("reportTableBody");
-      tableBody.innerHTML = `<tr><td colspan="4" class="text-muted text-center">Đang tải...</td></tr>`;
-
+      tableBody.innerHTML = `
+        <tr>
+          <td colspan="4" class="text-muted text-center">
+            <div class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></div>
+            Đang tải...
+          </td>
+        </tr>`;
       try {
         const res = await fetch("/api/reports/list", {
           headers: {
@@ -3240,19 +3344,23 @@
   </script>
 
   <script>
-    // clear backdrop và class 'modal-open'
-    document.getElementById('logoutModal').addEventListener('hidden.bs.modal', cleanBackdrop);
-    document.getElementById('reportModal').addEventListener('hidden.bs.modal', cleanBackdrop);
-    document.getElementById('completionModal').addEventListener('hidden.bs.modal', cleanBackdrop);
-
-    function cleanBackdrop() {
-      // Xoá tất cả phần tử backdrop còn tồn tại
-      document.querySelectorAll('.modal-backdrop').forEach((backdrop) => backdrop.remove());
-      // Bỏ class modal-open khỏi body để cho phép cuộn
-      document.body.classList.remove('modal-open');
-      // Reset thuộc tính style của body (Bootstrap thêm overflow: hidden khi modal mở)
-      document.body.style = '';
+    const modalCache = {};
+    function showModal(id) {
+      const el = document.getElementById(id);
+      if (!modalCache[id]) modalCache[id] = new bootstrap.Modal(el);
+      modalCache[id].show();
     }
+
+    // Khi bất kỳ modal nào đóng, nếu không còn modal đang mở -> unlock body + dọn backdrop
+    document.addEventListener('hidden.bs.modal', () => {
+      setTimeout(() => {
+        if (document.querySelectorAll('.modal.show').length === 0) {
+          document.body.classList.remove('modal-open');
+          document.body.style.removeProperty('padding-right');
+          document.querySelectorAll('.modal-backdrop').forEach(b => b.remove());
+        }
+      }, 50); // đợi Bootstrap hoàn tất animation rồi mới dọn
+    });
   </script>
 
 

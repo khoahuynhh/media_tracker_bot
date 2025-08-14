@@ -23,8 +23,6 @@ from fastapi.responses import (
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from typing import Dict
-from jose import JWTError, jwt
-from jose.exceptions import ExpiredSignatureError
 from dotenv import load_dotenv
 from typing import List
 
@@ -48,7 +46,7 @@ logging.basicConfig(
 
 # Import modules
 from .task_state import task_manager
-from .event import event_bus, decision_bus, sse_response, RunDecision
+from .event import event_bus, decision_bus, RunDecision
 from .models import (
     CrawlConfig,
     CompetitorReport,
@@ -89,7 +87,6 @@ async def lifespan(app: FastAPI):
     logger.info("--- Media Tracker Bot Server is shutting down ---")
 
 
-@asynccontextmanager
 async def lifespan(app: FastAPI):
     # ===== STARTUP =====
     try:

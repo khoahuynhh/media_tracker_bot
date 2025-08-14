@@ -1,19 +1,7 @@
 {
   "keywords": {
-    "Dầu ăn": [
-      "Metro Chef",
-      "Latino Bella",
-      "Basso",
-      "Zachia",
-      "Tân Bình",
-      "Nakydaco",
-      "Tiara",
-      "Nortalic",
-      "Dabaco",
-      "Coba",
-      "Ranee",
-      "Ranee Golden",
-      "Tường An"
+    "Sữa (UHT)": [
+      "Vinamilk"
     ]
   },
   "media_sources": [
@@ -370,34 +358,9 @@
   ],
   "date_range_days": 30,
   "max_articles_per_source": 50,
-  "crawl_timeout": 600,
+  "crawl_timeout": 480,
   "total_pipeline_timeout": 36000,
-  "exclude_domains": [
-    "facebook.com",
-    "twitter.com",
-    "instagram.com",
-    "linkedin.com",
-    "tiktok.com",
-    "shopee.vn",
-    "lazada.vn",
-    "tiki.vn",
-    "sendo.vn",
-    "levitrue.vn",
-    "lottemart.vn",
-    "adayroi.com",
-    "homefarm.vn",
-    "kingfoodmart.com",
-    "bachhoaxanh.com",
-    "namanmarket.com",
-    "tomfruits.com",
-    "frenchtaste.com.vn",
-    "amazon.com",
-    "ebay.com",
-    "aliexpress.com",
-    "walmart.com",
-    "bit.ly",
-    "goo.gl"
-  ],
+  "exclude_domains": [],
   "enable_parallel_crawling": true,
   "max_concurrent_sources": 2,
   "retry_failed_sources": true,

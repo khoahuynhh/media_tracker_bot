@@ -16,17 +16,16 @@ import time
 import random
 import os
 import inspect
+import requests
 
 from datetime import datetime, date
 from typing import List, Dict, Optional, Any, Tuple
 from playwright.sync_api import sync_playwright
-from playwright.async_api import async_playwright
 from tenacity import (
     retry,
     stop_after_attempt,
     wait_exponential,
     retry_if_exception_type,
-    wait_fixed,
 )
 from urllib.parse import urlparse, urlunparse, parse_qsl, urlencode
 from bs4 import BeautifulSoup
@@ -153,6 +152,23 @@ class GoogleSearchWithDelay(GoogleSearchTools):
         return super().run(query)
 
 
+def google_cse_search(domain, keywords):
+    API_KEY = os.getenv("GOOGLE_API_KEY")
+    query = f"site:{domain} {' '.join(keywords)} tag"
+    url = "https://www.googleapis.com/customsearch/v1"
+    params = {"key": API_KEY, "cx": "16c863775f52f42cd", "q": query, "num": 10}
+    resp = requests.get(url, params=params)
+    data = resp.json()
+
+    if "items" not in data:
+        print("❌ Không tìm thấy kết quả:", data)
+        return None
+
+    for item in data["items"]:
+        print(item["link"])
+    return data["items"][0]["link"]
+
+
 def _norm_host(h):
     h = h.lower()
     return h[4:] if h.startswith("www.") else h
@@ -161,10 +177,13 @@ def _norm_host(h):
 def get_first_search_link(domain: str, keywords: list[str]) -> str | None:
     wanted_host = _norm_host(domain)
 
-    def search_once():
-        query = f"site:{domain} {' '.join(keywords)} tag"
-        with DDGS(timeout=60) as ddg:
-            results = list(ddg.text(query, max_results=10, backend="lite"))
+    def search_ddg():
+        headers = {
+            "User-Agent": f"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/{random.randint(100,120)}.0.{random.randint(1000,9999)}.100 Safari/537.36"
+        }
+        query = f"site:{domain} {' '.join(keywords)} tin tức"
+        with DDGS(headers=headers, timeout=60) as ddg:
+            results = list(ddg.text(query, max_results=20, backend="auto"))
             logger.info(
                 f"🔍 DuckDuckGo results ({domain}): {[r.get('href') for r in results]}"
             )
@@ -202,7 +221,7 @@ def get_first_search_link(domain: str, keywords: list[str]) -> str | None:
             if same_domain:
                 return same_domain[0]
 
-            # 3) Fallback toàn bộ results
+            # d) fallback toàn bộ results
             for r in results:
                 href = r.get("href") or ""
                 if _norm_host(urlparse(href).netloc) == wanted_host:
@@ -210,16 +229,21 @@ def get_first_search_link(domain: str, keywords: list[str]) -> str | None:
 
             return None
 
-    # Lần 1
-    link = search_once()
+    # --- 1. DDG lần 1 ---
+    link = search_ddg()
     if link:
         return link
 
-    # Nếu thất bại → chờ 10 giây rồi thử lần 2
+    # --- 2. DDG lần 2 ---
     logger.warning(f"⚠️ Không tìm thấy hub link cho {domain}, thử lại sau 10s...")
     time.sleep(10)
+    link = search_ddg()
+    if link:
+        return link
 
-    return search_once()
+    # --- 3. Fallback sang Google CSE ---
+    logger.warning(f"⚠️ DDG thất bại, fallback sang Google CSE cho {domain}")
+    return google_cse_search(domain, keywords)
 
 
 _playwright_sem = Semaphore(2)
@@ -677,10 +701,12 @@ class HubCrawlTool(LLMUserFallbackMixin):
         self,
         model,
         config,
+    session_id,
         parser: ArticleParser,
         check_pause_or_cancel: Optional[callable] = None,
     ):
         self.model = model
+        self.session_id = session_id
         self.config = config
         self.parser = parser
         self.check_pause_or_cancel = check_pause_or_cancel or (lambda: None)
@@ -956,7 +982,7 @@ class CrawlerAgent(LLMUserFallbackMixin):
         self.status = status
         self.on_progress_update = on_progress_update
         self.hub_tool = HubCrawlTool(
-            self.model, self.parser, self.config, self.check_pause_or_cancel
+            self.model, self.parser, self.session_id, self.config, self.check_pause_or_cancel
         )
 
     def return_partial_result(self, media_source: MediaSource) -> CrawlResult:

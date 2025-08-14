@@ -17162,3 +17162,281 @@ src.models.HubPageNotFound: System error. Please try again.
 2025-08-14 03:06:45,525 - src.agents - INFO - 🧹 Đóng hoàn toàn CrawlerAgent, giải phóng agent và tools.
 2025-08-14 03:06:46,748 - src.services - WARNING - [sess-1755115556969-72549] Pipeline finished without generating a report.
 2025-08-14 03:07:47,896 - src.main - INFO - Shutdown cleanup done.
+2025-08-14 10:48:43,553 - src.configs - INFO - Directories setup verified.
+2025-08-14 10:48:43,562 - src.configs - INFO - API Key Status: OpenAI Configured, Groq Not Configured, Google Configured
+2025-08-14 10:48:43,599 - src.configs - INFO - Crawl config saved to D:\Projects\TagSolution_Project\media_tracker_bot_v5\config\crawl_config.json
+2025-08-14 10:48:43,601 - src.configs - INFO - Configuration loaded with 50 media sources and 1 keyword categories.
+2025-08-14 10:48:52,387 - src.main - INFO - Task manager loaded.
+2025-08-14 10:51:38,683 - src.main - INFO - Shutdown cleanup done.
+2025-08-14 10:51:55,367 - src.configs - INFO - Directories setup verified.
+2025-08-14 10:51:55,373 - src.configs - INFO - API Key Status: OpenAI Configured, Groq Not Configured, Google Configured
+2025-08-14 10:51:55,386 - src.configs - INFO - Crawl config saved to D:\Projects\TagSolution_Project\media_tracker_bot_v5\config\crawl_config.json
+2025-08-14 10:51:55,386 - src.configs - INFO - Configuration loaded with 50 media sources and 1 keyword categories.
+2025-08-14 10:52:02,461 - src.main - INFO - Task manager loaded.
+2025-08-14 11:36:18,525 - src.main - INFO - Shutdown cleanup done.
+2025-08-14 11:36:39,722 - src.configs - INFO - Directories setup verified.
+2025-08-14 11:36:39,729 - src.configs - INFO - API Key Status: OpenAI Configured, Groq Not Configured, Google Configured
+2025-08-14 11:36:39,763 - src.configs - INFO - Crawl config saved to D:\Projects\TagSolution_Project\media_tracker_bot_v5\config\crawl_config.json
+2025-08-14 11:36:39,764 - src.configs - INFO - Configuration loaded with 50 media sources and 1 keyword categories.
+2025-08-14 11:36:59,891 - src.main - INFO - Task manager loaded.
+2025-08-14 12:24:27,859 - src.main - INFO - Shutdown cleanup done.
+2025-08-14 12:24:48,186 - src.configs - INFO - Directories setup verified.
+2025-08-14 12:24:48,200 - src.configs - INFO - API Key Status: OpenAI Configured, Groq Not Configured, Google Configured
+2025-08-14 12:24:48,249 - src.configs - INFO - Crawl config saved to D:\Projects\TagSolution_Project\media_tracker_bot_v5\config\crawl_config.json
+2025-08-14 12:24:48,251 - src.configs - INFO - Configuration loaded with 50 media sources and 1 keyword categories.
+2025-08-14 12:24:56,645 - src.configs - INFO - Directories setup verified.
+2025-08-14 12:24:56,654 - src.configs - INFO - API Key Status: OpenAI Configured, Groq Not Configured, Google Configured
+2025-08-14 12:24:56,671 - src.configs - INFO - Crawl config saved to D:\Projects\TagSolution_Project\media_tracker_bot_v5\config\crawl_config.json
+2025-08-14 12:24:56,672 - src.configs - INFO - Configuration loaded with 50 media sources and 1 keyword categories.
+2025-08-14 12:28:34,616 - src.configs - INFO - Directories setup verified.
+2025-08-14 12:28:34,631 - src.configs - INFO - API Key Status: OpenAI Configured, Groq Not Configured, Google Configured
+2025-08-14 12:28:34,696 - src.configs - INFO - Crawl config saved to D:\Projects\TagSolution_Project\media_tracker_bot_v5\config\crawl_config.json
+2025-08-14 12:28:34,697 - src.configs - INFO - Configuration loaded with 50 media sources and 1 keyword categories.
+2025-08-14 12:28:53,564 - src.main - INFO - Task manager loaded.
+2025-08-14 12:32:58,126 - src.configs - INFO - Directories setup verified.
+2025-08-14 12:32:58,144 - src.configs - INFO - API Key Status: OpenAI Configured, Groq Not Configured, Google Configured
+2025-08-14 12:32:58,228 - src.configs - INFO - Crawl config saved to D:\Projects\TagSolution_Project\media_tracker_bot_v5\config\crawl_config.json
+2025-08-14 12:32:58,228 - src.configs - INFO - Configuration loaded with 50 media sources and 1 keyword categories.
+2025-08-14 12:33:22,685 - src.main - INFO - Task manager loaded.
+2025-08-14 14:09:35,993 - src.main - INFO - Shutdown cleanup done.
+2025-08-14 14:10:10,281 - src.configs - INFO - Directories setup verified.
+2025-08-14 14:10:10,311 - src.configs - INFO - API Key Status: OpenAI Configured, Groq Not Configured, Google Configured
+2025-08-14 14:10:10,597 - src.configs - INFO - Crawl config saved to D:\Projects\TagSolution_Project\media_tracker_bot_v5\config\crawl_config.json
+2025-08-14 14:10:10,599 - src.configs - INFO - Configuration loaded with 50 media sources and 1 keyword categories.
+2025-08-14 14:10:31,125 - src.main - INFO - Task manager loaded.
+2025-08-14 14:14:30,553 - src.main - INFO - Shutdown cleanup done.
+2025-08-14 14:14:58,517 - src.configs - INFO - Directories setup verified.
+2025-08-14 14:14:58,599 - src.configs - INFO - API Key Status: OpenAI Configured, Groq Not Configured, Google Configured
+2025-08-14 14:14:58,697 - src.configs - INFO - Crawl config saved to D:\Projects\TagSolution_Project\media_tracker_bot_v5\config\crawl_config.json
+2025-08-14 14:14:58,699 - src.configs - INFO - Configuration loaded with 50 media sources and 1 keyword categories.
+2025-08-14 14:15:36,804 - src.main - INFO - Task manager loaded.
+2025-08-14 14:24:42,879 - src.main - INFO - Shutdown cleanup done.
+2025-08-14 14:25:38,740 - src.configs - INFO - Directories setup verified.
+2025-08-14 14:25:38,751 - src.configs - INFO - API Key Status: OpenAI Configured, Groq Not Configured, Google Configured
+2025-08-14 14:25:38,832 - src.configs - INFO - Crawl config saved to D:\Projects\TagSolution_Project\media_tracker_bot_v5\config\crawl_config.json
+2025-08-14 14:25:38,833 - src.configs - INFO - Configuration loaded with 50 media sources and 1 keyword categories.
+2025-08-14 14:25:57,492 - src.main - INFO - Task manager loaded.
+2025-08-14 14:55:07,122 - src.main - INFO - Shutdown cleanup done.
+2025-08-14 15:01:01,451 - src.configs - INFO - Directories setup verified.
+2025-08-14 15:01:01,490 - src.configs - INFO - API Key Status: OpenAI Configured, Groq Not Configured, Google Configured
+2025-08-14 15:01:01,700 - src.configs - INFO - Crawl config saved to D:\Projects\TagSolution_Project\media_tracker_bot_v5\config\crawl_config.json
+2025-08-14 15:01:01,708 - src.configs - INFO - Configuration loaded with 50 media sources and 1 keyword categories.
+2025-08-14 15:02:23,882 - src.main - INFO - Task manager loaded.
+2025-08-14 15:34:15,047 - src.configs - INFO - Crawl config saved to D:\Projects\TagSolution_Project\media_tracker_bot_v5\config\crawl_config.json
+2025-08-14 15:34:15,093 - src.main - INFO - ✅ [API] /api/run nhận session_id=sess-1755160454872-60740, user=admin
+2025-08-14 15:34:15,222 - src.services - INFO - [sess-1755160454872-60740] Task is pending. Preparing pipeline setup...
+2025-08-14 15:34:20,302 - src.services - INFO - [sess-1755160454872-60740] Starting pipeline execution.
+2025-08-14 15:34:20,304 - src.services - INFO - [sess-1755160454872-60740] Starting media tracking pipeline...
+2025-08-14 15:34:20,489 - src.agents - INFO - 📅 Khoảng thời gian crawl dữ liệu: từ ngày 01/07/2025 đến ngày 31/07/2025
+2025-08-14 15:34:20,491 - src.agents - INFO - Starting crawl for 1 sources.
+2025-08-14 15:34:21,260 - primp - INFO - response: https://www.bing.com/search?q=site%3Alaodong.vn+Vinamilk+tag 200
+2025-08-14 15:34:21,352 - src.agents - INFO - 🔍 DuckDuckGo results (laodong.vn): []
+2025-08-14 15:34:21,357 - src.agents - WARNING - ⚠️ Không tìm thấy hub link cho laodong.vn, thử lại sau 10s...
+2025-08-14 15:34:31,702 - primp - INFO - response: https://www.bing.com/search?q=site%3Alaodong.vn+Vinamilk+tag 200
+2025-08-14 15:34:31,876 - src.agents - INFO - 🔍 DuckDuckGo results (laodong.vn): ['https://www.vinamilk.com.vn/', 'https://www.vinamilk.com.vn/en', 'https://www.vinamilk.com.vn/en/about-us', 'https://www.vinamilk.com.vn/about-us', 'https://www.vinamilk.com.vn/collections/all-products', 'https://www.vinamilk.com.vn/recruitment/career-opportunities', 'https://www.vinamilk.com.vn/support/shop-at-vinamilk', 'https://www.vinamilk.com.vn/promotions', 'https://www.vinamilk.com.vn/en/collections/all-products', 'https://www.vinamilk.com.vn/investor/reports/financial']
+2025-08-14 15:34:31,883 - src.agents - WARNING - ⚠️ DDG thất bại, fallback sang Google CSE cho laodong.vn
+2025-08-14 15:34:32,630 - src.agents - WARNING - [LAODONG] ❌ Không tìm thấy hub phù hợp cho từ khóa: ['Vinamilk']
+2025-08-14 15:34:32,632 - src.agents - ERROR - [LAODONG] ❌ Lỗi crawl hub: System error. Please try again.
+Traceback (most recent call last):
+  File "D:\Projects\TagSolution_Project\media_tracker_bot_v5\src\agents.py", line 743, in run
+    raise HubPageNotFound("System error. Please try again.")
+src.models.HubPageNotFound: System error. Please try again.
+2025-08-14 15:34:33,024 - src.agents - INFO - [LAODONG] Using function for group 1/1
+2025-08-14 15:34:33,024 - src.agents - INFO - [LAODONG] Searching with keywords: Vinamilk
+2025-08-14 15:34:33,034 - src.agents - INFO - Registered provider task: sess-1755160454872-60740 openai
+2025-08-14 15:34:35,208 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2025-08-14 15:34:35,221 - openai._base_client - INFO - Retrying request to /chat/completions in 0.493318 seconds
+2025-08-14 15:34:36,390 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2025-08-14 15:34:36,393 - openai._base_client - INFO - Retrying request to /chat/completions in 0.922915 seconds
+2025-08-14 15:34:39,738 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2025-08-14 15:34:39,919 - src.agents - INFO - Cleaned up provider task: sess-1755160454872-60740 openai
+2025-08-14 15:34:54,945 - src.agents - INFO - Registered provider task: sess-1755160454872-60740 gemini
+2025-08-14 15:34:55,220 - google_genai.models - INFO - AFC is enabled with max remote calls: 10.
+2025-08-14 15:35:00,627 - httpx - INFO - HTTP Request: POST https://api.agno.com/v1/telemetry/agent/run/create "HTTP/1.1 200 OK"
+2025-08-14 15:35:00,636 - src.agents - INFO - Cleaned up provider task: sess-1755160454872-60740 gemini
+2025-08-14 15:35:00,644 - src.agents - INFO - [DEBUG] Raw response content:
+```json
+[]
+```
+2025-08-14 15:35:01,668 - src.agents - WARNING - [LAODONG] No articles parsed from function for keywords: Vinamilk
+2025-08-14 15:35:08,486 - src.agents - INFO - [LAODONG] Crawled 0 unique articles
+2025-08-14 15:35:09,137 - src.agents - WARNING - ⚠️ No articles found from crawling or cache.
+2025-08-14 15:35:09,142 - src.agents - INFO - 🔧 Đang giải phóng tài nguyên pipeline...
+2025-08-14 15:35:09,143 - src.agents - INFO - 🧹 Đóng hoàn toàn CrawlerAgent, giải phóng agent và tools.
+2025-08-14 15:35:11,023 - src.services - WARNING - [sess-1755160454872-60740] Pipeline finished without generating a report.
+2025-08-14 15:51:15,919 - src.configs - INFO - Directories setup verified.
+2025-08-14 15:51:15,962 - src.configs - INFO - API Key Status: OpenAI Configured, Groq Not Configured, Google Configured
+2025-08-14 15:51:16,068 - src.configs - INFO - Crawl config saved to D:\Projects\TagSolution_Project\media_tracker_bot_v5\config\crawl_config.json
+2025-08-14 15:51:16,071 - src.configs - INFO - Configuration loaded with 50 media sources and 1 keyword categories.
+2025-08-14 15:51:43,150 - src.main - INFO - Task manager loaded.
+2025-08-14 15:52:36,409 - src.main - INFO - ✅ [API] /api/run nhận session_id=sess-1755161556232-95915, user=admin
+2025-08-14 15:52:36,533 - src.services - INFO - [sess-1755161556232-95915] Task is pending. Preparing pipeline setup...
+2025-08-14 15:52:41,576 - src.services - INFO - [sess-1755161556232-95915] Starting pipeline execution.
+2025-08-14 15:52:41,577 - src.services - INFO - [sess-1755161556232-95915] Starting media tracking pipeline...
+2025-08-14 15:52:41,610 - src.agents - INFO - 📅 Khoảng thời gian crawl dữ liệu: từ ngày 01/07/2025 đến ngày 31/07/2025
+2025-08-14 15:52:41,612 - src.agents - INFO - Starting crawl for 1 sources.
+2025-08-14 15:52:42,211 - primp - INFO - response: https://www.bing.com/search?q=site%3Alaodong.vn+Vinamilk+tag 200
+2025-08-14 15:52:42,426 - src.agents - INFO - 🔍 DuckDuckGo results (laodong.vn): ['https://www.vinamilk.com.vn/', 'https://www.vinamilk.com.vn/en', 'https://www.vinamilk.com.vn/en/about-us', 'https://www.vinamilk.com.vn/about-us', 'https://www.vinamilk.com.vn/collections/all-products', 'https://www.vinamilk.com.vn/recruitment/career-opportunities', 'https://www.vinamilk.com.vn/support/shop-at-vinamilk', 'https://www.vinamilk.com.vn/promotions', 'https://www.vinamilk.com.vn/en/collections/all-products', 'https://www.vinamilk.com.vn/investor/reports/financial']
+2025-08-14 15:52:42,439 - src.agents - WARNING - ⚠️ Không tìm thấy hub link cho laodong.vn, thử lại sau 10s...
+2025-08-14 15:52:53,341 - primp - INFO - response: https://www.bing.com/search?q=site%3Alaodong.vn+Vinamilk+tag 200
+2025-08-14 15:52:53,391 - src.agents - INFO - 🔍 DuckDuckGo results (laodong.vn): ['https://www.vinamilk.com.vn/', 'https://www.vinamilk.com.vn/en', 'https://www.vinamilk.com.vn/en/about-us', 'https://www.vinamilk.com.vn/about-us', 'https://www.vinamilk.com.vn/collections/all-products', 'https://www.vinamilk.com.vn/recruitment/career-opportunities', 'https://www.vinamilk.com.vn/support/shop-at-vinamilk', 'https://www.vinamilk.com.vn/promotions', 'https://www.vinamilk.com.vn/en/collections/all-products', 'https://www.vinamilk.com.vn/investor/reports/financial']
+2025-08-14 15:52:53,393 - src.agents - WARNING - ⚠️ DDG thất bại, fallback sang Google CSE cho laodong.vn
+2025-08-14 15:52:53,848 - src.agents - WARNING - [LAODONG] ❌ Không tìm thấy hub phù hợp cho từ khóa: ['Vinamilk']
+2025-08-14 15:52:53,849 - src.agents - ERROR - [LAODONG] ❌ Lỗi crawl hub: System error. Please try again.
+Traceback (most recent call last):
+  File "D:\Projects\TagSolution_Project\media_tracker_bot_v5\src\agents.py", line 746, in run
+    raise HubPageNotFound("System error. Please try again.")
+src.models.HubPageNotFound: System error. Please try again.
+2025-08-14 15:52:53,873 - src.agents - INFO - [LAODONG] Using function for group 1/1
+2025-08-14 15:52:53,873 - src.agents - INFO - [LAODONG] Searching with keywords: Vinamilk
+2025-08-14 15:52:53,875 - src.agents - INFO - Registered provider task: sess-1755161556232-95915 openai
+2025-08-14 15:52:55,130 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2025-08-14 15:52:55,134 - openai._base_client - INFO - Retrying request to /chat/completions in 0.488739 seconds
+2025-08-14 15:52:56,330 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2025-08-14 15:52:56,340 - openai._base_client - INFO - Retrying request to /chat/completions in 0.951667 seconds
+2025-08-14 15:52:57,689 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2025-08-14 15:52:57,756 - src.agents - INFO - Cleaned up provider task: sess-1755161556232-95915 openai
+2025-08-14 15:53:12,771 - src.agents - INFO - Registered provider task: sess-1755161556232-95915 gemini
+2025-08-14 15:53:12,945 - google_genai.models - INFO - AFC is enabled with max remote calls: 10.
+2025-08-14 15:53:15,612 - httpx - INFO - HTTP Request: POST https://api.agno.com/v1/telemetry/agent/run/create "HTTP/1.1 200 OK"
+2025-08-14 15:53:15,616 - src.agents - INFO - Cleaned up provider task: sess-1755161556232-95915 gemini
+2025-08-14 15:53:15,618 - src.agents - INFO - [DEBUG] Raw response content:
+```json
+[]
+```
+2025-08-14 15:53:16,632 - src.agents - WARNING - [LAODONG] No articles parsed from function for keywords: Vinamilk
+2025-08-14 15:53:17,916 - src.agents - INFO - [LAODONG] Crawled 0 unique articles
+2025-08-14 15:53:19,047 - src.agents - WARNING - ⚠️ No articles found from crawling or cache.
+2025-08-14 15:53:19,110 - src.agents - INFO - 🔧 Đang giải phóng tài nguyên pipeline...
+2025-08-14 15:53:19,144 - src.agents - INFO - 🧹 Đóng hoàn toàn CrawlerAgent, giải phóng agent và tools.
+2025-08-14 15:53:21,250 - src.services - WARNING - [sess-1755161556232-95915] Pipeline finished without generating a report.
+2025-08-14 15:59:33,614 - src.configs - INFO - Directories setup verified.
+2025-08-14 15:59:33,663 - src.configs - INFO - API Key Status: OpenAI Configured, Groq Not Configured, Google Configured
+2025-08-14 15:59:33,831 - src.configs - INFO - Crawl config saved to D:\Projects\TagSolution_Project\media_tracker_bot_v5\config\crawl_config.json
+2025-08-14 15:59:33,834 - src.configs - INFO - Configuration loaded with 50 media sources and 1 keyword categories.
+2025-08-14 16:00:01,902 - src.main - INFO - Task manager loaded.
+2025-08-14 22:10:11,370 - src.configs - INFO - Directories setup verified.
+2025-08-14 22:10:11,377 - src.configs - INFO - API Key Status: OpenAI Configured, Groq Not Configured, Google Configured
+2025-08-14 22:10:11,395 - src.configs - INFO - Crawl config saved to D:\Projects\TagSolution_Project\media_tracker_bot_v5\config\crawl_config.json
+2025-08-14 22:10:11,396 - src.configs - INFO - Configuration loaded with 50 media sources and 1 keyword categories.
+2025-08-14 22:10:27,929 - src.main - INFO - Task manager loaded.
+2025-08-14 23:49:59,816 - src.main - INFO - Shutdown cleanup done.
+2025-08-14 23:50:33,797 - src.configs - INFO - Directories setup verified.
+2025-08-14 23:50:33,812 - src.configs - INFO - API Key Status: OpenAI Configured, Groq Not Configured, Google Configured
+2025-08-14 23:50:33,944 - src.configs - INFO - Crawl config saved to D:\Projects\TagSolution_Project\media_tracker_bot_v5\config\crawl_config.json
+2025-08-14 23:50:33,946 - src.configs - INFO - Configuration loaded with 50 media sources and 1 keyword categories.
+2025-08-14 23:51:03,820 - src.main - INFO - Task manager loaded.
+2025-08-15 00:04:27,003 - src.configs - INFO - Directories setup verified.
+2025-08-15 00:04:27,012 - src.configs - INFO - API Key Status: OpenAI Configured, Groq Not Configured, Google Configured
+2025-08-15 00:04:27,122 - src.configs - INFO - Crawl config saved to D:\Projects\TagSolution_Project\media_tracker_bot_v5\config\crawl_config.json
+2025-08-15 00:04:27,123 - src.configs - INFO - Configuration loaded with 50 media sources and 1 keyword categories.
+2025-08-15 00:04:42,858 - src.main - INFO - Task manager loaded.
+2025-08-15 00:12:41,944 - src.main - INFO - Shutdown cleanup done.
+2025-08-15 00:13:08,696 - src.configs - INFO - Directories setup verified.
+2025-08-15 00:13:08,709 - src.configs - INFO - API Key Status: OpenAI Configured, Groq Not Configured, Google Configured
+2025-08-15 00:13:08,775 - src.configs - INFO - Crawl config saved to D:\Projects\TagSolution_Project\media_tracker_bot_v5\config\crawl_config.json
+2025-08-15 00:13:08,776 - src.configs - INFO - Configuration loaded with 50 media sources and 1 keyword categories.
+2025-08-15 00:13:19,145 - src.main - INFO - Task manager loaded.
+2025-08-15 00:21:58,149 - src.main - INFO - Shutdown cleanup done.
+2025-08-15 00:24:19,837 - src.configs - INFO - Directories setup verified.
+2025-08-15 00:24:19,848 - src.configs - INFO - API Key Status: OpenAI Configured, Groq Not Configured, Google Configured
+2025-08-15 00:24:19,879 - src.configs - INFO - Crawl config saved to D:\Projects\TagSolution_Project\media_tracker_bot_v5\config\crawl_config.json
+2025-08-15 00:24:19,881 - src.configs - INFO - Configuration loaded with 50 media sources and 1 keyword categories.
+2025-08-15 00:24:38,253 - src.main - INFO - Task manager loaded.
+2025-08-15 00:40:17,001 - src.main - INFO - Shutdown cleanup done.
+2025-08-15 00:40:31,699 - src.configs - INFO - Directories setup verified.
+2025-08-15 00:40:31,708 - src.configs - INFO - API Key Status: OpenAI Configured, Groq Not Configured, Google Configured
+2025-08-15 00:40:31,746 - src.configs - INFO - Crawl config saved to D:\Projects\TagSolution_Project\media_tracker_bot_v5\config\crawl_config.json
+2025-08-15 00:40:31,747 - src.configs - INFO - Configuration loaded with 50 media sources and 1 keyword categories.
+2025-08-15 00:40:43,962 - src.main - INFO - Task manager loaded.
+2025-08-15 00:41:29,371 - src.main - INFO - Shutdown cleanup done.
+2025-08-15 00:41:41,924 - src.configs - INFO - Directories setup verified.
+2025-08-15 00:41:41,931 - src.configs - INFO - API Key Status: OpenAI Configured, Groq Not Configured, Google Configured
+2025-08-15 00:41:41,946 - src.configs - INFO - Crawl config saved to D:\Projects\TagSolution_Project\media_tracker_bot_v5\config\crawl_config.json
+2025-08-15 00:41:41,947 - src.configs - INFO - Configuration loaded with 50 media sources and 1 keyword categories.
+2025-08-15 00:41:50,150 - src.main - INFO - Task manager loaded.
+2025-08-15 00:46:25,933 - src.configs - INFO - Crawl config saved to D:\Projects\TagSolution_Project\media_tracker_bot_v5\config\crawl_config.json
+2025-08-15 00:46:25,955 - src.main - INFO - ✅ [API] /api/run nhận session_id=sess-1755193585871-54855, user=admin
+2025-08-15 00:46:26,026 - src.services - INFO - [sess-1755193585871-54855] Task is pending. Preparing pipeline setup...
+2025-08-15 00:46:31,058 - src.services - INFO - [sess-1755193585871-54855] Starting pipeline execution.
+2025-08-15 00:46:31,060 - src.services - INFO - [sess-1755193585871-54855] Starting media tracking pipeline...
+2025-08-15 00:46:31,125 - src.agents - INFO - 📅 Khoảng thời gian crawl dữ liệu: từ ngày 01/07/2025 đến ngày 31/07/2025
+2025-08-15 00:46:31,127 - src.agents - INFO - Starting crawl for 1 sources.
+2025-08-15 00:46:31,612 - primp - INFO - response: https://www.bing.com/search?q=site%3Alaodong.vn+Vinamilk+tin+t%E1%BB%A9c 200
+2025-08-15 00:46:31,676 - src.agents - INFO - 🔍 DuckDuckGo results (laodong.vn): []
+2025-08-15 00:46:31,677 - src.agents - WARNING - ⚠️ Không tìm thấy hub link cho laodong.vn, thử lại sau 10s...
+2025-08-15 00:46:41,959 - primp - INFO - response: https://www.bing.com/search?q=site%3Alaodong.vn+Vinamilk+tin+t%E1%BB%A9c 200
+2025-08-15 00:46:42,994 - primp - INFO - response: https://www.bing.com/search?q=site%3Alaodong.vn+Vinamilk+tin+t%E1%BB%A9c&first=11&FORM=PERE 200
+2025-08-15 00:46:44,008 - primp - INFO - response: https://www.bing.com/search?q=site%3Alaodong.vn+Vinamilk+tin+t%E1%BB%A9c&first=21&FORM=PERE1 200
+2025-08-15 00:46:45,019 - primp - INFO - response: https://www.bing.com/search?q=site%3Alaodong.vn+Vinamilk+tin+t%E1%BB%A9c&first=31&FORM=PERE2 200
+2025-08-15 00:46:46,162 - primp - INFO - response: https://www.bing.com/search?q=site%3Alaodong.vn+Vinamilk+tin+t%E1%BB%A9c&first=41&FORM=PERE3 200
+2025-08-15 00:46:46,242 - src.agents - INFO - 🔍 DuckDuckGo results (laodong.vn): ['https://laodong.vn/tags/vinamilk-156766.ldo', 'https://laodong.vn/kinh-doanh/vinamilk-cong-bo-ket-qua-kinh-doanh-quy-ii2024-tang-truong-an-tuong-1373857.ldo', 'https://laodong.vn/kinh-doanh/vinamilk-thuong-hieu-luon-duoc-tin-tuong-suot-gan-50-nam-1495321.ldo', 'https://laodong.vn/kinh-doanh/dau-an-vinamilk-tai-hoi-nghi-sua-toan-cau-sua-viet-ngang-tam-voi-the-gioi-ve-doi-moi-cong-nghe-1527449.ldo', 'https://laodong.vn/kinh-doanh/vinamilk-thuc-day-xuat-khau-sua-qua-cac-chuoi-ban-le-va-phan-phoi-toan-cau-1350447.ldo', 'https://laodong.vn/suc-khoe/dot-pha-6-hmo-buoc-tien-dinh-duong-cua-vinamilk-tai-dien-dan-dinh-duong-lon-nhat-chau-a-1541685.ldo', 'https://laodong.vn/tags/sua-vinamilk-3212.ldo', 'https://laodong.vn/thong-tin-doanh-nghiep/vinamilk-hanh-trinh-giu-vung-ngoi-vi-trong-top-doanh-nghiep-niem-yet-hang-dau-viet-nam-1244594.ldo', 'https://laodong.vn/kinh-doanh/vinamilk-chiem-song-nhieu-bang-xep-hang-ve-thuong-hieu-duoc-chon-mua-nhieu-nhat-2024-1360549.ldo', 'https://laodong.vn/kinh-doanh/co-phieu-vinamilk-hap-dan-khoi-ngoai-nho-co-tuc-cao-1059324.ldo']
+2025-08-15 00:46:46,245 - src.agents - INFO - [LAODONG] 🔗 Hub URL: https://laodong.vn/tags/vinamilk-156766.ldo
+2025-08-15 00:47:17,815 - src.agents - INFO - [LAODONG] 🔗 Tìm được 13 bài viết từ hub
+2025-08-15 00:47:27,935 - src.agents - WARNING - Parse fail https://laodong.vn/xa-hoi/nhin-lai-nhung-khoanh-khac-cuc-chay-cua-vinamilk-tai-v-concert--v-fest-cuoi-tuan-qua-1556682.ldo: 'HubCrawlTool' object has no attribute 'session_id'
+2025-08-15 00:47:29,535 - src.agents - WARNING - Parse fail https://laodong.vn/kinh-doanh/vinamilk-ghi-nhan-doanh-thu-quy-22025-cao-nhat-tu-truoc-den-nay-16745-ti-dong-1549729.ldo: 'HubCrawlTool' object has no attribute 'session_id'
+2025-08-15 00:47:51,866 - src.agents - WARNING - Parse fail https://laodong.vn/kinh-doanh/dau-an-vinamilk-tai-hoi-nghi-sua-toan-cau-sua-viet-ngang-tam-voi-the-gioi-ve-doi-moi-cong-nghe-1527449.ldo: 'HubCrawlTool' object has no attribute 'session_id'
+2025-08-15 00:47:52,508 - src.agents - WARNING - Parse fail https://laodong.vn/kinh-doanh/vinamilk-gianh-cu-dup-giai-thuong-quoc-te-ve-ca-noi-dung-va-hinh-thuc-san-pham-quan-quan-co-gi-dac-biet-1533103.ldo: 'HubCrawlTool' object has no attribute 'session_id'
+2025-08-15 00:48:05,033 - src.agents - INFO - [LAODONG] ✅ Crawl thành công
+2025-08-15 00:48:05,034 - src.agents - INFO - 🔧 Đang giải phóng tài nguyên pipeline...
+2025-08-15 00:48:05,039 - src.agents - INFO - 🧹 Đóng hoàn toàn CrawlerAgent, giải phóng agent và tools.
+2025-08-15 00:48:06,847 - src.services - WARNING - [sess-1755193585871-54855] ⚠️ Task forcefully cancelled.
+2025-08-15 00:54:35,495 - src.configs - INFO - Directories setup verified.
+2025-08-15 00:54:35,505 - src.configs - INFO - API Key Status: OpenAI Configured, Groq Not Configured, Google Configured
+2025-08-15 00:54:35,539 - src.configs - INFO - Crawl config saved to D:\Projects\TagSolution_Project\media_tracker_bot_v5\config\crawl_config.json
+2025-08-15 00:54:35,540 - src.configs - INFO - Configuration loaded with 50 media sources and 1 keyword categories.
+2025-08-15 00:54:45,022 - src.main - INFO - Task manager loaded.
+2025-08-15 01:08:43,830 - src.configs - INFO - Directories setup verified.
+2025-08-15 01:08:43,836 - src.configs - INFO - API Key Status: OpenAI Configured, Groq Not Configured, Google Configured
+2025-08-15 01:08:43,880 - src.configs - INFO - Crawl config saved to D:\Projects\TagSolution_Project\media_tracker_bot_v5\config\crawl_config.json
+2025-08-15 01:08:43,881 - src.configs - INFO - Configuration loaded with 50 media sources and 1 keyword categories.
+2025-08-15 01:08:56,154 - src.main - INFO - Task manager loaded.
+2025-08-15 01:22:51,770 - src.main - INFO - Shutdown cleanup done.
+2025-08-15 01:23:02,338 - src.configs - INFO - Directories setup verified.
+2025-08-15 01:23:02,348 - src.configs - INFO - API Key Status: OpenAI Configured, Groq Not Configured, Google Configured
+2025-08-15 01:23:02,372 - src.configs - INFO - Crawl config saved to D:\Projects\TagSolution_Project\media_tracker_bot_v5\config\crawl_config.json
+2025-08-15 01:23:02,372 - src.configs - INFO - Configuration loaded with 50 media sources and 1 keyword categories.
+2025-08-15 01:23:16,082 - src.main - INFO - Task manager loaded.
+2025-08-15 01:23:33,031 - src.main - INFO - Shutdown cleanup done.
+2025-08-15 01:23:42,153 - src.configs - INFO - Directories setup verified.
+2025-08-15 01:23:42,162 - src.configs - INFO - API Key Status: OpenAI Configured, Groq Not Configured, Google Configured
+2025-08-15 01:23:42,180 - src.configs - INFO - Crawl config saved to D:\Projects\TagSolution_Project\media_tracker_bot_v5\config\crawl_config.json
+2025-08-15 01:23:42,180 - src.configs - INFO - Configuration loaded with 50 media sources and 1 keyword categories.
+2025-08-15 01:24:00,836 - src.main - INFO - Task manager loaded.
+2025-08-15 01:24:09,736 - src.configs - INFO - Directories setup verified.
+2025-08-15 01:24:09,742 - src.configs - INFO - API Key Status: OpenAI Configured, Groq Not Configured, Google Configured
+2025-08-15 01:24:09,770 - src.configs - INFO - Crawl config saved to D:\Projects\TagSolution_Project\media_tracker_bot_v5\config\crawl_config.json
+2025-08-15 01:24:09,770 - src.configs - INFO - Configuration loaded with 50 media sources and 1 keyword categories.
+2025-08-15 01:24:20,777 - src.main - INFO - Task manager loaded.
+2025-08-15 01:24:48,141 - src.main - INFO - Shutdown cleanup done.
+2025-08-15 01:24:59,526 - src.configs - INFO - Directories setup verified.
+2025-08-15 01:24:59,555 - src.configs - INFO - API Key Status: OpenAI Configured, Groq Not Configured, Google Configured
+2025-08-15 01:24:59,602 - src.configs - INFO - Crawl config saved to D:\Projects\TagSolution_Project\media_tracker_bot_v5\config\crawl_config.json
+2025-08-15 01:24:59,629 - src.configs - INFO - Configuration loaded with 50 media sources and 1 keyword categories.
+2025-08-15 01:25:19,112 - src.main - INFO - Task manager loaded.
+2025-08-15 01:25:30,512 - src.configs - INFO - Directories setup verified.
+2025-08-15 01:25:30,523 - src.configs - INFO - API Key Status: OpenAI Configured, Groq Not Configured, Google Configured
+2025-08-15 01:25:30,551 - src.configs - INFO - Crawl config saved to D:\Projects\TagSolution_Project\media_tracker_bot_v5\config\crawl_config.json
+2025-08-15 01:25:30,553 - src.configs - INFO - Configuration loaded with 50 media sources and 1 keyword categories.
+2025-08-15 01:25:40,466 - src.main - INFO - Task manager loaded.
+2025-08-15 01:25:46,695 - src.configs - INFO - Directories setup verified.
+2025-08-15 01:25:46,702 - src.configs - INFO - API Key Status: OpenAI Configured, Groq Not Configured, Google Configured
+2025-08-15 01:25:46,715 - src.configs - INFO - Crawl config saved to D:\Projects\TagSolution_Project\media_tracker_bot_v5\config\crawl_config.json
+2025-08-15 01:25:46,715 - src.configs - INFO - Configuration loaded with 50 media sources and 1 keyword categories.
+2025-08-15 01:25:59,576 - src.main - INFO - Task manager loaded.
+2025-08-15 01:34:20,576 - src.configs - INFO - Crawl config saved to D:\Projects\TagSolution_Project\media_tracker_bot_v5\config\crawl_config.json
+2025-08-15 01:39:06,583 - src.main - INFO - Shutdown cleanup done.
+2025-08-15 01:39:18,016 - src.configs - INFO - Directories setup verified.
+2025-08-15 01:39:18,026 - src.configs - INFO - API Key Status: OpenAI Configured, Groq Not Configured, Google Configured
+2025-08-15 01:39:18,071 - src.configs - INFO - Crawl config saved to D:\Projects\TagSolution_Project\media_tracker_bot_v5\config\crawl_config.json
+2025-08-15 01:39:18,072 - src.configs - INFO - Configuration loaded with 50 media sources and 1 keyword categories.
+2025-08-15 01:39:29,743 - src.main - INFO - Task manager loaded.
+2025-08-15 01:59:32,272 - src.configs - INFO - Directories setup verified.
+2025-08-15 01:59:32,279 - src.configs - INFO - API Key Status: OpenAI Configured, Groq Not Configured, Google Configured
+2025-08-15 01:59:32,312 - src.configs - INFO - Crawl config saved to D:\Projects\TagSolution_Project\media_tracker_bot_v5\config\crawl_config.json
+2025-08-15 01:59:32,312 - src.configs - INFO - Configuration loaded with 50 media sources and 1 keyword categories.
+2025-08-15 01:59:41,520 - src.main - INFO - Task manager loaded.
+2025-08-15 02:00:54,393 - src.configs - INFO - Crawl config saved to D:\Projects\TagSolution_Project\media_tracker_bot_v5\config\crawl_config.json
+2025-08-15 02:00:54,394 - src.configs - INFO - Keywords saved to D:\Projects\TagSolution_Project\media_tracker_bot_v5\config\keywords.json
+2025-08-15 02:00:54,451 - src.configs - INFO - Crawl config saved to D:\Projects\TagSolution_Project\media_tracker_bot_v5\config\crawl_config.json
+2025-08-15 02:07:58,146 - src.main - INFO - Shutdown cleanup done.

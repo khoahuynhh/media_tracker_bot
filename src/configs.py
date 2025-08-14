@@ -172,8 +172,10 @@ class AppSettings:
                 try:
                     with open(config_file, "r", encoding="utf-8") as f:
                         other_configs = json.load(f)
-                except json.JSONDecodeError:
-                    logger.warning(f"Could not parse {config_file}, using defaults.")
+                except json.JSONDecodeError as e:
+                    logger.warning(
+                        f"Could not parse {config_file}: {e}, using defaults."
+                    )
 
             config = CrawlConfig(
                 keywords=keywords,
@@ -288,6 +290,7 @@ class AppSettings:
         except Exception as e:
             logger.error(f"Failed to save keywords: {e}")
 
+    @staticmethod
     def load_media_sources():
         sources = []
         with open(MEDIA_SOURCES_FILE, newline="", encoding="utf-8") as f:
@@ -304,7 +307,7 @@ class AppSettings:
                 )
         return sources
 
-    def get_default_media_sources() -> List[MediaSource]:
+    def get_default_media_sources(self) -> List[MediaSource]:
         return [
             MediaSource(
                 stt=1,

@@ -131,7 +131,7 @@
 
     @media (min-width: 992px) {
         .logo--hero {
-            --logo-h: 100px;
+            --logo-h: 140px;
             /* desktop */
         }
     }
@@ -452,6 +452,7 @@
         display: flex;
         align-items: center;
         gap: 0.5rem;
+        border-color: #000000;
     }
 
     .progress-container {
@@ -689,6 +690,14 @@
     .modal-footer {
         background-color: var(--card-background);
         border-top: 1px solid var(--border-color);
+    }
+
+    .modal {
+        z-index: 1060;
+    }
+
+    .modal-backdrop {
+        z-index: 1050;
     }
 
     .timeline-item {

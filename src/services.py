@@ -18,12 +18,12 @@ from collections import defaultdict
 from jose import jwt, JWTError
 from jose.exceptions import ExpiredSignatureError
 from fastapi.security import OAuth2PasswordBearer
-from fastapi import HTTPException, Depends, Request, status
+from fastapi import HTTPException, Request, status
 from openpyxl.utils import get_column_letter
 from openpyxl.styles import Alignment
 
 
-from .models import CompetitorReport, BotStatus, MediaType, Article
+from .models import CompetitorReport, Article
 from .agents import MediaTrackerTeam, AgentManager
 from .configs import AppSettings
 from .task_state import task_manager

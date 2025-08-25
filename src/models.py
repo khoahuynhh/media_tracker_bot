@@ -424,12 +424,6 @@ class SystemHealth(BaseModel):
     )
 
 
-class HubPageNotFound(Exception):
-    """Không tìm thấy Hub Page cho nguồn báo."""
-
-    pass
-
-
 class PipelineConfig(BaseModel):
     """Model cho pipeline configuration"""
 

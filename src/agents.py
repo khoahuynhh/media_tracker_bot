@@ -17,17 +17,28 @@ import random
 import os
 import inspect
 import requests
+import unicodedata
+import contextlib
 
 from datetime import datetime, date
 from typing import List, Dict, Optional, Any, Tuple
 from playwright.sync_api import sync_playwright
+from playwright.async_api import async_playwright
 from tenacity import (
     retry,
     stop_after_attempt,
     wait_exponential,
     retry_if_exception_type,
 )
-from urllib.parse import urlparse, urlunparse, parse_qsl, urlencode
+from urllib.parse import (
+    urlparse,
+    urlunparse,
+    parse_qsl,
+    urlencode,
+    unquote,
+    urljoin,
+    parse_qs,
+)
 from bs4 import BeautifulSoup
 from asyncio import Semaphore
 
@@ -55,11 +66,11 @@ from .models import (
     BotStatus,
     ContentCluster,
     KeywordManager,
-    HubPageNotFound,
 )
 from .configs import CONFIG_DIR, settings
 from .cache_manager import SafeCacheManager
 from .task_state import task_manager
+from .proxy import PROXIES
 
 logger = logging.getLogger(__name__)
 
@@ -69,11 +80,11 @@ PROVIDER_MODEL_MAP = {
     "gemini": {"default": "gemini-2.0-flash", "report": "gemini-2.0-flash"},
 }
 
-# Async http_client với retry tối đa 3 lần
 http_client = httpx.AsyncClient(
-    timeout=60.0,
-    limits=httpx.Limits(max_keepalive_connections=5, max_connections=10),
-    transport=httpx.AsyncHTTPTransport(retries=3),  # <-- retry tối đa 3 lần
+    http2=True,
+    timeout=50.0,
+    limits=httpx.Limits(max_keepalive_connections=20, max_connections=50),
+    transport=httpx.AsyncHTTPTransport(retries=2),
 )
 
 
@@ -127,23 +138,87 @@ def _map_llm_error(err: Exception) -> tuple[str, str]:
 
     if sc in (401, 403):
         return "PROVIDER_AUTH", "API key invalid/expired"
+
     if sc == 429:
         if (code or "").lower() == "insufficient_quota":
             return "PROVIDER_NO_QUOTA", "Insufficient quota"
         return "PROVIDER_RATE_LIMIT", "Rate limit"
+
     if isinstance(err, (asyncio.TimeoutError, httpx.ReadTimeout, httpx.ConnectTimeout)):
         return "PROVIDER_TIMEOUT", "Timeout"
+
     return "PROVIDER_ERROR", str(err)
 
+# ---- LLM concurrency guard ----
+_LLM_SEMAPHORES: dict[str, tuple[asyncio.Semaphore, int]] = {}
 
-# Search tools
-def ddgs_search_text(query: str):
-    time.sleep(1.5)
-    # headers = {
-    #     "User-Agent": f"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/{random.randint(100,120)}.0.{random.randint(1000,9999)}.100 Safari/537.36"
-    # }
-    with DDGS(timeout=60) as ddg:
-        return list(ddg.text(query, max_results=30, backend="auto"))
+def _sem_for(provider: str) -> asyncio.Semaphore:
+    cap = int(os.getenv("LLM_MAX_CONCURRENCY", "2"))
+    entry = _LLM_SEMAPHORES.get(provider)
+    if entry is None or entry[1] != cap:
+        sem = asyncio.Semaphore(cap)
+        _LLM_SEMAPHORES[provider] = (sem, cap)
+        return sem
+    return entry[0]
+
+# Timeout cấu hình cho mỗi call LLM
+_LLM_REQ_TIMEOUT = float(os.getenv("LLM_REQUEST_TIMEOUT", "25"))
+
+
+def ddgs_search_text(query: str, max_results=15):
+    """
+    Search tool chung (không ràng buộc domain).
+    Dùng random UA + proxy để tránh cache/block.
+    """
+    ua = _random_ua()
+    proxy = random.choice(PROXIES) if PROXIES else None
+    # regions = ["vi-vn", "us-en", "sg-en"]
+    regions = ["us-en"]
+    region = random.choice(regions)
+
+    backends = [
+        "bing",
+        # "brave",
+        # "duckduckgo",
+        # "html",
+        # "mojeek",
+        # "mullvad_brave",
+        # "mullvad_google",
+        # "yandex",
+        # "yahoo",
+        # "wikipedia",
+    ]
+    random.shuffle(backends)
+    for be in backends:
+        try:
+            with DDGS(timeout=60) as ddg:
+                rows = list(
+                    ddg.text(
+                        query,
+                        max_results=max_results,
+                        region=region,
+                        safesearch="off",
+                        backend="auto",
+                        timelimit="y",
+                    )
+                )
+            if rows:
+                logger.info(
+                    "[DDGS] backend=%s rows=%d q=%r ua=%s proxy=%s region=%s",
+                    be,
+                    len(rows),
+                    query,
+                    ua["User-Agent"],
+                    proxy,
+                    region,
+                )
+                return rows
+            time.sleep(0.8 + random.random() * 0.8)
+        except Exception as e:
+            logger.warning("⚠️ DDGS backend=%s error=%s proxy=%s", be, e, proxy)
+            time.sleep(0.8 + random.random() * 0.8)
+
+    return []
 
 
 class GoogleSearchWithDelay(GoogleSearchTools):
@@ -152,147 +227,590 @@ class GoogleSearchWithDelay(GoogleSearchTools):
         return super().run(query)
 
 
-def google_cse_search(domain, keywords):
-    API_KEY = os.getenv("GOOGLE_API_KEY")
-    query = f"site:{domain} {' '.join(keywords)} tag"
-    url = "https://www.googleapis.com/customsearch/v1"
-    params = {"key": API_KEY, "cx": "16c863775f52f42cd", "q": query, "num": 10}
-    resp = requests.get(url, params=params)
-    data = resp.json()
-
-    if "items" not in data:
-        print("❌ Không tìm thấy kết quả:", data)
+def google_cse_search(domain, industry_name, keywords):
+    API_KEY = os.getenv("GOOGLE_API_KEY_SEARCH")
+    if not API_KEY:
+        logger.error("❌ GOOGLE_API_KEY_SEARCH chưa được set.")
         return None
 
-    for item in data["items"]:
-        print(item["link"])
-    return data["items"][0]["link"]
+    # Chuẩn hóa domain cho site: query
+    norm_domain = re.sub(r"^https?://", "", domain).split("/")[0].lower()
+    norm_domain = norm_domain.lstrip("www.")
+
+    # Tăng khả năng bắt hub: thêm OR cho tag/tags/chu-de
+    q_parts = (
+        [f"site:{norm_domain}", industry_name]
+        + list(keywords)
+        + ["(tags OR tag OR chu-de)"]
+    )
+    query = " ".join(q_parts)
+
+    url = "https://www.googleapis.com/customsearch/v1"
+    params = {"key": API_KEY, "cx": "16c863775f52f42cd", "q": query, "num": 20}
+
+    try:
+        resp = requests.get(url, params=params, timeout=10)
+        resp.raise_for_status()
+        data = resp.json()
+    except Exception as e:
+        logger.warning("❌ Google CSE lỗi: %s", e)
+        return None
+
+    items = data.get("items", [])
+    if not items:
+        logger.warning("❌ Không tìm thấy kết quả: %r", data)
+        return None
+
+    # --- helpers ---
+    NUM_RE = re.compile(r"(\d{2,})")  # lấy số >= 2 chữ số để tránh noise
+
+    def extract_numeric_id(u: str) -> int:
+        try:
+            path = urlparse(u).path
+            nums = NUM_RE.findall(path)
+            return int(nums[-1]) if nums else -1  # lấy số cuối trong path
+        except Exception:
+            return -1
+
+    def kw_hits(u: str) -> int:
+        lu = u.lower()
+        return sum(1 for kw in keywords if kw.lower() in lu)
+
+    def is_same_domain(u: str) -> bool:
+        try:
+            host = urlparse(u).netloc.lower()
+        except Exception:
+            return False
+        host = host.lstrip("www.").lstrip("m.")
+        return host.endswith(norm_domain)
+
+    # Lọc candidates: đúng domain + là hub + có keyword trong URL
+    candidates: list[str] = []
+    for it in items:
+        link = it.get("link", "")
+        if not link:
+            continue
+        if not is_same_domain(link):
+            continue
+        lu = link.lower()
+        if is_tag_hub_url(lu) and any(kw.lower() in lu for kw in keywords):
+            candidates.append(link)
+            logger.debug("CSE candidate: %s", link)
+
+    if not candidates:
+        logger.warning("❌ Không có hub hợp lệ trong kết quả CSE.")
+        return None
+
+    # Chọn theo: có số? → ID lớn → số keyword khớp → prefer /tags/ → URL ngắn
+    def hub_sort_key(u: str):
+        lu = u.lower()
+        uid = extract_numeric_id(lu)
+        has_num = 1 if uid >= 0 else 0
+        prefer_tags = 1 if "/tags/" in lu else 0
+        return (has_num, uid, kw_hits(lu), prefer_tags, -len(u))
+
+    pick = sorted(set(candidates), key=hub_sort_key, reverse=True)[0]
+    logger.info("✅ Chọn hub từ CSE: %s", pick)
+    return pick
 
 
+# DDGS Helpers
 def _norm_host(h):
     h = h.lower()
     return h[4:] if h.startswith("www.") else h
 
 
-def get_first_search_link(domain: str, keywords: list[str]) -> str | None:
-    wanted_host = _norm_host(domain)
+def clean_duck_href(href: str) -> str | None:
+    if not href:
+        return None
 
-    def search_ddg():
-        headers = {
-            "User-Agent": f"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/{random.randint(100,120)}.0.{random.randint(1000,9999)}.100 Safari/537.36"
-        }
-        query = f"site:{domain} {' '.join(keywords)} tin tức"
-        with DDGS(headers=headers, timeout=60) as ddg:
-            results = list(ddg.text(query, max_results=20, backend="auto"))
-            logger.info(
-                f"🔍 DuckDuckGo results ({domain}): {[r.get('href') for r in results]}"
-            )
+    if "zhihu.com/tardis/" in href or "zhihu.com/question/" in href:
+        return None
 
-            same_domain = []
-            for r in results:
-                href = r.get("href") or ""
-                host = _norm_host(urlparse(href).netloc)
-                if host == wanted_host:
-                    same_domain.append(href)
+    # 1) Relative -> absolute
+    href = urljoin("https://duckduckgo.com", href)
 
-            def is_tag_hub(u: str) -> bool:
-                lu = u.lower()
-                return (
-                    "/tag" in lu
-                    or "/tags/" in lu
-                    or "/chu-de/" in lu
-                    or "/the/" in lu
-                    or "/topic/" in lu
+    p = urlparse(href)
+    # 2) DuckDuckGo redirect: lấy URL thật từ query
+    if p.netloc.endswith("duckduckgo.com") and p.path.startswith(("/l/", "/r/")):
+        q = parse_qs(p.query)
+        for key in ("uddg", "u", "rut"):
+            if q.get(key):
+                href = unquote(q[key][0])
+                p = urlparse(href)
+                break
+
+    # 3) Google Translate proxy -> lấy param 'u'
+    if p.netloc.endswith("googleusercontent.com") and p.path.startswith("/translate"):
+        q = parse_qs(p.query)
+        if q.get("u"):
+            href = unquote(q["u"][0])
+            p = urlparse(href)
+
+    # 4) Gọn AMP/mobile
+    path = p.path.replace("/amp/", "/").replace("/amp", "/")
+    host = p.netloc.lower()
+    if host.startswith("www."):
+        host = host[4:]
+
+    # 5) Lắp lại URL đã chuẩn hoá
+    return urlunparse((p.scheme or "https", host, path, "", p.query, ""))
+
+
+# --- Anti-block constants & helpers ---
+BLOCK_PATTERNS = (
+    "access denied",
+    "forbidden",
+    "blocked",
+    "captcha",
+    "cloudflare",
+    "attention required",
+    "unusual traffic",
+    "verify you are a human",
+    "challenge",
+    "bot detection",
+)
+
+
+def _rand_headers() -> dict:
+    # “browsery” headers: Accept/Language + Sec-Fetch
+    return {
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+        "Accept-Language": "vi-VN,vi;q=0.9,en-US;q=0.8,en;q=0.7",
+        "Upgrade-Insecure-Requests": "1",
+        "Sec-Fetch-Dest": "document",
+        "Sec-Fetch-Mode": "navigate",
+        "Sec-Fetch-Site": "none",
+        "Sec-Fetch-User": "?1",
+    }
+
+
+def _looks_blocked(text: str | None) -> bool:
+    if not text:
+        return True
+    low = text.lower()
+    return any(k in low for k in BLOCK_PATTERNS)
+
+
+def _random_ua() -> dict:
+    """Sinh User-Agent ngẫu nhiên cho mỗi query"""
+    return {
+        "User-Agent": (
+            f"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+            f"Chrome/{random.randint(118, 124)}.0.{random.randint(1000,9999)}.100 Safari/537.36"
+        )
+    }
+
+
+class DomainPolicy:
+    def __init__(self, max_concurrent: int = 2, min_gap_sec: float = 0.8):
+        self.sem = asyncio.Semaphore(max_concurrent)
+        self.min_gap = float(min_gap_sec)
+        self.last_t = 0.0
+
+
+class DomainLimiter:
+    def __init__(self):
+        self._policies: dict[str, DomainPolicy] = {}
+
+    def policy(self, domain: str) -> DomainPolicy:
+        if domain not in self._policies:
+            # mặc định: 2 luồng/host, gap ~0.8s giữa các request
+            self._policies[domain] = DomainPolicy(2, 0.8)
+        return self._policies[domain]
+
+    async def enter(self, url: str):
+        d = urlparse(url).netloc
+        pol = self.policy(d)
+        await pol.sem.acquire()
+        # enforce gap
+        now = time.monotonic()
+        wait = pol.min_gap - (now - pol.last_t)
+        if wait > 0:
+            await asyncio.sleep(wait + 0.1 * wait)  # thêm tí jitter
+        pol.last_t = time.monotonic()
+        return d  # trả domain để caller release sau
+
+    def release(self, domain: str):
+        self._policies[domain].sem.release()
+
+
+DOMAIN_LIMITER = DomainLimiter()
+# ---------------------------------------
+
+
+def search_domain_duckduckgo(
+    domain: str,
+    industry_name: str,
+    keywords: list[str],
+    max_results,
+    query_type=None,
+):
+    """
+    Tìm kiếm hub/article link trong domain cụ thể.
+    Trả về (rows, backend, query).
+    """
+
+    # Query có thêm salt để tránh cache
+    salt = random.randint(1000, 9999)
+    suffixes = ["tag", "tags", "tin tức mới nhất"]  # Cập nhật danh sách suffixes
+
+    # Chọn suffix dựa trên query_type nếu được chỉ định
+    if query_type == "tag":
+        suffix = "tag"
+    elif query_type == "tags":
+        suffix = "tags"
+    elif query_type == "news":
+        suffix = "tin tức mới nhất"
+    else:
+        suffix = random.choice(suffixes)
+
+    regions = ["us-en"]  # hoặc mở rộng: ["vi-vn", "us-en", "sg-en"]
+    region = random.choice(regions)
+    query = f"site:{domain} {industry_name} {' '.join(keywords)} {suffix}"
+
+    ua = _random_ua()
+    proxy = random.choice(PROXIES) if PROXIES else None
+
+    # Tập backend đa dạng, sau đó shuffle để random
+    backends = [
+        # "bing",
+        # "brave",
+        "duckduckgo",
+        "google",
+        # "mojeek",
+        # "mullvad_brave",
+        # "mullvad_google",
+        # "yandex",
+        # "yahoo",
+        # "wikipedia",
+    ]
+    random.shuffle(backends)
+
+    for be in backends:
+        try:
+            with DDGS(timeout=60) as ddg:
+                rows = list(
+                    ddg.text(
+                        query,
+                        region=region,
+                        max_results=max_results,
+                        safesearch="off",
+                        backend="auto",
+                        timelimit="y",
+                    )
                 )
 
-            def contains_kw(u: str) -> bool:
+            if rows:
+                logger.info(
+                    "[DDG] domain=%s backend=%s rows=%d query=%r ua=%s proxy=%s region=%s",
+                    domain,
+                    be,
+                    len(rows),
+                    query,
+                    ua["User-Agent"],
+                    proxy,
+                    region,
+                )
+                return rows, be, query
+
+            # Nếu rỗng thì jitter delay rồi thử backend khác
+            time.sleep(0.8 + random.random() * 0.8)
+
+        except Exception as e:
+            logger.warning("⚠️ DDG backend=%s error=%s proxy=%s", be, e, proxy)
+            time.sleep(0.8 + random.random() * 0.8)
+
+    return [], None, query
+
+
+def get_first_search_link(
+    domain: str, keywords: list[str], industry_name: str
+) -> str | None:
+    wanted_host = _norm_host(domain)
+    found_domain_but_no_hub = False
+
+    def pick_from_rows(rows: list[dict]) -> tuple[str | None, bool]:
+        """Trả về (link, has_same_domain)"""
+        same_domain: list[str] = []
+        hubs: list[str] = []
+
+        NUM_RE = re.compile(r"(\d{2,})")  # bỏ qua số 1 chữ số (noise)
+
+        def extract_numeric_id(u: str) -> int:
+            try:
+                path = urlparse(u).path
+            except Exception:
+                return -1
+            nums = NUM_RE.findall(path)
+            return int(nums[-1]) if nums else -1  # lấy số cuối trong path
+
+        for r in rows:
+            raw = r.get("href")
+            href = clean_duck_href(raw)
+            if not href:
+                continue
+            host = _norm_host(urlparse(href).netloc)
+            if host != wanted_host:
+                continue
+
+            same_domain.append(href)
+
+            # Hub hợp lệ = có /tag|/tags|/chu-de + có keyword trong URL
+            if is_tag_hub_url(href) and any(
+                kw.lower() in href.lower() for kw in keywords
+            ):
+                hubs.append(href)
+
+        has_same_domain = bool(same_domain)
+
+        # Ưu tiên hub hợp lệ
+        if hubs:
+
+            def hub_sort_key(u: str):
                 lu = u.lower()
-                return any(kw.lower() in lu for kw in keywords)
+                uid = extract_numeric_id(lu)
+                has_num = 1 if uid >= 0 else 0
+                kw_hits = sum(1 for kw in keywords if kw.lower() in lu)
+                prefer_tags = 1 if "/tags/" in lu else 0
+                return (has_num, uid, kw_hits, prefer_tags, -len(u))
 
-            # a) tag-hub + chứa keyword trong URL
-            for href in same_domain:
-                if is_tag_hub(href) and contains_kw(href):
-                    return href
-            # b) chỉ cần là tag-hub đúng domain
-            for href in same_domain:
-                if is_tag_hub(href):
-                    return href
-            # c) fallback: bất kỳ link nào đúng domain
-            if same_domain:
-                return same_domain[0]
+            # unique + sort giảm dần theo key
+            hubs = sorted(set(hubs), key=hub_sort_key, reverse=True)
+            return hubs[0], has_same_domain
 
-            # d) fallback toàn bộ results
-            for r in results:
-                href = r.get("href") or ""
-                if _norm_host(urlparse(href).netloc) == wanted_host:
-                    return href
+        # Nếu không có hub thì trả None
+        return None, has_same_domain
 
-            return None
+    # Danh sách các query type để thử luân phiên
+    query_types = ["news", "tag", "tags"]
 
-    # --- 1. DDG lần 1 ---
-    link = search_ddg()
-    if link:
-        return link
+    # --- Retry loop ---
+    max_retry = 3
+    for attempt in range(max_retry):
+        # Thay query
+        query_type = query_types[attempt % len(query_types)]
+        rows, be, used_q = search_domain_duckduckgo(
+            domain,
+            industry_name,
+            list(keywords),
+            max_results=15,
+            query_type=query_type,
+        )
 
-    # --- 2. DDG lần 2 ---
-    logger.warning(f"⚠️ Không tìm thấy hub link cho {domain}, thử lại sau 10s...")
-    time.sleep(10)
-    link = search_ddg()
-    if link:
-        return link
+        logger.info(
+            "[get_first_search_link] try #%d backend=%s query=%r rows=%d",
+            attempt + 1,
+            be,
+            used_q,
+            len(rows) if rows else 0,
+        )
 
-    # --- 3. Fallback sang Google CSE ---
-    logger.warning(f"⚠️ DDG thất bại, fallback sang Google CSE cho {domain}")
-    return google_cse_search(domain, keywords)
+        if rows:
+            for i, r in enumerate(rows, 1):
+                raw = r.get("href")
+                href = clean_duck_href(raw)
+                logger.info("  [%d] raw=%s | cleaned=%s", i, raw, href)
+
+            link, has_same_domain = pick_from_rows(rows)
+            if link:
+                return link
+
+            # Nếu có link cùng domain nhưng không phải hub → dừng
+            if has_same_domain:
+                found_domain_but_no_hub = True
+
+        # Nếu chưa tìm thấy link nào đúng domain → retry
+        delay = 2 * (2**attempt) + random.random()
+        if found_domain_but_no_hub:
+            logger.warning(
+                "⚠️ Đã thấy domain nhưng chưa tìm thấy hub, chờ %.1fs rồi thử lại (attempt %d/%d)...",
+                delay,
+                attempt + 1,
+                max_retry,
+            )
+        else:
+            logger.warning(
+                "⚠️ Chưa tìm thấy link nào cùng domain, chờ %.1fs rồi thử lại...", delay
+            )
+
+        time.sleep(delay)
+
+    # --- Sau 3 lần retry ---
+    if found_domain_but_no_hub:
+        logger.warning(
+            "⚠️ Đã tìm thấy domain %s sau %d lần nhưng không có hub hợp lệ → bỏ qua",
+            domain,
+            max_retry,
+        )
+    else:
+        logger.warning(
+            "⚠️ Không tìm thấy hub hợp lệ trong %d lần thử, fallback Google CSE: %s",
+            max_retry,
+            domain,
+        )
+        return google_cse_search(domain, industry_name, keywords)
 
 
+# Semaphore để limit concurrent playwright instances
 _playwright_sem = Semaphore(2)
 
 
-def crawl_with_playwright_sync(url: str) -> str:
-    with sync_playwright() as p:
-        browser = p.chromium.launch(
+class PlaywrightPool:
+    _instance = None
+
+    @classmethod
+    def instance(cls):
+        if not cls._instance:
+            cls._instance = cls()
+        return cls._instance
+
+    def __init__(self):
+        self._started = False
+        self._pw = None
+        self._browser = None
+        self._sem = asyncio.Semaphore(3)  # tổng số page song song
+        self._storage_state: dict[str, dict] = {}  # per-domain storage_state
+
+    async def start(self):
+        if self._started:
+            return
+        self._pw = await async_playwright().start()
+        self._browser = await self._pw.chromium.launch(
             headless=True,
             args=[
                 "--no-sandbox",
+                "--disable-setuid-sandbox",
                 "--disable-dev-shm-usage",
                 "--disable-gpu",
-                # hai flag dưới chỉ dùng nếu máy/antivirus khó tính:
-                # "--single-process", "--no-zygote",
+                "--disable-blink-features=AutomationControlled",
+                "--disable-background-timer-throttling",
+                "--disable-renderer-backgrounding",
             ],
         )
-        context = browser.new_context(
-            user_agent=(
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                "AppleWebKit/537.36 (KHTML, like Gecko) "
-                "Chrome/123.0 Safari/537.36"
-            )
-        )
-        page = context.new_page()
+        self._started = True
+
+    async def close(self):
+        if self._browser:
+            await self._browser.close()
+        if self._pw:
+            await self._pw.stop()
+        self._started = False
+        self._browser = None
+        self._pw = None
+
+    async def fetch(
+        self, url: str, timeout_ms: int = 25000, referer: str | None = None
+    ) -> str:
+        await self.start()
+
+        domain = urlparse(url).netloc
+        # per-domain policy: limit & pacing
+        await DOMAIN_LIMITER.enter(url)
         try:
-            page.goto(url, timeout=60_000, wait_until="domcontentloaded")
-            # nếu còn request ngầm, cho đợi thêm chút
-            try:
-                page.wait_for_load_state("networkidle", timeout=5_000)
-            except:
-                pass
-            html = page.content()
-            return html
+            async with self._sem:
+                # dùng storage_state để tái sử dụng cookie per-domain (nhìn “người” hơn)
+                storage_state = self._storage_state.get(domain)
+                ua = _random_ua()
+
+                context = await self._browser.new_context(
+                    viewport={"width": 1366, "height": 768},
+                    user_agent=ua["User-Agent"],
+                    storage_state=storage_state,  # có thể None
+                    extra_http_headers={
+                        **_rand_headers(),
+                        **({"Referer": referer} if referer else {}),
+                    },
+                    locale="vi-VN",
+                )
+                # stealth: che webdriver, languages, platform, permissions...
+                await context.add_init_script(
+                    """
+                    Object.defineProperty(navigator, 'webdriver', {get: () => undefined});
+                    window.chrome = { runtime: {} };
+                    Object.defineProperty(navigator, 'languages', {get: () => ['vi-VN', 'vi', 'en-US', 'en']});
+                    Object.defineProperty(navigator, 'platform', {get: () => 'Win32'});
+                    const originalQuery = window.navigator.permissions.query;
+                    window.navigator.permissions.query = (parameters) => (
+                        parameters.name === 'notifications' ?
+                            Promise.resolve({ state: Notification.permission }) :
+                            originalQuery(parameters)
+                    );
+                    // WebGL vendor spoof nhẹ
+                    const getParameter = WebGLRenderingContext.prototype.getParameter;
+                    WebGLRenderingContext.prototype.getParameter = function(par){
+                        if (par === 37445) return 'Intel Inc.';       // UNMASKED_VENDOR_WEBGL
+                        if (par === 37446) return 'Intel(R) UHD';     // UNMASKED_RENDERER_WEBGL
+                        return getParameter.call(this, par);
+                    };
+                """
+                )
+
+                page = await context.new_page()
+                blocked = False
+                html = ""
+
+                try:
+                    await page.goto(
+                        url, timeout=timeout_ms, wait_until="domcontentloaded"
+                    )
+                    await page.wait_for_timeout(450 + int(200 * random.random()))
+                    # Cloudflare/challenge check
+                    if (
+                        await page.locator(
+                            "div#challenge-form, div#challenge-container, iframe[title*=captcha]"
+                        ).count()
+                        > 0
+                    ):
+                        blocked = True
+                    html = await page.content()
+                    if len(html) < 1500:
+                        body_text = await page.text_content("body") or ""
+                        if _looks_blocked(body_text):
+                            blocked = True
+                finally:
+                    # lưu cookie/storage_state cho domain nếu không bị chặn
+                    try:
+                        if not blocked:
+                            self._storage_state[domain] = await context.storage_state()
+                    except Exception:
+                        pass
+                    await context.close()
+
+                if blocked:
+                    # Cooldown domain + hạ concurrency của domain tạm thời
+                    DOMAIN_LIMITER.policy(domain).min_gap = min(
+                        2.5, DOMAIN_LIMITER.policy(domain).min_gap * 1.5
+                    )
+                    raise RuntimeError("Blocked/challenge detected")
+
+                return html
         finally:
-            context.close()
-            browser.close()
+            DOMAIN_LIMITER.release(domain)
 
 
-@retry(
-    stop=stop_after_attempt(3),
-    wait=wait_exponential(multiplier=1, min=1, max=4),
-    reraise=True,
-)
+@retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=1, max=6))
 async def crawl_with_playwright(url: str) -> str:
-    # wrapper async gọi bản sync trong thread pool, có semaphore hạn chế song song
-    async with _playwright_sem:
-        loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(None, crawl_with_playwright_sync, url)
+    # Giữ lại retry decorator của bạn
+    try:
+        html = await PlaywrightPool.instance().fetch(url, timeout_ms=25000)
+        if not html or len(html) < 1000:
+            return ""
+        return html
+    except Exception as e:
+        logger.warning(f"Playwright error for {url}: {e}")
+        return ""
+
+
+# Optional: Fallback function cho các site khó
+async def robust_crawl(url: str) -> str:
+    """Crawl với fallback mechanism"""
+    try:
+        return await crawl_with_playwright(url)
+    except Exception as e:
+        print(f"🎯 Playwright failed, trying fallback for {url}: {e}")
+        # Thêm fallback logic ở đây (requests + cloudscraper, etc.)
+        raise  # Hoặc implement fallback
 
 
 # --- START: Helpers function ---
@@ -461,14 +979,9 @@ async def validate_and_normalize_link(
 ) -> str | None:
     """Trả về URL đã chuẩn hoá nếu hợp lệ, ngược lại None."""
     try:
-        async with httpx.AsyncClient(
-            follow_redirects=True,
-            timeout=timeout,
-            headers={
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/123 Safari/537.36"
-            },
-        ) as client:
-            r = await client.get(raw_url)
+        r = await http_client.get(
+            raw_url, follow_redirects=True, timeout=timeout, headers=_random_ua()
+        )
         if r.status_code != 200:
             return None
         ctype = r.headers.get("Content-Type", "")
@@ -477,12 +990,13 @@ async def validate_and_normalize_link(
 
         final_url = str(r.url)
 
-        # Bỏ tracking params
         u = urlparse(final_url)
+        # Bỏ tracking params (mở rộng)
+        drop_keys = {"fbclid", "gclid", "yclid", "mc_cid", "mc_eid", "ref", "ref_src"}
         q = [
             (k, v)
             for k, v in parse_qsl(u.query, keep_blank_values=True)
-            if not k.lower().startswith(("utm_", "fbclid"))
+            if not (k.lower().startswith("utm_") or k.lower() in drop_keys)
         ]
         final_url = urlunparse(u._replace(query=urlencode(q, doseq=True)))
 
@@ -494,7 +1008,8 @@ async def validate_and_normalize_link(
 
         # Check domain cuối cùng
         host = urlparse(final_url).netloc.lower().lstrip("www.")
-        if host != allowed_domain.lower().lstrip("www."):
+        allowed = allowed_domain.lower().lstrip("www.")
+        if not (host == allowed or host.endswith("." + allowed)):
             return None
 
         # (tuỳ chọn) basic sanity: phải có <h1> hoặc og:title
@@ -506,7 +1021,33 @@ async def validate_and_normalize_link(
         return None
 
 
-# --- END: date/title/url extract helpers ---
+# Check hub link helpers
+_TAG_HUB_RE = re.compile(
+    r"(?:/(?:tags?|chu-de|tu-khoa|tag)/)|(?:/tu-khoa/[^/?#]+-tag\d+(?:\.tpo)?(?:/|$))"
+)
+
+
+def is_tag_hub_url(u: str) -> bool:
+    try:
+        path = urlparse(u).path.lower()
+    except Exception:
+        path = (u or "").lower()
+    return bool(_TAG_HUB_RE.search(path))
+
+
+def _quick_summary_from_html(html: str, max_chars: int = 360) -> str:
+    soup = BeautifulSoup(html or "", "html.parser")
+    # lấy các đoạn p có độ dài > 100 ký tự, ưu tiên phần đầu
+    paras = [
+        p.get_text(" ", strip=True)
+        for p in soup.select("article p, .article p, .detail p, p")
+    ]
+    paras = [t for t in paras if t and len(t) > 80]
+    text = " ".join(paras[:3]) if paras else ""
+    return (text[:max_chars] + "…") if len(text) > max_chars else text
+
+
+# --- END: helpers function ---
 class AgentManager:
     _instance: Optional["AgentManager"] = None
 
@@ -602,98 +1143,133 @@ class LLMUserFallbackMixin:
         preferred_provider: str | None = None,
         preferred_model: str | None = None,
     ):
-        last_err = None
         providers = _configured_providers_in_order(settings, preferred_provider)
         asked = set()  # tránh hỏi trùng 1 provider/model trong cùng lượt
-        seq = 0
+        _timeout_retry_counter = {}
         if not providers:
             raise RuntimeError("No LLM provider configured")
 
-        for i, prov in enumerate(providers):
-            model_id = (
-                preferred_model
-                if prov == (preferred_provider or "").lower() and preferred_model
-                else PROVIDER_MODEL_MAP.get(prov, PROVIDER_MODEL_MAP["openai"])[
-                    "default"
-                ]
-            )
-            try:
-                token = AgentManager.get_instance().get_token(session_id, prov)
-
-                # Nếu đã bị hủy trước khi gọi
-                if token.is_set():
-                    raise asyncio.CancelledError()
-                # yêu cầu class có self._create_agent() và self.agent
-                self.model = get_llm_model(prov, model_id)
-                self._create_agent()
-                # Tạo task + đăng ký để cancel cứng được qua AgentManager
-                task = asyncio.create_task(
-                    self.agent.arun(prompt, session_id=session_id)
+        while True:
+            for i, prov in enumerate(list(providers)):
+                model_id = (
+                    preferred_model
+                    if prov == (preferred_provider or "").lower() and preferred_model
+                    else PROVIDER_MODEL_MAP.get(prov, PROVIDER_MODEL_MAP["openai"])[
+                        "default"
+                    ]
                 )
-                AgentManager.get_instance().register_provider_task(
-                    session_id, prov, task
-                )
-                return await asyncio.wait_for(task, timeout=35)
+                try:
+                    token = AgentManager.get_instance().get_token(session_id, prov)
 
-            except Exception as e:
-                code, msg = _map_llm_error(e)
-                last_err = e
-                remaining = providers[i + 1 :]
+                    # Nếu đã bị hủy trước khi gọi
+                    if token.is_set():
+                        raise asyncio.CancelledError()
+                    # yêu cầu class có self._create_agent() và self.agent
+                    self.model = get_llm_model(prov, model_id)
+                    self._create_agent()
+                    # Tạo task + đăng ký để cancel cứng được qua AgentManager
+                    async with _sem_for(prov):
+                        task = asyncio.create_task(self.agent.arun(prompt, session_id=session_id))
+                        AgentManager.get_instance().register_provider_task(session_id, prov, task)
+                        try:
+                            return await asyncio.wait_for(task, timeout=_LLM_REQ_TIMEOUT)
+                        except asyncio.TimeoutError:
+                            task.cancel()
+                            with contextlib.suppress(asyncio.CancelledError):
+                                await task
+                            raise
 
-                async with fallback_lock_by_session[session_id]:
-                    # nếu đã hỏi provider/model này rồi thì bỏ qua lần hỏi nữa
-                    if (prov, model_id) in asked:
-                        continue
-                    asked.add((prov, model_id))
+                except Exception as e:
+                    code, msg = _map_llm_error(e) or ("PROVIDER_ERROR", str(e))
+                    remaining = providers[i + 1 :]
 
-                    if not remaining:
-                        await event_bus.publish(
-                            session_id,
-                            {
-                                "type": "provider_error",
-                                "provider": prov,
-                                "model": model_id,
-                                "code": code,
-                                "message": msg,
-                                "final": True,
-                                "next_options": [],
-                            },
-                        )
-                        break
+                    # ✅ TIMEOUT / RATE LIMIT: giữ nguyên provider, retry im lặng (không popup)
+                    if code in ("PROVIDER_TIMEOUT", "PROVIDER_RATE_LIMIT"):
+                        key = (session_id, prov, model_id)
+                        tries = _timeout_retry_counter.get(key, 0)
+                        if tries < 3:  # tuỳ chỉnh
+                            _timeout_retry_counter[key] = tries + 1
+                            backoff = min(2**tries, 8)  # 1s, 2s, 4s, cap 8s
+                            logger.info(
+                                f"[LLM retry] {prov}({model_id}) {code} → retry {tries+1}/3 in {backoff}s"
+                            )
+                            await asyncio.sleep(backoff)
+                            # xếp lại list để lần kế vẫn chạy provider hiện tại (không switch)
+                            providers = (
+                                providers[: i + 1]
+                                + [prov]
+                                + providers[i + 1 :]
+                            )
+                            continue
+                        else:
+                            # Hết số lần retry → bỏ qua provider này, chuyển tự động sang provider kế TIẾP (không popup)
+                            logger.warning(
+                                f"[LLM retry] {prov}({model_id}) exhausted retries → try next provider silently"
+                            )
+                            continue
 
-                    next_choice = remaining[0]
-                    await event_bus.publish(
-                        session_id,
-                        {
-                            "type": "propose_switch",
-                            "from_provider": prov,
-                            "from_model": model_id,
-                            "message": msg,
-                            "next_options": remaining,
-                            "suggested": next_choice,
-                        },
+                    # ✅ HẾT QUOTA: mới popup hỏi chuyển
+                    if code == "PROVIDER_NO_QUOTA":
+                        async with fallback_lock_by_session[session_id]:
+                            if (prov, model_id) in asked:
+                                continue
+                            asked.add((prov, model_id))
+
+                            if not remaining:
+                                await event_bus.publish(
+                                    session_id,
+                                    {
+                                        "type": "provider_error",
+                                        "provider": prov,
+                                        "model": model_id,
+                                        "code": code,
+                                        "message": msg,
+                                        "final": True,
+                                        "next_options": [],
+                                    },
+                                )
+                                break
+
+                            next_choice = remaining[0]
+                            await event_bus.publish(
+                                session_id,
+                                {
+                                    "type": "propose_switch",
+                                    "from_provider": prov,
+                                    "from_model": model_id,
+                                    "message": msg,
+                                    "code": code,
+                                    "next_options": remaining,
+                                    "suggested": next_choice,
+                                },
+                            )
+
+                            decision = await decision_bus.wait(session_id, timeout=15.0)
+
+                        if not decision:
+                            # không phản hồi → auto thử provider kế
+                            continue
+                        act = (decision.get("action") or "").lower()
+                        if act == "abort":
+                            raise RuntimeError("User aborted run")
+                        if act == "switch":
+                            picked = (decision.get("provider") or next_choice).lower()
+                            if picked in remaining:
+                                providers = (
+                                    providers[: i + 1]
+                                    + [picked]
+                                    + [x for x in remaining if x != picked]
+                                )
+                            continue
+
+                    # 🔐 Các lỗi khác (AUTH/ERROR chung): không popup; mặc định chuyển provider kế (hoặc bạn muốn giữ nguyên thì đổi lại)
+                    logger.warning(
+                        f"[LLM] {prov}({model_id}) error={code}: {msg} → try next provider"
                     )
-
-                    decision = await decision_bus.wait(session_id, timeout=15.0)
-
-                if not decision:
-                    # không phản hồi → auto thử provider kế
-                    continue
-                act = (decision.get("action") or "").lower()
-                if act == "abort":
-                    raise RuntimeError("User aborted run")
-                if act == "switch":
-                    picked = (decision.get("provider") or next_choice).lower()
-                    if picked in remaining:
-                        # đưa provider user chọn lên tiếp theo
-                        providers = (
-                            providers[: i + 1]
-                            + [picked]
-                            + [x for x in remaining if x != picked]
-                        )
                     continue
 
-        raise last_err or RuntimeError("No provider available")
+            logger.info("🔁 Hoàn thành 1 vòng provider, nghỉ 5s rồi thử lại...")
+            await asyncio.sleep(5)
 
 
 class HubCrawlTool(LLMUserFallbackMixin):
@@ -701,7 +1277,7 @@ class HubCrawlTool(LLMUserFallbackMixin):
         self,
         model,
         config,
-    session_id,
+        session_id,
         parser: ArticleParser,
         check_pause_or_cancel: Optional[callable] = None,
     ):
@@ -710,6 +1286,9 @@ class HubCrawlTool(LLMUserFallbackMixin):
         self.config = config
         self.parser = parser
         self.check_pause_or_cancel = check_pause_or_cancel or (lambda: None)
+        self._create_agent()
+
+    def _create_agent(self):
         self.agent = Agent(
             name="HubCrawler",
             role="Web Crawler và Content Extractor",
@@ -736,33 +1315,104 @@ class HubCrawlTool(LLMUserFallbackMixin):
         keywords: List[str],
         start_date: datetime,
         end_date: datetime,
+        industry_name: Optional[str] = None,
     ) -> CrawlResult:
         try:
-            hub_url = get_first_search_link(media_source.domain, keywords)
+            hub_url = get_first_search_link(
+                media_source.domain, keywords, industry_name
+            )
             if not hub_url:
                 logger.warning(
                     f"[{media_source.name}] ❌ Không tìm thấy hub phù hợp cho từ khóa: {keywords}"
                 )
-                raise HubPageNotFound("System error. Please try again.")
 
             logger.info(f"[{media_source.name}] 🔗 Hub URL: {hub_url}")
-
             await _maybe_await(self.check_pause_or_cancel)
-            html = await crawl_with_playwright(hub_url)
+
+            html = ""
+            if hub_url and hub_url.startswith(("http://", "https://")):
+                html = await crawl_with_playwright(hub_url)
+            else:
+                logger.error(
+                    f"[{media_source.name}] ❌ Hub URL trống hoặc không hợp lệ: {hub_url}"
+                )
             soup = BeautifulSoup(html, "html.parser")
 
             article_links = []
+            base = f"https://{media_source.domain}/"
             for a in soup.select("a"):
                 href = a.get("href", "")
-                if not href or "/video/" in href or "/tags/" in href:
+                if not href:
                     continue
-                if any(kw.lower() in href.lower() for kw in keywords):
-                    full_url = (
-                        href
-                        if href.startswith("http")
-                        else f"https://{media_source.domain}{href}"
-                    )
-                    article_links.append(full_url)
+
+                if href.startswith(
+                    ("#", "javascript:", "vbscript:", "mailto:", "tel:")
+                ):
+                    continue
+
+                full_url = urljoin(base, href)
+                p = urlparse(full_url)
+
+                # Chỉ nhận http(s) hợp lệ + có netloc
+                if p.scheme not in ("http", "https") or not p.netloc:
+                    continue
+
+                # Loại link trang chủ/đường dẫn rỗng, trang tag/video
+                if p.path in ("", "/") or p.path.startswith(("/tags/", "/video/")):
+                    continue
+
+                _norm = lambda s: "".join(
+                    c
+                    for c in unicodedata.normalize("NFD", s or "")
+                    if unicodedata.category(c) != "Mn"
+                ).lower()
+                # industry_name đã có; _norm đã được định nghĩa
+                ind_norm = set()
+                if industry_name:
+                    base = _norm(industry_name)          # ví dụ: "sua (uht)" -> "sua (uht)" (bỏ dấu, lower)
+                    if base:
+                        ind_norm.add(base)
+
+                        # Bản đồ biến thể theo ngành (có cả dạng không dấu, có/không dấu gạch, và 1 số từ tiếng Anh hay gặp)
+                        IND_SYNONYMS = {
+                            "sua": {
+                                "sữa", "sua", "uht", "sua tiet trung", "sữa tiệt trùng"
+                            },
+                            "dau an": {
+                                "dau an", "dau-an", "dauan", "cooking oil", "edible oil"
+                            },
+                            "gia vi": {
+                                "gia vi", "gia-vi", "seasoning", "spices", "condiment"
+                            },
+                            "gao": {
+                                "gao", "gao-ngu-coc", "gao va ngu coc", "gao-ngu-coc", "rice"
+                            },
+                            "ngu coc": {
+                                "ngu coc", "ngu-coc", "cereal", "cereals", "grain", "grains"
+                            },
+                            "homecare": {
+                                "homecare", "home-care", "cham soc nha cua", "cham-soc-nha-cua",
+                                "ve sinh nha cua", "ve-sinh-nha-cua"
+                            },
+                        }
+
+                        # Nếu tên ngành normalized chứa khoá nào, nạp các biến thể tương ứng
+                        for key, variants in IND_SYNONYMS.items():
+                            if key in base:
+                                ind_norm |= {_norm(v) for v in variants}
+
+                has_kw = (
+                    any(kw.lower() in p.path.lower() for kw in keywords)
+                    if p.path
+                    else False
+                )
+                has_ind = (
+                    any(v in p.path.lower() for v in ind_norm) if ind_norm else False
+                )
+                if not (has_kw or has_ind):
+                    continue
+
+                article_links.append(full_url)
 
             valid_links = list(
                 dict.fromkeys(
@@ -782,47 +1432,151 @@ class HubCrawlTool(LLMUserFallbackMixin):
             start_t = time.monotonic()
             all_articles = []
 
+            async def _retry_process_link(
+                process_link, link: str, max_retries: int = 2
+            ) -> list:
+                """
+                Gọi process_link(link) với retry + exponential backoff.
+                - Thành công khi trả về list không rỗng.
+                - Nếu parse trả [] hoặc ném exception → retry (tối đa max_retries).
+                - Hết retry → trả [] để pipeline tiếp tục.
+                """
+                for attempt in range(max_retries + 1):  # 0..max_retries
+                    try:
+                        parsed = await process_link(link)
+                        if parsed:  # list có phần tử
+                            return parsed
+                        # treat empty as failure để thử lại
+                        raise RuntimeError("Parser returned empty list")
+                    except Exception as e:
+                        # Lần cuối → dừng
+                        if attempt >= max_retries:
+                            # log ngắn gọn; có thể thêm traceback nếu cần
+                            logger.warning(
+                                f"Parse fail {link}: {e} (exhausted retries)"
+                            )
+                            return []
+
+                        # Backoff + jitter nhẹ
+                        delay = min(2**attempt, 8) + random.random() * 0.5
+                        logger.info(
+                            f"[retry] parse {link} attempt {attempt + 1}/{max_retries} in {delay:.1f}s: {e}"
+                        )
+                        await asyncio.sleep(delay)
+                        # loop tiếp
+
             async def process_link(link):
                 await _maybe_await(self.check_pause_or_cancel)
 
-                # 1) Tự crawl HTML bài để lấy ngày/title rule-based (ổn cho Lao Động)
-                art_html = await crawl_with_playwright(link)
+                # 1) HTTP trước
+                try:
+                    dom = urlparse(link).netloc
+                    await DOMAIN_LIMITER.enter(link)
+                    r = await http_client.get(
+                        link,
+                        timeout=15,
+                        follow_redirects=True,
+                        headers={
+                            **_random_ua(),
+                            **_rand_headers(),
+                            "Referer": f"https://{dom}/",
+                        },
+                    )
+                finally:
+                    DOMAIN_LIMITER.release(dom)
+
+                content_type = r.headers.get("content-type", "")
+                art_html = (
+                    r.text
+                    if (r.status_code == 200 and "text/html" in content_type)
+                    else ""
+                )
+
+                # 2) Nếu nghi bị block/HTML quá ngắn → Playwright
+                if (not art_html) or (len(art_html) < 1500) or _looks_blocked(art_html):
+                    art_html = await crawl_with_playwright(link)
+
+                # 2. Extract ngày + tiêu đề
                 meta = extract_dates_rule_based(art_html, link)
                 title_rb = extract_title_rule_based(art_html)
 
-                # 2) Build prompt tuỳ trường hợp
-                if meta.get("published_iso"):
-                    prompt = self.build_prompt_with_known_date(
-                        link=link,
-                        known_date_iso=meta["published_iso"],
-                        known_date_source=meta.get("source_published_text") or "",
-                        known_title=title_rb,
-                    )
-                else:
-                    # fallback: chưa chắc ngày → dùng prompt đầy đủ
-                    prompt = self.build_prompt(link, start_date, end_date)
+                parsed = None
 
-                # 3) Gọi agent
-                resp = await self._arun_with_user_fallback(
-                    prompt,
-                    session_id=self.session_id,
-                    preferred_provider=getattr(self.config, "provider", None),
-                    preferred_model=getattr(self.config, "model", None),
-                )
-                text = await _get_response_text(resp)
-                logger.info(f"... HubAgent response for {link}:\n{text[:2000]}")
-                return self.parser.parse(text, media_source)
+                def _is_valid_article(obj) -> bool:
+                    """Đảm bảo article có đủ field tối thiểu."""
+                    if not obj:
+                        return False
+                    # parser.parse có thể trả list[Article], hoặc một Article đơn
+                    if isinstance(obj, list):
+                        if not obj:
+                            return False
+                        obj = obj[0]
+                    try:
+                        t = getattr(obj, "tieu_de", None) or getattr(
+                            obj, "Tiêu đề", None
+                        )
+                        d = getattr(obj, "ngay_phat_hanh", None) or getattr(
+                            obj, "Ngày phát hành", None
+                        )
+                        l = getattr(obj, "link_bai_bao", None) or getattr(
+                            obj, "Link", None
+                        )
+                        return bool(t and d and l)
+                    except Exception:
+                        return False
+
+                # 🔥 FAST-PATH: nếu có ngày ISO + có tiêu đề + HTML đủ dài → bỏ qua LLM
+                if meta.get("published_iso") and title_rb and len(art_html) >= 1500:
+                    quick_json = json.dumps(
+                        {
+                            "Tiêu đề": title_rb,
+                            "Ngày phát hành": meta["published_iso"],
+                            "Nguồn trích ngày": meta.get("source_published_text") or "",
+                            "Tóm tắt": _quick_summary_from_html(art_html),
+                            "Link": link,
+                        },
+                        ensure_ascii=False,
+                    )
+                    try:
+                        parsed = self.parser.parse(
+                            quick_json, media_source, industry_name
+                        )
+                    except Exception as e:
+                        logger.warning(f"Fast-path parse lỗi → fallback LLM. Err: {e}")
+                        parsed = None
+
+                # Nếu fast-path không hợp lệ → fallback LLM
+                if not _is_valid_article(parsed):
+                    if meta.get("published_iso"):
+                        prompt = self.build_prompt_with_known_date(
+                            link=link,
+                            known_date_iso=meta["published_iso"],
+                            known_date_source=meta.get("source_published_text") or "",
+                            known_title=title_rb,
+                        )
+                    else:
+                        # fallback: chưa chắc ngày → dùng prompt đầy đủ
+                        prompt = self.build_prompt(link, start_date, end_date)
+
+                    # 3) Gọi agent
+                    resp = await self._arun_with_user_fallback(
+                        prompt,
+                        session_id=self.session_id,
+                        preferred_provider=getattr(self.config, "provider", None),
+                        preferred_model=getattr(self.config, "model", None),
+                    )
+                    text = await _get_response_text(resp)
+                    logger.info(f"... HubAgent response for {link}:\n{text[:2000]}")
+                    parsed = self.parser.parse(text, media_source, industry_name)
+
+                return parsed
 
             tasks = []
             for link in valid_links[:8]:
 
                 async def worker(l=link):
                     async with sem:
-                        try:
-                            return await process_link(l)
-                        except Exception as e:
-                            logger.warning(f"Parse fail {l}: {e}")
-                            return []
+                        return await _retry_process_link(process_link, l, max_retries=2)
 
                 tasks.append(asyncio.create_task(worker()))
 
@@ -982,7 +1736,11 @@ class CrawlerAgent(LLMUserFallbackMixin):
         self.status = status
         self.on_progress_update = on_progress_update
         self.hub_tool = HubCrawlTool(
-            self.model, self.parser, self.session_id, self.config, self.check_pause_or_cancel
+            model=self.model,
+            config=self.config,
+            session_id=self.session_id,
+            parser=self.parser,
+            check_pause_or_cancel=self.check_pause_or_cancel,
         )
 
     def return_partial_result(self, media_source: MediaSource) -> CrawlResult:
@@ -1031,11 +1789,8 @@ class CrawlerAgent(LLMUserFallbackMixin):
     #     self._create_agent()
 
     @retry(
-        stop=stop_after_attempt(5),
-        wait=wait_exponential(multiplier=1, min=4, max=10),
-        retry=retry_if_exception_type(
-            (APITimeoutError, httpx.ConnectTimeout, httpx.ReadTimeout)
-        ),
+        stop=stop_after_attempt(2),  # thay vì 3-5
+        wait=wait_exponential(multiplier=0.5, min=0.5, max=2),
         reraise=True,
     )
     async def crawl_media_source(
@@ -1086,6 +1841,7 @@ class CrawlerAgent(LLMUserFallbackMixin):
             for g_idx in range(start_group_index, len(keyword_groups)):
                 await _maybe_await(self.check_pause_or_cancel)
                 group = keyword_groups[g_idx]  # ví dụ ["Tường An"]
+                tool_index0 = start_tool_index if g_idx == start_group_index else 0
                 kw_str = ", ".join(group)
 
                 # progress text rõ keyword
@@ -1106,28 +1862,47 @@ class CrawlerAgent(LLMUserFallbackMixin):
                 if self.config.use_hub_page:
                     try:
                         result = await self.hub_tool.run(
-                            media_source, group, start_date, end_date
+                            media_source, group, start_date, end_date, industry_name
                         )
                         if result and result.articles_found:
-                            self.current_articles = result.articles_found.copy()
-                            self.articles_so_far = result.articles_found.copy()
+                            # 1) Giữ batch hiện tại để UI hiển thị ngay
+                            self.current_articles = list(
+                                result.articles_found
+                            )  # shallow copy
+
+                            # cộng vào kho đang tích lũy để trả về:
+                            articles.extend(result.articles_found)
+
+                            # Đánh dấu đã tìm thấy ở hub -> KHÔNG chạy fallback cho keyword này
                             found_for_this_keyword = True
-                            return result
-                    except HubPageNotFound as e:
-                        logger.warning(f"[{media_source.name}] ⚠️ {str(e)}")
-                        return CrawlResult(
-                            source_name=media_source.name,
-                            source_type=media_source.type,
-                            url=media_source.domain,
-                            articles_found=[],
-                            crawl_status="failed",
-                            error_message=str(e),
-                            crawl_duration=0.0,
-                        )
+
+                            # Cập nhật tiến độ (tuỳ UI của bạn)
+                            if self.on_progress_update:
+                                self.on_progress_update(
+                                    source_name=media_source.name,
+                                    completed=self.status.completed_sources,
+                                    failed=self.status.failed_sources,
+                                    progress=(
+                                        (
+                                            self.status.completed_sources
+                                            + self.status.failed_sources
+                                        )
+                                        / self.status.total_sources
+                                    )
+                                    * 50.0,
+                                    current_task=(
+                                        f"Đã tìm {len(self.current_articles)} bài từ hub "
+                                        f"({industry_name}) – chuyển sang từ khóa tiếp theo"
+                                    ),
+                                )
+
+                            # Chuyển sang từ khóa kế tiếp (bỏ nhánh fallback cho keyword này)
+                            continue
+
                     except Exception as e:
-                        logger.warning(
-                            f"[{media_source.name}] ⚠️ Lỗi hub cho keyword '{keywords_str}': {e}"
-                        )
+                        # Không để lỗi hub chặn luồng; fallback sẽ xử lý tiếp
+                        logger.exception(f"[{media_source.name}] Hub crawl error: {e}")
+
                 # Use cache if true
                 # if self.config.use_cache:
                 #     cache_key = self.cache_manager.make_cache_key(
@@ -1150,10 +1925,11 @@ class CrawlerAgent(LLMUserFallbackMixin):
                 # ]
 
                 if not found_for_this_keyword:
-                    for i in range(start_tool_index, len(tools_to_try)):
+                    for i in range(tool_index0, len(tools_to_try)):
                         await _maybe_await(self.check_pause_or_cancel)
                         tool_index = tools_to_try[i]
-                        tool_name = type(self.search_tools[tool_index]).__name__
+                        tool = self.search_tools[tool_index]
+                        tool_name = getattr(tool, "__name__", tool.__class__.__name__)
 
                         self.search_tool_index = tool_index
                         self._create_agent()
@@ -1161,35 +1937,32 @@ class CrawlerAgent(LLMUserFallbackMixin):
                         new_articles_this_tool = 0
                         self.current_articles = []
 
-                        for group_index in range(
-                            start_group_index, len(keyword_groups)
-                        ):
-                            await _maybe_await(self.check_pause_or_cancel)
-                            group = keyword_groups[group_index]
-                            keywords_str = ", ".join(group)
+                        group_index = g_idx
+                        group = keyword_groups[group_index]
+                        keywords_str = ", ".join(group)
 
-                            # Update progress
-                            if self.on_progress_update:
-                                flat_keywords = keywords_str
-                                self.on_progress_update(
-                                    source_name=media_source.name,
-                                    completed=self.status.completed_sources,
-                                    failed=self.status.failed_sources,
-                                    progress=(
-                                        (
-                                            self.status.completed_sources
-                                            + self.status.failed_sources
-                                        )
-                                        / self.status.total_sources
+                        # Update progress
+                        if self.on_progress_update:
+                            flat_keywords = keywords_str
+                            self.on_progress_update(
+                                source_name=media_source.name,
+                                completed=self.status.completed_sources,
+                                failed=self.status.failed_sources,
+                                progress=(
+                                    (
+                                        self.status.completed_sources
+                                        + self.status.failed_sources
                                     )
-                                    * 50.0,
-                                    current_task=f"Crawling {media_source.name} ({industry_name}) – từ khóa: {flat_keywords}",
+                                    / self.status.total_sources
                                 )
+                                * 50.0,
+                                current_task=f"Crawling {media_source.name} ({industry_name}) – từ khóa: {flat_keywords}",
+                            )
 
                             query_variants = [
                                 # f"Công ty {industry_name} {keywords_str} site:{media_source.domain} tháng {start_date.month} {start_date.year}",
                                 f"{keywords_str} {industry_name} tin tức mới nhất tháng {start_date.month} {start_date.year} site:{media_source.domain}",
-                                f"site:{media_source.domain} {keywords_str} tháng {start_date.month} {start_date.year}",
+                                f"site:{media_source.domain} {industry_name} {keywords_str} tháng {start_date.month} {start_date.year}",
                             ]
                             query_lines = "\n".join([f"- {q}" for q in query_variants])
 
@@ -1253,7 +2026,7 @@ class CrawlerAgent(LLMUserFallbackMixin):
                                         continue
 
                                     parsed_articles = self.parser.parse(
-                                        response.content, media_source
+                                        response.content, media_source, industry_name
                                     )
 
                                     filtered_articles = [
@@ -1339,24 +2112,6 @@ class CrawlerAgent(LLMUserFallbackMixin):
                                     exc_info=True,
                                 )
                                 await asyncio.sleep(1)
-
-                            task_manager.update_task(
-                                self.user_email,
-                                self.session_id,
-                                {
-                                    "articles_so_far": [
-                                        a.model_dump(mode="json") for a in articles
-                                    ],
-                                    "crawl_checkpoint": {
-                                        media_source.name: {
-                                            "tool_order": tools_to_try,
-                                            "tool_index": i,
-                                            "group_index": group_index + 1,
-                                        }
-                                    },
-                                },
-                            )
-
                             gc.collect()
 
                         if new_articles_this_tool > 0:
@@ -1375,28 +2130,27 @@ class CrawlerAgent(LLMUserFallbackMixin):
                         f"[{media_source.name}] Crawled {len(articles)} unique articles"
                     )
 
-                    result = CrawlResult(
-                        source_name=media_source.name,
-                        source_type=media_source.type,
-                        url=media_source.domain,
-                        articles_found=articles,
-                        crawl_status="success" if articles else "failed",
-                        error_message=(
-                            ""
-                            if articles
-                            else f"Thử hết {len(self.search_tools)} search tool nhưng không tìm thấy bài báo"
-                        ),
-                        crawl_duration=(datetime.now() - start_time).total_seconds(),
-                    )
+            result = CrawlResult(
+                source_name=media_source.name,
+                source_type=media_source.type,
+                url=media_source.domain,
+                articles_found=articles,
+                crawl_status="success" if articles else "failed",
+                error_message=(
+                    ""
+                    if articles
+                    else f"Thử hết {len(self.search_tools)} search tool nhưng không tìm thấy bài báo"
+                ),
+                crawl_duration=(datetime.now() - start_time).total_seconds(),
+            )
+            return result
 
-                    # if (
-                    #     self.config.use_cache
-                    #     and result.crawl_status == "success"
-                    #     and len(result.articles_found) > 0
-                    # ):
-                    #     self.cache_manager.save_cache(cache_key, result)
-
-                    # return result
+            # if (
+            #     self.config.use_cache
+            #     and result.crawl_status == "success"
+            #     and len(result.articles_found) > 0
+            # ):
+            #     self.cache_manager.save_cache(cache_key, result)
 
         except Exception as e:
             logger.error(f"[{media_source.name}] Crawl failed: {e}", exc_info=True)
@@ -1427,11 +2181,22 @@ class CrawlerAgent(LLMUserFallbackMixin):
 class ProcessorAgent(LLMUserFallbackMixin):
     """Agent chuyên xử lý và phân tích nội dung, sử dụng prompt tiếng Việt chi tiết."""
 
-    def __init__(self, model: Any):
+    def __init__(
+        self,
+        model: Any,
+        config: CrawlConfig,
+        session_id: Optional[str] = None,
+    ):
+        self.agent = None
+        self.session_id = session_id
+        self.config = config
+        self.model = model
+
+    def _create_agent(self):
         self.agent = Agent(
             name="ContentProcessor",
             role="Chuyên gia Phân tích và Phân loại Nội dung",
-            model=model,
+            model=self.model,
             instructions=[
                 "Bạn là chuyên gia phân tích nội dung truyền thông cho ngành FMCG tại Việt Nam.",
                 "Nhiệm vụ của bạn: Phân tích và phân loại các bài báo theo ngành hàng và nhãn hiệu.",
@@ -1497,7 +2262,7 @@ class ProcessorAgent(LLMUserFallbackMixin):
             return []
 
         processed_articles = []
-        batch_size = 10  # Process 20 articles per batch to reduce memory usage
+        batch_size = 10  # Process 10 articles per batch to reduce memory usage
 
         try:
             # Extract brand list (uppercase keywords) for competitor identification
@@ -1802,16 +2567,27 @@ class ProcessorAgent(LLMUserFallbackMixin):
 class ReportAgent(LLMUserFallbackMixin):
     """Agent chuyên tạo báo cáo, sử dụng prompt tiếng Việt."""
 
-    def __init__(self, model: Any):
+    def __init__(
+        self, model: Any, config: CrawlConfig, session_id: Optional[str] = None
+    ):
+        self.agent = None
+        self.model = model
+        self.session_id = session_id
+        self.config = config
+
+    def _create_agent(self):
+        schema = CompetitorReport.model_json_schema()
+        schema_text = json.dumps(schema, ensure_ascii=False)
         self.agent = Agent(
             name="ReportGenerator",
             role="Chuyên gia Tạo Báo cáo và Phân tích Dữ liệu",
-            model=model,
+            model=self.model,
             instructions=[
                 "Bạn là chuyên gia tạo báo cáo phân tích truyền thông cho ngành FMCG.",
                 "Nhiệm vụ: Tạo một báo cáo phân tích đối thủ cạnh tranh từ dữ liệu các bài báo đã được cung cấp.",
-                "Bạn BẮT BUỘC phải trả về kết quả dưới dạng một đối tượng JSON (JSON object) duy nhất, hợp lệ và tuân thủ nghiêm ngặt theo cấu trúc của Pydantic model 'CompetitorReport'.",
+                "Bạn BẮT BUỘC phải trả về kết quả dưới dạng một đối tượng JSON (JSON object) duy nhất, hợp lệ và tuân thủ nghiêm ngặt theo cấu trúc của JSON Schema bên dưới",
                 "Nếu không có dữ liệu hoặc có lỗi, trả về CompetitorReport rỗng hợp lệ với các trường là [] hoặc 0.",
+                f"JSON_SCHEMA:\n{schema_text}\n",
             ],
             markdown=False,
         )
@@ -1851,6 +2627,83 @@ class ReportAgent(LLMUserFallbackMixin):
                 continue
 
         raise ValueError("Không tìm thấy JSON dict hợp lệ trong phản hồi.")
+
+    def _sanitize_report_payload(self, d: dict, articles, date_range: str) -> dict:
+        d = dict(d or {})
+
+        # ---- overall_summary ----
+        osum = dict(d.get("overall_summary") or {})
+        industries = osum.get("industries")
+
+        # 1) industries phải là list
+        if isinstance(industries, dict):
+            industries = [industries]
+        elif not isinstance(industries, list):
+            industries = []
+
+        fixed_industries = []
+        for it in industries:
+            if not isinstance(it, dict):
+                continue
+            it = dict(it)
+
+            # 2) Chuẩn hóa/đổi tên khóa về đúng schema
+            if "nganh_hang" not in it:
+                it["nganh_hang"] = it.pop(
+                    "industry", it.pop("nganh", it.pop("sector", "Khác"))
+                )
+            if "nhan_hang" not in it:
+                it["nhan_hang"] = it.pop("brands", it.pop("brand", []))
+            if "cum_noi_dung" not in it:
+                it["cum_noi_dung"] = it.pop("clusters", it.pop("topics", []))
+            if "so_luong_bai" not in it:
+                it["so_luong_bai"] = it.pop("count", it.pop("total", 0))
+            if "cac_dau_bao" not in it:
+                it["cac_dau_bao"] = it.pop("sources", [])
+
+            # 3) Đảm bảo kiểu dữ liệu tối thiểu
+            if not isinstance(it["nhan_hang"], list):
+                it["nhan_hang"] = [it["nhan_hang"]]
+            if not isinstance(it["cum_noi_dung"], list):
+                it["cum_noi_dung"] = [it["cum_noi_dung"]]
+            if not isinstance(it["cac_dau_bao"], list):
+                it["cac_dau_bao"] = [it["cac_dau_bao"]]
+            if not isinstance(it["so_luong_bai"], int):
+                try:
+                    it["so_luong_bai"] = int(it["so_luong_bai"])
+                except Exception:
+                    it["so_luong_bai"] = 0
+
+            fixed_industries.append(it)
+
+        osum["industries"] = fixed_industries
+        osum.setdefault("thoi_gian_trich_xuat", date_range)
+        osum.setdefault("tong_so_bai", len(articles))
+        d["overall_summary"] = osum
+
+        # ---- industry_summaries ----
+        iss = d.get("industry_summaries")
+        if not isinstance(iss, list) or not all(isinstance(x, dict) for x in iss):
+            # nếu LLM không trả, dùng lại danh sách đã fix từ overall_summary
+            iss = fixed_industries
+        else:
+            fixed_iss = []
+            for it in iss:
+                it = dict(it)
+                it.setdefault("nganh_hang", osum.get("nganh_hang", "Khác"))
+                it.setdefault("nhan_hang", [])
+                it.setdefault("cum_noi_dung", [])
+                it.setdefault("so_luong_bai", 0)
+                it.setdefault("cac_dau_bao", [])
+                fixed_iss.append(it)
+            iss = fixed_iss
+        d["industry_summaries"] = iss
+
+        # ---- các trường gốc khác ----
+        d.setdefault("total_articles", len(articles))
+        d.setdefault("date_range", date_range)
+
+        return d
 
     async def generate_report(
         self, articles: List[Article], date_range: str
@@ -1908,7 +2761,7 @@ class ReportAgent(LLMUserFallbackMixin):
                 preferred_provider=getattr(self.config, "provider", None),
                 preferred_model=getattr(self.config, "model", None),
             )
-            logger.error(f"Raw LLM response: {response.content}")
+            logger.debug(f"Raw LLM response: {response.content}")
             if response and response.content:
                 try:
                     try:
@@ -1932,6 +2785,9 @@ class ReportAgent(LLMUserFallbackMixin):
                     summary_data["articles"] = [
                         a.model_dump(mode="json") for a in articles
                     ]
+                    summary_data = self._sanitize_report_payload(
+                        summary_data, articles, date_range
+                    )
 
                     # Truyền vào CompetitorReport
                     return CompetitorReport(**summary_data)
@@ -2053,12 +2909,51 @@ class MediaTrackerTeam:
         )
         # self.processor = ProcessorAgent(get_llm_model("openai", "gpt-4o"))
         # self.reporter = ReportAgent(get_llm_model("openai", "gpt-4o"))
-        self.processor = ProcessorAgent(model_runtime)
-        self.reporter = ReportAgent(model_runtime)
+        self.processor = ProcessorAgent(model_runtime, config, session_id)
+        self.reporter = ReportAgent(model_runtime, config, session_id)
         self.start_date = start_date
         self.end_date = end_date
         self.source_status_list = source_status_list or []
         self.config.use_hub_page = True
+
+    @staticmethod
+    def _norm_url(u: str) -> str:
+        try:
+            p = urlparse(u or "")
+            path = (p.path or "").rstrip("/")
+            qs = [
+                (k, v)
+                for k, v in parse_qsl(p.query or "", keep_blank_values=True)
+                if not k.lower().startswith(("utm_", "fbclid", "gclid"))
+            ]
+            return urlunparse(
+                (
+                    p.scheme or "https",
+                    (p.netloc or "").lower().lstrip("www."),
+                    path,
+                    "",
+                    urlencode(qs, doseq=True),
+                    "",
+                )
+            )
+        except Exception:
+            return u or ""
+
+    def _merge_articles(self, new_articles):
+        acc = (self.articles_so_far or []) + (new_articles or [])
+        seen, uniq = set(), []
+        for a in acc:
+            url = (
+                getattr(a, "link_bai_bao", None)
+                or getattr(a, "url", None)
+                or getattr(a, "link", None)
+                or ""
+            )
+            key = self._norm_url(url)
+            if key and key not in seen:
+                uniq.append(a)
+                seen.add(key)
+        self.articles_so_far = uniq
 
     async def check_pause_or_cancel(self):
         if self.check_cancelled():
@@ -2119,7 +3014,7 @@ class MediaTrackerTeam:
                         )
 
                         if result and result.articles_found:
-                            self.articles_so_far.extend(result.articles_found)
+                            self._merge_articles(result.articles_found)
 
                         task_manager.update_task(
                             self.user_email,
@@ -2144,7 +3039,7 @@ class MediaTrackerTeam:
                         )
 
                         if partial_result.articles_found:
-                            self.articles_so_far.extend(partial_result.articles_found)
+                            self._merge_articles(partial_result.articles_found)
 
                         self.source_status_list.append(
                             {"source_name": media_source.name, "status": "failed"}
@@ -2353,6 +3248,16 @@ class MediaTrackerTeam:
 
     def cleanup(self):
         logger.info("🔧 Đang giải phóng tài nguyên pipeline...")
+        # Đóng pool Playwright (không chặn thread gọi cleanup)
+        try:
+            asyncio.create_task(PlaywrightPool.instance().close())
+        except RuntimeError:
+            # nếu không có loop đang chạy, đóng đồng bộ “best effort”
+            try:
+                loop = asyncio.get_event_loop()
+                loop.run_until_complete(PlaywrightPool.instance().close())
+            except Exception:
+                pass
         self.crawler.close_final()
         self.processor.close()
         self.reporter.close()

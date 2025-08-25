@@ -38,7 +38,12 @@ class ArticleParser:
         base_url_with_scheme = f"https://{base_domain}"
         return urljoin(base_url_with_scheme, relative_url)
 
-    def parse(self, content: str, media_source: MediaSource) -> List[Article]:
+    def parse(
+        self,
+        content: str,
+        media_source: MediaSource,
+        industry_name: Optional[str] = None,
+    ) -> List[Article]:
         """
         Main parsing method. Tries to parse content as JSON first,
         then falls back to an intelligent text parsing method.
@@ -60,24 +65,31 @@ class ArticleParser:
                 if isinstance(data, list):
                     data = [it for it in data if isinstance(it, dict)]
                     if data:
-                        return self._parse_from_json_list(data, media_source)
+                        return self._parse_from_json_list(
+                            data, media_source, industry_name
+                        )
                 elif isinstance(data, dict):
                     # Ưu tiên key "articles" nếu có
                     if "articles" in data and isinstance(data["articles"], list):
                         return self._parse_from_json_list(
-                            data["articles"], media_source
+                            data["articles"], media_source, industry_name
                         )
                     for key in data:
                         if isinstance(data[key], list):
-                            return self._parse_from_json_list(data[key], media_source)
+                            return self._parse_from_json_list(
+                                data[key], media_source, industry_name
+                            )
                     return self._parse_from_json_list([data], media_source)
         except json.JSONDecodeError:
             logger.warning("Content is not valid JSON. Falling back to text parsing.")
 
-        return self._parse_text_articles_robust(content, media_source)
+        return self._parse_text_articles_robust(content, media_source, industry_name)
 
     def _parse_from_json_list(
-        self, data: List[Dict], media_source: MediaSource
+        self,
+        data: List[Dict],
+        media_source: MediaSource,
+        industry_name: Optional[str] = None,
     ) -> List[Article]:
         """Creates a list of Article objects from a list of dictionaries."""
         articles = []
@@ -135,32 +147,11 @@ class ArticleParser:
                     dt_obj = datetime.now()
                 ngay_phat_hanh = dt_obj.date()
 
-                # Chuẩn hóa ngành hàng
-                INDUSTRY_ALIASES = {
-                    "sữa": IndustryType.SUA_UHT,
-                    "sua": IndustryType.SUA_UHT,
-                    "sữa (uht)": IndustryType.SUA_UHT,
-                    "gạo": IndustryType.GAO_NGU_COC,
-                    "gao": IndustryType.GAO_NGU_COC,
-                    "ngũ cốc": IndustryType.GAO_NGU_COC,
-                    "gia vị": IndustryType.GIA_VI,
-                    "gia vi": IndustryType.GIA_VI,
-                    "dầu ăn": IndustryType.DAU_AN,
-                    "dau an": IndustryType.DAU_AN,
-                    "baby food": IndustryType.BABY_FOOD,
-                    "thức ăn trẻ em": IndustryType.BABY_FOOD,
-                    "homecare": IndustryType.HOME_CARE,
-                    "home care": IndustryType.HOME_CARE,
-                }
-
-                def normalize_industry(nganh: str) -> IndustryType:
-                    nganh = nganh.strip().lower()
-                    return INDUSTRY_ALIASES.get(
-                        nganh, IndustryType.DAU_AN
-                    )  # fallback nếu không khớp
-
-                nganh_raw = item.get("nganh_hang", "")
-
+                final_nganh_hang = (
+                    IndustryType(industry_name)
+                    if industry_name
+                    else IndustryType.DAU_AN
+                )
                 article = Article(
                     stt=item.get("stt", i + 1),
                     ngay_phat_hanh=ngay_phat_hanh,
@@ -172,7 +163,7 @@ class ArticleParser:
                     or "Chưa rõ",
                     tom_tat_noi_dung=raw_summary.strip(),
                     link_bai_bao=resolved_link,
-                    nganh_hang=normalize_industry(nganh_raw),
+                    nganh_hang=final_nganh_hang,
                     nhan_hang=item.get("nhan_hang", []),
                     keywords_found=item.get("keywords_found", []),
                 )
@@ -228,7 +219,10 @@ class ArticleParser:
         return ContentCluster.OTHER
 
     def _parse_text_articles_robust(
-        self, content: str, media_source: MediaSource
+        self,
+        content: str,
+        media_source: MediaSource,
+        industry_name: Optional[str] = None,
     ) -> List[Article]:
         """
         NÂNG CẤP: Phân tích text một cách thông minh hơn bằng regex.
@@ -304,6 +298,16 @@ class ArticleParser:
                 ):
                     continue
 
+                # Ngành hàng
+                try:
+                    final_nganh_hang = (
+                        IndustryType(industry_name)
+                        if industry_name
+                        else IndustryType.DAU_AN
+                    )
+                except ValueError:
+                    final_nganh_hang = IndustryType.DAU_AN
+
                 article = Article(
                     stt=len(articles) + 1,
                     ngay_phat_hanh=date_str,
@@ -311,7 +315,7 @@ class ArticleParser:
                     cum_noi_dung=self._infer_cluster(summary),
                     tom_tat_noi_dung=summary,
                     link_bai_bao=resolved_link,
-                    nganh_hang=IndustryType.DAU_AN,
+                    nganh_hang=final_nganh_hang,
                 )
                 articles.append(article)
 

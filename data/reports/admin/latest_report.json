@@ -1,6 +1,7 @@
 {
+  "title": "CHICOM COMPETITOR REPORT",
   "overall_summary": {
-    "thoi_gian_trich_xuat": "Từ ngày 10/07/2025 đến ngày 09/08/2025",
+    "thoi_gian_trich_xuat": "2025-08-24T21:42:51.983685",
     "industries": [
       {
         "nganh_hang": "Sữa (UHT)",
@@ -8,20 +9,18 @@
           "Vinamilk"
         ],
         "cum_noi_dung": [
-          "Báo cáo tài chính",
-          "Hoạt động doanh nghiệp và thông tin sản phẩm",
           "Ra mắt sản phẩm"
         ],
-        "so_luong_bai": 3,
+        "so_luong_bai": 1,
         "cac_dau_bao": [
-          "LAODONG"
+          "VIETNAMINVESTMENTREVIEW"
         ]
       }
     ],
     "cac_dau_bao": [
-      "LAODONG"
+      "VIETNAMINVESTMENTREVIEW"
     ],
-    "tong_so_bai": 3
+    "tong_so_bai": 1
   },
   "industry_summaries": [
     {
@@ -30,59 +29,23 @@
         "Vinamilk"
       ],
       "cum_noi_dung": [
-        "Báo cáo tài chính",
-        "Hoạt động doanh nghiệp và thông tin sản phẩm",
         "Ra mắt sản phẩm"
       ],
-      "so_luong_bai": 3,
+      "so_luong_bai": 1,
       "cac_dau_bao": [
-        "LAODONG"
+        "VIETNAMINVESTMENTREVIEW"
       ]
     }
   ],
   "articles": [
     {
       "stt": 1,
-      "ngay_phat_hanh": "2025-07-31",
-      "dau_bao": "LAODONG",
-      "cum_noi_dung": "Báo cáo tài chính",
-      "cum_noi_dung_chi_tiet": "Báo cáo tài chính: Vinamilk đạt doanh thu kỷ lục 16.745 tỉ đồng trong quý 2/2025",
-      "tom_tat_noi_dung": "Vinamilk công bố kết quả kinh doanh quý 2/2025 với doanh thu thuần hợp nhất đạt 16.745 tỉ đồng, mức cao nhất từ trước đến nay. Lợi nhuận sau thuế đạt 2.883 tỉ đồng, tăng trưởng so với cùng kỳ năm trước.",
-      "link_bai_bao": "https://laodong.vn/kinh-doanh/vinamilk-ghi-nhan-doanh-thu-quy-22025-cao-nhat-tu-truoc-den-nay-16745-ti-dong-1549729.ldo",
-      "nganh_hang": "Sữa (UHT)",
-      "nhan_hang": [
-        "Vinamilk"
-      ],
-      "keywords_found": [
-        "Vinamilk"
-      ],
-      "crawl_timestamp": "2025-08-09T20:31:47.391778"
-    },
-    {
-      "stt": 1,
-      "ngay_phat_hanh": "2025-07-25",
-      "dau_bao": "LAODONG",
-      "cum_noi_dung": "Hoạt động doanh nghiệp và thông tin sản phẩm",
-      "cum_noi_dung_chi_tiet": "Thông tin doanh nghiệp: Vinamilk giới thiệu mô hình Green Farm truyền cảm hứng phát triển bền vững",
-      "tom_tat_noi_dung": "Vinamilk giới thiệu chương trình “Mở khóa tự nhiên” tại hệ thống trang trại sinh thái Green Farm, thể hiện cam kết phát triển bền vững. Mô hình này tập trung vào các yếu tố tự nhiên, giảm thiểu tác động đến môi trường và tạo ra nguồn sữa chất lượng cao. Sự kiện thu hút sự quan tâm của nhiều doanh nghiệp và chuyên gia trong ngành.",
-      "link_bai_bao": "https://laodong.vn/kinh-doanh/vinamilk-mo-khoa-tu-nhien-tai-green-farm-mo-hinh-sinh-thai-truyen-cam-hung-doanh-nghiep-1546325.ldo",
-      "nganh_hang": "Sữa (UHT)",
-      "nhan_hang": [
-        "Vinamilk"
-      ],
-      "keywords_found": [
-        "Vinamilk"
-      ],
-      "crawl_timestamp": "2025-08-09T20:31:46.581168"
-    },
-    {
-      "stt": 1,
-      "ngay_phat_hanh": "2025-07-17",
-      "dau_bao": "LAODONG",
+      "ngay_phat_hanh": "2025-07-18",
+      "dau_bao": "VIETNAMINVESTMENTREVIEW",
       "cum_noi_dung": "Ra mắt sản phẩm",
-      "cum_noi_dung_chi_tiet": "Ra mắt sản phẩm: Vinamilk giới thiệu công thức 6 HMO tại Diễn đàn Dinh dưỡng Châu Á",
-      "tom_tat_noi_dung": "Vinamilk giới thiệu thành công công thức chứa 6 HMO (Oligosaccharides sữa mẹ) tại Diễn đàn Dinh dưỡng Châu Á (ACN) lần thứ 14. Nghiên cứu đột phá này mở ra cơ hội tăng cường hệ miễn dịch và sức khỏe đường ruột cho trẻ em Việt Nam, giúp trẻ phát triển toàn diện. Sự kiện khẳng định vị thế tiên phong của Vinamilk trong lĩnh vực dinh dưỡng nhi khoa.",
-      "link_bai_bao": "https://laodong.vn/suc-khoe/dot-pha-6-hmo-buoc-tien-dinh-duong-cua-vinamilk-tai-dien-dan-dinh-duong-lon-nhat-chau-a-1541685.ldo",
+      "cum_noi_dung_chi_tiet": "Ra mắt sản phẩm: Vinamilk giới thiệu công thức sữa công thức 6-HMO mới.",
+      "tom_tat_noi_dung": "Tại Hội nghị Growth Asia 2025, Vinamilk đã gây ấn tượng mạnh với công thức sữa công thức 6-HMO, là sản phẩm đầu tiên của Việt Nam có chứa các oligosaccharides giống như trong sữa mẹ, nhằm cải thiện sự phát triển tiêu hóa và miễn dịch của trẻ. Với sự chuyển mình từ một quốc gia thiếu thốn sữa đến một cường quốc dinh dưỡng, Vinamilk đã khẳng định vị thế của mình trong ngành công nghiệp sữa khu vực.",
+      "link_bai_bao": "https://vir.com.vn/vinamilk-shines-at-growth-asia-with-6-hmo-innovation-132774.html",
       "nganh_hang": "Sữa (UHT)",
       "nhan_hang": [
         "Vinamilk"
@@ -90,10 +53,10 @@
       "keywords_found": [
         "Vinamilk"
       ],
-      "crawl_timestamp": "2025-08-09T20:31:56.550526"
+      "crawl_timestamp": "2025-08-24T21:42:51.983685"
     }
   ],
-  "generated_at": "2025-08-09T20:32:27.376421",
-  "total_articles": 3,
-  "date_range": "Từ ngày 10/07/2025 đến ngày 09/08/2025"
+  "generated_at": "2025-08-24T21:42:57.630278",
+  "total_articles": 1,
+  "date_range": "Từ ngày 01/07/2025 đến ngày 31/07/2025"
 }

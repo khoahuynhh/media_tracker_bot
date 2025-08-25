@@ -2,12 +2,10 @@
 """
 Main entry point for the Media Tracker Bot.
 """
-
+import sys, asyncio
 import logging
 import os
 import json
-import sys
-import asyncio
 import uvicorn
 import httpx
 
@@ -27,11 +25,6 @@ from dotenv import load_dotenv
 from typing import List
 
 load_dotenv()
-if sys.platform.startswith("win"):
-    try:
-        asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
-    except Exception:
-        pass
 
 # Setup logging before other imports
 os.makedirs("logs", exist_ok=True)
@@ -68,6 +61,12 @@ from .agents import AgentManager
 # Save pipeline according to email user
 user_pipelines: Dict[str, PipelineService] = {}
 logger = logging.getLogger(__name__)
+
+logging.getLogger(__name__).warning(
+    "EventLoopPolicy=%s on %s",
+    type(asyncio.get_event_loop_policy()).__name__,
+    sys.platform,
+)
 
 # Map tra cứu nguồn theo key chuẩn
 SOURCE_BY_KEY: Dict[str, dict] = {

@@ -36,5 +36,5 @@ schedule
 celery>=5.4,<6.0
 redis>=5.0,<6.0
 
-ddgs
+ddgs>=9.4.3
 pypdf

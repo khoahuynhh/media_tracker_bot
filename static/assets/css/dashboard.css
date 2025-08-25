@@ -26,13 +26,6 @@
         position: relative;
     }
 
-    /* Giữ header đỏ đậm */
-    .hero-section {
-        background: linear-gradient(135deg, #e10600, #b00000);
-        color: white;
-        padding: 2rem 0;
-    }
-
     /* Bỏ overlay cũ */
     body::before {
         content: none;
@@ -656,12 +649,6 @@
         animation: spin 1s ease-in-out infinite;
     }
 
-    @keyframes spin {
-        to {
-            transform: rotate(360deg);
-        }
-    }
-
     .chart-container {
         position: relative;
         height: 300px;
@@ -690,14 +677,6 @@
     .modal-footer {
         background-color: var(--card-background);
         border-top: 1px solid var(--border-color);
-    }
-
-    .modal {
-        z-index: 1060;
-    }
-
-    .modal-backdrop {
-        z-index: 1050;
     }
 
     .timeline-item {
@@ -1155,4 +1134,33 @@
         100% {
             transform: rotate(360deg);
         }
+    }
+
+    /* Overlay nền mờ */
+    .overlay-loading {
+        position: absolute;
+        /* hoặc fixed nếu muốn che toàn màn hình */
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.4);
+        /* nền mờ */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1050;
+        /* cao hơn modal-body */
+    }
+
+    /* Spinner */
+    .overlay-loading::after {
+        content: "";
+        width: 48px;
+        height: 48px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #3498db;
+        /* màu xanh xoay */
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
     }

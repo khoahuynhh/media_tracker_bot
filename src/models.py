@@ -17,13 +17,18 @@ class UserLogin(BaseModel):
     password: str
 
 
+class ChangePassword(BaseModel):
+    old_password: str
+    new_password: str
+
+
 # Giả lập database user
-USER_DB = {
-    "admin": {"password": "123456", "role": "admin"},
-    "user1": {"password": "abc", "role": "viewer"},
-    "user2": {"password": "xyz", "role": "editor"},
-    "khoa": {"password": "debug", "role": "developer"},
-}
+# USER_DB = {
+#     "admin": {"password": "123456", "role": "admin"},
+#     "user1": {"password": "abc", "role": "viewer"},
+#     "user2": {"password": "xyz", "role": "editor"},
+#     "khoa": {"password": "debug", "role": "developer"},
+# }
 
 
 class MediaType(str, Enum):
@@ -55,7 +60,7 @@ class IndustryType(str, Enum):
     GAO_NGU_COC = "Gạo & Ngũ cốc"
     SUA_UHT = "Sữa (UHT)"
     BABY_FOOD = "Baby Food"
-    HOME_CARE = "Homecare"
+    HOME_CARE = "Home Care"
 
 
 class ContentCluster(str, Enum):
@@ -68,12 +73,13 @@ class ContentCluster(str, Enum):
     PARTNERSHIP = "Hợp tác đối tác"
     FINANCIAL_REPORT = "Báo cáo tài chính"
     FOOD_SAFETY = "An toàn thực phẩm"
+    THI_TRUONG_HANG_GIA = "Thị trường hàng giả"
     OTHER = "Khác"
 
 
 class KeywordManager:
     def __init__(self, json_path: str):
-        with open(json_path, "r", encoding="utf-8") as f:
+        with open(json_path, "r", encoding="utf-8-sig") as f:
             self.cluster_keywords: Dict[str, List[str]] = json.load(f)
 
     def map_to_cluster(self, text: str) -> str:

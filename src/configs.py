@@ -12,10 +12,9 @@ import os
 import csv
 from pathlib import Path
 from typing import Dict, List, Any, Optional
-from functools import lru_cache
 
 import pandas as pd
-from dotenv import load_dotenv, set_key, find_dotenv
+from dotenv import load_dotenv, set_key
 
 # Import models
 from .models import CrawlConfig, MediaSource, MediaType
@@ -23,10 +22,12 @@ from .models import CrawlConfig, MediaSource, MediaType
 # Setup logging
 logger = logging.getLogger(__name__)
 
-# Define root and config paths
-PROJECT_ROOT = Path(__file__).parent.parent
-CONFIG_DIR = PROJECT_ROOT / "config"
-DATA_DIR = PROJECT_ROOT / "data"
+# Define root and config paths - Docker compatible
+PROJECT_ROOT = Path(os.getenv("PROJECT_ROOT", Path(__file__).parent.parent))
+CONFIG_DIR = Path(os.getenv("CONFIG_DIR", PROJECT_ROOT / "config"))
+DATA_DIR = Path(os.getenv("DATA_DIR", PROJECT_ROOT / "data"))
+CACHE_DIR = Path(os.getenv("CACHE_DIR", PROJECT_ROOT / "cache"))
+LOG_DIR = Path(os.getenv("LOG_DIR", PROJECT_ROOT / "logs"))
 MEDIA_SOURCES_FILE = CONFIG_DIR / "media_list.csv"
 
 
@@ -51,7 +52,8 @@ class AppSettings:
         self.config_dir = CONFIG_DIR
         self.data_dir = DATA_DIR
         self.reports_dir = self.data_dir / "reports"
-        self.cache_dir = self.data_dir / "cache"
+        self.cache_dir = CACHE_DIR
+        self.log_dir = LOG_DIR
 
         self._setup_directories()
         self._setup_environment()
@@ -61,14 +63,24 @@ class AppSettings:
 
     def _setup_directories(self):
         """Create necessary directories if they don't exist."""
-        for directory in [
+        directories = [
             self.config_dir,
             self.data_dir,
             self.reports_dir,
             self.cache_dir,
-            PROJECT_ROOT / "logs",
-        ]:
-            directory.mkdir(parents=True, exist_ok=True)
+            self.log_dir,
+        ]
+
+        for directory in directories:
+            try:
+                directory.mkdir(parents=True, exist_ok=True)
+                # Verify directory is writable
+                test_file = directory / ".write_test"
+                test_file.touch()
+                test_file.unlink()
+            except (PermissionError, OSError) as e:
+                logger.warning(f"Cannot create/write to directory {directory}: {e}")
+
         logger.info("Directories setup verified.")
 
     def _setup_environment(self):

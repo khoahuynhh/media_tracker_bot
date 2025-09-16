@@ -1,0 +1,20 @@
+async def lifespan(app: FastAPI):
+    # ===== STARTUP =====
+    try:
+        task_manager.load_tasks()  # an toàn: dã có fallback JSON corrupt
+        logger.info("Task manager loaded.")
+        # TODO: m? DB connection / warmup model n?u c?n
+    except Exception:
+        logger.exception("Startup failed (continuing with degraded features).")
+    yield
+    # ===== SHUTDOWN =====
+    try:
+        # TODO: dóng DB connection / flush queue n?u c?n
+        logger.info("Shutdown cleanup done.")
+    except Exception:
+        logger.exception("Shutdown cleanup failed.")
+
+
+# Initialize FastAPI app
+app = FastAPI(
+    title="Media Tracker Bot API",

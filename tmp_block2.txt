@@ -1,0 +1,23 @@
+                            "Ngày phát hành": meta["published_iso"],
+                            "Ngu?n trích ngày": meta.get("source_published_text") or "",
+                            "Tóm t?t": _quick_summary_from_html(art_html),
+                            "Link": link,
+                        },
+                        ensure_ascii=False,
+                    )
+                    try:
+                        parsed = self.parser.parse(
+                            quick_json, media_source, industry_name
+                        )
+                        if _is_valid_article(parsed):
+                            logger.info(
+                                "[HubCrawlTool] ? fast-path (no LLM) for %s", link
+                            )
+                            return parsed  # ? TR? V? S?M, KHÔNG G?I LLM
+                    except Exception as e:
+                        logger.warning(
+                            "[HubCrawlTool] fast-path parse l?i, s? fallback LLM: %s", e
+                        )
+                        parsed = None
+
+                # N?u fast-path không h?p l? ? fallback LLM

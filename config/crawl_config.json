@@ -1,8 +1,7 @@
 {
   "keywords": {
-    "Sữa (UHT)": [
-      "Vinamilk",
-      "Kun"
+    "Baby Food": [
+      "Hipp"
     ]
   },
   "media_sources": [
@@ -85,10 +84,10 @@
     },
     {
       "stt": 12,
-      "name": "BAODAUTU(VIR)",
+      "name": "BAODAUTU",
       "type": "Website",
-      "domain": "vir.com.vn",
-      "reference_name": "vir"
+      "domain": "baodautu.vn",
+      "reference_name": "baodautu"
     },
     {
       "stt": 13,
@@ -248,7 +247,7 @@
       "stt": 35,
       "name": "HAIQUAN",
       "type": "Website",
-      "domain": "haiquanonline.com.vn",
+      "domain": "thuehaiquan.tapchikinhtetaichinh.vn",
       "reference_name": "haiquanonline"
     },
     {
@@ -355,6 +354,20 @@
       "type": "Website",
       "domain": "vir.com.vn",
       "reference_name": "vietnaminvestmentreview"
+    },
+    {
+      "stt": 51,
+      "name": "ZNEWS",
+      "type": "Website",
+      "domain": "znews.vn",
+      "reference_name": "znews"
+    },
+    {
+      "stt": 52,
+      "name": "NGUOIQUANSAT",
+      "type": "Website",
+      "domain": "nguoiquansat.vn",
+      "reference_name": "nguoiquansat"
     }
   ],
   "date_range_days": 30,

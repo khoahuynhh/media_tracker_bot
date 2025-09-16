@@ -13,6 +13,7 @@ googlesearch-python
 pycountry
 openai
 groq
+google-genai
 
 # Crawling & Automation
 playwright>=1.42.0
@@ -38,3 +39,7 @@ redis>=5.0,<6.0
 
 ddgs>=9.4.3
 pypdf
+httpx[http2]
+
+#Password
+bcrypt

@@ -2,7 +2,6 @@
 <html lang="vi">
 
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CHICOM Media Tracker Bot - Dashboard</title>
@@ -41,7 +40,7 @@
       async function loadTranslations() {
         if (I18N_CACHE) return I18N_CACHE;
         try {
-          const res = await fetch('/static/assets/i18n/translations.json?v=20250913');
+          const res = await fetch('/static/assets/i18n/translations.json');
           if (res.ok) { I18N_CACHE = await res.json(); return I18N_CACHE; }
         } catch (_) { }
         return FALLBACK;
@@ -53,15 +52,6 @@
         const en = (window.I18N && window.I18N.en) || {};
         return (src && src[key]) || en[key] || key;
       }
-      // Render data-i18n attributes inside the given root (or whole document)
-      function renderI18n(root) {
-        const scope = root && root.querySelectorAll ? root : document;
-        scope.querySelectorAll('[data-i18n]').forEach((el) => {
-          const key = el.getAttribute('data-i18n');
-          if (key) el.textContent = t(key);
-        });
-      }
-
       async function applyI18n() {
         window.I18N = await loadTranslations();
         const setText = (id, key) => { const el = document.getElementById(id); if (el) el.textContent = t(key); };
@@ -88,8 +78,6 @@
         setText('jsonBtnText', 'json');
         setText('excelBtnText', 'excel');
         setText('topMediaTitle', 'topMedia');
-        setText('topIndustryTitle', 'topIndustry');
-        setText('articlesDetailsTitle', 'articlesDetails');
         setText('reportsHeaderIndex', 'reports_index');
         setText('reportsHeaderName', 'reports_name');
         setText('reportsHeaderCreated', 'reports_created');
@@ -97,15 +85,6 @@
         setText('completionTitle', 'completion_title');
         setText('completionMessage', 'completion_msg');
         setText('okBtnText', 'ok');
-
-        // Ensure chart titles also respond via data-i18n
-        const indTitle = document.getElementById('topIndustryTitle');
-        if (indTitle) indTitle.setAttribute('data-i18n', 'topIndustry');
-        const mediaTitle = document.getElementById('topMediaTitle');
-        if (mediaTitle) mediaTitle.setAttribute('data-i18n', 'topMedia');
-
-        // Apply data-i18n across the page
-        renderI18n(document);
         const email = document.getElementById('email'); if (email) email.placeholder = t('emailPlaceholder');
         const pwd = document.getElementById('password'); if (pwd) pwd.placeholder = t('passwordPlaceholder');
         const cpw = document.getElementById('confirmPassword'); if (cpw) cpw.placeholder = t('confirmPasswordPlaceholder');
@@ -117,12 +96,10 @@
             ? `${t('haveAccount').split('?')[0]}? <a href="#" id="toggleAuthLink">${t('login')}</a>`
             : `${t('noAccount').split('?')[0]}? <a href="#" id="toggleAuthLink">${t('register')}</a>`;
         }
-        const fplink = document.getElementById('forgotPasswordLink'); if (fplink) fplink.style.display = isReg ? 'none' : 'inline';
         const sel = document.getElementById('langSelect'); if (sel) sel.value = getLang();
         const selLogin = document.getElementById('langSelectLogin'); if (selLogin) selLogin.value = getLang();
         const selGlobal = document.getElementById('langSelectGlobal'); if (selGlobal) selGlobal.value = getLang();
         // Login welcome headline
-        if (typeof bindToggleLink === 'function') bindToggleLink();
         const typing = document.getElementById('typingText'); if (typing && !typing.textContent) typing.textContent = t('welcome');
         // Settings: Change Password i18n
         setText('changePasswordTitle', 'changePassword');
@@ -133,90 +110,6 @@
         setText('otpLabel', 'otp');
         const otpInput = document.getElementById('otpCode'); if (otpInput) otpInput.placeholder = '123456';
         const sendBtn = document.getElementById('sendOtpBtn'); if (sendBtn) sendBtn.textContent = t('sendOtp');
-        // Forgot password i18n
-        setText('forgotPasswordLinkText', 'forgotPassword');
-        setText('resetPasswordTitle', 'resetPassword');
-        setText('fpEmailLabel', 'emailLabel');
-        setText('fpOtpLabel', 'otp');
-        setText('fpNewPwLabel', 'newPassword');
-        setText('fpConfirmPwLabel', 'confirmNewPassword');
-        setText('fpSendOtpBtn', 'sendOtp');
-        setText('fpConfirmBtn', 'resetPassword');
-        setText('fpCloseBtn', 'close');
-        // Configure Pipeline modal i18n (selector-based)
-        const cfg = document.getElementById('configModal');
-        if (cfg) {
-          const cfgTitle = cfg.querySelector('.modal-title'); if (cfgTitle) cfgTitle.innerHTML = '<i class="fas fa-filter me-2"></i>' + t('configModalTitle');
-          const calTitle = cfg.querySelector('.fa-calendar')?.parentElement; if (calTitle) calTitle.innerHTML = '<i class="fas fa-calendar me-2"></i>' + t('dateRangeFilter');
-          const startLbl = cfg.querySelector('label.form-label'); if (startLbl) startLbl.textContent = t('startDate');
-          const startHint = cfg.querySelector('#startDate')?.nextElementSibling; if (startHint) startHint.textContent = t('startDate');
-          const endLbl = cfg.querySelectorAll('label.form-label')[1]; if (endLbl) endLbl.textContent = t('endDate');
-          const endHint = cfg.querySelector('#endDate')?.nextElementSibling; if (endHint) endHint.textContent = t('endDate');
-          const btnToday = cfg.querySelector("button[onclick=\"setDateRange('today')\"]"); if (btnToday) btnToday.textContent = t('today');
-          const btn7 = cfg.querySelector("button[onclick=\"setDateRange('week')\"]"); if (btn7) btn7.textContent = t('last7days');
-          const btn30 = cfg.querySelector("button[onclick=\"setDateRange('month')\"]"); if (btn30) btn30.textContent = t('last30days');
-          const btn90 = cfg.querySelector("button[onclick=\"setDateRange('quarter')\"]"); if (btn90) btn90.textContent = t('last90days');
-          const tagsTitle = cfg.querySelector('.fa-tags')?.parentElement; if (tagsTitle) tagsTitle.innerHTML = '<i class="fas fa-tags me-2"></i>' + t('customKeywords');
-          const hintEl = cfg.querySelector('.alert.alert-info small'); if (hintEl) hintEl.innerHTML = '<i class="fas fa-info-circle me-1"></i>' + t('customKeywordsHint');
-          const addIndBtn = cfg.querySelector('button[onclick="addIndustry()"]'); if (addIndBtn) addIndBtn.innerHTML = '<i class="fas fa-plus me-1"></i>' + t('addIndustry');
-          const resetBtn = cfg.querySelector('button[onclick="resetKeywords()"]'); if (resetBtn) resetBtn.innerHTML = '<i class="fas fa-undo me-1"></i>' + t('resetDefault');
-          const newsTitle = cfg.querySelector('.fa-newspaper')?.parentElement; if (newsTitle) newsTitle.innerHTML = '<i class="fas fa-newspaper me-2"></i>' + t('mediaSourcesTitle');
-          const searchInput = cfg.querySelector('#pipelineMediaSearch'); if (searchInput) searchInput.placeholder = t('searchSourcesPlaceholder');
-          const clearBtn = cfg.querySelector('#pipelineMediaClearBtn'); if (clearBtn) clearBtn.textContent = t('clearAll');
-          const limitHint = cfg.querySelector('#pipelineSourcesCard small.text-muted'); if (limitHint) limitHint.textContent = t('limitHint');
-          const cancelBtn = cfg.querySelector('.modal-footer .btn.btn-secondary'); if (cancelBtn) cancelBtn.innerHTML = '<i class="fas fa-times me-1"></i>' + t('cancel');
-          const saveBtn = cfg.querySelector('.modal-footer .btn.btn-success'); if (saveBtn) saveBtn.innerHTML = '<i class="fas fa-save me-1"></i>' + t('saveSettings');
-          const runBtn = cfg.querySelector('.modal-footer .btn.btn-primary'); if (runBtn) runBtn.innerHTML = '<i class="fas fa-play me-1"></i>' + t('runWithConfig');
-        }
-        // Settings modal i18n
-        const sm = document.getElementById('settingsModal');
-        if (sm) {
-          const title = sm.querySelector('.modal-title'); if (title) title.textContent = t('settingsModalTitle');
-          const apiTitle = sm.querySelector('#settingsModal .card-header .card-title, #settingsModal .card-header h6'); if (apiTitle) apiTitle.innerHTML = '<i class="fas fa-key me-2"></i>' + t('apiKeysConfig');
-          const hint = sm.querySelector('#settingsModal .alert.alert-info small'); if (hint) hint.innerHTML = '<i class="fas fa-info-circle me-1"></i>' + t('needAtLeastOneKey') + ' <a href="https://platform.openai.com/api-keys" target="_blank">Get OpenAI Key</a> | <a href="https://console.groq.com/keys" target="_blank">Get Groq Key</a>';
-          const openaiLbl = sm.querySelector("#openaiApiKey")?.closest('.mb-3')?.querySelector('label'); if (openaiLbl) openaiLbl.textContent = t('openaiApiKey');
-          const groqLbl = sm.querySelector("#groqApiKey")?.closest('.mb-3')?.querySelector('label'); if (groqLbl) groqLbl.textContent = t('groqApiKey');
-          const googleLbl = sm.querySelector("#googleApiKey")?.closest('.mb-3')?.querySelector('label'); if (googleLbl) googleLbl.textContent = t('googleApiKey');
-          const defProvLbl = sm.querySelector('#defaultProvider')?.previousElementSibling; if (defProvLbl) defProvLbl.textContent = t('defaultProvider');
-          const defModelLbl = sm.querySelector('#defaultModel')?.previousElementSibling; if (defModelLbl) defModelLbl.textContent = t('defaultModel');
-          const updBtn = sm.querySelector('button[onclick="updateApiKeys()"]'); if (updBtn) updBtn.innerHTML = '<i class="fas fa-save me-2"></i>' + t('updateApiKeysBtn');
-        }
-        // Session expired modal i18n (in case language changes while modal open)
-        (function () {
-          const m = document.getElementById('sessionExpiredModal');
-          if (m) {
-            const titleEl = m.querySelector('.modal-title'); if (titleEl) titleEl.textContent = t('sessionExpiredTitle');
-            const msgEl = m.querySelector('.session-expired-msg'); if (msgEl) msgEl.textContent = t('sessionExpiredMsg');
-            const btn = m.querySelector('#sessionExpiredConfirm'); if (btn) btn.textContent = t('login');
-          }
-        })();
-        // Logout modal i18n
-        (function () {
-          const lm = document.getElementById('logoutModal');
-          if (lm) {
-            const title = lm.querySelector('.modal-title'); if (title) title.textContent = t('logoutTitle');
-            const msg = lm.querySelector('.modal-body p'); if (msg) msg.textContent = t('logoutMsg');
-            const btns = lm.querySelectorAll('.modal-footer .btn');
-            if (btns && btns.length >= 2) {
-              btns[0].textContent = t('close');
-              btns[1].textContent = t('confirm');
-            }
-          }
-        })();
-        // Reports modal i18n
-        (function () {
-          const rm = document.getElementById('reportModal');
-          if (rm) {
-            const title = rm.querySelector('#reportModalLabel'); if (title) title.textContent = t('reports');
-            const ths = rm.querySelectorAll('thead th');
-            if (ths && ths.length >= 4) {
-              ths[0].textContent = t('reports_index');
-              ths[1].textContent = t('reports_name');
-              ths[2].textContent = t('reports_created');
-              ths[3].textContent = t('reports_download');
-            }
-          }
-        })();
       }
       function setLang(lang) { localStorage.setItem('lang', lang); applyI18n(); }
       window.t = t; window.applyI18n = applyI18n; window.setLang = setLang;
@@ -231,15 +124,22 @@
       if (!origFetch) return;
 
       function handleUnauthorized() {
-        // Guard: prevent spamming the modal on multiple concurrent 401s
-        if (window.__sessionExpiredOnce) return;
-        window.__sessionExpiredOnce = true;
         try { localStorage.removeItem('token'); } catch (e) { }
         const dash = document.getElementById('dashboardContainer');
         if (dash) dash.style.display = 'none';
         try { typeof closeTasksSSE === 'function' && closeTasksSSE(); } catch (_) { }
+        try { typeof addActivityLog === 'function' && addActivityLog('Session expired', 'Token hết hạn, vui lòng đăng nhập lại.', 'warning'); } catch (_) { }
+        try { typeof showAlert === 'function' && showAlert('warning', 'Phiên đăng nhập hết hạn', 'Vui lòng đăng nhập lại.'); } catch (_) { }
         const __title = (typeof t === 'function' ? t('sessionExpiredTitle') : 'Session expired');
         const __msg = (typeof t === 'function' ? t('sessionExpiredMsg') : 'Please sign in again.');
+        const __typing = document.getElementById('typingText');
+        if (__typing) __typing.textContent = __title;
+        const __sub = document.getElementById('authTitle');
+        if (__sub) { __sub.textContent = __msg; __sub.style.display = 'block'; }
+        // Replace any existing alerts with an i18n session-expired alert
+        try { document.querySelectorAll('.alert').forEach(el => el.remove()); } catch (_) { }
+        try { typeof showAlert === 'function' && showAlert('warning', __title, __msg); } catch (_) { }
+        try { typeof addActivityLog === 'function' && addActivityLog(__title, __msg, 'warning'); } catch (_) { }
         // Show a confirmation modal; only return to login after user clicks
         (function () {
           const modalEl = document.getElementById('sessionExpiredModal');
@@ -258,14 +158,7 @@
                   try { typeof showLogin === 'function' && showLogin(); } catch (_) { }
                 };
               }
-              // Ensure only one visible instance
-              const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
-              modal.show();
-              try { document.querySelectorAll('.modal-backdrop').forEach(b => b.remove()); } catch (_) { }
-              if (modalEl && modalEl.parentElement !== document.body) { try { document.body.appendChild(modalEl); } catch (_) { } }
-              try { modalEl.style.display = 'block'; } catch (_) { }
-              setTimeout(() => { if (!modalEl.classList.contains('show')) { try { bootstrap.Modal.getOrCreateInstance(modalEl).show(); } catch (_) { } } }, 50);
-              setTimeout(() => { if (!modalEl.classList.contains('show')) { if (window.confirm(__title + '\n' + __msg)) { try { typeof showLogin === 'function' && showLogin(); } catch (_) { } } } }, 800);
+              bootstrap.Modal.getOrCreateInstance(modalEl).show();
             } catch (_) {
               // Fallback if Bootstrap or modal not available
               if (window.confirm(`${__title}\n${__msg}`)) {
@@ -308,27 +201,12 @@
   <link rel="stylesheet" href="/static/assets/css/dashboard.css?v=20250815" />
 
 
-
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
-
-  <style>
-    body,
-    button,
-    input,
-    select,
-    textarea {
-      font-family: "Inter", "Noto Sans", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", "Apple Color Emoji", "Segoe UI Emoji";
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
-  </style>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
 </head>
 
 <body>
   <!-- Removed particles background container; background is now defined via CSS -->
   <!-- Global language switcher (top-right), shown on login screen -->
-  <div id="globalLangSwitcher" class="position-fixed" style="top:10px; right:10px; z-index:1050; display:block;">
+  <div id="globalLangSwitcher" class="position-fixed" style="top:10px; right:10px; z-index:1050; display:none;">
     <select id="langSelectGlobal" class="form-select form-select-sm" style="width:120px" onchange="setLang(this.value)">
       <option value="vi">Tiếng Việt</option>
       <option value="en">English</option>
@@ -337,17 +215,22 @@
   <!-- === LOGIN FORM === -->
   <form id="loginForm" onsubmit="return handleAuthSubmit(event);">
     <div class="container mt-5" id="loginContainer">
+      <div class="d-flex justify-content-end mb-2">
+        <select id="langSelectLogin" class="form-select form-select-sm" style="width:120px" onchange="setLang(this.value)">
+          <option value="vi">Tiếng Việt</option>
+          <option value="en">English</option>
+        </select>
+      </div>
       <h3 id="typingText" class="typing-gradient"></h3>
       <h5 id="authTitle" class="mt-2" style="display:none;"></h5>
 
       <input type="email" id="email" class="form-control mb-2" placeholder="Email" required />
       <input type="password" id="password" class="form-control mb-2" placeholder="Password" required />
       <div class="text-center mt-2">
-        <small><a href="#" id="forgotPasswordLink" onclick="openForgotPwModal()"><span
-              id="forgotPasswordLinkText">Forgot password?</span></a></small>
+        <small><a href="#" id="forgotPasswordLink" onclick="openForgotPwModal()">Forgot password?</a></small>
       </div>
 
-      <!-- Chỉ hiện khi ở chế độ Đăng ký -->
+      <!-- Chỉ hiện khi ở chế độ Register -->
       <div id="confirmPasswordWrap" style="display:none;">
         <input type="password" id="confirmPassword" class="form-control mb-2" placeholder="Confirm password" />
       </div>
@@ -358,6 +241,12 @@
         <small id="toggleAuthText">
           Chưa có tài khoản? <a href="#" id="toggleAuthLink">Đăng ký</a>
         </small>
+      </div>
+      <div class="text-center mt-2">
+        <select id="langSelectLogin" class="form-select form-select-sm d-inline-block" style="width:120px" onchange="setLang(this.value)">
+          <option value="vi">Tiếng Việt</option>
+          <option value="en">English</option>
+        </select>
       </div>
     </div>
   </form>
@@ -379,8 +268,7 @@
             <label class="form-label" for="fpOtp"><span id="fpOtpLabel">OTP code</span></label>
             <div class="input-group">
               <input type="text" id="fpOtp" class="form-control" placeholder="123456" maxlength="6" />
-              <button class="btn btn-outline-secondary" type="button" id="fpSendOtpBtn" onclick="sendForgotOtp()">Send
-                OTP</button>
+              <button class="btn btn-outline-secondary" type="button" id="fpSendOtpBtn" onclick="sendForgotOtp()">Send OTP</button>
             </div>
           </div>
           <div class="mb-3">
@@ -470,7 +358,7 @@
                 <style>
                   .label-fixed {
                     min-width: 70px;
-                    /* để cho chữ "Progress:" không bị xuống dòng */
+                    /* đủ cho chữ "Progress:" không bị wrap */
                     flex-shrink: 0;
                   }
                 </style>
@@ -485,7 +373,6 @@
                     <span class="label-fixed me-3" id="taskLabel">Task:</span>
                     <span id="currentTask" class="fw-bold fs-6">Waiting to start</span>
                   </div>
-                  <div class="mb-2 text-muted small" id="subProgress"></div>
                   <div class="progress-wrapper">
                     <span class="label-fixed me-3" id="progressLabel">Progress:</span>
                     <div class="flex-grow-1">
@@ -546,7 +433,7 @@
                 </button>
               </div>
               <div class="small text-muted">
-                <i class="fas fa-clock me-1"></i> <span id="lastRunLabel">Last run:</span> <span id="lastRun">?</span>
+                <i class="fas fa-clock me-1"></i> <span id="lastRunLabel">Last run:</span> <span id="lastRun">�</span>
               </div>
             </div>
           </div>
@@ -612,7 +499,8 @@
           <div class="card">
             <div class="card-header">
               <h5 class="card-title mb-0">
-                <i class="fas fa-chart-pie me-2"></i><span id="topIndustryTitle">Industry Distribution</span>
+                <i class="fas fa-chart-pie me-2"></i>
+                Phân bố theo Ngành hàng
               </h5>
             </div>
             <div class="card-body">
@@ -645,7 +533,7 @@
             <div class="card-header d-flex justify-content-between align-items-center">
               <h5 class="card-title mb-0">
                 <i class="fas fa-newspaper me-2"></i>
-                <span id="articlesDetails" data-i18n="articlesDetails"></span>
+                Chi tiết bài báo
               </h5>
               <div class="d-flex gap-2">
                 <select id="industryFilter" class="form-select form-select-sm" style="width: auto">
@@ -724,7 +612,7 @@
       <div class="modal-dialog modal-lg">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="articlesDetails">Article Details</h5>
+            <h5 class="modal-title">Chi tiết bài báo</h5>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
@@ -791,6 +679,7 @@
         del: (k) => localStorage.removeItem(k),
       };
 
+
       // Initialize dashboard
       document.addEventListener('DOMContentLoaded', () => {
         setAuthMode(false); // mặc định là Login
@@ -821,7 +710,7 @@
         if (industryEl) industryEl.value = savedIndustry;
         if (searchEl) searchEl.value = savedQuery;
 
-        // Gọi lại hàm lọc để dựng bảng ngay sau khi gán giá trị
+        // Gọi lại hàm lọc để đồng bộ bảng ngay sau khi gán giá trị
         if (typeof filterArticles === "function") filterArticles();
         else if (typeof updateArticlesTable === "function") updateArticlesTable();
 
@@ -837,12 +726,12 @@
             headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
           });
           if (response.ok) {
-            // Nếu token hợp lệ
+            // ✅ Token hợp lệ
             initializeDashboard();
             await hydrateConfigOnLogin();
             await loadInitialData();
             showDashboard();
-            loadKeywordConfiguration(); // v?n load config t? LS
+            loadKeywordConfiguration(); // vẫn load config từ LS
             setupEventListeners();
             startStatusPolling();
             loadingScreen.style.display = "none";
@@ -853,7 +742,7 @@
             showLogin();
           } else {
             console.error("Auth check failed:", response.status);
-            showLogin();
+            showLogin(); // hoặc giữ dashboard tuỳ ý
           }
         } catch (err) {
           console.error("Auth check error:", err);
@@ -867,7 +756,7 @@
         new Date().toLocaleString("vi-VN");
 
       async function hydrateConfigOnLogin() {
-        // (Tùy chọn) lấy /api/config chỉ để gợi ý selected_sources, dates (KHÔNG dùng keywords)
+        // (Tùy chọn) lấy /api/config chỉ để gợi ý selected_sources, dates (KHÔNG đụng keywords)
         let be = null;
         try {
           const r = await fetch("/api/config", {
@@ -887,7 +776,7 @@
           selected_sources: lsSources.length ? lsSources : (Array.isArray(be?.selected_sources) ? be.selected_sources : []),
           start_date: lsStart || be?.start_date || null,
           end_date: lsEnd || be?.end_date || null,
-          custom_keywords: lsKw || null, // ? tuyệt đối không lấy t? BE
+          custom_keywords: lsKw || null, // ✅ tuyệt đối không lấy từ BE
         };
 
         // Ghi lại LS + timestamp
@@ -935,7 +824,7 @@
       }
 
       function initializeDashboard() {
-        console.log("Initializing Media Tracker Dashboard...");
+        console.log("🚀 Initializing Media Tracker Dashboard...");
         addActivityLog(
           "Dashboard Initialized",
           "Giao diện điều khiển đã sẵn sàng"
@@ -1004,11 +893,11 @@
         try {
           showLoadingState();
           await loadLatestReport();
-          await loadStatus();
+          if (labelEl) labelEl.textContent = (typeof t === "function") ? (isCurrentlyPaused ? t("pause") : t("resume")) : (isCurrentlyPaused ? "Pause" : "Resume"); await loadStatus();
           addActivityLog("Data Loaded", "Dữ liệu ban đầu đã được tải");
         } catch (error) {
           console.error("Error loading initial data:", error);
-          addActivityLog("Error", "L?i khi tải dữ liệu ban đầu", "error");
+          addActivityLog("Error", "Lỗi khi tải dữ liệu ban đầu", "error");
         }
       }
 
@@ -1024,7 +913,7 @@
           currentConfig = config;
           const sel = Array.isArray(config.selected_sources) ? config.selected_sources.length : 0;
           document.getElementById("totalSources").textContent = sel;
-          console.log("? Config loaded:", config);
+          console.log("✅ Config loaded:", config);
         } catch (error) {
           console.error("Error loading config:", error);
         }
@@ -1063,7 +952,7 @@
             currentArticles = data.articles;
             filteredArticles = [...currentArticles];
 
-            // Format thời gian tạo report từ generated_at
+            //Format thời gian tạo report từ generated_at
             const generatedAt = new Date(currentReport.generated_at);
             const formattedTime = generatedAt.toLocaleString("vi-VN", {
               day: "2-digit",
@@ -1081,9 +970,9 @@
             updateCharts();
             updateDateRange();
 
-            console.log("Report loaded:", data.total_articles, "articles");
+            console.log("✅ Report loaded:", data.total_articles, "articles");
           } else {
-            console.log("No report data available");
+            console.log("📄 No report data available");
             // showSampleData();
           }
         } catch (error) {
@@ -1107,7 +996,7 @@
         }
       }
 
-      // Lấy thống kê (total + latestKey). Không cần BE đợi API.
+      // Lấy thống kê (total + latestKey). Không cần BE đổi API.
       // Thay thế nguyên hàm fetchReportStats() hiện tại
       async function fetchReportStats() {
         const token = localStorage.getItem("token");
@@ -1134,7 +1023,7 @@
 
         // 2) Lấy tổng số report (nếu server hỗ trợ)
         try {
-          const params = new URLSearchParams({ limit: "1" }); // ? không append session_id
+          const params = new URLSearchParams({ limit: "1" }); // ⬅ không append session_id
           const resp = await fetch(`/api/reports?${params.toString()}`, {
             headers: { Authorization: `Bearer ${token}` },
           });
@@ -1175,7 +1064,7 @@
               dau_bao: "Vietnam Biz",
               cum_noi_dung: "Hoạt động doanh nghiệp và thông tin sản phẩm",
               tom_tat_noi_dung:
-                "Tường An d?n d?u thị trường thực phẩm mùa Tết 2025",
+                "Tường An dẫn đầu thị trường thực phẩm mùa Tết 2025",
               link_bai_bao: "https://vietnambiz.vn/sample-article",
               nganh_hang: "Dầu ăn",
               nhan_hang: ["Tường An"],
@@ -1238,9 +1127,9 @@
 
             if (activeTask) {
               currentSessionId = activeTask.session_id;
-              localStorage.setItem("currentSessionId", currentSessionId);
+              localStorage.setItem("currentSessionId", currentSessionId); // 🔧 lưu lại
             } else {
-              // Không còn task đang chạy -> idle + dọn state
+              // Không còn task đang chạy → idle + dọn state
               currentSessionId = null;
               localStorage.removeItem("currentSessionId");
               updateTaskDisplay(
@@ -1270,7 +1159,7 @@
           if (activeTask) {
             currentSessionId = activeTask.session_id;
 
-            // Nếu đã kết thúc thật sự ở lần show cuối, dọn state, và RETURN
+            // Nếu đã kết thúc thật sự → show lần cuối, dọn state, và RETURN
             // ... bên trong loadStatus()
             if (activeTask.final) {
               updateTaskDisplay(activeTask, tasks);
@@ -1282,7 +1171,7 @@
               closeTasksSSE?.(); closeEventStream?.();
 
               if (activeTask.status === "completed") {
-                // So sánh baseline với hiện tại
+                // So sánh baseline ↔︎ hiện tại
                 const baseline = getReportBaseline();      // { total, latestKey } hoặc null
                 const nowStats = await fetchReportStats(); // { total, latestKey }
 
@@ -1297,17 +1186,17 @@
                   increased = !!r.ok;
                 }
 
-                // Xóa baseline cho sạch
+                // Xoá baseline cho sạch
                 localStorage.removeItem("reportBaseline");
 
                 if (increased) {
-                  // Có báo cáo mới -> show modal thành công + render báo cáo
+                  // Có báo cáo mới → show modal thành công + render báo cáo
                   if (typeof showCompletionModalOnce === "function") {
                     showCompletionModalOnce(activeTask.session_id);
                   }
                   await loadLatestReport();
                 } else {
-                  // Không hiện thông báo "Hoàn tất nhưng không có bài báo"
+                  // Không tăng → thông báo “Hoàn tất nhưng không có bài báo…”
                   if (typeof showNoArticlesToastOnce === "function") {
                     showNoArticlesToastOnce(activeTask.session_id); // hoặc showNoArticlesModalOnce(...)
                   }
@@ -1315,9 +1204,9 @@
                 suppressAutoAttach = true;
               }
 
-              return;
+              return; // Quan trọng: không nối SSE lại
             }
-            // Chưa final -> tiếp tục cập nhật và nối SSE
+            // Chưa final → tiếp tục cập nhật và nối SSE
             updateTaskDisplay(activeTask, tasks);
             if (!tasksStreamController) {
               connectTasksSSE();
@@ -1359,7 +1248,6 @@
         const totalSourcesEl = document.getElementById("totalSources");
         const completedSourcesEl = document.getElementById("completedSources");
         const failedSourcesEl = document.getElementById("failedSources");
-        const subProgressEl = document.getElementById("subProgress");
 
         const runBtn = document.getElementById("runBtn");
         const cancelBtn = document.getElementById("cancelBtn");
@@ -1386,7 +1274,6 @@
         // ---- Normalize dữ liệu ----
         const t = activeTask ?? {};
         const status = t.status ?? "idle";
-        const to = (typeof window.t === 'function') ? window.t : (k) => k;
         const clamp = (n) =>
           Math.max(0, Math.min(100, Number.isFinite(+n) ? +n : 0));
         const prog = clamp(t.progress);
@@ -1402,91 +1289,31 @@
         // ---- Counters & progress ----
         const targetProgress = Math.max(0, Math.min(100, prog));
 
-        // Smooth easing towards target using time-based interpolation
-        window._progressState = window._progressState || { lastTs: 0 };
-        const easeStep = (ts) => {
-          const st = window._progressState;
-          const last = st.lastTs || ts;
-          const dt = Math.max(0, ts - last); // ms
-          st.lastTs = ts;
-          const tau = 300; // ms time constant
-          const alpha = 1 - Math.exp(-dt / tau);
-          // Snap close to target if big jump
-          if (targetProgress - displayedProgress > 10) {
-            displayedProgress = Math.min(targetProgress - 3, displayedProgress + 5);
-          } else {
-            displayedProgress = displayedProgress + (targetProgress - displayedProgress) * alpha;
-          }
-          if (Math.abs(targetProgress - displayedProgress) < 0.3) {
-            displayedProgress = targetProgress;
-          }
-          const pct = Math.round(displayedProgress);
+        if (targetProgress > displayedProgress) {
+          const step = () => {
+            displayedProgress = Math.min(targetProgress, displayedProgress + 0.5);
+            const pct = Math.round(displayedProgress);
+            progressBar.style.width = pct + "%";
+            progressBar.setAttribute("aria-valuenow", pct);
+            progressText.textContent = pct + "%";
+            if (displayedProgress < targetProgress) {
+              requestAnimationFrame(step);
+            }
+          };
+          requestAnimationFrame(step);
+        } else {
+          displayedProgress = targetProgress;
+          const pct = Math.round(targetProgress);
           progressBar.style.width = pct + "%";
           progressBar.setAttribute("aria-valuenow", pct);
           progressText.textContent = pct + "%";
-          if (displayedProgress !== targetProgress) requestAnimationFrame(easeStep);
-        };
-        requestAnimationFrame(easeStep);
+        }
 
         // ---- Helpers ----
         const setBadge = (cls, html) => {
           statusBadge.className = `status-badge ${cls}`;
           statusBadge.innerHTML = html;
         };
-        const label = (key, iconHtml) => `${iconHtml}${to(key)}`;
-        const setLangDisabled = (flag) => {
-          const selNav = document.getElementById('langSelect'); if (selNav) selNav.disabled = !!flag;
-          const selGlobal = document.getElementById('langSelectGlobal'); if (selGlobal) selGlobal.disabled = !!flag;
-        };
-        const formatI18n = (key, params) => {
-          try {
-            let s = to(key);
-            if (!params) return s;
-            Object.keys(params).forEach(k => {
-              s = s.replace(new RegExp(`{${k}}`, 'g'), String(params[k]));
-            });
-            return s;
-          } catch (_) { return key; }
-        };
-        const localizeStatus = () => {
-          let html = '';
-          switch (status) {
-            case 'pending': html = label('statusPending', '<i class="fas fa-clock me-1"></i>'); currentTaskEl.textContent = to('taskPending'); break;
-            case 'running': html = label('statusRunning', '<i class="fas fa-spinner fa-spin me-1"></i>'); currentTaskEl.textContent = to('taskRunning'); break;
-            case 'paused': html = label('statusPaused', '<i class="fas fa-pause-circle me-1"></i>'); currentTaskEl.textContent = to('taskPaused'); break;
-            case 'cancelling': html = label('statusCancelling', '<i class="fas fa-spinner fa-spin me-1"></i>'); currentTaskEl.textContent = to('taskCancelling'); break;
-            case 'cancelled': html = label('statusCancelled', '<i class="fas fa-times-circle me-1"></i>'); currentTaskEl.textContent = to('taskCancelled'); break;
-            case 'completed': html = label('statusCompleted', '<i class="fas fa-check-circle me-1"></i>'); currentTaskEl.textContent = to('taskCompleted'); break;
-            case 'failed': html = label('statusFailed', '<i class="fas fa-exclamation-triangle me-1"></i>'); currentTaskEl.textContent = to('taskFailed'); break;
-            case 'idle':
-            default: html = label('statusIdle', '<i class="fas fa-circle-notch me-1"></i>'); currentTaskEl.textContent = to('taskIdle'); break;
-          }
-          // Prefer structured message from backend if available
-          if (t.message_key) {
-            currentTaskEl.textContent = formatI18n(t.message_key, t.message_params || {});
-          }
-          // keep existing class; only replace innerHTML
-          statusBadge.innerHTML = html;
-          const lock = ['pending', 'running', 'paused', 'cancelling'].includes(status);
-          setLangDisabled(lock);
-          // Sub-progress: show current source and counters
-          if (subProgressEl) {
-            const done = (t.completed_sources || 0) + (t.failed_sources || 0);
-            const total = t.total_sources || 0;
-            const parts = [];
-            if (t.current_source) parts.push(`${to('source')}: ${t.current_source}`);
-            if (total) parts.push(`${done} ${to('of')} ${total}`);
-            subProgressEl.textContent = parts.join(' \u2022 ');
-          }
-        };
-        // Avoid redundant DOM work when status/lang unchanged
-        const langNow = (typeof getLang === 'function') ? getLang() : (localStorage.getItem('lang') || 'en');
-        const last = window._uiLast || {};
-        const needUpdate = (last.status !== status) || (last.lang !== langNow) || (last.message_key !== (t.message_key || null)) || (JSON.stringify(last.message_params || {}) !== JSON.stringify(t.message_params || {}));
-        if (needUpdate) {
-          try { localizeStatus(); } catch (_) { }
-          window._uiLast = { status, lang: langNow, message_key: t.message_key || null, message_params: t.message_params || null };
-        }
         const setButtons = ({
           runDisabled,
           cancelDisabled,
@@ -1653,8 +1480,6 @@
             break;
           }
         }
-        // Apply i18n for status text and task message; and lock language switchers during runs
-        try { localizeStatus(); } catch (_) { }
       }
 
       function openSettings() {
@@ -1676,12 +1501,12 @@
       function renderKeywordInputsFrom(kws) {
         const container = document.getElementById("keywordContainer");
         container.innerHTML = "";
-        if (!kws) return;
+        if (!kws) return; // để trống, user sẽ Add Industry
         Object.entries(kws).forEach(([industry, arr]) => addIndustryWith(industry, arr));
       }
 
       function addIndustryWith(name, arr) {
-        addIndustry();
+        addIndustry(); // dùng UI builder sẵn có
         const block = document.querySelector("#keywordContainer .mb-3:last-child");
         block.querySelector(".industryName").value = name;
         block.querySelector(".industry-keywords").value = Array.isArray(arr) ? arr.join(", ") : "";
@@ -1695,7 +1520,7 @@
       async function resetKeywords() {
         ls.del(LS.KW);
         renderKeywordInputsFrom(null);
-        addIndustry(); // gọi để tạo dòng trống đầu tiên
+        addIndustry(); // gợi ý ô trống đầu tiên
         addActivityLog("Keywords Reset", "Đã xóa keywords trên máy. Nhập lại để chạy.");
       }
 
@@ -1712,12 +1537,11 @@
 
       function openEventStream(sessionId) {
         if (es) es.close();
-        const token = localStorage.getItem("token") || "";
         es = new EventSource(`/api/events/${encodeURIComponent(sessionId)}?token=${encodeURIComponent(token)}`);
         es.onmessage = async (ev) => {
           const evt = JSON.parse(ev.data);
 
-          // Gợi ý chuyển provider ở chỗ HẾT QUOTA
+          // Gợi ý chuyển provider — chỉ khi HẾT QUOTA
           if (evt.type === "propose_switch") {
             // Nếu BE chưa gửi code (legacy), vẫn cho hiện; còn nếu có code thì filter chặt
             if (evt.code && evt.code !== "PROVIDER_NO_QUOTA") return;
@@ -1749,7 +1573,7 @@
 
             const next = evt.suggested || (evt.next_options && evt.next_options[0]);
             const ok = confirm(
-              `Provider lỗi: ${evt.from_provider} (${evt.from_model})\n${evt.message}\n\nChuy?n sang: ${next}?`
+              `Provider lỗi: ${evt.from_provider} (${evt.from_model})\n${evt.message}\n\nChuyển sang: ${next}?`
             );
 
             lastDecision = { action: ok ? "switch" : "abort", provider: ok ? next : null };
@@ -1770,11 +1594,11 @@
             }).finally(() => { decisionInFlight = false; });
           }
 
-          // Hết provider -> chỉ báo 1 lần
+          // Hết provider – chỉ báo 1 lần
           if (evt.type === "provider_error" && evt.final) {
             if (!handledSwitches.has("final")) {
               handledSwitches.add("final");
-              alert(`H?t provider. L?i cu?i: ${evt.message}`);
+              alert(`Hết provider. Lỗi cuối: ${evt.message}`);
               closeEventStream();
             }
           }
@@ -1784,13 +1608,13 @@
       function closeEventStream() {
         if (es) {
           try {
-            es.close(); // Đóng k?t n?i SSE
+            es.close(); // Đóng kết nối SSE
           } catch (err) {
             console.error("Lỗi khi đóng EventSource:", err);
           }
           es = null;
         }
-        console.log("Event stream đã đóng");
+        console.log("🔌 Event stream đã đóng");
       }
 
       /**
@@ -1866,22 +1690,16 @@
                       closeEventStream();
                       closeTasksSSE();
                       addActivityLog("Task Finished", `Session ${currentSessionId} has status: ${currentTask.status}`);
-                      await loadStatus();
+                      if (labelEl) labelEl.textContent = (typeof t === "function") ? (isCurrentlyPaused ? t("pause") : t("resume")) : (isCurrentlyPaused ? "Pause" : "Resume"); await loadStatus();
                       return;
                     }
                   } else {
-                    // If we haven't reattached a session yet on reload,
-                    // ask loadStatus() to pick the right session without forcing idle.
-                    if (!currentSessionId) {
-                      await loadStatus();
-                      return;
-                    }
-                    // Otherwise, the saved session no longer exists -> reset to idle
+                    // Task for this session_id no longer exists; reset UI to idle
                     closeEventStream();
                     closeTasksSSE();
                     updateTaskDisplay({ status: "idle", progress: 0, total_sources: 0, completed_sources: 0, failed_sources: 0 }, tasks);
                     try { currentSessionId = null; } catch (_) { }
-                    await loadStatus();
+                    if (labelEl) labelEl.textContent = (typeof t === "function") ? (isCurrentlyPaused ? t("pause") : t("resume")) : (isCurrentlyPaused ? "Pause" : "Resume"); await loadStatus();
                     return;
                   }
                 } catch (err) {
@@ -1946,7 +1764,7 @@
                   "Task Finished",
                   `Session ${currentSessionId} has status: ${currentTask.status}`
                 );
-                await loadStatus();
+                if (labelEl) labelEl.textContent = (typeof t === "function") ? (isCurrentlyPaused ? t("pause") : t("resume")) : (isCurrentlyPaused ? "Pause" : "Resume"); await loadStatus();
               }
             } else {
               console.warn("Task not found in fallback polling. Resetting to idle.");
@@ -1956,7 +1774,7 @@
               closeTasksSSE?.();
               updateTaskDisplay({ status: "idle", progress: 0, total_sources: 0, completed_sources: 0, failed_sources: 0 }, tasks);
               try { currentSessionId = null; } catch (_) { }
-              await loadStatus();
+              if (labelEl) labelEl.textContent = (typeof t === "function") ? (isCurrentlyPaused ? t("pause") : t("resume")) : (isCurrentlyPaused ? "Pause" : "Resume"); await loadStatus();
             }
           } catch (err) {
             console.error("Polling error:", err);
@@ -2031,8 +1849,8 @@
           localStorage.setItem("currentSessionId", session_id);
         } catch (error) {
           console.error(error);
-          addActivityLog("Error", "L?i khi kh?i d?ng pipeline: " + error.message, "error");
-          showAlert?.("danger", "L?i!", error.message);
+          addActivityLog("Error", "Lỗi khi khởi động pipeline: " + error.message, "error");
+          showAlert?.("danger", "Lỗi!", error.message);
         }
       }
 
@@ -2102,7 +1920,7 @@
                     <td>
                         <button class="btn btn-sm btn-outline-primary" onclick="filterByIndustry('${industry.nganh_hang
               }')">
-                            <i class="fas fa-filter me-1"></i>${t('view')}
+                            <i class="fas fa-filter me-1"></i>Xem
                         </button>
                     </td>
                 </tr>
@@ -2174,7 +1992,7 @@
                     <td>
                         <button class="btn btn-sm btn-outline-primary" onclick="showArticleDetail(${article.stt
               })">
-                            <i class="fas fa-eye me-1"></i>${t('view')}
+                            <i class="fas fa-eye me-1"></i>Xem
                         </button>
                     </td>
                 </tr>
@@ -2373,7 +2191,7 @@
               title: {
                 display: true,
                 // text: "Top 10 Nguồn Tin & Ngành Hàng",
-                color: "#222", // màu đồng bộ theme
+                color: "#222", // màu đồng bộ theme sáng
                 font: { size: 16, weight: "bold" },
                 padding: { top: 0, bottom: 15 }
               },
@@ -2408,12 +2226,12 @@
               x: {
                 ticks: {
                   color: "#444",
-                  maxRotation: 45,
+                  maxRotation: 45, // ✅ giữ góc 45° cho dễ đọc
                   minRotation: 45,
                   font: { size: 10 },
                   callback: function (value) {
                     let label = this.getLabelForValue(value);
-                    return label.length > 20 ? label.slice(0, 20) + '\u2026' : label;
+                    return label.length > 20 ? label.slice(0, 20) + '…' : label;
                   }
                 },
                 grid: { display: false },
@@ -2440,7 +2258,7 @@
           if (match) {
             const start = match[1];
             const end = match[2];
-            dateRangeElement.textContent = `${start} \u2192 ${end}`;
+            dateRangeElement.textContent = `${start} → ${end}`;
           } else {
             dateRangeElement.textContent = rawDate;
           }
@@ -2506,11 +2324,6 @@
         const container = document.getElementById("keywordContainer");
         const div = document.createElement("div");
         div.className = "mb-3 border rounded p-3";
-        // i18n hints for keyword entry
-        const lang = (localStorage.getItem('lang') || 'vi');
-        const dict = (window.I18N && window.I18N[lang]) || {};
-        const hintStr = dict["keywordsEntryHint"] || "Mẹo: Từ khóa viết hoa (vd: 'Tường An') được coi là nhãn hàng. Với bài viết ngành chung, nhập các cụm như 'dầu ăn', 'dầu đậu nành', 'gia vị'...";
-        const exStr = dict["keywordsEntryExample"] || "Ví dụ: Tường An, Coba, dầu ăn, thị phần";
         div.innerHTML = `
           <div class="d-flex align-items-center mb-2">
             <select class="form-select form-select-sm industryName me-2 flex-grow-1" required>
@@ -2520,7 +2333,6 @@
               <option value="Gạo & Ngũ cốc">Gạo & Ngũ cốc</option>
               <option value="Sữa (UHT)">Sữa (UHT)</option>
               <option value="Home Care">Home Care</option>
-              <option value="Baby Food">Baby Food</option>
             </select>
             <button type="button"
                     class="btn btn-outline-danger p-0"
@@ -2531,9 +2343,6 @@
           </div>
 
         <textarea class="form-control form-control-sm industry-keywords" rows="2" placeholder="Keywords separated by commas"></textarea>
-        <div class="invalid-feedback keywords-feedback" style="display:none;">Vui lòng nhập ít nhất 1 từ khóa</div>
-        <small class="text-muted d-block">${hintStr}</small>
-        <small class="text-muted d-block">${exStr}</small>
       `;
         container.appendChild(div);
       }
@@ -2562,40 +2371,6 @@
           end_date,
           custom_keywords: Object.keys(customKeywords).length ? customKeywords : null,
         };
-      }
-
-      function validateKeywordBlocks() {
-        const to = (typeof t === 'function') ? t : (k) => k;
-        let anyKeyword = false;
-        const blocks = document.querySelectorAll('#keywordContainer .mb-3');
-        blocks.forEach((block) => {
-          const nameEl = block.querySelector('.industryName');
-          const kwEl = block.querySelector('.industry-keywords');
-          const fb = block.querySelector('.keywords-feedback');
-          const kws = (kwEl && kwEl.value || '').split(',').map(s => s.trim()).filter(Boolean);
-          const hasKw = kws.length > 0;
-          if (hasKw) anyKeyword = true;
-
-          // If industry selected but no keywords -> mark invalid
-          if (nameEl && nameEl.value.trim() && !hasKw) {
-            if (kwEl) kwEl.classList.add('is-invalid');
-            if (fb) { fb.style.display = 'block'; fb.textContent = to('keywordsRequired'); }
-          } else {
-            if (kwEl) kwEl.classList.remove('is-invalid');
-            if (fb) fb.style.display = 'none';
-          }
-        });
-
-        // If none of the blocks have keywords at all, highlight the first textarea
-        if (!anyKeyword) {
-          const firstKw = document.querySelector('#keywordContainer .industry-keywords');
-          if (firstKw) {
-            firstKw.classList.add('is-invalid');
-            const fb = firstKw.parentElement.querySelector('.keywords-feedback');
-            if (fb) { fb.style.display = 'block'; fb.textContent = to('keywordsRequired'); }
-          }
-        }
-        return anyKeyword;
       }
 
       function formatDateLocal(date) {
@@ -2630,13 +2405,13 @@
             }
           }
 
-          // 2) (Tùy chọn) Sync các tham số khác vào /api/config nếu cần
+          // 2) (Tuỳ chọn) Sync các tham số khác vào /api/config nếu cần
           const cfgRes = await fetch("/api/config", {
             method: "POST",
             headers: { "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem("token")}` },
             body: JSON.stringify({
               selected_sources: selectedSources,
-              // đừng gọi custom_keywords/start_date/end_date vào /api/config nữa
+              // đừng gửi custom_keywords/start_date/end_date vào /api/config nữa
             }),
           });
           if (!cfgRes.ok) {
@@ -2656,12 +2431,6 @@
 
       async function runWithConfig() {
         try {
-          // Validate keywords inline; stop if empty
-          if (!validateKeywordBlocks()) {
-            const firstInvalid = document.querySelector('#keywordContainer .industry-keywords.is-invalid');
-            if (firstInvalid) firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            return;
-          }
           const cfg = collectKeywordConfiguration();
 
           // Validate date (<= 180 ngày)
@@ -2669,7 +2438,7 @@
             const start = new Date(cfg.start_date), end = new Date(cfg.end_date);
             const diffDays = Math.ceil(Math.abs(end - start) / (1000 * 60 * 60 * 24));
             if (start > end) return showAlert("warning", "Invalid Date Range", "Start date must be before end date");
-            if (diffDays > 180) return showAlert("warning", "Date Range Too Long", "Select a date range = 180 days");
+            if (diffDays > 180) return showAlert("warning", "Date Range Too Long", "Select a date range ≤ 180 days");
           }
 
           // Persist to LS
@@ -2681,14 +2450,6 @@
           if (cfg.end_date) ls.set(LS.END, cfg.end_date);
           if (cfg.custom_keywords) ls.setJSON(LS.KW, cfg.custom_keywords); else ls.del(LS.KW);
           ls.set(LS.UPDATED, new Date().toISOString());
-
-          if (!hasSavedKeywords()) {
-            return showAlert(
-              'warning',
-              'Cần cấu hình',
-              'Nhập keywords cho từng ngành rồi Save/Run.'
-            );
-          }
 
           // (Tùy chọn) sync BE phần sources/dates
           fetch("/api/config", {
@@ -2730,7 +2491,7 @@
         } catch (error) {
           console.error(error);
           addActivityLog("Error", String(error.message || error), "error");
-          showAlert?.("danger", "L?i!", String(error.message || error));
+          showAlert?.("danger", "Lỗi!", String(error.message || error));
         }
       }
 
@@ -2941,12 +2702,12 @@
           if (!apiRes.ok) throw new Error("Không lấy được API key status");
           const apiStatus = await apiRes.json();
 
-          // 2) Cập nhật dần trạng thái key
+          // 2) Cập nhật đèn trạng thái key
           updateApiKeyStatus("openai", apiStatus.openai_configured);
           updateApiKeyStatus("groq", apiStatus.groq_configured);
           updateApiKeyStatus("google", apiStatus.google_configured);
 
-          // 3) Lọc dropdown Provider, chỉ giữ provider đã cấu hình
+          // 3) Lọc dropdown Provider chỉ giữ provider đã cấu hình
           const providerSel = document.getElementById("defaultProvider");
           const modelSel = document.getElementById("defaultModel");
           providerSel.innerHTML = "";
@@ -2964,17 +2725,14 @@
           }
 
           if (providers.length === 0) {
-            // Khoá provider + model
-            providerSel.replaceChildren(new Option('Chưa cấu hình API key', ''));
-            providerSel.options[0].disabled = true;
-            providerSel.value = '';
-
-            modelSel.replaceChildren(new Option('\u2014 Chọn mô hình \u2014', '')); // — Chọn mô hình —
-            modelSel.options[0].disabled = true;
+            // Chưa có key nào: khóa model & hiển thị placeholder
+            providerSel.innerHTML = `<option value="" disabled>Chưa cấu hình API key</option>`;
+            providerSel.value = "";
+            modelSel.innerHTML = `<option value="" disabled>—</option>`;
             modelSel.disabled = true;
-          }
-          else {
-            // Ở option provider hợp lệ
+            // Có thể dừng sớm phần còn lại
+          } else {
+            // Đổ option provider hợp lệ
             providers.forEach(p => {
               const opt = document.createElement("option");
               opt.value = p.value;
@@ -3043,13 +2801,12 @@
 
       function updateApiKeyStatus(provider, configured) {
         const statusEl = document.getElementById(provider + "Status");
-        const to = (typeof t === 'function') ? t : (k) => k;
         if (configured) {
           statusEl.innerHTML =
-            '<i class="fas fa-circle text-success me-1"></i>' + to('configured');
+            '<i class="fas fa-circle text-success me-1"></i>Configured';
         } else {
           statusEl.innerHTML =
-            '<i class="fas fa-circle text-danger me-1"></i>' + to('notConfigured');
+            '<i class="fas fa-circle text-danger me-1"></i>Not configured';
         }
       }
 
@@ -3090,17 +2847,15 @@
       async function sendForgotOtp() {
         const to = (typeof t === 'function') ? t : (k) => k;
         const email = document.getElementById('fpEmail')?.value?.trim();
-        if (!email) { return (window.showModalAlert ? showModalAlert('forgotPwModal', 'warning', to('resetPassword'), to('emailLabel')) : showAlert?.('warning', to('resetPassword'), to('emailLabel'))); }
+        if (!email) { return showAlert?.('warning', to('resetPassword'), to('emailLabel')); }
         const res = await fetch('/api/password/forgot-request', {
           method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email })
         });
         if (res.ok) {
-          if (window.showModalAlert) { showModalAlert('forgotPwModal', 'info', to('resetPassword'), to('resetRequestSent')); }
-          else { showAlert?.('info', to('resetPassword'), to('resetRequestSent')); }
+          showAlert?.('info', to('resetPassword'), to('resetRequestSent'));
         } else {
           const data = await res.json().catch(() => ({ detail: 'Error' }));
-          if (window.showModalAlert) { showModalAlert('forgotPwModal', 'danger', to('resetPassword'), String(data.detail || data.message || res.status)); }
-          else { showAlert?.('danger', to('resetPassword'), String(data.detail || data.message || res.status)); }
+          showAlert?.('danger', to('resetPassword'), String(data.detail || data.message || res.status));
         }
       }
 
@@ -3110,46 +2865,24 @@
         const otp = document.getElementById('fpOtp')?.value?.trim();
         const pw = document.getElementById('fpNewPw')?.value || '';
         const cfm = document.getElementById('fpConfirmPw')?.value || '';
-        if (!email || !otp || !pw || !cfm) { return (window.showModalAlert ? showModalAlert('forgotPwModal', 'warning', to('resetPassword'), to('enterOtp')) : showAlert?.('warning', to('resetPassword'), to('enterOtp'))); }
-        if (pw.length < 8) { return (window.showModalAlert ? showModalAlert('forgotPwModal', 'warning', to('resetPassword'), to('weakPassword')) : showAlert?.('warning', to('resetPassword'), to('weakPassword'))); }
-        if (pw !== cfm) { return (window.showModalAlert ? showModalAlert('forgotPwModal', 'warning', to('resetPassword'), to('passwordMismatch')) : showAlert?.('warning', to('resetPassword'), to('passwordMismatch'))); }
+        if (!email || !otp || !pw || !cfm) { return showAlert?.('warning', to('resetPassword'), to('enterOtp')); }
+        if (pw.length < 8) { return showAlert?.('warning', to('resetPassword'), to('weakPassword')); }
+        if (pw !== cfm) { return showAlert?.('warning', to('resetPassword'), to('passwordMismatch')); }
         const res = await fetch('/api/password/forgot-confirm', {
           method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, otp, new_password: pw })
         });
         if (res.ok) {
-          if (window.showModalAlert) { showModalAlert('forgotPwModal', 'success', to('resetPassword'), to('resetSuccess')); }
-          else { showAlert?.('success', to('resetPassword'), to('resetSuccess')); }
+          showAlert?.('success', to('resetPassword'), to('resetSuccess'));
           try { bootstrap.Modal.getInstance(document.getElementById('forgotPwModal'))?.hide(); } catch (_) { }
           // optionally prefill login email
           const loginEmail = document.getElementById('email'); if (loginEmail) loginEmail.value = email;
         } else {
           const data = await res.json().catch(() => ({ detail: 'Error' }));
           const det = String(data.detail || data.message || res.status);
-          if (det.toLowerCase().includes('expired')) return (window.showModalAlert ? showModalAlert('forgotPwModal', 'danger', to('emailOtp'), to('otpExpired')) : showAlert?.('danger', to('emailOtp'), to('otpExpired')));
-          if (det.toLowerCase().includes('otp')) return (window.showModalAlert ? showModalAlert('forgotPwModal', 'danger', to('emailOtp'), to('otpInvalid')) : showAlert?.('danger', to('emailOtp'), to('otpInvalid')));
-          if (window.showModalAlert) { showModalAlert('forgotPwModal', 'danger', to('resetPassword'), det); }
-          else { showAlert?.('danger', to('resetPassword'), det); }
+          if (det.toLowerCase().includes('expired')) return showAlert?.('danger', to('emailOtp'), to('otpExpired'));
+          if (det.toLowerCase().includes('otp')) return showAlert?.('danger', to('emailOtp'), to('otpInvalid'));
+          showAlert?.('danger', to('resetPassword'), det);
         }
-      }
-
-      // Helper: show alert inside a Bootstrap modal body
-      function showModalAlert(modalId, type, title, message) {
-        const modal = document.getElementById(modalId);
-        if (!modal) { return showAlert?.(type, title, message); }
-        const body = modal.querySelector('.modal-body');
-        if (!body) { return showAlert?.(type, title, message); }
-        let host = modal.querySelector('.modal-inline-alert');
-        if (!host) {
-          host = document.createElement('div');
-          host.className = 'modal-inline-alert';
-          body.prepend(host);
-        }
-        host.innerHTML = `
-          <div class="alert alert-${type} alert-dismissible fade show" role="alert">
-            <strong>${title}</strong> ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-          </div>
-        `;
       }
 
       // Expose helpers for inline onclick usage
@@ -3275,7 +3008,7 @@
           if (response.ok) {
             addActivityLog(
               "API Keys Updated",
-              "API Keys đã được cập nhật thành công"
+              "API keys đã được cập nhật thành công"
             );
 
             // Update status indicators
@@ -3294,7 +3027,7 @@
               "alert alert-success alert-dismissible fade show mt-3";
             alertDiv.innerHTML = `
                         <i class="fas fa-check-circle me-2"></i>
-                        <strong>Thành công!</strong> API Keys đã được cập nhật.
+                        <strong>Thành công!</strong> API keys đã được cập nhật.
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     `;
 
@@ -3316,7 +3049,7 @@
           console.error("Error updating API keys:", error);
           addActivityLog(
             "Error",
-            "L?i khi c?p nh?t API keys: " + error.message,
+            "Lỗi khi cập nhật API keys: " + error.message,
             "error"
           );
 
@@ -3326,7 +3059,7 @@
             "alert alert-danger alert-dismissible fade show mt-3";
           alertDiv.innerHTML = `
                     <i class="fas fa-exclamation-triangle me-2"></i>
-                    <strong>L?i!</strong> ${error.message}
+                    <strong>Lỗi!</strong> ${error.message}
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 `;
 
@@ -3394,7 +3127,7 @@
           const label = item?.name ?? item?.domain ?? String(id);
           const chip = document.createElement("span");
           chip.className = "source-chip";
-          chip.innerHTML = `${label} <button title="B? chọn" data-id="${id}">&times;</button>`;
+          chip.innerHTML = `${label} <button title="Bỏ chọn" data-id="${id}">&times;</button>`;
           chip.querySelector("button").addEventListener("click", (e) => {
             PIPELINE_SELECTED_MEDIA.delete(e.currentTarget.dataset.id);
             renderPipelineMediaUI(document.getElementById("pipelineMediaSearch")?.value || "");
@@ -3515,7 +3248,7 @@
             source_key: sourceKey(s)
           }));
 
-          // KHÔI PHỤC: ưu tiên localStorage -> dọn config từ backend
+          // KHÔI PHỤC: ưu tiên localStorage -> đến config từ backend
           const lsSelected = getSavedSelectedSources();
 
           // Fix bug: dùng selected_sources từ currentConfig thay vì media_sources
@@ -3545,15 +3278,13 @@
           }
         } catch (err) {
           console.error("loadPipelineMediaPicker error:", err);
-          showAlert?.("danger", "L?i tải Media Sources", String(err.message || err));
+          showAlert?.("danger", "Lỗi tải Media Sources", String(err.message || err));
         }
       }
 
       // Status polling
       function startStatusPolling() {
         if (statusInterval) clearInterval(statusInterval);
-        // Prime state immediately to reattach to any running session
-        try { loadStatus(); } catch (_) { }
         statusInterval = setInterval(loadStatus, 5000);
       }
 
@@ -3629,7 +3360,7 @@
         }
       });
 
-      console.log("? Media Tracker Dashboard loaded successfully!");
+      console.log("✅ Media Tracker Dashboard loaded successfully!");
     </script>
 
     <script>
@@ -3640,28 +3371,18 @@
         if (!link) return;
         link.addEventListener('click', (e) => {
           e.preventDefault();
-          setAuthMode(!window.isRegisterMode);
+          setAuthMode(!isRegisterMode);
         });
       }
 
       function setAuthMode(register) {
-        isRegisterMode = !!register;
-        authTitle.textContent = register ? t('register') : t('login');
-        confirmPasswordWrap.style.display = register ? 'block' : 'none';
-        authSubmitBtn.textContent = register ? t('register') : t('login');
-
-        if (register) {
-          // "Đã có tài khoản? <a>Đăng nhập</a>"
-          const have = t('haveAccount'); // ví dụ: "Đã có tài khoản? Đăng nhập"
-          const prefix = have.split('?')[0]; // "Đã có tài khoản"
-          toggleAuthText.innerHTML = `${prefix}? <a href="#" id="toggleAuthLink">${t('login')}</a>`;
-        } else {
-          // "Chưa có tài khoản? <a>Đăng ký</a>"
-          const none = t('noAccount'); // "Chưa có tài khoản? Đăng ký"
-          const prefix = none.split('?')[0];
-          toggleAuthText.innerHTML = `${prefix}? <a href="#" id="toggleAuthLink">${t('register')}</a>`;
-        }
-
+        isRegisterMode = register;
+        document.getElementById('authTitle').textContent = register ? 'Register' : 'Login';
+        document.getElementById('confirmPasswordWrap').style.display = register ? 'block' : 'none';
+        document.getElementById('authSubmitBtn').textContent = register ? 'Register' : 'Login';
+        document.getElementById('toggleAuthText').innerHTML = register
+          ? 'Đã có tài khoản? <a href="#" id="toggleAuthLink">Đăng nhập</a>'
+          : 'Chưa có tài khoản? <a href="#" id="toggleAuthLink">Đăng ký</a>';
         bindToggleLink();
       }
 
@@ -3724,7 +3445,7 @@
             loginContainer.style.display = "none";
             dashboardContainer.style.display = "block";
             dashboardContainer.classList.add("fade-in-down");
-          }, 700); // Kh?p v?i th?i gian animation
+          }, 700); // Khớp với thời gian animation
           initializeDashboard();
           await hydrateConfigOnLogin();
           loadInitialData();
@@ -3767,16 +3488,13 @@
         const token = localStorage.getItem("token");
         const loginDiv = document.getElementById("loginContainer");
         const dashboardDiv = document.getElementById("dashboardContainer");
-        const gls = document.getElementById('globalLangSwitcher');
 
         if (token) {
           loginDiv.style.display = "none";
           dashboardDiv.style.display = "block";
-          if (gls) gls.style.display = 'none';
         } else {
           loginDiv.style.display = "block";
           dashboardDiv.style.display = "none";
-          if (gls) gls.style.display = 'block';
         }
       }
 
@@ -3821,7 +3539,7 @@
                                     <td>
                                         <button class="btn btn-sm btn-outline-success" onclick="downloadReportDirectly('${report.filename
               }')">
-                                          <i class="fas fa-download" aria-hidden="true"></i> ${t('reports_download')}
+                                            ⬇️ Tải xuống
                                         </button>
                                     </td>
                                 </tr>
@@ -3829,7 +3547,7 @@
             tableBody.insertAdjacentHTML("beforeend", row);
           });
         } catch (err) {
-          console.error("? Không tải được danh sách báo cáo:", err);
+          console.error("❌ Không tải được danh sách báo cáo:", err);
           tableBody.innerHTML = `<tr><td colspan="4" class="text-danger text-center">Lỗi khi tải danh sách</td></tr>`;
         }
       }
@@ -3856,9 +3574,9 @@
           document.body.removeChild(a);
           window.URL.revokeObjectURL(url);
         } catch (err) {
-          console.error("? Lỗi khi tải file:", err);
+          console.error("❌ Lỗi khi tải file:", err);
           alert(
-            "Không thể tải báo cáo. Vui lòng kiểm tra token hoặc đăng nhập lỗi."
+            "Không thể tải báo cáo. Vui lòng kiểm tra token hoặc đăng nhập lại."
           );
         }
       }
@@ -3874,7 +3592,7 @@
             <h5 class="modal-title">Xác nhận đăng xuất</h5>
           </div>
           <div class="modal-body">
-            <p>Bạn có chắc chọn muốn đăng xuất khỏi hệ thống?</p>
+            <p>Bạn có chắc chắn muốn đăng xuất khỏi hệ thống?</p>
           </div>
           <div class="modal-footer">
             <button class="btn btn-secondary" data-bs-dismiss="modal">
@@ -3936,7 +3654,7 @@
             </div>
           </div>
           <div class="modal-footer">
-            <button class="btn btn-secondary" data-bs-dismiss="modal" id="fpCloseBtn">Close</button>
+            <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             <button class="btn btn-primary" onclick="confirmForgotPw()" id="fpConfirmBtn">Reset Password</button>
           </div>
         </div>
@@ -3949,7 +3667,7 @@
         <div class="modal-content">
           <div class="modal-header bg-primary text-white">
             <h5 class="modal-title" id="reportModalLabel">
-              Danh sách báo cáo đã tạo
+              📄 Danh sách báo cáo đã tạo
             </h5>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
@@ -3957,7 +3675,7 @@
             <table class="table table-hover">
               <thead>
                 <tr>
-                  <th id="reportsHeaderIndex">STT</th>
+                  <th id="reportsHeaderIndex">#</th>
                   <th id="reportsHeaderName">Tên báo cáo</th>
                   <th id="reportsHeaderCreated">Thời gian tạo</th>
                   <th id="reportsHeaderDownload">Tải xuống</th>
@@ -4003,15 +3721,11 @@
             <h5 class="modal-title">Không có báo cáo mới</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
           </div>
-          <div class="modal-body d-flex align-items-start gap-2">
-            <i class="fas fa-info-circle fs-4 text-info mt-1" aria-hidden="true"></i>
-            <div>
-              <span class="visually-hidden">Thông tin: </span>
-              Quá trình xử lý đã hoàn tất, nhưng không có bài báo mới nên không tạo báo cáo nào.
-            </div>
+          <div class="modal-body">
+            ✅ Quá trình xử lý đã hoàn tất, nhưng không có bài báo mới nên không tạo báo cáo nào.
           </div>
           <div class="modal-footer">
-            <!-- Tùy chọn: nút hành động -->
+            <!-- tuỳ chọn: nút hành động -->
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
             <!-- <button class="btn btn-primary" onclick="openKeywordModal()">Điều chỉnh từ khóa</button> -->
           </div>
@@ -4075,7 +3789,8 @@
               Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
           });
-          await loadStatus(); // G?i lỗi d? c?p nh?t UI
+
+          if (labelEl) labelEl.textContent = (typeof t === "function") ? (isCurrentlyPaused ? t("pause") : t("resume")) : (isCurrentlyPaused ? "Pause" : "Resume"); loadStatus(); // Gọi lại để cập nhật UI
         } catch (err) {
           console.error(err);
         }
@@ -4184,7 +3899,7 @@
                   </div>
                   <div class="col-auto">
                     <button class="btn btn-sm btn-outline-secondary" type="button" id="pipelineMediaClearBtn">
-                      Bở chọn tất cả
+                      Bỏ chọn tất cả
                     </button>
                   </div>
                 </div>
@@ -4310,7 +4025,7 @@
                 <div class="mb-3">
                   <label class="form-label">Default Model</label>
                   <select class="form-select" id="defaultModel">
-                    <!-- Sẽ được fill động theo provider -->
+                    <!-- sẽ được fill động theo provider -->
                   </select>
                   <div class="form-text">
                     Chọn model tương ứng với provider.
@@ -4337,7 +4052,7 @@
                   <div class="col-12 col-md-6">
                     <label class="form-label" for="currentPassword"><span id="currentPasswordLabel">Current
                         password</span></label>
-                    <input type="password" class="form-control" id="currentPassword" placeholder="" />
+                    <input type="password" class="form-control" id="currentPassword" placeholder="••••••••" />
                   </div>
                   <div class="col-12 col-md-6">
                     <label class="form-label" for="newPassword"><span id="newPasswordLabel">New password</span></label>
@@ -4417,7 +4132,6 @@
         const title = document.getElementById('authTitle'); if (title) title.textContent = register ? to('register') : to('login');
         const wrap = document.getElementById('confirmPasswordWrap'); if (wrap) wrap.style.display = register ? 'block' : 'none';
         const btn = document.getElementById('authSubmitBtn'); if (btn) btn.textContent = register ? to('register') : to('login');
-        const fp = document.getElementById('forgotPasswordLink'); if (fp) fp.style.display = register ? 'none' : 'inline';
         const toggle = document.getElementById('toggleAuthText');
         if (toggle) {
           toggle.innerHTML = register

@@ -9,6 +9,7 @@ import json
 import logging
 import re
 from typing import List, Dict, Optional
+import unicodedata
 from urllib.parse import urljoin, urlparse
 from .models import Article, MediaSource, ContentCluster, IndustryType
 from datetime import datetime
@@ -74,16 +75,63 @@ class ArticleParser:
                         return self._parse_from_json_list(
                             data["articles"], media_source, industry_name
                         )
-                    for key in data:
-                        if isinstance(data[key], list):
+                    for key, val in data.items():
+                        if isinstance(val, list) and any(isinstance(it, dict) for it in val):
                             return self._parse_from_json_list(
-                                data[key], media_source, industry_name
+                                [it for it in val if isinstance(it, dict)],
+                                media_source,
+                                industry_name,
                             )
-                    return self._parse_from_json_list([data], media_source)
+                    return self._parse_from_json_list(
+                        [data], media_source, industry_name
+                    )
         except json.JSONDecodeError:
             logger.warning("Content is not valid JSON. Falling back to text parsing.")
 
         return self._parse_text_articles_robust(content, media_source, industry_name)
+
+    @staticmethod
+    def _normalize_text(s: Optional[str]) -> str:
+        if not s:
+            return ""
+        # Lowercase and strip accents, keep alphanumerics only
+        s = s.lower()
+        s = unicodedata.normalize("NFKD", s)
+        s = "".join(ch for ch in s if not unicodedata.combining(ch))
+        # Replace common artifacts
+        for bad, good in (
+            ("?", ""),
+            ("_", ""),
+        ):
+            s = s.replace(bad, good)
+        return "".join(ch for ch in s if ch.isalnum())
+
+    @staticmethod
+    def _to_industry_type(name: Optional[str]) -> IndustryType:
+        """Map a possibly garbled industry name to a valid IndustryType."""
+        if not name:
+            return IndustryType.DAU_AN
+        # 1) Try exact match first
+        try:
+            return IndustryType(name)
+        except Exception:
+            pass
+        # 2) Try normalized heuristics
+        norm = ArticleParser._normalize_text(name)
+        if any(k in norm for k in ["uht", "sua", "milk"]):
+            return IndustryType.SUA_UHT
+        if any(k in norm for k in ["dauan", "dauanoi", "dauanu", "dau"]):
+            return IndustryType.DAU_AN
+        if "giavi" in norm or "seasoning" in norm or "spice" in norm:
+            return IndustryType.GIA_VI
+        if "gao" in norm or "ngucoc" in norm or "cereal" in norm:
+            return IndustryType.GAO_NGU_COC
+        if "baby" in norm or "treem" in norm:
+            return IndustryType.BABY_FOOD
+        if "homecare" in norm or "home" in norm:
+            return IndustryType.HOME_CARE
+        # 3) Default fallback
+        return IndustryType.DAU_AN
 
     def _parse_from_json_list(
         self,
@@ -147,11 +195,7 @@ class ArticleParser:
                     dt_obj = datetime.now()
                 ngay_phat_hanh = dt_obj.date()
 
-                final_nganh_hang = (
-                    IndustryType(industry_name)
-                    if industry_name
-                    else IndustryType.DAU_AN
-                )
+                final_nganh_hang = self._to_industry_type(industry_name)
                 article = Article(
                     stt=item.get("stt", i + 1),
                     ngay_phat_hanh=ngay_phat_hanh,
@@ -187,6 +231,19 @@ class ArticleParser:
             for k in ["tài trợ", "csr", "môi trường", "cộng đồng", "từ thiện"]
         ):
             return ContentCluster.CHUONG_TRINH_CSR
+        elif any(
+            k in lower
+            for k in [
+                "hàng giả",
+                "giả mạo",
+                "hàng nhái",
+                "tem giả",
+                "nhãn giả",
+                "làm giả",
+                "buôn lậu",
+            ]
+        ):
+            return ContentCluster.THI_TRUONG_HANG_GIA
         elif any(
             k in lower
             for k in [
@@ -299,14 +356,7 @@ class ArticleParser:
                     continue
 
                 # Ngành hàng
-                try:
-                    final_nganh_hang = (
-                        IndustryType(industry_name)
-                        if industry_name
-                        else IndustryType.DAU_AN
-                    )
-                except ValueError:
-                    final_nganh_hang = IndustryType.DAU_AN
+                final_nganh_hang = self._to_industry_type(industry_name)
 
                 article = Article(
                     stt=len(articles) + 1,

@@ -1,4 +1,4 @@
-# src/services.py
+﻿# src/services.py
 """
 Service Layer for the Media Tracker Bot.
 This layer contains the core business logic and orchestrates the pipeline.
@@ -29,21 +29,31 @@ from .models import CompetitorReport, Article
 from .agents import MediaTrackerTeam, AgentManager
 from .configs import AppSettings
 from .task_state import task_manager
+from .tasks import run, complete, mark_cancelled, fail
+
+def _get_bool_env(name: str, default: bool = False) -> bool:
+    val = os.getenv(name)
+    if val is None:
+        return default
+    return str(val).strip().lower() in {"1", "true", "yes", "on"}
 
 # Attempt to import Celery task wrapper. If the `celery` package is not
 # installed or the module cannot be imported, we fall back to using
 # asyncio.create_task for background execution.
 try:
     from .celery_worker import run_pipeline_task  # type: ignore[import]
-
-    CELERY_AVAILABLE = True
+    _celery_import_ok = True
 except Exception:
     run_pipeline_task = None  # type: ignore[assignment]
-    CELERY_AVAILABLE = False
+    _celery_import_ok = False
+
+# Final switch comes from .env: if CELERY_AVAILABLE=true and celery import is ok,
+# Celery will be used; otherwise local async execution is used.
+CELERY_AVAILABLE = _get_bool_env("CELERY_AVAILABLE", False) and _celery_import_ok
 
 logger = logging.getLogger(__name__)
 
-SECRET_KEY = "your_secret_key"
+SECRET_KEY = os.getenv("JWT_SECRET_KEY", "your_secret_key")
 ALGORITHM = "HS256"
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/login")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "120"))
@@ -204,7 +214,7 @@ class PipelineService:
         task = next(
             (t for t in tasks if t["session_id"] == self.current_session_id), None
         )
-        return task and task["status"] == "cancelled"
+        return task and task["status"] in ("cancelling", "cancelled")
 
     def should_pause(self):
         tasks = task_manager.get_tasks(self.user_email)
@@ -215,7 +225,7 @@ class PipelineService:
 
     def resume_task_worker(self, session_id):
         logger.info(f"[{session_id}] Resuming pipeline execution (resume_task_worker)")
-        use_celery = CELERY_AVAILABLE and os.getenv("CELERY_ENABLED", "0") == "1"
+        use_celery = CELERY_AVAILABLE
         if use_celery:
             try:
                 # Dispatch resumed execution to Celery
@@ -260,19 +270,68 @@ class PipelineService:
 
             remaining = [s for s in all_sources if s not in completed_or_failed]
 
-            task_manager.update_task(
+            # Compute a monotonic, source-based progress estimate to keep UI tight
+            try:
+                total_sources = max(1, len(all_sources))
+                auto_progress = (len(completed_or_failed) / total_sources) * 100.0
+                safe_progress = float(progress or 0.0)
+                progress = max(min(100.0, auto_progress), min(100.0, safe_progress))
+            except Exception:
+                pass
+
+            extra_fields = {}
+            if isinstance(current_task, dict) and current_task.get("message_key"):
+                extra_fields["message_key"] = current_task.get("message_key")
+                extra_fields["message_params"] = current_task.get("params") or {}
+                current_task_val = None
+            else:
+                # Heuristic: map common free-text messages to structured i18n keys
+                current_task_val = current_task
+                try:
+                    s = str(current_task or "")
+                    sl = s.lower()
+                    if "crawling" in sl and source_name:
+                        extra_fields["message_key"] = "task.crawling_source"
+                        extra_fields["message_params"] = {"source": source_name}
+                        current_task_val = None
+                    elif "keyword" in sl and source_name:
+                        # Attempt to parse keywords after ':'
+                        kw = None
+                        idx = sl.find("keyword")
+                        if idx != -1:
+                            part = s[idx:]
+                            if ":" in part:
+                                kw = part.split(":", 1)[1].strip()
+                        extra_fields["message_key"] = "task.crawling_keywords"
+                        extra_fields["message_params"] = {
+                            "source": source_name,
+                            "keywords": kw or "",
+                        }
+                        current_task_val = None
+                    elif "retry" in sl:
+                        import re
+
+                        m = re.search(r"(\d+).*?(\d+)", sl)
+                        if m:
+                            extra_fields["message_key"] = "task.retrying"
+                            extra_fields["message_params"] = {
+                                "attempt": int(m.group(1)),
+                                "max": int(m.group(2)),
+                            }
+                            current_task_val = None
+                except Exception:
+                    pass
+            run(
                 self.user_email,
                 self.current_session_id,
-                {
-                    "current_source": source_name,
-                    "completed_sources": completed,
-                    "failed_sources": failed,
-                    "progress": progress,
-                    "current_task": current_task,
-                    "status": "running",
-                    "remaining_sources": remaining,
-                    "source_status_list": self.team.source_status_list,  # Lưu luôn vào task
-                },
+                current_source=source_name,
+                completed_sources=completed,
+                failed_sources=failed,
+                progress=progress,
+                current_task=current_task_val,
+                remaining_sources=remaining,
+                source_status_list=self.team.source_status_list,
+                **extra_fields,
             )
 
     async def retry_task_worker(app_settings, user_email, session_id):
@@ -302,7 +361,8 @@ class PipelineService:
                     logger.info(
                         f"[{session_id}] Task was cancelled while paused. Exiting."
                     )
-                    return  # 👉 Dừng ngay, không tiếp tục
+                    self.agent_manager.cancel_all_providers(session_id)
+                    raise asyncio.CancelledError()
                 else:
                     break  # Resume hợp lệ
             logger.info(
@@ -311,40 +371,31 @@ class PipelineService:
 
         # Kiểm tra lại trạng thái trước khi tiếp tục
         current_status = task_manager.get_task_status(self.user_email, session_id)
-        if current_status == "cancelled":
+        if current_status in ("cancelling", "cancelled"):
             logger.info(f"[{session_id}] Task is cancelled. Exiting worker.")
-            return
+            self.agent_manager.cancel_all_providers(session_id)
+            raise asyncio.CancelledError()
 
         if current_status == "pending":
             logger.info(f"[{session_id}] Task is pending. Preparing pipeline setup...")
-            task_manager.update_task(
+            run(
                 self.user_email,
                 session_id,
-                {
-                    "status": "pending",
-                    "current_task": "Preparing tools and resources...",
-                    "progress": 0.0,
-                },
+                message_key="task.crawling_wait",
+                message_params={},
+                progress=0.0,
             )
-            await asyncio.sleep(5)  # Cho FE thấy trạng thái pending
+            await asyncio.sleep(5)
 
             # Kiểm tra lại trạng thái trước khi chuyển sang running
             current_status = task_manager.get_task_status(self.user_email, session_id)
-            if current_status == "cancelled":
+            if current_status in ("cancelling", "cancelled"):
                 logger.info(
                     f"[{session_id}] Task was cancelled during pending. Exiting."
                 )
                 return
 
-            task_manager.update_task(
-                self.user_email,
-                session_id,
-                {
-                    "status": "running",
-                    "current_task": "Crawling... please wait.",
-                    "progress": 0.0,
-                },
-            )
+            # Do not override the status here; it has been set to "running" above.
 
         # Bắt đầu pipeline thực sự
         try:
@@ -359,20 +410,18 @@ class PipelineService:
                 custom_keywords=params["custom_keywords"],
                 selected_sources=params.get("selected_sources") or [],
             )
-            task_manager.update_task(
-                self.user_email, session_id, {"status": "completed", "progress": 100.0}
-            )
+
+            # Re-check in case cancellation came in right at the end
+            current_status = task_manager.get_task_status(self.user_email, session_id)
+            if current_status in ("cancelling", "cancelled"):
+                mark_cancelled(self.user_email, session_id)
+                return
+
+            complete(self.user_email, session_id)
 
         except asyncio.CancelledError:
             logger.warning(f"[{session_id}] ⚠️ Task forcefully cancelled.")
-            task_manager.update_task(
-                self.user_email,
-                session_id,
-                {
-                    "status": "cancelled",
-                    "current_task": "Pipeline was cancelled",
-                },
-            )
+            mark_cancelled(self.user_email, session_id)
 
         except Exception as e:
             logger.error(
@@ -383,24 +432,23 @@ class PipelineService:
                 logger.info(
                     f"[{session_id}] Retry {task['retry_count']} / {task['max_retries']}"
                 )
-                task_manager.update_task(
+                # Do NOT set a terminal state; keep task running for retry
+                run(
                     self.user_email,
                     session_id,
-                    {
-                        "status": "pending",
-                        "current_source": None,
-                        "progress": 0.0,
-                        "current_task": "Chuẩn bị retry sau lỗi",
+                    message_key="task.retrying",
+                    message_params={
+                        "attempt": task["retry_count"],
+                        "max": task["max_retries"],
                     },
+                    progress=task.get("progress", 0.0),
                 )
                 await asyncio.sleep(5)
                 asyncio.create_task(
                     self._task_worker(session_id)
                 )  # Tự gọi lại để retry
             else:
-                task_manager.update_task(
-                    self.user_email, session_id, {"status": "failed", "error": str(e)}
-                )
+                fail(self.user_email, session_id, str(e))
 
     def run_background_task(
         self,
@@ -434,7 +482,6 @@ class PipelineService:
             "progress": 0.0,
             "retry_count": 0,
             "max_retries": 2,
-            # Thông tin cần cho dashboard
             "params": {
                 "start_date": start_date,
                 "end_date": end_date,
@@ -450,6 +497,7 @@ class PipelineService:
         }
 
         task_manager.add_task(self.user_email, task_data)
+        # Ensure task has updated_at and normalized state via transition helper
         task_manager.set_task_attr(
             self.user_email,
             session_id,
@@ -475,10 +523,18 @@ class PipelineService:
         )
 
         # Choose between Celery and local async task execution
-        use_celery = CELERY_AVAILABLE and os.getenv("CELERY_ENABLED", "0") == "1"
+        use_celery = CELERY_AVAILABLE
+        fallback_ok = os.getenv("CELERY_FALLBACK_LOCAL", "1") == "1"
+
         if use_celery:
             # Dispatch to Celery worker; do not await
             try:
+                logger.info(
+                    "[%s] Dispatching to Celery (CELERY_AVAILABLE=%s, broker=%s)",
+                    session_id,
+                    CELERY_AVAILABLE,
+                    os.getenv("CELERY_BROKER_URL"),
+                )
                 run_pipeline_task.delay(
                     session_id=session_id,
                     user_email=user_email,
@@ -487,13 +543,28 @@ class PipelineService:
                     custom_keywords=custom_keywords,
                     selected_sources=selected_sources,
                 )
+                # Important: return here to avoid creating a local task
+                return session_id
             except Exception as exc:
                 logger.exception(
-                    f"Failed to dispatch Celery task for session {session_id}: {exc}"
+                    "Failed to dispatch Celery task for session %s: %s",
+                    session_id,
+                    exc,
                 )
-                # Fallback to local execution
+                if not fallback_ok:
+                    # Do not fallback locally; surface the error to caller/UI
+                    raise
+                logger.warning(
+                    "[%s] Falling back to local background task (CELERY_FALLBACK_LOCAL=1)",
+                    session_id,
+                )
                 asyncio.create_task(self._task_worker(session_id))
         else:
+            logger.info(
+                "[%s] Running locally (CELERY_AVAILABLE=%s)",
+                session_id,
+                CELERY_AVAILABLE,
+            )
             # Fall back to local asynchronous execution
             asyncio.create_task(self._task_worker(session_id))
 
@@ -549,9 +620,9 @@ class PipelineService:
                 f.write(report.model_dump_json(indent=2))
 
             # ---------------- Build Overall (mỗi ngành = 1 dòng, giữ TÊN đầu báo) ----------------
-            brands_by_ind = defaultdict(list)   # industry -> [brand, ...]
-            papers_by_ind = defaultdict(set)    # industry -> {paper, ...}
-            count_by_ind  = defaultdict(int)    # industry -> total articles
+            brands_by_ind = defaultdict(list)  # industry -> [brand, ...]
+            papers_by_ind = defaultdict(set)  # industry -> {paper, ...}
+            count_by_ind = defaultdict(int)  # industry -> total articles
 
             for a in report.articles:
                 ind = _clean_one_line(getattr(a, "nganh_hang", None))
@@ -559,7 +630,7 @@ class PipelineService:
                     continue
 
                 # brands
-                for b in (getattr(a, "nhan_hang", None) or []):
+                for b in getattr(a, "nhan_hang", None) or []:
                     b = _clean_one_line(b)
                     if b:
                         brands_by_ind[ind].append(b)
@@ -578,12 +649,14 @@ class PipelineService:
                 nhan_hang_txt = ", ".join(brands)  # 1 dòng
                 paper_names = _dedup_preserve_order(list(papers_by_ind.get(ind, set())))
                 paper_names_txt = ", ".join(paper_names)  # 1 dòng
-                rows.append({
-                    "Ngành hàng": ind,
-                    "Nhãn hàng": nhan_hang_txt,
-                    "Các đầu báo": paper_names_txt,      # giữ TÊN
-                    "Số lượng bài": count_by_ind.get(ind, 0),
-                })
+                rows.append(
+                    {
+                        "Ngành hàng": ind,
+                        "Nhãn hàng": nhan_hang_txt,
+                        "Các đầu báo": paper_names_txt,  # giữ TÊN
+                        "Số lượng bài": count_by_ind.get(ind, 0),
+                    }
+                )
 
             # Sau đó thêm các ngành phát sinh (nếu có) ngoài template
             # extra_inds = sorted(set(brands_by_ind.keys()) - set(TEMPLATE_INDUSTRIES))
@@ -609,14 +682,18 @@ class PipelineService:
 
                 ws = writer.sheets["Summary - Overall"]
                 # Định dạng: hạn chế xuống dòng, co chữ nếu cần
-                ws.column_dimensions["A"].width = 18   # Ngành hàng
-                ws.column_dimensions["B"].width = 48   # Nhãn hàng
-                ws.column_dimensions["C"].width = 70   # Các đầu báo (tên dài)
-                ws.column_dimensions["D"].width = 14   # Số lượng bài
+                ws.column_dimensions["A"].width = 18  # Ngành hàng
+                ws.column_dimensions["B"].width = 48  # Nhãn hàng
+                ws.column_dimensions["C"].width = 70  # Các đầu báo (tên dài)
+                ws.column_dimensions["D"].width = 14  # Số lượng bài
                 for r in range(2, ws.max_row + 1):
                     ws[f"A{r}"].alignment = Alignment(vertical="center")
-                    ws[f"B{r}"].alignment = Alignment(wrap_text=False, vertical="center")
-                    ws[f"C{r}"].alignment = Alignment(wrap_text=False, shrink_to_fit=True, vertical="center")
+                    ws[f"B{r}"].alignment = Alignment(
+                        wrap_text=False, vertical="center"
+                    )
+                    ws[f"C{r}"].alignment = Alignment(
+                        wrap_text=False, shrink_to_fit=True, vertical="center"
+                    )
                     ws[f"D{r}"].alignment = Alignment(vertical="center")
 
                 # 2) Summary theo ngành (1 sheet / ngành)
@@ -632,14 +709,18 @@ class PipelineService:
                             and article.nganh_hang == s.nganh_hang
                         ]
                         # Cụm nội dung unique, sắp xếp ổn định
-                        clusters = sorted({
-                            _clean_one_line(article.cum_noi_dung)
-                            for article in related_articles
-                            if getattr(article, "cum_noi_dung", None)
-                        })
-                        cluster_text = "\n".join(
-                            f"{i+1}. {c}" for i, c in enumerate(clusters)
-                        ) if clusters else ""
+                        clusters = sorted(
+                            {
+                                _clean_one_line(article.cum_noi_dung)
+                                for article in related_articles
+                                if getattr(article, "cum_noi_dung", None)
+                            }
+                        )
+                        cluster_text = (
+                            "\n".join(f"{i+1}. {c}" for i, c in enumerate(clusters))
+                            if clusters
+                            else ""
+                        )
 
                         rows_ind.append(
                             {
@@ -657,8 +738,12 @@ class PipelineService:
                     ws_ind.column_dimensions["C"].width = 16
                     # wrap cho cột “Cụm nội dung”
                     for r in range(2, ws_ind.max_row + 1):
-                        ws_ind[f"A{r}"].alignment = Alignment(wrap_text=False, vertical="center")
-                        ws_ind[f"B{r}"].alignment = Alignment(wrap_text=True, vertical="top")
+                        ws_ind[f"A{r}"].alignment = Alignment(
+                            wrap_text=False, vertical="center"
+                        )
+                        ws_ind[f"B{r}"].alignment = Alignment(
+                            wrap_text=True, vertical="top"
+                        )
                         ws_ind[f"C{r}"].alignment = Alignment(vertical="center")
 
                 # 3) Mỗi nhãn hàng một sheet bài báo (đặt ngành theo đa số)
@@ -692,7 +777,8 @@ class PipelineService:
                                 "STT": a.stt,
                                 "Ngày phát hành": a.ngay_phat_hanh.strftime("%d/%m/%Y"),
                                 "Đầu báo": a.dau_bao,
-                                "Cụm nội dung": a.cum_noi_dung_chi_tiet or a.cum_noi_dung,
+                                "Cụm nội dung": a.cum_noi_dung_chi_tiet
+                                or a.cum_noi_dung,
                                 "Tóm tắt nội dung": a.tom_tat_noi_dung,
                                 "Link bài báo": a.link_bai_bao,
                                 "Keywords": ", ".join(a.keywords_found or []),
@@ -701,7 +787,9 @@ class PipelineService:
                         ]
                     )
                     df_brand["STT"] = range(1, len(df_brand) + 1)
-                    df_brand = df_brand[["STT"] + [c for c in df_brand.columns if c != "STT"]]
+                    df_brand = df_brand[
+                        ["STT"] + [c for c in df_brand.columns if c != "STT"]
+                    ]
                     df_brand.to_excel(writer, sheet_name=sheet_name, index=False)
 
                 # 4) Sheet cho các bài không có nhãn hàng
@@ -716,7 +804,8 @@ class PipelineService:
                                 "STT": a.stt,
                                 "Ngày phát hành": a.ngay_phat_hanh.strftime("%d/%m/%Y"),
                                 "Đầu báo": a.dau_bao,
-                                "Cụm nội dung": a.cum_noi_dung_chi_tiet or a.cum_noi_dung,
+                                "Cụm nội dung": a.cum_noi_dung_chi_tiet
+                                or a.cum_noi_dung,
                                 "Tóm tắt nội dung": a.tom_tat_noi_dung,
                                 "Link bài báo": a.link_bai_bao,
                             }
@@ -738,4 +827,3 @@ class PipelineService:
             logger.info(f"Report saved to {json_file} and {excel_file}")
         except Exception as e:
             logger.error(f"Failed to save report: {e}", exc_info=True)
-

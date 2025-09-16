@@ -1,0 +1,86 @@
+﻿1:# tasks.py
+2:from datetime import datetime
+3:from .task_state import task_manager
+4:
+5:TERMINAL = {"completed", "cancelled", "failed"}
+6:ALLOWED = {
+7:    "idle": {"pending"},
+8:    "pending": {"running", "cancelling", "failed"},
+9:    "running": {"paused", "cancelling", "completed", "failed"},
+10:    "paused": {"running", "cancelling", "failed"},
+11:    "cancelling": {"cancelled", "failed"},
+12:    "cancelled": {"idle"},
+13:    "completed": set(),
+14:    "failed": set(),
+15:}
+16:
+17:
+18:# Use the shared singleton task_manager from task_state
+19:def _is_allowed(curr, new):
+20:    return (curr == new) or (new in ALLOWED.get(curr or "idle", set()))
+21:
+22:
+23:def transition(user_email: str, session_id: str, new_status: str, **fields) -> bool:
+24:    tasks = task_manager.get_tasks(user_email)
+25:    curr = next((t for t in tasks if t.get("session_id") == session_id), None)
+26:    if not curr:
+27:        # Táº¡o khung task tá»‘i thiá»ƒu rá»“i má»›i update
+28:        task_manager.add_task(
+29:            user_email, {"session_id": session_id, "status": "idle", "progress": 0}
+30:        )
+31:
+32:    # Láº¥y láº¡i (hoáº·c dÃ¹ng curr máº·c Ä‘á»‹nh)
+33:    curr_status = curr.get("status") if curr else "idle"
+34:    if not _is_allowed(curr_status, new_status):
+35:        return False
+36:
+37:    payload = {
+38:        "status": new_status,
+39:        "final": new_status in TERMINAL,
+40:        "updated_at": datetime.utcnow().isoformat() + "Z",
+41:        **fields,
+42:    }
+43:    task_manager.update_task(user_email, session_id, payload)
+44:    return True
+45:
+46:
+47:def reset_idle(user, sid):
+48:    return transition(
+49:        user, sid, "idle", final=True, progress=0, current_task=None, error=None
+50:    )
+51:
+52:
+53:# ---- CÃ¡c thao tÃ¡c idempotent (gá»i á»Ÿ routes & worker) ----
+54:def start(user, sid, total_sources=0, **kw):
+55:    return transition(
+56:        user, sid, "pending", progress=0, total_sources=total_sources, **kw
+57:    )
+58:
+59:
+60:def run(user, sid, **kw):
+61:    return transition(user, sid, "running", **kw)
+62:
+63:
+64:def pause(user, sid):
+65:    return transition(user, sid, "paused")
+66:
+67:
+68:def resume(user, sid):
+69:    return transition(user, sid, "running")
+70:
+71:
+72:def request_cancel(user, sid):
+73:    return transition(user, sid, "cancelling")
+74:
+75:
+76:def mark_cancelled(user, sid):
+77:    return transition(user, sid, "cancelled", progress=0)
+78:
+79:
+80:def complete(user, sid):
+81:    return transition(user, sid, "completed", progress=100)
+82:
+83:
+84:def fail(user, sid, msg=None):
+85:    return transition(user, sid, "failed", error=msg or "Unknown error")
+

@@ -1,9 +1,9 @@
 from ddgs import DDGS
 
 sites = [
-    "site:laodong.vn Vinamilk tag",
-    "site:vnexpress.net Vinamilk tag",
-    "site:tuoitre.vn Vinamilk tag",
+    "site:baodautu.vn bài viết liên quan Hipp",
+    # "site:vnexpress.net Vinamilk tag",
+    # "site:tuoitre.vn Vinamilk tag",
 ]
 
 for query in sites:
@@ -14,7 +14,7 @@ for query in sites:
         safesearch="off",
         timelimit="y",
         page=1,
-        backend="auto",
+        backend="mullvad_google",
     )
     print("results id:", id(results))  # để check object khác nhau
 

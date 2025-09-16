@@ -10,7 +10,8 @@ To activate Celery, ensure that:
   - The `celery` and `redis` packages are installed (see requirements.txt).
   - `CELERY_BROKER_URL` and `CELERY_RESULT_BACKEND` are configured in your
     environment (.env file). Defaults point to a local Redis instance.
-  - The environment variable `CELERY_ENABLED` is set to "1".
+  - The environment variable `CELERY_AVAILABLE` is set to a truthy value
+    (e.g., "true", "1", "yes").
   - A Celery worker process is running, e.g. via `celery -A main.celery_app worker --loglevel=info`.
 
 Note: This task function wraps the asynchronous pipeline logic using
@@ -26,9 +27,14 @@ import asyncio
 from celery import Celery
 
 # Local imports must be relative for Celery autodiscovery
-from .services import PipelineService
 from .configs import settings
 from .task_state import task_manager
+from typing import TYPE_CHECKING
+
+# Avoid circular import at module import time.
+# Only import PipelineService when the task actually runs.
+if TYPE_CHECKING:
+    from .services import PipelineService  # type: ignore
 
 
 # Configure Celery application. The broker and result backend default to
@@ -60,6 +66,9 @@ def run_pipeline_task(
     """
     # Update the task status to running at the start of execution
     task_manager.update_task(user_email, session_id, {"status": "running"})
+    # Local import to avoid circular import when src.services tries to import this module
+    from .services import PipelineService  # type: ignore
+
     pipeline_service = PipelineService(app_settings=settings, user_email=user_email)
     try:
         # Execute the asynchronous pipeline; wrap in asyncio.run for Celery

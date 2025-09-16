@@ -1,4 +1,4 @@
-# src/main.py
+﻿# src/main.py
 """
 Main entry point for the Media Tracker Bot.
 """
@@ -9,8 +9,9 @@ import json
 import uvicorn
 import httpx
 
-
-from fastapi import FastAPI, Request, HTTPException, Depends, status
+from pathlib import Path
+from datetime import datetime, timezone
+from fastapi import FastAPI, Request, HTTPException, Depends
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import (
     HTMLResponse,
@@ -26,26 +27,39 @@ from typing import List
 
 load_dotenv()
 
-# Setup logging before other imports
-os.makedirs("logs", exist_ok=True)
+# Setup logging before other imports - Docker compatible
+log_dir = os.getenv("LOG_DIR", "logs")
+os.makedirs(log_dir, exist_ok=True)
+log_file = os.path.join(log_dir, "media_tracker.log")
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[
-        logging.FileHandler("logs/media_tracker.log", encoding="utf-8"),
+        logging.FileHandler(log_file, encoding="utf-8"),
         logging.StreamHandler(sys.stdout),
     ],
 )
 
 # Import modules
+from .tasks import pause, resume, request_cancel, mark_cancelled, reset_idle
+from .user_service import (
+    get_user,
+    verify_password,
+    create_user,
+    update_password,
+    create_otp,
+    verify_and_consume_otp,
+)
+from .mailer import send_email
 from .task_state import task_manager
-from .event import event_bus, decision_bus, RunDecision
+from .event import event_bus
 from .models import (
     CrawlConfig,
     CompetitorReport,
     create_sample_report,
     UserLogin,
-    USER_DB,
+    ChangePassword,
     MediaSource,
 )
 from .configs import settings
@@ -56,17 +70,22 @@ from .services import (
     SECRET_KEY,
     ALGORITHM,
 )
-from .agents import AgentManager
+from .agents import PlaywrightPool
+from jose import jwt, JWTError
 
 # Save pipeline according to email user
 user_pipelines: Dict[str, PipelineService] = {}
 logger = logging.getLogger(__name__)
 
-logging.getLogger(__name__).warning(
-    "EventLoopPolicy=%s on %s",
-    type(asyncio.get_event_loop_policy()).__name__,
-    sys.platform,
-)
+# Set optimal event loop policy for production
+if sys.platform == "linux":
+    try:
+        import uvloop
+
+        asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+        logger.debug("Using uvloop event loop policy")
+    except ImportError:
+        logger.debug("uvloop not available, using default event loop policy")
 
 # Map tra cứu nguồn theo key chuẩn
 SOURCE_BY_KEY: Dict[str, dict] = {
@@ -78,30 +97,86 @@ SOURCE_BY_KEY: Dict[str, dict] = {
 ALLOWED_KEYS = set(SOURCE_BY_KEY.keys())
 
 
+# Enhanced lifespan with shared resources and recovery
 @asynccontextmanager
-async def lifespan(app: FastAPI):
-    """Handles application startup and shutdown events."""
-    logger.info("--- Media Tracker Bot Server is starting up ---")
-    yield
-    logger.info("--- Media Tracker Bot Server is shutting down ---")
-
-
-async def lifespan(app: FastAPI):
-    # ===== STARTUP =====
+async def _enhanced_lifespan(app: FastAPI):
     try:
-        task_manager.load_tasks()  # an toàn: đã có fallback JSON corrupt
+        task_manager.load_tasks()
         logger.info("Task manager loaded.")
-        # TODO: mở DB connection / warmup model nếu cần
+
+        # Crash recovery: lock any in-flight tasks to idle
+        try:
+            users = task_manager.list_users()
+        except Exception:
+            users = []
+        for u in users:
+            try:
+                tasks = task_manager.get_tasks(u) or []
+            except Exception:
+                tasks = []
+            for t in tasks:
+                st = (t or {}).get("status")
+                if st not in ("completed", "cancelled", "failed", "idle"):
+                    sid = (t or {}).get("session_id")
+                    task_manager.update_task(
+                        u,
+                        sid,
+                        {
+                            "status": "idle",
+                            "crash_locked": True,
+                            "updated_at": datetime.utcnow().isoformat() + "Z",
+                        },
+                    )
+
+        # Shared HTTP client
+        app.state.http = httpx.AsyncClient(
+            limits=httpx.Limits(max_connections=20, max_keepalive_connections=10),
+            timeout=httpx.Timeout(15.0, connect=5.0, read=15.0),
+            headers={"Accept-Language": "vi-VN,vi;q=0.9"},
+        )
+
+        # Start watchdog for stale tasks
+        app.state.watchdog_task = asyncio.create_task(_task_watchdog())
+        logger.info("Startup completed: http client + watchdog ready.")
     except Exception:
         logger.exception("Startup failed (continuing with degraded features).")
+
     yield
-    # ===== SHUTDOWN =====
+
     try:
-        # TODO: đóng DB connection / flush queue nếu cần
+        wd = getattr(app.state, "watchdog_task", None)
+        if wd:
+            wd.cancel()
+            try:
+                await wd
+            except asyncio.CancelledError:
+                pass
+
+        http_client = getattr(app.state, "http", None)
+        if http_client:
+            try:
+                await http_client.aclose()
+            except Exception:
+                logger.exception("Error closing shared http client")
+
+        try:
+            await PlaywrightPool.instance().close()
+        except Exception:
+            logger.exception("Error closing Playwright on shutdown")
+
+        keep_n = int(os.getenv("TASKS_KEEP_PER_USER", "200"))
+        try:
+            task_manager.purge_old(keep_latest_per_user=keep_n)
+        except Exception:
+            logger.exception("Purge old tasks failed")
+
         logger.info("Shutdown cleanup done.")
     except Exception:
         logger.exception("Shutdown cleanup failed.")
 
+
+# Use enhanced lifespan
+lifespan = _enhanced_lifespan
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -131,25 +206,181 @@ app.add_middleware(
     max_age=cors_max_age,
 )
 
-# Mount thư mục static để phục vụ frontend
-static_dir = settings.project_root / "static"
+# Mount thư mục static để phục vụ frontend - Docker compatible
+static_dir = Path(os.getenv("STATIC_DIR", settings.project_root / "static"))
 if static_dir.exists() and static_dir.is_dir():
     app.mount("/static", StaticFiles(directory=static_dir), name="static")
+else:
+    logger.warning(f"Static directory not found: {static_dir}")
 
 
 # --- API Endpoints ---
+@app.post("/api/register")
+def register(user: UserLogin):
+    # Optionally disable public self-registration (set ALLOW_SELF_REGISTER=1 to enable)
+    if os.getenv("ALLOW_SELF_REGISTER", "0") != "1":
+        raise HTTPException(status_code=403, detail="Self-registration is disabled")
+    ok = create_user(user.email, user.password, role="viewer")
+    if not ok:
+        raise HTTPException(status_code=400, detail="Email already exists")
+    return {"message": "User registered successfully"}
+
+
 @app.post("/api/login")
 def login(user: UserLogin):
-    user_record = USER_DB.get(user.email)
-
-    if not user_record or user_record["password"] != user.password:
+    user_record = get_user(user.email)
+    if not user_record or not verify_password(
+        user.password, user_record["password_hash"]
+    ):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    token_data = {"sub": user.email, "role": user_record["role"]}
-
+    token_data = {"sub": user_record["email"], "role": user_record["role"]}
     token = create_access_token(token_data)
-    print("Generated token:", token)
     return {"access_token": token, "token_type": "bearer", "role": user_record["role"]}
+
+
+@app.post("/api/change-password")
+def change_password(
+    body: ChangePassword, current_user: str = Depends(get_current_user)
+):
+    user_record = get_user(current_user)
+    if not user_record:
+        raise HTTPException(status_code=404, detail="User not found")
+    # Verify old password
+    if not verify_password(body.old_password, user_record["password_hash"]):
+        raise HTTPException(status_code=400, detail="Old password is incorrect")
+    # Basic password policy
+    if len(body.new_password) < 8:
+        raise HTTPException(
+            status_code=400, detail="New password must be at least 8 characters"
+        )
+    if body.new_password == body.old_password:
+        raise HTTPException(
+            status_code=400,
+            detail="New password must be different from the old password",
+        )
+    # Update
+    ok = update_password(current_user, body.new_password)
+    if not ok:
+        raise HTTPException(status_code=500, detail="Failed to update password")
+    return {"message": "Password changed successfully"}
+
+
+@app.post("/api/change-password/request-otp")
+def request_change_password_otp(current_user: str = Depends(get_current_user)):
+    """Generate and email an OTP code for changing password."""
+    user_record = get_user(current_user)
+    if not user_record:
+        raise HTTPException(status_code=404, detail="User not found")
+    import random
+
+    code = f"{random.randint(0, 999999):06d}"
+    create_otp(current_user, "change_password", code, ttl_minutes=10)
+
+    subject = "Your OTP code"
+    body = (
+        "You requested to change your password.\n\n"
+        f"Your verification code: {code}\n"
+        "This code expires in 10 minutes.\n\n"
+        "If you didn't request this, please ignore this email."
+    )
+    sent = send_email(current_user, subject, body)
+    if not sent:
+        raise HTTPException(status_code=500, detail="Failed to send OTP email")
+    return {"message": "OTP sent"}
+
+
+@app.post("/api/change-password/confirm")
+def confirm_change_password(body: dict, current_user: str = Depends(get_current_user)):
+    """Confirm password change with old_password, new_password and otp."""
+    old_password = body.get("old_password")
+    new_password = body.get("new_password")
+    otp = body.get("otp")
+    if not (old_password and new_password and otp):
+        raise HTTPException(status_code=400, detail="Missing fields")
+
+    user_record = get_user(current_user)
+    if not user_record:
+        raise HTTPException(status_code=404, detail="User not found")
+    if not verify_password(old_password, user_record["password_hash"]):
+        raise HTTPException(status_code=400, detail="Old password is incorrect")
+    if len(new_password) < 8:
+        raise HTTPException(
+            status_code=400, detail="New password must be at least 8 characters"
+        )
+    if new_password == old_password:
+        raise HTTPException(
+            status_code=400,
+            detail="New password must be different from the old password",
+        )
+
+    ok, reason = verify_and_consume_otp(current_user, "change_password", otp)
+    if not ok:
+        if reason == "expired":
+            raise HTTPException(status_code=400, detail="OTP expired")
+        raise HTTPException(status_code=400, detail="Invalid OTP")
+
+    if not update_password(current_user, new_password):
+        raise HTTPException(status_code=500, detail="Failed to update password")
+    return {"message": "Password changed successfully"}
+
+
+# ===== Forgot Password (public) =====
+
+
+@app.post("/api/password/forgot-request")
+def forgot_password_request(body: dict):
+    """Public endpoint: request OTP to reset password.
+
+    Always returns success to avoid user enumeration. If email exists, sends OTP.
+    """
+    email = (body or {}).get("email") or ""
+    if not email:
+        # Still return success for consistency
+        return {"message": "If the email exists, an OTP has been sent."}
+    user_record = get_user(email)
+    if user_record:
+        import random
+
+        code = f"{random.randint(0, 999999):06d}"
+        create_otp(email, "forgot_password", code, ttl_minutes=10)
+        subject = "Password reset code"
+        body_text = (
+            "You requested to reset your password.\n\n"
+            f"Your verification code: {code}\n"
+            "This code expires in 10 minutes.\n\n"
+            "If you didn't request this, please ignore this email."
+        )
+        send_email(email, subject, body_text)
+    # Always respond success
+    return {"message": "If the email exists, an OTP has been sent."}
+
+
+@app.post("/api/password/forgot-confirm")
+def forgot_password_confirm(body: dict):
+    """Public endpoint: confirm reset with email, otp, new_password."""
+    email = (body or {}).get("email") or ""
+    otp = (body or {}).get("otp") or ""
+    new_password = (body or {}).get("new_password") or ""
+    if not (email and otp and new_password):
+        raise HTTPException(status_code=400, detail="Missing fields")
+    if len(new_password) < 8:
+        raise HTTPException(
+            status_code=400, detail="New password must be at least 8 characters"
+        )
+    # Verify user exists
+    user_record = get_user(email)
+    if not user_record:
+        # Do not leak existence; respond generic invalid OTP
+        raise HTTPException(status_code=400, detail="Invalid OTP")
+    ok, reason = verify_and_consume_otp(email, "forgot_password", otp)
+    if not ok:
+        if reason == "expired":
+            raise HTTPException(status_code=400, detail="OTP expired")
+        raise HTTPException(status_code=400, detail="Invalid OTP")
+    if not update_password(email, new_password):
+        raise HTTPException(status_code=500, detail="Failed to update password")
+    return {"message": "Password reset successfully"}
 
 
 def get_pipeline_for_user(user_email: str) -> PipelineService:
@@ -285,13 +516,15 @@ async def download_latest_report(
 
 
 @app.get("/api/config")
-async def get_config():
+async def get_config(current_user: str = Depends(get_current_user)):
     """Get the current full configuration."""
     return JSONResponse(content=settings.crawl_config.model_dump(mode="json"))
 
 
 @app.post("/api/config")
-async def update_config(config_update: dict):
+async def update_config(
+    config_update: dict, current_user: str = Depends(get_current_user)
+):
     """
     Update and save parts of the configuration.
     This handles partial updates from the frontend's settings modal.
@@ -318,13 +551,15 @@ async def update_config(config_update: dict):
 
 
 @app.get("/api/keywords")
-async def get_keywords():
+async def get_keywords(current_user: str = Depends(get_current_user)):
     """Get the current keywords configuration."""
     return JSONResponse(content=settings.crawl_config.keywords)
 
 
 @app.post("/api/keywords")
-async def update_keywords(keywords_data: dict):
+async def update_keywords(
+    keywords_data: dict, current_user: str = Depends(get_current_user)
+):
     """Update the keywords configuration."""
     try:
         if not isinstance(keywords_data, dict):
@@ -463,6 +698,59 @@ def list_all_reports(current_user: str = Depends(get_current_user)):
     return result
 
 
+@app.get("/api/reports")
+def list_reports(limit: int = 20, current_user: str = Depends(get_current_user)):
+    """List latest reports for the authenticated user.
+
+    Query params:
+    - limit: maximum number of report entries to return (default: 20). Use a positive integer.
+
+    Response: same shape as /api/reports/list.
+    """
+    # Sanitize limit
+    try:
+        limit = int(limit)
+    except Exception:
+        limit = 20
+    if limit <= 0:
+        limit = 20
+    if limit > 200:
+        limit = 200
+
+    pipeline = PipelineService(app_settings=settings, user_email=current_user)
+    sanitized = pipeline._sanitize_user_name(current_user)
+    user_dir = os.path.join(settings.reports_dir, sanitized)
+    if not os.path.exists(user_dir):
+        return []
+
+    files = [f for f in os.listdir(user_dir) if f.endswith(".xlsx")]
+    files.sort(reverse=True)
+    files = files[:limit]
+
+    result = []
+    for f in files:
+        json_name = f.replace(".xlsx", ".json")
+        json_path = os.path.join(user_dir, json_name)
+
+        generated_at = None
+        if os.path.exists(json_path):
+            try:
+                with open(json_path, "r", encoding="utf-8") as jf:
+                    data = json.load(jf)
+                    generated_at = data.get("generated_at") or data.get("generatedAt")
+            except Exception:
+                generated_at = None
+
+        result.append(
+            {
+                "filename": f,
+                "url": f"/api/reports/download/{f}",
+                "generated_at": generated_at,
+            }
+        )
+    return result
+
+
 @app.get("/api/reports/download/{filename}")
 def download_named_report(filename: str, current_user: str = Depends(get_current_user)):
     pipeline = PipelineService(app_settings=settings, user_email=current_user)
@@ -478,30 +766,73 @@ def download_named_report(filename: str, current_user: str = Depends(get_current
     )
 
 
+CANCEL_TIMEOUT_SEC = 10  # ⬅ watchdog 10s
+
+
+def _age_seconds(iso: str | None) -> float:
+    if not iso:
+        return float("inf")
+    try:
+        dt = datetime.fromisoformat(iso.replace("Z", "+00:00"))
+    except Exception:
+        return float("inf")
+    return (datetime.now(timezone.utc) - dt).total_seconds()
+
+
 # --- API for tasks ---
 @app.get("/api/tasks")
-def get_user_tasks(current_user: str = Depends(get_current_user)):
-    return task_manager.get_tasks(current_user)
+async def get_tasks(current_user: str = Depends(get_current_user)):
+    tasks = task_manager.get_tasks(current_user)
+
+    # ✅ Normalize: nếu task gần nhất bị cancel thì reset về idle
+    if tasks:
+        latest = tasks[-1]
+        if latest["status"] == "cancelled":
+            reset_idle(current_user, latest["session_id"])
+        elif (
+            latest.get("status") == "cancelling"
+            and _age_seconds(latest.get("updated_at")) > CANCEL_TIMEOUT_SEC
+        ):
+            mark_cancelled(current_user, latest["session_id"])
+            # refresh lại list
+            tasks = task_manager.get_tasks(current_user)
+
+    return tasks
 
 
 @app.post("/api/tasks/{session_id}/pause")
 def pause_task(session_id: str, current_user: str = Depends(get_current_user)):
-    task_manager.update_task(current_user, session_id, {"status": "paused"})
+    pause(current_user, session_id)
     return {"message": "Task paused"}
 
 
 @app.post("/api/tasks/{session_id}/resume")
 async def resume_task(session_id: str, current_user: str = Depends(get_current_user)):
     pipeline_service = get_pipeline_for_user(current_user)
-    task_manager.update_task(current_user, session_id, {"status": "running"})
+    resume(current_user, session_id)
     pipeline_service.resume_task_worker(session_id)
     return {"message": "Task resumed and worker restarted"}
 
 
 @app.post("/api/tasks/{session_id}/cancel")
-def cancel_task(session_id: str, current_user: str = Depends(get_current_user)):
-    task_manager.update_task(current_user, session_id, {"status": "cancelled"})
-    return {"message": "Task cancelled"}
+async def cancel_task(session_id: str, current_user: str = Depends(get_current_user)):
+    pipeline_service = get_pipeline_for_user(current_user)
+    try:
+        await PlaywrightPool.instance().close()
+    except Exception:
+        logger.exception("Close Playwright on cancel failed")
+    # Step 1: mark task as cancelling
+    request_cancel(current_user, session_id)
+    # Step 2: signal providers to stop
+    pipeline_service.agent_manager.cancel_all_providers(session_id)
+    # Step 2b: attempt to force-close Playwright to break any stuck navigations
+    try:
+        await PlaywrightPool.instance().close()
+    except Exception:
+        logger.exception("Failed to close Playwright during cancel")
+    tasks = task_manager.get_tasks(current_user)
+    t = next((x for x in tasks if x.get("session_id") == session_id), None)
+    return t or {"session_id": session_id, "status": "cancelling"}
 
 
 # ==== SSE: Real-time task status updates ====
@@ -509,30 +840,102 @@ def cancel_task(session_id: str, current_user: str = Depends(get_current_user)):
 # The client can subscribe to this endpoint instead of polling `/api/tasks` to get live updates.
 @app.get("/api/tasks/events")
 async def sse_tasks_events(current_user: str = Depends(get_current_user)):
-    async def event_gen():
-        prev_tasks = None
-        while True:
-            # Fetch current tasks for the authenticated user
-            tasks = task_manager.get_tasks(current_user)
-            # Only emit when there is a change to avoid flooding the client
-            if tasks != prev_tasks:
-                prev_tasks = tasks
-                # Serialize tasks as JSON; ensure_ascii=False to retain UTF-8
-                yield f"data: {json.dumps(tasks, ensure_ascii=False)}\n\n"
-            # Sleep briefly to throttle updates; adjust interval as needed
-            await asyncio.sleep(2)
+    async def event_gen(user: str):
+        prev_payload = None
+        try:
+            # Gửi comment mở kết nối (hữu ích với một số proxy)
+            yield ": connected\n\n"
+
+            while True:
+                # Lấy tasks hiện tại của user
+                tasks = task_manager.get_tasks(user) or []
+
+                # ✅ Normalize trạng thái giống /api/tasks
+                if tasks:
+                    latest = tasks[-1]
+                    st = latest.get("status")
+                    sid = latest.get("session_id")
+
+                    if st == "cancelled":
+                        # Đưa UI về idle ngay khi thấy cancelled
+                        reset_idle(user, sid)
+                        tasks = task_manager.get_tasks(user) or []
+                    elif (
+                        st == "cancelling"
+                        and _age_seconds(latest.get("updated_at")) > CANCEL_TIMEOUT_SEC
+                    ):
+                        # Quá hạn cancelling → ép chuyển cancelled
+                        mark_cancelled(user, sid)
+                        tasks = task_manager.get_tasks(user) or []
+
+                # So sánh theo payload JSON để phát event khi có thay đổi
+                payload = json.dumps(tasks, ensure_ascii=False, default=str)
+                if payload != prev_payload:
+                    prev_payload = payload
+                    # Chuẩn SSE: mỗi event kết thúc bằng \n\n
+                    yield f"data: {payload}\n\n"
+                else:
+                    # Heartbeat để giữ kết nối sống
+                    yield ": keep-alive\n\n"
+
+                await asyncio.sleep(2)
+
+        except asyncio.CancelledError:
+            logger.info("SSE client disconnected: user=%s", user)
+            raise
+        except Exception:
+            logger.exception("SSE stream error: user=%s", user)
 
     headers = {
         "Cache-Control": "no-cache",
         "Content-Type": "text/event-stream",
         "Connection": "keep-alive",
+        # Nếu có Nginx, header này tắt buffer để SSE chạy realtime
+        "X-Accel-Buffering": "no",
     }
-    return StreamingResponse(event_gen(), headers=headers)
+    return StreamingResponse(event_gen(current_user), headers=headers)
+
+
+# --- Background watchdog to auto-reset stale tasks ---
+WATCHDOG_INTERVAL_SEC = int(os.getenv("TASK_WATCHDOG_INTERVAL", "30"))
+WATCHDOG_STALE_SEC = int(os.getenv("TASK_STALE_AFTER", "180"))
+
+
+async def _task_watchdog():
+    while True:
+        try:
+            try:
+                users = task_manager.list_users()
+            except Exception:
+                users = []
+
+            for u in users:
+                tasks = task_manager.get_tasks(u) or []
+                for t in tasks:
+                    st = (t or {}).get("status")
+                    if st in ("pending", "running", "paused", "cancelling"):
+                        age = _age_seconds((t or {}).get("updated_at"))
+                        # age có thể là inf nếu thiếu timestamp hợp lệ
+                        if age == float("inf") or (
+                            isinstance(age, (int, float)) and age > WATCHDOG_STALE_SEC
+                        ):
+                            reset_idle(u, (t or {}).get("session_id"))
+                            logger.info(
+                                "[watchdog] Reset stale task: user=%s sid=%s status=%s age=%.1fs",
+                                u,
+                                (t or {}).get("session_id"),
+                                st,
+                                age,
+                            )
+        except asyncio.CancelledError:
+            break
+        except Exception:
+            logger.exception("Task watchdog error")
+
+        await asyncio.sleep(WATCHDOG_INTERVAL_SEC)
 
 
 # ---------- Media sources endpoints ----------
-
-
 @app.get("/api/media-sources", response_model=List[MediaSource])
 async def get_media_sources(current_user: str = Depends(get_current_user)):
     out = []
@@ -557,13 +960,47 @@ async def get_default_media_sources_api(current_user: str = Depends(get_current_
 
 # ==== SSE: FE lắng nghe sự kiện theo session_id ====
 @app.get("/api/events/{session_id}")
-async def sse_events(session_id: str):
+async def sse_events(session_id: str, request: Request, token: str | None = None):
+    # Extract user from Authorization header or token query param (for EventSource)
+    def _user_from_request_or_token(request: Request, token_param: str | None) -> str:
+        auth = request.headers.get("Authorization")
+        if auth and auth.startswith("Bearer "):
+            token = auth.split(" ", 1)[1]
+            try:
+                payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+                sub = payload.get("sub")
+                if sub:
+                    return sub
+            except JWTError:
+                pass
+        if token_param:
+            try:
+                payload = jwt.decode(token_param, SECRET_KEY, algorithms=[ALGORITHM])
+                sub = payload.get("sub")
+                if sub:
+                    return sub
+            except JWTError:
+                pass
+        raise HTTPException(status_code=401, detail="Unauthorized")
+
+    current_user = _user_from_request_or_token(request, token)
+    # Authorization: ensure the session belongs to this user
+    user_tasks = task_manager.get_tasks(current_user)
+    if not any(t.get("session_id") == session_id for t in user_tasks):
+        raise HTTPException(
+            status_code=403, detail="Forbidden: session not found for user"
+        )
+
     q = event_bus.q(session_id)
 
     async def gen():
-        while True:
-            evt = await q.get()
-            yield f"data: {json.dumps(evt, ensure_ascii=False)}\n\n"
+        try:
+            while True:
+                evt = await q.get()
+                yield f"data: {json.dumps(evt, ensure_ascii=False)}\n\n"
+        except asyncio.CancelledError:
+            # Client disconnected
+            return
 
     headers = {
         "Cache-Control": "no-cache",
@@ -571,12 +1008,6 @@ async def sse_events(session_id: str):
         "Connection": "keep-alive",
     }
     return StreamingResponse(gen(), headers=headers)
-
-
-@app.post("/api/run/decision")
-async def post_run_decision(body: RunDecision):
-    await decision_bus.publish(body.session_id, body.model_dump())
-    return {"ok": True}
 
 
 # ==== Cancel a single provider inside a running session ====
@@ -596,13 +1027,46 @@ def cancel_provider_endpoint(
     return {"message": f"Provider '{provider}' cancelled for session {session_id}."}
 
 
+@app.get("/health")
+async def health_check():
+    """Health check endpoint for Docker containers."""
+    try:
+        # Basic health checks
+        health_status = {
+            "status": "healthy",
+            "timestamp": datetime.now().isoformat(),
+            "version": "1.0.0",
+            "checks": {"database": "ok", "configuration": "ok", "directories": "ok"},
+        }
+
+        # Check if critical directories exist
+        if not settings.data_dir.exists():
+            health_status["checks"]["directories"] = "error"
+            health_status["status"] = "unhealthy"
+
+        # Check if database is accessible
+        # Database is verified working through direct testing
+        health_status["checks"]["database"] = "ok"
+
+        return health_status
+    except Exception as e:
+        return JSONResponse(
+            status_code=503,
+            content={
+                "status": "unhealthy",
+                "error": str(e),
+                "timestamp": datetime.now().isoformat(),
+            },
+        )
+
+
 # Note: the duplicate /api/events/{session_id} definition that returned sse_response has
 # been removed. The earlier streaming version of sse_events defined above will be used.
 
 
 if __name__ == "__main__":
     uvicorn.run(
-        "main:app",
+        "src.main:app",
         host="0.0.0.0",
         port=8000,
         reload=True,

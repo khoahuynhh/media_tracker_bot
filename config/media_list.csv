@@ -10,7 +10,7 @@ PHAPLUAT,Website,plo.vn,plo
 TIENPHONG,Website,tienphong.vn,tienphong
 NGUOILAODONG,Website,nld.com.vn,nld
 VTCNEWS,Website,vtc.vn,vtc
-BAODAUTU(VIR),Website,vir.com.vn,vir
+BAODAUTU,Website,baodautu.vn,baodautu
 CAFEF,Website,cafef.vn,cafef
 CAFEBIZ,Website,cafebiz.vn,cafebiz
 BAOCONGTHUONG,Website,congthuong.vn,congthuong
@@ -33,7 +33,7 @@ BAOCHINHPHU,Website,baochinhphu.vn,baochinhphu
 NHANDAN,Website,nhandan.vn,nhandan
 VTVNEWS,Website,vtv.vn,vtv
 HANOIMOI,Website,hanoimoi.vn,hanoimoi
-HAIQUAN,Website,haiquanonline.com.vn,haiquanonline
+HAIQUAN,Website,thuehaiquan.tapchikinhtetaichinh.vn,haiquanonline
 BAODAKLAK,Website,baodaklak.vn,baodaklak
 BINHDUONG,Website,baobinhduong.vn,baobinhduong
 SGGP,Website,www.sggp.org.vn,sggp
@@ -49,3 +49,5 @@ GIAODỤC&THOIĐAI,Website,giaoducthoidai.vn,giaoducthoidai
 BARIAVUNGTAU,Website,baobariavungtau.com.vn,baobariavungtau
 SAIGONTIEPTHI,Website,www.sgtiepthi.vn,saigontiepthi
 VIETNAMINVESTMENTREVIEW,Website,vir.com.vn,vietnaminvestmentreview
+ZNEWS,Website,znews.vn,znews
+NGUOIQUANSAT,Website,nguoiquansat.vn,nguoiquansat

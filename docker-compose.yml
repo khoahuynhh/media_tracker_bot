@@ -1,0 +1,29 @@
+services:
+  media_tracker_bot:
+    build: .
+    container_name: media_tracker_bot
+    ports:
+      - "8000:8000"
+    environment:
+      - PROJECT_ROOT=/app
+      - CONFIG_DIR=/app/config
+      - DATA_DIR=/app/data
+      - CACHE_DIR=/app/cache
+      - LOG_DIR=/app/logs
+      - STATIC_DIR=/app/static
+      - DATABASE_PATH=/app/data/tasks.db
+      - PYTHONPATH=/app
+    volumes:
+      - ./data:/app/data
+      - ./cache:/app/cache
+      - ./logs:/app/logs
+      - ./config:/app/config
+      - ./static:/app/static:ro
+      - ./.env:/app/.env
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped

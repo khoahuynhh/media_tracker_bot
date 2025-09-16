@@ -1,0 +1,7 @@
+            logger.info(
+                f"[{media_source.name}] ?? Tìm du?c {len(valid_links)} bài vi?t t? {len(page_urls)} trang hub (t?i da 2)"
+            )
+
+            sem = Semaphore(4)  # tu? quota
+            start_t = time.monotonic()
+            all_articles = []

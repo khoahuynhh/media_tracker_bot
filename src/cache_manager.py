@@ -1,12 +1,15 @@
 import json
 import hashlib
+import os
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Optional
 
 
 class SafeCacheManager:
-    def __init__(self, cache_dir="cache/crawl_results", ttl_hours=8, version="1.0"):
+    def __init__(self, cache_dir=None, ttl_hours=8, version="1.0"):
+        if cache_dir is None:
+            cache_dir = os.getenv("CACHE_DIR", "cache/crawl_results")
         self.cache_dir = Path(cache_dir)
         self.cache_dir.mkdir(parents=True, exist_ok=True)
         self.ttl_hours = ttl_hours

@@ -1,4 +1,4 @@
-﻿# src/agents.py
+# src/agents.py
 """
 Multi-Agent System for the Media Tracker Bot.
 Phiên bản này sẽ cải thiện lại các prompt chi tiết để đảm bảo chất lượng phân tích,
@@ -21,7 +21,8 @@ import unicodedata
 import contextlib
 
 from datetime import datetime, date
-from typing import List, Dict, Optional, Any, Tuple, Final
+from typing import List, Dict, Optional, Any, Tuple
+from playwright.sync_api import sync_playwright
 from playwright.async_api import async_playwright
 from tenacity import (
     retry,
@@ -43,7 +44,6 @@ from urllib.parse import (
 )
 from bs4 import BeautifulSoup
 from asyncio import Semaphore
-from collections import OrderedDict
 
 # Import Agno
 from agno.agent import Agent
@@ -116,9 +116,7 @@ def get_llm_model(provider: Optional[str], model_id: Optional[str]) -> Any:
 
 
 # API Errors
-def _configured_providers_in_order(
-    settings, preferred: str | None = None
-) -> tuple[list[str], bool]:
+def _configured_providers_in_order(settings, preferred: str | None = None) -> list[str]:
     st = settings.get_api_key_status()
     # hàm bạn đã có
     enabled_ok = {
@@ -247,22 +245,17 @@ class GoogleSearchWithDelay(GoogleSearchTools):
         return super().run(query)
 
 
-def google_cse_search_article(
-    query: str,
-    num: int = 10,
-    keywords: Optional[List[str]] = None,
-    *,
-    debug: bool = True,
-    dump_json_path: Optional[str] = None,  # nếu muốn ghi ra file JSON để soi
-):
+def google_cse_search_article(query: str, num: int = 10):
     """
-    - Nếu `keywords` có, chỉ giữ item mà SNIPPET chứa ≥1 keyword (accent-insensitive).
-    - Nếu `debug=True`, in thêm thống kê & vài dòng mẫu (title/link/snippet rút gọn).
-    - Nếu `dump_json_path` được truyền, ghi toàn bộ kết quả filtered ra file JSON.
+    Google Custom Search (CSE) tool for general queries.
+
+    - Reads API key from env `GOOGLE_API_KEY_SEARCH`.
+    - Uses CSE CX from env `CSE_CX` or falls back to a default.
+    - Returns a list of item dicts (title, link, snippet, ...).
     """
     api_key = os.getenv("GOOGLE_API_KEY_SEARCH")
     if not api_key:
-        logger.error("ENV GOOGLE_API_KEY_SEARCH is not set.")
+        logger.error("❌ GOOGLE_API_KEY_SEARCH chưa được set.")
         return []
 
     cx = os.getenv("CSE_CX") or "16c863775f52f42cd"
@@ -272,648 +265,37 @@ def google_cse_search_article(
         "cx": cx,
         "q": query,
         "num": max(1, min(int(num or 10), 10)),
-        "hl": "vi",
     }
-
-    # Warn if agent forgot to pass keywords (will return unfiltered results)
-    if not keywords:
-        logger.warning(
-            "[CSE] keywords is None/empty; returning UNFILTERED results | query=%r",
-            query,
-        )
-
-    def _strip_accents(s: str) -> str:
-        try:
-            return "".join(
-                c
-                for c in unicodedata.normalize("NFD", s)
-                if unicodedata.category(c) != "Mn"
-            )
-        except Exception:
-            return s or ""
 
     try:
         resp = requests.get(url, params=params, timeout=15)
         resp.raise_for_status()
         data = resp.json()
     except Exception as e:
-        logger.warning("Google CSE request failed: %s", e, exc_info=True)
+        logger.warning("❌ Google CSE lỗi: %s", e)
         return []
 
     if not isinstance(data, dict) or "error" in data:
         logger.warning(
-            "Google CSE returned error or invalid payload: %r",
+            "❌ Google CSE trả về lỗi hoặc payload không hợp lệ: %r",
             data.get("error") if isinstance(data, dict) else type(data),
         )
         return []
 
     items = data.get("items", []) or []
-    normalized = [
-        {
-            "title": it.get("title"),
-            "link": it.get("link"),
-            "snippet": it.get("snippet"),
-            "displayLink": it.get("displayLink"),
-            # "htmlSnippet": it.get("htmlSnippet"),  # nếu muốn debug sâu hơn
-        }
-        for it in items
-    ]
-
-    filtered = normalized
-    if keywords:
-        try:
-            kw_iter = [keywords] if isinstance(keywords, str) else (keywords or [])
-            kw_list = [str(k).strip() for k in kw_iter if str(k).strip()]
-            kw_norm = [_strip_accents(k).lower() for k in kw_list]
-
-            def _normalize(s: str) -> str:
-                try:
-                    s = "".join(
-                        c
-                        for c in unicodedata.normalize("NFD", s)
-                        if unicodedata.category(c) != "Mn"
-                    )
-                except Exception:
-                    s = s or ""
-                s = s.lower()
-                s = re.sub(r"[^a-z0-9\s]", " ", s)  # chỉ để lại a-z0-9 và space
-                return re.sub(r"\s+", " ", s).strip()
-
-            def _contains_any(title: str, snippet: str, kw_norm: list[str]) -> bool:
-                base = _normalize((title or "") + " " + (snippet or ""))
-                for k in kw_norm:
-                    if re.search(rf"(?<!\w){re.escape(k)}(?!\w)", base):
-                        return True
-                return False
-
-            filtered = [
-                it
-                for it in normalized
-                if _contains_any(
-                    it.get("title") or "", it.get("snippet") or "", kw_norm
-                )
-            ]
-        except Exception:
-            logger.warning(
-                "[CSE] snippet filter failed; returning unfiltered results.",
-                exc_info=True,
-            )
-            filtered = normalized
-
-    # optional: dump filtered to JSON file for offline inspection
-    if debug and dump_json_path:
-        try:
-            with open(dump_json_path, "w", encoding="utf-8") as f:
-                json.dump(filtered, f, ensure_ascii=False, indent=2)
-            logger.debug("💾 Dumped filtered results to %s", dump_json_path)
-        except Exception:
-            logger.warning(
-                "Failed to dump filtered results to %s", dump_json_path, exc_info=True
-            )
-
-    logger.info(
-        "✅ [CSE] results=%d filtered=%d query=%r",
-        len(normalized),
-        len(filtered),
-        query,
-    )
-    return filtered
-
-
-class CSEArticleAgent:
-    """
-    Agent chuyên xử lý kết quả từ google_cse_search_article:
-    - Gọi CSE với truy vấn "site:<domain> <keywords>"
-    - Lọc theo domain, khử trùng lặp link
-    - Tải HTML (httpx) + fallback Playwright nếu cần
-    - Trích ngày, tiêu đề nhanh; nếu đủ dữ liệu thì parse nhanh, nếu không thì fallback LLM prompt ngắn
-    - Trả về CrawlResult với các Article hợp lệ nằm trong khoảng thời gian yêu cầu
-    """
-
-    def __init__(
-        self,
-        model: Any,
-        config: CrawlConfig,
-        parser: ArticleParser,
-        session_id: Optional[str] = None,
-        check_pause_or_cancel: Optional[callable] = None,
-    ):
-        self.model = model
-        self.config = config
-        self.parser = parser
-        self.session_id = session_id
-        self.check_pause_or_cancel = check_pause_or_cancel or (lambda: None)
-        # lightweight agent for fallback parsing
-        self.agent = Agent(
-            name="CSEArticleParser",
-            role="Parse and extract Vietnamese news article",
-            tools=[Crawl4aiTools(max_length=2000)],
-            model=self.model,
-            show_tool_calls=True,
-            markdown=True,
+    # Normalize minimal fields for the agent
+    normalized = []
+    for it in items:
+        normalized.append(
+            {
+                "title": it.get("title"),
+                "link": it.get("link"),
+                "snippet": it.get("snippet"),
+                "displayLink": it.get("displayLink"),
+            }
         )
-
-    @staticmethod
-    def _same_domain(link: str, domain: str) -> bool:
-        try:
-            host = urlparse(link).netloc.lower().lstrip("www.").lstrip("m.")
-            dom = re.sub(r"^https?://", "", domain or "").split("/")[0].lower()
-            dom = dom.lstrip("www.").lstrip("m.")
-            return host.endswith(dom)
-        except Exception:
-            return False
-
-    async def run(
-        self,
-        media_source: MediaSource,
-        keywords: List[str],
-        start_date: datetime,
-        end_date: datetime,
-        industry_name: Optional[str] = None,
-    ) -> CrawlResult:
-        await _maybe_await(self.check_pause_or_cancel)
-
-        domain = media_source.domain
-        domain_url = domain
-        if domain_url and not domain_url.startswith("http"):
-            domain_url = f"https://{domain_url}"
-
-        keywords_str = ", ".join([k for k in (keywords or []) if k])
-        query = f"site:{media_source.domain} {keywords_str}".strip()
-
-        logger.info(f"[CSEArticleAgent] Query: {query} | domain={media_source.domain}")
-
-        try:
-            items = google_cse_search_article(query, num=10, keywords=keywords)
-            try:
-                for i, it in enumerate((items or [])[:5], 1):
-                    logger.info(
-                        "  [%d] %s\n      %s\n      %s",
-                        i,
-                        (it or {}).get("title"),
-                        (it or {}).get("link"),
-                        (it or {}).get("snippet"),
-                    )
-                # Also dump full items (truncated) for debugging
-                try:
-                    _payload = json.dumps(items or [], ensure_ascii=False, indent=2)
-                    logger.info(
-                        "[CSEArticleAgent] CSE raw items (truncated):\n%s",
-                        _payload[:4000],
-                    )
-                except Exception:
-                    pass
-            except Exception:
-                pass
-        except Exception as e:
-            logger.warning(
-                f"[CSEArticleAgent] google_cse_search_article error: {e}", exc_info=True
-            )
-            items = []
-
-        # Build snippet - > date map from CSE items
-        def _parse_vi_date_to_iso(text: str | None) -> str | None:
-            if not text:
-                return None
-            m = _VN_DATE_RE.search(text)
-            if m:
-                try:
-                    d, mo, y = int(m.group("d")), int(m.group("m")), int(m.group("y"))
-                    return f"{y:04d}-{mo:02d}-{d:02d}"
-                except Exception:
-                    pass
-            m2 = _VN_DATE_RE_TEXT.search(text)
-            if m2:
-                try:
-                    d, mo, y = (
-                        int(m2.group("d")),
-                        int(m2.group("m")),
-                        int(m2.group("y")),
-                    )
-                    return f"{y:04d}-{mo:02d}-{d:02d}"
-                except Exception:
-                    pass
-            return None
-
-        snippet_date_map: dict[str, tuple[str, str]] = {}
-        snippet_title_map: dict[str, str] = {}
-        snippet_map: dict[str, str] = {}
-
-        def _normalize_text(s: str | None) -> str:
-            if not s:
-                return ""
-            s = unicodedata.normalize("NFD", s)
-            s = "".join(c for c in s if unicodedata.category(c) != "Mn")
-            s = s.lower()
-            s = re.sub(r"[^a-z0-9\s]", " ", s)
-            return re.sub(r"\s+", " ", s).strip()
-
-        def _kw_in_text(kw: str, text: str) -> bool:
-            tn = _normalize_text(text)
-            kn = _normalize_text(kw)
-            return (
-                bool(kn) and re.search(rf"(?<!\w){re.escape(kn)}(?!\w)", tn) is not None
-            )
-
-        def _brands_from_snippet(
-            link: str, keywords: list[str]
-        ) -> tuple[list[str], bool]:
-            sn = snippet_map.get(link) or snippet_title_map.get(link) or ""
-            matched = [kw for kw in (keywords or []) if _kw_in_text(kw, sn)]
-            return list(dict.fromkeys(matched))  # dedup, giữ thứ tự
-
-        links = []
-        for it in items or []:
-            link = (it or {}).get("link")
-            if not link:
-                continue
-            if not self._same_domain(link, media_source.domain):
-                continue
-            sn = (it or {}).get("snippet") or ""
-            tt = (it or {}).get("title") or ""
-            if sn:
-                snippet_map[link] = sn
-            iso = _parse_vi_date_to_iso(sn)
-            if iso:
-                snippet_date_map[link] = (iso, sn or "")
-            if tt:
-                snippet_title_map[link] = tt
-            links.append(link)
-
-        # Dedup while preserving order
-        seen = set()
-        links = [l for l in links if not (l in seen or seen.add(l))]
-
-        # Log snippet-date map summary
-        try:
-            logger.info(
-                "[CSEArticleAgent] snippet_date_map entries=%d",
-                len(snippet_date_map),
-            )
-            for i, (lk, (iso, sn)) in enumerate(list(snippet_date_map.items())[:5], 1):
-                logger.info("  [%d] %s -> %s | snip: %s", i, lk, iso, (sn or "")[:160])
-        except Exception:
-            pass
-
-        logger.info(
-            "[CSEArticleAgent] domain=%s | picked %d links from CSE",
-            media_source.domain,
-            len(links),
-        )
-        for i, l in enumerate(links[:10], 1):
-            logger.info("  (link %d) %s", i, l)
-
-        if not links:
-            return CrawlResult(
-                source_name=media_source.name,
-                source_type=media_source.type,
-                url=domain_url or "",
-                articles_found=[],
-                crawl_status="failed",
-                error_message="No CSE links for this domain/keywords",
-                crawl_duration=0.0,
-            )
-
-        sem = Semaphore(4)
-        start_t = time.monotonic()
-
-        async def _retry_process_link(
-            process_link, link: str, max_retries: int = 2
-        ) -> list:
-            for attempt in range(max_retries + 1):
-                try:
-                    parsed = await process_link(link)
-                    if parsed:
-                        return parsed
-                    raise RuntimeError("Parser returned empty list")
-                except Exception as e:
-                    if attempt >= max_retries:
-                        logger.warning(
-                            f"[CSEArticleAgent] Parse fail {link}: {e} (exhausted retries)"
-                        )
-                        return []
-                    delay = min(2**attempt, 8) + random.random() * 0.5
-                    logger.info(
-                        f"[CSEArticleAgent][retry] parse {link} attempt {attempt + 1}/{max_retries} in {delay:.1f}s: {e}"
-                    )
-                    await asyncio.sleep(delay)
-
-        async def process_link(link: str):
-            await _maybe_await(self.check_pause_or_cancel)
-            try:
-                dom = urlparse(link).netloc
-                await DOMAIN_LIMITER.enter(link)
-                r = await http_client.get(
-                    link,
-                    timeout=15,
-                    follow_redirects=True,
-                    headers={
-                        **_random_ua(),
-                        **_rand_headers(),
-                        "Referer": f"https://{dom}/",
-                    },
-                )
-            finally:
-                DOMAIN_LIMITER.release(dom)
-
-            content_type = r.headers.get("content-type", "")
-            art_html = (
-                r.text if (r.status_code == 200 and "text/html" in content_type) else ""
-            )
-
-            logger.info(
-                "[CSEArticleAgent] GET %s -> %s | ct=%s | len=%d",
-                link,
-                getattr(r, "status_code", "-"),
-                content_type,
-                len(r.text or ""),
-            )
-
-            if (
-                (not art_html)
-                or (len(art_html) < MIN_HTML_LEN_HEUR)
-                or _looks_blocked(art_html)
-            ):
-                art_html = await crawl_with_playwright(link)
-
-            meta = extract_dates_rule_based(art_html, link)
-            title_rb = extract_title_rule_based(art_html)
-            cse_title = snippet_title_map.get(link)
-
-            parsed = None
-
-            # Strict mode quick-path: use HTML date or CSE snippet date with best available title, avoid LLM
-            try:
-                sn_iso0, sn_src0 = snippet_date_map.get(link, (None, None))
-                chosen_iso0 = meta.get("published_iso") or (
-                    sn_iso0 if getattr(self, "strict_snippet_date", True) else None
-                )
-                used_title0 = title_rb or cse_title
-                logger.info(
-                    "[CSEArticleAgent] Decision for %s: chosen_iso=%s | title=%r",
-                    link,
-                    chosen_iso0,
-                    (used_title0 or "")[:120],
-                )
-                if chosen_iso0 and used_title0:
-                    summary0 = (
-                        _quick_summary_from_html(art_html)
-                        if art_html
-                        else (sn_src0 or "")
-                    )
-                    matched_brands = _brands_from_snippet(link, keywords)
-                    quick_json0 = json.dumps(
-                        {
-                            "Tiêu đề": used_title0,
-                            "Ngày phát hành": chosen_iso0,
-                            "Nguồn trích ngày": meta.get("source_published_text")
-                            or (sn_src0 or ""),
-                            "Tóm tắt": summary0,
-                            "Link": link,
-                            "nhan_hang": matched_brands,
-                        },
-                        ensure_ascii=False,
-                    )
-                    try:
-                        logger.info(
-                            "[CSEArticleAgent] quick_json0 for %s (truncated):\n%s",
-                            link,
-                            (quick_json0 or "")[:1200],
-                        )
-                    except Exception:
-                        pass
-                    parsed = self.parser.parse(quick_json0, media_source, industry_name)
-                    # Enrich with provided keywords to help ProcessorAgent detect brands
-                    try:
-                        arr = parsed if isinstance(parsed, list) else [parsed]
-                        for a in arr:
-                            if getattr(a, "keywords_found", None) in (None, []):
-                                a.keywords_found = list(keywords or [])
-                            if getattr(a, "nhan_hang", None) in (None, []):
-                                a.nhan_hang = [
-                                    kw
-                                    for kw in (keywords or [])
-                                    if isinstance(kw, str) and kw[:1].isupper()
-                                ]
-                    except Exception:
-                        pass
-            except Exception:
-                parsed = None
-
-            # Quick path using CSE snippet date if HTML metadata missing
-            try:
-                if not meta.get("published_iso") and title_rb and len(art_html) >= 1500:
-                    sn_iso, sn_src = snippet_date_map.get(link, (None, None))
-                    if sn_iso:
-                        matched_brands = _brands_from_snippet(link, keywords)
-                        quick_json2 = json.dumps(
-                            {
-                                "Tiêu đề": title_rb,
-                                "Ngày phát hành": sn_iso,
-                                "Nguồn trích ngày": sn_src or "",
-                                "Tóm tắt": _quick_summary_from_html(art_html),
-                                "Link": link,
-                                "nhan_hang": matched_brands,
-                            },
-                            ensure_ascii=False,
-                        )
-                        try:
-                            logger.info(
-                                "[CSEArticleAgent] quick_json2 for %s (truncated):\n%s",
-                                link,
-                                (quick_json2 or "")[:1200],
-                            )
-                        except Exception:
-                            pass
-                        parsed = self.parser.parse(
-                            quick_json2, media_source, industry_name
-                        )
-                        try:
-                            arr = parsed if isinstance(parsed, list) else [parsed]
-                            for a in arr:
-                                if getattr(a, "keywords_found", None) in (None, []):
-                                    a.keywords_found = list(keywords or [])
-                                if getattr(a, "nhan_hang", None) in (None, []):
-                                    a.nhan_hang = [
-                                        kw
-                                        for kw in (keywords or [])
-                                        if isinstance(kw, str) and kw[:1].isupper()
-                                    ]
-                        except Exception:
-                            pass
-            except Exception:
-                parsed = None
-
-            def _is_valid_article(obj) -> bool:
-                if not obj:
-                    return False
-                if isinstance(obj, list):
-                    if not obj:
-                        return False
-                    obj = obj[0]
-                try:
-                    t = (
-                        getattr(obj, "cum_noi_dung_chi_tiet", None)
-                        or getattr(obj, "tieu_de", None)
-                        or getattr(obj, "Tiêu đề", None)
-                    )
-                    d = getattr(obj, "ngay_phat_hanh", None) or getattr(
-                        obj, "Ngày phát hành", None
-                    )
-                    l = getattr(obj, "link_bai_bao", None) or getattr(obj, "Link", None)
-                    return bool(t and d and l)
-                except Exception:
-                    return False
-
-            if meta.get("published_iso") and title_rb and len(art_html) >= 1500:
-                matched_brands = _brands_from_snippet(link, keywords)
-                quick_json = json.dumps(
-                    {
-                        "Tiêu đề": title_rb,
-                        "Ngày phát hành": meta["published_iso"],
-                        "Nguồn trích ngày": meta.get("source_published_text") or "",
-                        "Tóm tắt": _quick_summary_from_html(art_html),
-                        "Link": link,
-                        "nhan_hang": matched_brands,
-                    },
-                    ensure_ascii=False,
-                )
-                try:
-                    parsed = self.parser.parse(quick_json, media_source, industry_name)
-                except Exception:
-                    parsed = None
-
-            if not _is_valid_article(parsed):
-                if meta.get("published_iso"):
-                    prompt = HubCrawlTool.build_prompt_with_known_date(
-                        self=None,
-                        link=link,
-                        known_date_iso=meta["published_iso"],
-                        known_date_source=meta.get("source_published_text") or "",
-                        known_title=title_rb,
-                    )
-                elif link in snippet_date_map:
-                    sn_iso, sn_src = snippet_date_map.get(link, (None, None))
-                    missing_title = not (title_rb or cse_title)
-                    html_short = not art_html or len(art_html) < MIN_HTML_LEN_RESULT
-                    if getattr(self, "strict_snippet_date", True) and not (
-                        missing_title or html_short
-                    ):
-                        # Avoid LLM when quick parse produced a valid article
-                        if _is_valid_article(parsed):
-                            return parsed
-                    prompt = HubCrawlTool.build_prompt_with_known_date(
-                        self=None,
-                        link=link,
-                        known_date_iso=(sn_iso or ""),
-                        known_date_source=sn_src or "",
-                        known_title=(title_rb or cse_title),
-                    )
-                else:
-                    prompt = self._build_cse_prompt(link, start_date, end_date)
-
-                resp = await self.agent.arun(prompt, session_id=self.session_id)
-                text = await _get_response_text(resp)
-                try:
-                    logger.info(
-                        "[CSEArticleAgent] LLM response for %s:\n%s",
-                        link,
-                        (text or "")[:1200],
-                    )
-                except Exception:
-                    pass
-                parsed = self.parser.parse(text, media_source, industry_name)
-                try:
-                    arr = parsed if isinstance(parsed, list) else [parsed]
-                    for a in arr:
-                        if getattr(a, "keywords_found", None) in (None, []):
-                            a.keywords_found = list(keywords or [])
-                        if getattr(a, "nhan_hang", None) in (None, []):
-                            a.nhan_hang = [
-                                kw
-                                for kw in (keywords or [])
-                                if isinstance(kw, str) and kw[:1].isupper()
-                            ]
-                except Exception:
-                    pass
-
-            return parsed
-
-        tasks = []
-        for link in links[:10]:
-
-            async def worker(l=link):
-                async with sem:
-                    return await _retry_process_link(process_link, l, max_retries=2)
-
-            tasks.append(asyncio.create_task(worker()))
-
-        parsed_lists = await asyncio.gather(*tasks)
-        all_articles = [a for lst in parsed_lists for a in lst]
-
-        def to_date(x):
-            if isinstance(x, datetime):
-                return x.date()
-            if isinstance(x, date):
-                return x
-            if isinstance(x, str):
-                try:
-                    return datetime.fromisoformat(x).date()
-                except Exception:
-                    m = _VN_DATE_RE.search(x)
-                    if m:
-                        d, mo, y = (
-                            int(m.group("d")),
-                            int(m.group("m")),
-                            int(m.group("y")),
-                        )
-                        return date(y, mo, d)
-            return None
-
-        def in_range(a: Article):
-            pub = to_date(a.ngay_phat_hanh)
-            return pub is not None and start_date.date() <= pub <= end_date.date()
-
-        filtered = [a for a in all_articles if in_range(a)]
-        duration = time.monotonic() - start_t
-
-        return CrawlResult(
-            source_name=media_source.name,
-            source_type=media_source.type,
-            url=domain_url or "",
-            articles_found=filtered,
-            crawl_status="success" if filtered else "failed",
-            error_message="" if filtered else "No valid articles within date range",
-            crawl_duration=duration,
-        )
-
-    def _build_cse_prompt(
-        self, link: str, start_date: datetime, end_date: datetime
-    ) -> str:
-        date_filter = f"từ ngày {start_date.strftime('%Y-%m-%d')} đến ngày {end_date.strftime('%Y-%m-%d')}"
-        return f"""
-        Truy cập URL: {link} và phân tích bài báo. TRẢ VỀ DUY NHẤT MỘT OBJECT JSON theo schema dưới đây (không markdown, không giải thích):
-
-        {{
-        "Tiêu đề": "Tiêu đề đầy đủ của bài viết",
-        "Ngày phát hành": "YYYY-MM-DD hoặc null",
-        "Nguồn trích ngày": "Chuỗi ngày/giờ NGUYÊN VĂN bạn tìm thấy trong nội dung (ví dụ: '31/07/2025 11:00 (GMT+7)')",
-        "Ngày cập nhật": "YYYY-MM-DD hoặc null",
-        "Tóm tắt": "≤ 100 từ: sự kiện chính, các bên liên quan, kết quả/tác động",
-        "Link": "{link}"
-        }}
-
-        QUY TẮC LẤY NGÀY (BẮT BUỘC):
-        1) CHỈ CHẤP NHẬN ngày nằm TRONG nội dung bài viết hoặc metadata của CHÍNH trang bài viết:
-           - JSON-LD Article.datePublished / dateCreated
-           - meta[property=article:published_time] / article:modified_time
-           - thẻ <time datetime="...">
-        2) TUYỆT ĐỐI KHÔNG dùng ngày từ header/top bar/menu/footer/sidebar/breadcrumb hoặc phần giao diện (UI) của trang.
-        3) Nếu có nhiều mốc (đăng/cập nhật), ƯU TIÊN "ngày đăng gốc" (published). "Ngày cập nhật" chỉ điền khi thực sự tìm thấy mốc cập nhật trong nội dung.
-        4) Chỉ nhận bài trong khoảng {date_filter}. Nếu ngày phát hành ngoài khoảng, vẫn trả JSON nhưng "Ngày phát hành" PHẢI là đúng ngày bạn tìm thấy (không tự thay đổi).
-        5) Định dạng ngày bắt buộc: YYYY-MM-DD.
-        6) NẾU KHÔNG TÌM THẤY ngày hợp lệ theo (1)-(2) THÌ ĐẶT "Ngày phát hành": null. TUYỆT ĐỐI KHÔNG dùng ngày hiện tại hoặc bịa ngày.
-        """
+    logger.info("🔎 CSE results: %d for query=%r", len(normalized), query)
+    return normalized
 
 
 def google_cse_search(domain, industry_name, keywords):
@@ -1244,7 +626,7 @@ def get_hub_links_for_domain(
     industry_name: str,
     max_results: int = 30,
     limit: int | None = 3,
-) -> tuple[list[str], bool]:
+) -> list[str]:
     """
     Tìm nhiều hub cho 1 domain bằng cách chạy đủ 2 kiểu query ('tag' và 'news'),
     gom & xếp hạng hub giống logic pick_from_rows trong get_first_search_link.
@@ -1726,7 +1108,7 @@ ATTEMPT_NAV_MS = int(os.getenv("PLAYWRIGHT_NAV_TIMEOUT_MS", "12000"))
 BODY_SELECTOR_TIMEOUT_MS = int(os.getenv("PLAYWRIGHT_BODY_WAIT_MS", "2000"))
 NETWORKIDLE_MS = int(os.getenv("PLAYWRIGHT_NETWORKIDLE_MS", "3000"))
 MIN_HTML_LEN_OPPORT = int(os.getenv("PLAYWRIGHT_MIN_HTML_LEN_OPPORT", "1200"))
-MIN_HTML_LEN_HEUR = int(os.getenv("PLAYWRIGHT_MIN_HTML_LEN_BLOCK_HEUR", "800"))
+MIN_HTML_LEN_HEUR = int(os.getenv("PLAYWRIGHT_MIN_HTML_LEN_BLOCK_HEUR", "1500"))
 MIN_HTML_LEN_RESULT = int(os.getenv("PLAYWRIGHT_MIN_HTML_LEN_RESULT", "1000"))
 NAV2_TIMEOUT_MS = int(os.getenv("PLAYWRIGHT_NAV2_TIMEOUT_MS", "10000"))
 
@@ -1796,462 +1178,136 @@ _VN_DATE_RE = re.compile(
     r"(?P<d>\d{1,2})[/-](?P<m>\d{1,2})[/-](?P<y>\d{4})(?:\s+(?P<h>\d{1,2}):(?P<min>\d{2}))?"
 )
 
-# Vietnamese textual month formats: "13 thg 6, 2025" or "13 tháng 6, 2025"
-_VN_DATE_RE_TEXT = re.compile(
-    r"(?P<d>\d{1,2})\s*(?:thg|tháng)\s*(?P<m>\d{1,2})\s*,?\s*(?P<y>\d{4})",
-    re.IGNORECASE,
-)
-
-
-# --- Thêm regex & map mới để bắt nhiều định dạng hơn ---
-_ISO_YMD_ANY_RE = re.compile(r"(?P<y>\d{4})[-/\.](?P<m>\d{1,2})[-/\.](?P<d>\d{1,2})")
-_DMY_ANY_RE = re.compile(r"(?P<d>\d{1,2})[-/\.](?P<m>\d{1,2})[-/\.](?P<y>\d{4})")
-
-_MONTHS_EN = {
-    "jan": 1,
-    "january": 1,
-    "feb": 2,
-    "february": 2,
-    "mar": 3,
-    "march": 3,
-    "apr": 4,
-    "april": 4,
-    "may": 5,
-    "jun": 6,
-    "june": 6,
-    "jul": 7,
-    "july": 7,
-    "aug": 8,
-    "august": 8,
-    "sep": 9,
-    "sept": 9,
-    "september": 9,
-    "oct": 10,
-    "october": 10,
-    "nov": 11,
-    "november": 11,
-    "dec": 12,
-    "december": 12,
-}
-_EN_TEXT_MD_RE = re.compile(
-    r"(?i)(?P<m>jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|"
-    r"aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)"
-    r"\s+(?P<d>\d{1,2})(?:st|nd|rd|th)?\s*,?\s*(?P<y>\d{4})"
-)
-_EN_TEXT_DM_RE = re.compile(
-    r"(?i)(?P<d>\d{1,2})(?:st|nd|rd|th)?\s+"
-    r"(?P<m>jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|"
-    r"aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)"
-    r"\s*,?\s*(?P<y>\d{4})"
-)
-
-
-def _to_iso(y: int, m: int, d: int) -> str | None:
-    if not (1 <= m <= 12):
-        return None
-    if not (1 <= d <= 31):
-        return None
-    return f"{y:04d}-{m:02d}-{d:02d}"
-
-
-def _month_from_name(name: str) -> int | None:
-    return _MONTHS_EN.get(name.strip().lower())
-
 
 def _norm_iso(s: str | None) -> str | None:
-    """
-    Chuẩn hoá chuỗi ngày bất kỳ về YYYY-MM-DD (bỏ phần giờ/tz).
-    Hỗ trợ: ISO (kể cả T, Z, tz), dd/mm/yyyy, '13 thg 6, 2025', 'June 13, 2025', '13 June 2025'.
-    """
     if not s:
         return None
-    s = str(s).strip()
-    # 1) Bóc ISO ở bất kỳ vị trí nào (cả '2025-06-13T10:05:00+07:00')
-    m = _ISO_YMD_ANY_RE.search(s)
-    if m:
-        y, mo, d = int(m.group("y")), int(m.group("m")), int(m.group("d"))
-        return _to_iso(y, mo, d)
-    # 2) dd/mm/yyyy hoặc dd-mm-yyyy
-    m = _DMY_ANY_RE.search(s)
-    if m:
-        d, mo, y = int(m.group("d")), int(m.group("m")), int(m.group("y"))
-        return _to_iso(y, mo, d)
-    # 3) Việt: '13 thg 6, 2025' / '13 tháng 6 2025'
-    m = _VN_DATE_RE_TEXT.search(s)
-    if m:
-        d, mo, y = int(m.group("d")), int(m.group("m")), int(m.group("y"))
-        return _to_iso(y, mo, d)
-    # 4) EN: 'June 13, 2025'
-    m = _EN_TEXT_MD_RE.search(s)
-    if m:
-        mo = _month_from_name(m.group("m"))
-        d = int(m.group("d"))
-        y = int(m.group("y"))
-        if mo:
-            return _to_iso(y, mo, d)
-    # 5) EN: '13 June 2025'
-    m = _EN_TEXT_DM_RE.search(s)
-    if m:
-        mo = _month_from_name(m.group("m"))
-        d = int(m.group("d"))
-        y = int(m.group("y"))
-        if mo:
-            return _to_iso(y, mo, d)
-    # 6) fallback cũ: VN dd/mm/yyyy trong chuỗi bất kỳ
+    s = s.strip()
+    # ISO trong meta/json-ld
+    try:
+        from datetime import datetime
+
+        s2 = s.replace("Z", "+00:00")
+        return datetime.fromisoformat(s2).date().isoformat()
+    except Exception:
+        pass
+    # dd/mm/yyyy (VN)
     m = _VN_DATE_RE.search(s)
     if m:
         d, mo, y = int(m.group("d")), int(m.group("m")), int(m.group("y"))
-        return _to_iso(y, mo, d)
+        if 1 <= d <= 31 and 1 <= mo <= 12:
+            return f"{y:04d}-{mo:02d}-{d:02d}"
     return None
 
 
-# -------- JSON-LD WALK (đệ quy, hỗ trợ @graph, @type là list) --------
-_JSONLD_ARTICLE_TYPES = {"newsarticle", "article", "report", "blogposting"}
-
-
-def _walk_ldjson(x, out: dict):
-    if isinstance(x, dict):
-        t = x.get("@type")
-        types = []
-        if isinstance(t, str):
-            types = [t.lower()]
-        elif isinstance(t, list):
-            types = [str(it).lower() for it in t]
-
-        if any(tt in _JSONLD_ARTICLE_TYPES for tt in types):
-            dp = x.get("datePublished") or x.get("dateCreated")
-            dm = x.get("dateModified")
-            pub_iso = _norm_iso(dp)
-            mod_iso = _norm_iso(dm)
-            if pub_iso and not out.get("published_iso"):
-                out["published_iso"] = pub_iso
-                out["source_published_text"] = dp
-            if mod_iso and not out.get("modified_iso"):
-                out["modified_iso"] = mod_iso
-
-        # duyệt sâu @graph và các field lồng nhau
-        for k, v in x.items():
-            if k == "@graph":
-                _walk_ldjson(v, out)
-            elif isinstance(v, (dict, list)):
-                _walk_ldjson(v, out)
-
-    elif isinstance(x, list):
-        for it in x:
-            _walk_ldjson(it, out)
-
-
-# -------- EXTRACT DATES (RULE-BASED) --------
 def extract_dates_rule_based(html: str, url: str):
     """
-    Trả về:
-      {
-        'published_iso': 'YYYY-MM-DD' | None,
-        'modified_iso':  'YYYY-MM-DD' | None,
-        'source_published_text': 'chuỗi gốc' | None
-      }
-    Ưu tiên: JSON-LD -> meta (article/og/microdata) -> <time> -> text quanh tiêu đề -> full text.
+    Trả về dict:
+    {
+      'published_iso': 'YYYY-MM-DD' | None,
+      'modified_iso': 'YYYY-MM-DD' | None,
+      'source_published_text': 'chuỗi gốc' | None
+    }
+    Ưu tiên: JSON-LD -> meta article:published_time -> <time datetime> -> text khối meta gần tiêu đề.
     """
     soup = BeautifulSoup(html, "html.parser")
     head = soup.find("head") or soup
 
-    # 1) JSON-LD (đệ quy, hỗ trợ @graph, @type list)
-    try:
-        for s in head.find_all("script", type="application/ld+json"):
-            txt = s.string or ""
-            if not txt.strip():
-                continue
-            try:
-                data = json.loads(txt)
-            except Exception:
-                continue
-            out = {}
-            _walk_ldjson(data, out)
-            if out.get("published_iso"):
-                return {
-                    "published_iso": out.get("published_iso"),
-                    "modified_iso": out.get("modified_iso"),
-                    "source_published_text": out.get("source_published_text"),
-                }
-    except Exception:
-        pass
+    # 1) JSON-LD (NewsArticle/Article)
+    for s in head.find_all("script", type="application/ld+json"):
+        try:
+            data = json.loads(s.string or "")
+            items = data if isinstance(data, list) else [data]
+            for it in items:
+                if isinstance(it, dict) and it.get("@type") in (
+                    "NewsArticle",
+                    "Article",
+                    "Report",
+                ):
+                    dp = it.get("datePublished") or it.get("dateCreated")
+                    dm = it.get("dateModified")
+                    pub_iso = _norm_iso(dp)
+                    mod_iso = _norm_iso(dm)
+                    if pub_iso:
+                        return {
+                            "published_iso": pub_iso,
+                            "modified_iso": mod_iso,
+                            "source_published_text": dp,
+                        }
+        except Exception:
+            pass
 
-    # 2) OpenGraph/Article meta + Microdata itemprop
-    meta_candidates_pub = [
-        ("property", "article:published_time"),
-        ("name", "pubdate"),
-        ("name", "date"),
-        ("itemprop", "datePublished"),
-        ("property", "og:pubdate"),  # hiếm
-    ]
-    meta_candidates_mod = [
-        ("property", "article:modified_time"),
-        ("property", "og:updated_time"),
-        ("itemprop", "dateModified"),
-    ]
-    pub_iso = None
-    source_pub = None
-
-    for attr, val in meta_candidates_pub:
-        el = head.find("meta", {attr: val})
-        if el and el.get("content"):
-            cand = _norm_iso(el.get("content"))
-            if cand:
-                pub_iso = cand
-                source_pub = el.get("content")
-                break
-    mod_iso = None
-    for attr, val in meta_candidates_mod:
-        el = head.find("meta", {attr: val})
-        if el and el.get("content"):
-            cand = _norm_iso(el.get("content"))
-            if cand:
-                mod_iso = cand
-                break
-    if pub_iso:
-        return {
-            "published_iso": pub_iso,
-            "modified_iso": mod_iso,
-            "source_published_text": source_pub,
-        }
-
-    # 3) <time datetime="..."> (lấy cái đầu hợp lệ)
-    for t in soup.find_all("time"):
-        dt = t.get("datetime") or t.get_text(" ", strip=True)
-        cand = _norm_iso(dt)
-        if cand:
+    # 2) OpenGraph/Article meta
+    meta_pub = head.find("meta", {"property": "article:published_time"}) or head.find(
+        "meta", {"name": "pubdate"}
+    )
+    if meta_pub and meta_pub.get("content"):
+        pub_iso = _norm_iso(meta_pub["content"])
+        meta_mod = head.find("meta", {"property": "article:modified_time"})
+        mod_iso = (
+            _norm_iso(meta_mod["content"])
+            if meta_mod and meta_mod.get("content")
+            else None
+        )
+        if pub_iso:
             return {
-                "published_iso": cand,
-                "modified_iso": None,
-                "source_published_text": t.get_text(" ", strip=True) or dt,
+                "published_iso": pub_iso,
+                "modified_iso": mod_iso,
+                "source_published_text": meta_pub.get("content"),
             }
 
-    # 4) Text meta quanh tiêu đề (mở rộng selector VN)
-    meta_selectors = [
+    # 3) <time datetime="...">
+    t = soup.find("time", datetime=True)
+    if t:
+        pub_iso = _norm_iso(t.get("datetime"))
+        if pub_iso:
+            return {
+                "published_iso": pub_iso,
+                "modified_iso": None,
+                "source_published_text": t.get_text(" ", strip=True)
+                or t.get("datetime"),
+            }
+
+    # 4) Text gần tiêu đề (phù hợp Lao Động / Thanh Niên)
+    # Gom các khối meta phổ biến quanh tiêu đề
+    meta_blocks = []
+    for sel in [
         ".article__meta",
-        ".article-meta",
         ".meta",
         ".date",
         ".ldo-meta",
         "span.time",
         ".details__meta",
         ".details__time",
-        ".time-count",
-        ".publish-date",
-        ".box-date",
-        ".article__time",
-        ".post-meta",
-        ".breadcrumb_time",
-        ".sapo .time",
-        ".meta-date",
-        ".tuongthuat_time",
-    ]
-    meta_blocks = []
-    for sel in meta_selectors:
+    ]:
         meta_blocks += [el.get_text(" ", strip=True) for el in soup.select(sel)]
     joined = " | ".join([b for b in meta_blocks if b])
 
-    # a) dd/mm/yyyy, dd-mm-yyyy trong khối meta
-    m = _DMY_ANY_RE.search(joined)
+    m = _VN_DATE_RE.search(joined)
     if m:
         d, mo, y = int(m.group("d")), int(m.group("m")), int(m.group("y"))
-        pub_iso = _to_iso(y, mo, d)
-        if pub_iso:
-            return {
-                "published_iso": pub_iso,
-                "modified_iso": None,
-                "source_published_text": joined[m.start() : m.end()],
-            }
-
-    # b) Việt chữ: "13 thg 6, 2025" / "13 tháng 6 2025"
-    m2 = _VN_DATE_RE_TEXT.search(joined)
-    if m2:
-        d, mo, y = int(m2.group("d")), int(m2.group("m")), int(m2.group("y"))
-        pub_iso = _to_iso(y, mo, d)
-        if pub_iso:
-            return {
-                "published_iso": pub_iso,
-                "modified_iso": None,
-                "source_published_text": joined[m2.start() : m2.end()],
-            }
-
-    # 5) Last resort: quét full text (nặng)
-    try:
-        full_txt = soup.get_text(" ", strip=True)
-    except Exception:
-        full_txt = ""
-
-    # a) ISO/DMY trong full text
-    m = _ISO_YMD_ANY_RE.search(full_txt) or _DMY_ANY_RE.search(full_txt)
-    if m:
-        if m.re is _ISO_YMD_ANY_RE:
-            y, mo, d = int(m.group("y")), int(m.group("m")), int(m.group("d"))
-        else:
-            d, mo, y = int(m.group("d")), int(m.group("m")), int(m.group("y"))
-        pub_iso = _to_iso(y, mo, d)
-        if pub_iso:
-            return {
-                "published_iso": pub_iso,
-                "modified_iso": None,
-                "source_published_text": full_txt[m.start() : m.end()],
-            }
-
-    # b) Việt/Anh textual trong full text
-    for rex in (_VN_DATE_RE_TEXT, _EN_TEXT_MD_RE, _EN_TEXT_DM_RE):
-        m = rex.search(full_txt)
-        if m:
-            if rex is _VN_DATE_RE_TEXT:
-                d, mo, y = int(m.group("d")), int(m.group("m")), int(m.group("y"))
-            else:
-                mo = _month_from_name(m.group("m"))
-                d = int(m.group("d"))
-                y = int(m.group("y"))
-            if mo:
-                pub_iso = _to_iso(y, mo, d)
-                if pub_iso:
-                    return {
-                        "published_iso": pub_iso,
-                        "modified_iso": None,
-                        "source_published_text": full_txt[m.start() : m.end()],
-                    }
+        pub_iso = f"{y:04d}-{mo:02d}-{d:02d}"
+        return {
+            "published_iso": pub_iso,
+            "modified_iso": None,
+            "source_published_text": joined[m.start() : m.end()],
+        }
 
     return {"published_iso": None, "modified_iso": None, "source_published_text": None}
 
 
 def extract_title_rule_based(html: str) -> str | None:
     soup = BeautifulSoup(html, "html.parser")
-
-    candidates: list[str] = []
-
-    # 0) JSON-LD: lấy headline/name nếu có (để làm fallback sớm)
-    for s in soup.find_all("script", type="application/ld+json"):
-        try:
-            data = json.loads(s.string or "")
-        except Exception:
-            continue
-
-        def _walk(x):
-            if isinstance(x, dict):
-                t = x.get("@type")
-                types = (
-                    [t.lower()]
-                    if isinstance(t, str)
-                    else [str(i).lower() for i in t] if isinstance(t, list) else []
-                )
-                if any(
-                    tt in {"newsarticle", "article", "blogposting", "report"}
-                    for tt in types
-                ):
-                    for k in ("headline", "name", "alternativeHeadline"):
-                        v = x.get(k)
-                        if isinstance(v, str) and v.strip():
-                            candidates.append(v.strip())
-                for v in x.values():
-                    _walk(v)
-            elif isinstance(x, list):
-                for it in x:
-                    _walk(it)
-
-        _walk(data)
-
-    # 1) og:title (thường là bản sạch nhất)
-    meta = soup.find("meta", {"property": "og:title"})
-    if meta and meta.get("content"):
-        candidates.append(meta["content"].strip())
-
-    # 2) twitter:title
-    tw = soup.find("meta", {"name": "twitter:title"})
-    if tw and tw.get("content"):
-        candidates.append(tw["content"].strip())
-
-    # 3) itemprop headline/name (microdata)
-    for attr in ("headline", "name"):
-        node = soup.find(attrs={"itemprop": attr})
-        if node:
-            if node.get("content"):
-                candidates.append(node["content"].strip())
-            txt = node.get_text(" ", strip=True)
-            if txt:
-                candidates.append(txt)
-
-    # 4) h1/h2 có class “title”
-    sel_list = [
-        "h1[itemprop=headline]",
-        "h1.article-title",
-        "h1.title",
-        "h1.post-title",
-        ".article-title h1",
-        ".title-detail",
-        "h1#title",
-        "h1",
-        "h2.article-title",
-        "h2.title",
-    ]
-    for sel in sel_list:
-        for el in soup.select(sel):
-            txt = el.get_text(" ", strip=True)
-            if txt:
-                candidates.append(txt)
-
-    # 5) <title> của trang (thường dính suffix brand)
+    # Ưu tiên thẻ <h1>, rồi meta og:title
+    h1 = soup.find("h1")
+    if h1 and h1.get_text(strip=True):
+        return h1.get_text(strip=True)
+    og = soup.find("meta", {"property": "og:title"})
+    if og and og.get("content"):
+        return og["content"].strip()
     if soup.title and soup.title.get_text(strip=True):
-        candidates.append(soup.title.get_text(strip=True))
-
-    # --- Làm sạch & chọn ứng viên tốt nhất ---
-    import html as _html
-
-    def _clean_title(t: str) -> str:
-        t = _html.unescape(t)
-        t = re.sub(r"\s+", " ", t).strip()
-
-        # Tách theo các dấu ngăn (| - – — • : _), ưu tiên phần có vẻ là nội dung, bỏ phần “brand”
-        parts = re.split(r"\s[\|\-–—•:_]\s", t)
-        if len(parts) > 1:
-            bad = re.compile(r"(?i)\b(Báo|Online|News|Tin tức|Trang chủ|Home)\b")
-            good = [p for p in parts if len(p) >= 15 and not bad.search(p)]
-            if good:
-                t = max(good, key=len)
-            else:
-                t = parts[0]  # mặc định lấy vế trái
-        # Gỡ phần brand trong ngoặc ở cuối
-        t = re.sub(r"\s*\((?:Báo|Online|News).*\)$", "", t, flags=re.I)
-        return t.strip()
-
-    # khử trùng & dedup (case-insensitive)
-    seen = set()
-    cleaned = []
-    for raw in candidates:
-        c = _clean_title(raw)
-        if not c:
-            continue
-        key = c.lower()
-        if key in seen:
-            continue
-        seen.add(key)
-        cleaned.append(c)
-
-    if not cleaned:
-        return None
-
-    # Chấm điểm đơn giản: độ dài vừa phải, không toàn caps, không câu hoàn chỉnh
-    def _score(s: str) -> int:
-        score = 0
-        L = len(s)
-        if 25 <= L <= 120:
-            score += 3
-        elif 10 <= L <= 160:
-            score += 2
-        if not s.isupper():
-            score += 1
-        if re.search(r"(?i)\b(trang chủ|home|tin tức|news|404|not found)\b", s):
-            score -= 3
-        if re.search(r"[\.!?]$", s):
-            score -= 1  # có vẻ là câu, không phải tiêu đề
-        return score
-
-    cleaned.sort(key=_score, reverse=True)
-    # Ưu tiên ứng viên có điểm >=2, nếu không thì lấy ứng viên đầu
-    return cleaned[0] if _score(cleaned[0]) >= 2 else cleaned[0]
+        return soup.title.get_text(strip=True)
+    return None
 
 
 async def validate_and_normalize_link(
@@ -2396,7 +1452,7 @@ def date_from_anchor_context(a) -> date | None:
     steps = 0
     for parent in a.parents:
         steps += 1
-        if steps > 4:
+        if steps > 2:
             break  # limit for perf
         t = parent.find("time")
         if t:
@@ -2408,35 +1464,6 @@ def date_from_anchor_context(a) -> date | None:
                 d = _parse_date_soft(parent.get(attr))
                 if d:
                     return d
-        # Try common date/time classes within the parent
-        try:
-            cand = parent.find(
-                lambda tag: (
-                    tag.name in ("span", "div", "time", "p")
-                    and any(
-                        cls
-                        for cls in (tag.get("class") or [])
-                        if isinstance(cls, str)
-                        and any(
-                            k in cls.lower()
-                            for k in (
-                                "date",
-                                "time",
-                                "publish",
-                                "posted",
-                                "ngay",
-                                "thoi-gian",
-                            )
-                        )
-                    )
-                )
-            )
-            if cand:
-                d = _parse_date_soft(cand.get_text(" ", strip=True))
-                if d:
-                    return d
-        except Exception:
-            pass
     return None
 
 
@@ -2677,35 +1704,6 @@ class LLMUserFallbackMixin:
             await asyncio.sleep(5)
 
 
-# Sentinel để _retry_process_link() trả về và vòng lặp theo hub nhận biết để break
-CUT_HUB: Final = object()
-
-
-class _HubCutoff(Exception):
-    """Tín hiệu dừng xử lý HUB hiện tại (ví dụ gặp bài cũ hơn start_date)."""
-
-    __slots__ = ("url", "found_date", "threshold", "reason")
-
-    def __init__(
-        self,
-        url: str,
-        found_date: Optional[date] = None,  # ngày lấy được từ bài
-        threshold: Optional[date] = None,  # mốc cần cắt (start_date.date())
-        reason: str = "older-than-window",
-    ) -> None:
-        super().__init__(url, found_date, threshold, reason)
-        self.url = url
-        self.found_date = found_date
-        self.threshold = threshold
-        self.reason = reason
-
-    def __str__(self) -> str:
-        return (
-            f"_HubCutoff(reason={self.reason}, url={self.url}, "
-            f"found_date={self.found_date}, threshold={self.threshold})"
-        )
-
-
 class HubCrawlTool(LLMUserFallbackMixin):
     def __init__(
         self,
@@ -2726,7 +1724,7 @@ class HubCrawlTool(LLMUserFallbackMixin):
         self.agent = Agent(
             name="HubCrawler",
             role="Web Crawler và Content Extractor",
-            tools=[Crawl4aiTools(max_length=2000)],
+            tools=[Crawl4aiTools(max_length=10000)],
             model=self.model,
             instructions="""
             Bạn là một chuyên gia phân tích nội dung báo chí trực tuyến, đặc biệt thành thạo trong việc nhận diện và xử lý các định dạng ngày tháng đa dạng trong văn bản báo chí.
@@ -2959,9 +1957,8 @@ class HubCrawlTool(LLMUserFallbackMixin):
 
         def _extract_article_links_from_soup(
             soup: BeautifulSoup, current_page_url: str, ind_norm: set[str]
-        ) -> tuple[list[str], bool]:
-            links: list[str] = []
-            hit_older_cutoff = False
+        ) -> list[str]:
+            links = []
             start_d = start_date.date()
             end_d = end_date.date()
             for a in soup.select("a"):
@@ -2984,160 +1981,172 @@ class HubCrawlTool(LLMUserFallbackMixin):
                 if p.path in ("", "/") or p.path.startswith(("/tags/", "/video/")):
                     continue
 
-                # khớp theo keywords/industry (keywords lấy từ scope ngoài)
-                kw_norm_list = [k.lower() for k in (keywords or [])]
-                ind_norm_list = [v.lower() for v in (ind_norm or [])]
-                relevant = _context_has_kw(a, p, kw_norm_list, ind_norm_list)
+                # khớp theo keywords/industry
+                # has_kw = any(kw.lower() in (p.path or "").lower() for kw in keywords)
+                # has_ind = (
+                #     any(v in (p.path or "").lower() for v in ind_norm)
+                #     if ind_norm
+                #     else False
+                # )
+                # if not (has_kw or has_ind):
+                #     continue
 
-                # Early date filter if deducible
+                kw_norm = [k.lower() for k in keywords or []]
+                ind_norm = [v.lower() for v in (ind_norm or [])]
+                relevant = _context_has_kw(a, p, kw_norm, ind_norm)
+
+                # lọc sớm theo ngày nếu ước lượng được
                 art_date = date_from_url_path(p.path) or date_from_anchor_context(a)
-                if art_date is not None:
-                    if art_date < start_d:
-                        hit_older_cutoff = True
-                        break  # dừng quét phần còn lại của trang/hub hiện tại
-                    if art_date > end_d:
-                        continue  # quá mới, bỏ qua anchor này
+                if art_date is not None and not (start_d <= art_date <= end_d):
+                    continue
 
                 if relevant:
                     links.append(full_url)
-
-            return links, hit_older_cutoff
+            return links
 
         try:
-            # Lấy danh sách hub, giới hạn theo config nếu có
             hubs = get_hub_links_for_domain(
-                media_source.domain, keywords, industry_name, max_results=30, limit=None
+                media_source.domain, keywords, industry_name, max_results=30, limit=2
             )
-            if not hubs:
+            hub_url = hubs[0] if hubs else None
+            if not hub_url:
                 logger.warning(
                     f"[{media_source.name}] ❌ Không tìm thấy hub phù hợp cho từ khóa: {keywords}"
+                )
+
+            logger.info(f"[{media_source.name}] 🔗 Hub URL: {hub_url}")
+            await _maybe_await(self.check_pause_or_cancel)
+
+            if not (hub_url and hub_url.startswith(("http://", "https://"))):
+                logger.error(
+                    f"[{media_source.name}] ❌ Hub URL trống hoặc không hợp lệ: {hub_url}"
                 )
                 return CrawlResult(
                     source_name=media_source.name,
                     source_type=media_source.type,
-                    url="",
+                    url=hub_url or "",
                     articles_found=[],
                     crawl_status="failed",
-                    error_message="Hub URL not found",
+                    error_message="Hub URL not found or invalid",
                     crawl_duration=0.0,
                 )
 
-            # Giới hạn số hub và số trang/hub nếu muốn
-            # MAX_HUBS = getattr(self.config, "max_hubs", 5)          # ví dụ: tối đa 5 hub
-            MAX_PAGES_PER_HUB = getattr(
-                self.config, "pages_per_hub", 2
-            )  # ví dụ: tối đa 3 trang mỗi hub
-
-            logger.info(f"[{media_source.name}] 🔗 {len(hubs)} hub: {hubs}")
-
-            await _maybe_await(self.check_pause_or_cancel)
             ind_norm = _build_industry_variants(industry_name)
             domain = media_source.domain
 
-            visited_pages_global: set[str] = set()
-            page_urls: list[str] = []  # toàn cục để log
-            all_links: list[str] = []  # toàn cục tất cả link bài
-            all_link_hubs: list[int] = (
-                []
-            )  # mapping link -> hub_idx (song song với all_links)
+            visited_pages: set[str] = set()
+            page_urls: list[str] = []
+            all_links: list[str] = []
 
-            # --- CRAWL THEO TỪNG HUB ---
-            for hub_idx, raw_hub_url in enumerate(hubs):
-                try:
-                    if not raw_hub_url.startswith(("http://", "https://")):
-                        logger.error(
-                            f"[{media_source.name}] ❌ Hub URL không hợp lệ: {raw_hub_url}"
-                        )
-                        continue
-
-                    current_url = raw_hub_url
-
-                    # Nếu là tag hub hoặc đang ở page >1 → reset về trang 1
-                    if is_tag_hub_url(current_url, keywords):
-                        cur_no = _get_current_page_num(current_url)
-                        if cur_no and cur_no > 1:
-                            picked = strip_pagination(current_url)
-                            logger.info(
-                                f"[{media_source.name}][hub {hub_idx}] 🔄 Reset hub về trang 1: {picked} (was {current_url})"
-                            )
-                            current_url = picked
-
-                    current_page_num = _get_current_page_num(current_url)
-                    visited_pages_hub: set[str] = set()
-
-                    for page_idx in range(1, MAX_PAGES_PER_HUB + 1):
-                        if not current_url:
-                            break
-                        if (
-                            current_url in visited_pages_hub
-                            or current_url in visited_pages_global
-                        ):
-                            logger.info(
-                                f"[{media_source.name}][hub {hub_idx}] ⛔ Trang đã visit: {current_url}"
-                            )
-                            break
-
-                        await _maybe_await(self.check_pause_or_cancel)
-                        logger.info(
-                            f"[{media_source.name}] 🌐 Crawling hub {hub_idx} page {page_idx}: {current_url}"
-                        )
-                        html = await crawl_with_playwright(current_url)
-                        soup = BeautifulSoup(html or "", "html.parser")
-
-                        # Thu link từ trang hiện tại
-                        links, hit_old = _extract_article_links_from_soup(
-                            soup, current_url, ind_norm
-                        )
-                        all_links.extend(links)
-                        all_link_hubs.extend([hub_idx] * len(links))
-
-                        visited_pages_hub.add(current_url)
-                        visited_pages_global.add(current_url)
-                        page_urls.append(current_url)
-
-                        if hit_old:
-                            logger.info(
-                                f"[{media_source.name}][hub {hub_idx}] ⛔ reached older-than-window; stop this hub."
-                            )
-                            break
-
-                        if page_idx >= MAX_PAGES_PER_HUB:
-                            break
-
-                        # Tìm trang kế
-                        next_url = _find_next_link(soup, current_url, domain)
-                        if not next_url:
-                            # Đoán URL theo mẫu phổ biến
-                            next_no = current_page_num + 1
-                            candidates = _make_url_with_page(current_url, next_no)
-                            next_url = None
-                            for cand in candidates:
-                                if (
-                                    (domain in urlparse(cand).netloc)
-                                    and (cand not in visited_pages_hub)
-                                    and (cand not in visited_pages_global)
-                                ):
-                                    next_url = cand
-                                    break
-
-                        if not next_url:
-                            logger.info(
-                                f"[{media_source.name}][hub {hub_idx}] ⛔ Không tìm thấy trang kế tiếp từ {current_url}"
-                            )
-                            break
-
-                        current_page_num += 1
-                        current_url = next_url
-
-                except Exception as e:
-                    logger.warning(
-                        f"[{media_source.name}] ⚠️ Lỗi khi crawl hub {hub_idx}: {e}"
+            # ---- Crawl tối đa 2 trang hub ----
+            current_url = hub_url
+            if is_tag_hub_url(current_url, keywords):
+                cur_no = _get_current_page_num(current_url)
+                if cur_no and cur_no > 1:
+                    picked = strip_pagination(
+                        current_url
+                    )  # ✅ quay về base hub (trang 1)
+                    logger.info(
+                        f"[{media_source.name}] 🔄 Reset hub về trang 1: {picked} (was {current_url})"
                     )
-                    continue
+                    current_url = picked
+
+            current_page_num = _get_current_page_num(current_url)
+
+            for page_idx in range(1, 3):  # 1..5
+                if not current_url or current_url in visited_pages:
+                    break
+
+                await _maybe_await(self.check_pause_or_cancel)
+                logger.info(
+                    f"[{media_source.name}] 🌐 Crawling hub page {page_idx}: {current_url}"
+                )
+                html = await crawl_with_playwright(current_url)
+                soup = BeautifulSoup(html or "", "html.parser")
+
+                # Thu link từ trang hiện tại
+                links = _extract_article_links_from_soup(soup, current_url, ind_norm)
+                all_links.extend(links)
+                visited_pages.add(current_url)
+                page_urls.append(current_url)
+
+                # Xác định trang kế tiếp
+                if page_idx >= 3:
+                    break
+
+                next_url = _find_next_link(soup, current_url, domain)
+                if not next_url:
+                    # Đoán URL theo mẫu phổ biến
+                    next_no = current_page_num + 1
+                    candidates = _make_url_with_page(current_url, next_no)
+                    # chọn candidate đầu tiên cùng domain, chưa visit
+                    next_url = None
+                    for cand in candidates:
+                        if (
+                            domain in urlparse(cand).netloc
+                            and cand not in visited_pages
+                        ):
+                            next_url = cand
+                            break
+
+                if not next_url or next_url in visited_pages:
+                    logger.info(
+                        f"[{media_source.name}] ⛔ Không tìm thấy trang kế tiếp từ {current_url}"
+                    )
+                    break
+
+                current_page_num += 1
+                current_url = next_url
+
+            # --- Lọc hợp lệ + dedup ---
+            valid_links = list(
+                dict.fromkeys(
+                    link
+                    for link in all_links
+                    if domain in link and "admicro" not in link and "adn" not in link
+                )
+            )
+
+            logger.info(
+                f"[{media_source.name}] 🔗 Tìm được {len(valid_links)} bài viết từ {len(page_urls)} trang hub (tối đa 2)"
+            )
 
             sem = Semaphore(4)  # tuỳ quota
             start_t = time.monotonic()
             all_articles = []
+
+            async def _retry_process_link(
+                process_link, link: str, max_retries: int = 2
+            ) -> list:
+                """
+                Gọi process_link(link) với retry + exponential backoff.
+                - Thành công khi trả về list không rỗng.
+                - Nếu parse trả [] hoặc ném exception → retry (tối đa max_retries).
+                - Hết retry → trả [] để pipeline tiếp tục.
+                """
+                for attempt in range(max_retries + 1):  # 0..max_retries
+                    try:
+                        parsed = await process_link(link)
+                        if parsed:  # list có phần tử
+                            return parsed
+                        # treat empty as failure để thử lại
+                        raise RuntimeError("Parser returned empty list")
+                    except Exception as e:
+                        # Lần cuối → dừng
+                        if attempt >= max_retries:
+                            # log ngắn gọn; có thể thêm traceback nếu cần
+                            logger.warning(
+                                f"Parse fail {link}: {e} (exhausted retries)"
+                            )
+                            return []
+
+                        # Backoff + jitter nhẹ
+                        delay = min(2**attempt, 8) + random.random() * 0.5
+                        logger.info(
+                            f"[retry] parse {link} attempt {attempt + 1}/{max_retries} in {delay:.1f}s: {e}"
+                        )
+                        await asyncio.sleep(delay)
+                        # loop tiếp
 
             async def process_link(link):
                 await _maybe_await(self.check_pause_or_cancel)
@@ -3177,44 +2186,6 @@ class HubCrawlTool(LLMUserFallbackMixin):
                 # 2. Extract ngày + tiêu đề
                 meta = extract_dates_rule_based(art_html, link)
                 title_rb = extract_title_rule_based(art_html)
-                # Quick window check before any heavy parsing
-                iso = (meta or {}).get("published_iso")
-                if iso:
-                    d = _parse_date_soft(str(iso))
-                    if d is not None:
-                        if d < start_date.date():
-                            raise _HubCutoff(
-                                url=link,
-                                found_date=d,
-                                threshold=start_date.date(),
-                                reason="older-than-window",
-                            )
-                        if d > end_date.date():
-                            logger.debug(
-                                f"[HubCrawlTool] Skip too-new {link} | {d} > {end_date.date()}"
-                            )
-                            return []
-                # Debug: rule-based signals before deciding fast-path
-                try:
-                    logger.info(
-                        "[HubCrawlTool][RB] signals | link=%s | date_iso=%s | title_found=%s | html_len=%d",
-                        link,
-                        (meta or {}).get("published_iso"),
-                        bool(title_rb),
-                        len(art_html or ""),
-                    )
-                    missing = []
-                    if not (meta or {}).get("published_iso"):
-                        missing.append("date")
-                    if not title_rb:
-                        missing.append("title")
-                    if missing:
-                        logger.info(
-                            "[HubCrawlTool][RB] quick-path prerequisites missing: %s",
-                            ", ".join(missing),
-                        )
-                except Exception:
-                    pass
 
                 parsed = None
 
@@ -3228,10 +2199,8 @@ class HubCrawlTool(LLMUserFallbackMixin):
                             return False
                         obj = obj[0]
                     try:
-                        t = (
-                            getattr(obj, "tieu_de", None)
-                            or getattr(obj, "Tiêu đề", None)
-                            or getattr(obj, "cum_noi_dung_chi_tiet", None)
+                        t = getattr(obj, "tieu_de", None) or getattr(
+                            obj, "Tiêu đề", None
                         )
                         d = getattr(obj, "ngay_phat_hanh", None) or getattr(
                             obj, "Ngày phát hành", None
@@ -3239,19 +2208,12 @@ class HubCrawlTool(LLMUserFallbackMixin):
                         l = getattr(obj, "link_bai_bao", None) or getattr(
                             obj, "Link", None
                         )
-                        s = getattr(obj, "tom_tat_noi_dung", None) or getattr(
-                            obj, "Tóm tắt", None
-                        )
-                        return bool(t and d and l and s)
+                        return bool(t and d and l)
                     except Exception:
                         return False
 
-                # FAST-PATH: nếu có ngày ISO + có tiêu đề + HTML đủ dài → bỏ qua LLM
-                if (
-                    meta.get("published_iso")
-                    and title_rb
-                    and len(art_html) >= MIN_HTML_LEN_HEUR
-                ):
+                # 🔥 FAST-PATH: nếu có ngày ISO + có tiêu đề + HTML đủ dài → bỏ qua LLM
+                if meta.get("published_iso") and title_rb and len(art_html) >= 1500:
                     quick_json = json.dumps(
                         {
                             "Tiêu đề": title_rb,
@@ -3263,77 +2225,16 @@ class HubCrawlTool(LLMUserFallbackMixin):
                         ensure_ascii=False,
                     )
                     try:
-                        # Debug preview of quick_json (trim to 300 chars)
-                        try:
-                            _prev = (quick_json or "")[:300].replace("\n", " ")
-                        except Exception:
-                            _prev = "<unavailable>"
-                        logger.info(
-                            "[HubCrawlTool][RB] quick_json preview: %s...", _prev
-                        )
                         parsed = self.parser.parse(
                             quick_json, media_source, industry_name
                         )
-                        # Debug: if invalid after quick parse, log missing fields
-                        if not _is_valid_article(parsed):
-                            try:
-                                o = (
-                                    parsed[0]
-                                    if isinstance(parsed, list) and parsed
-                                    else parsed
-                                )
-                                has_title = bool(
-                                    getattr(o, "tieu_de", None)
-                                    or getattr(o, "Tiêu đề", None)
-                                    or getattr(o, "cum_noi_dung_chi_tiet")
-                                )
-                                has_date = bool(
-                                    getattr(o, "ngay_phat_hanh", None)
-                                    or getattr(o, "Ngày phát hành", None)
-                                )
-                                has_link = bool(
-                                    getattr(o, "link_bai_bao", None)
-                                    or getattr(o, "Link", None)
-                                )
-                                has_summary = bool(
-                                    getattr(o, "tom_tat", None)
-                                    or getattr(o, "Tóm tắt", None)
-                                    or getattr(o, "tom_tat_noi_dung", None)
-                                )
-                                _miss = [
-                                    k
-                                    for k, v in {
-                                        "title": has_title,
-                                        "date": has_date,
-                                        "link": has_link,
-                                        "summary": has_summary,
-                                    }.items()
-                                    if not v
-                                ]
-                                logger.info(
-                                    "[HubCrawlTool][RB] quick parse invalid -> missing: %s",
-                                    ", ".join(_miss) or "none",
-                                )
-                            except Exception:
-                                pass
-                        if _is_valid_article(parsed):
-                            logger.info(
-                                "[HubCrawlTool] ✅ fast-path (no LLM) for %s", link
-                            )
-                            return parsed  # ← TRẢ VỀ SỚM, KHÔNG GỌI LLM
                     except Exception as e:
-                        logger.warning(
-                            "[HubCrawlTool] fast-path parse lỗi, sẽ fallback LLM: %s", e
-                        )
+                        logger.warning(f"Fast-path parse lỗi → fallback LLM. Err: {e}")
                         parsed = None
 
                 # Nếu fast-path không hợp lệ → fallback LLM
                 if not _is_valid_article(parsed):
-                    if (
-                        (meta or {}).get("published_iso")
-                        and title_rb
-                        and len(art_html) >= MIN_HTML_LEN_HEUR
-                    ):
+                    if meta.get("published_iso"):
                         prompt = self.build_prompt_with_known_date(
                             link=link,
                             known_date_iso=meta["published_iso"],
@@ -3357,107 +2258,17 @@ class HubCrawlTool(LLMUserFallbackMixin):
 
                 return parsed
 
-            async def _retry_process_link(
-                process_link, link: str, max_retries: int = 2
-            ) -> list:
-                """
-                Gọi process_link(link) với retry + exponential backoff.
-                - Thành công khi trả về list KHÔNG RỖNG.
-                - Nếu parse trả [] hoặc None hoặc ném exception → retry (tối đa max_retries).
-                - Hết retry → trả [] để pipeline tiếp tục.
-                """
-                for attempt in range(max_retries + 1):  # 0..max_retries
-                    try:
-                        parsed = await process_link(link)
-                        # Treat [] as a valid outcome (e.g., filtered by date). Retry only on None/exception.
-                        if parsed is None:
-                            raise RuntimeError("Parser returned None")
-                        if isinstance(parsed, list):
-                            return parsed
-                        if parsed:  # list có phần tử
-                            return parsed
-                        # treat empty as failure để thử lại
-                        raise RuntimeError("Parser returned empty list")
-                    except _HubCutoff as sig:
-                        logger.info(f"[HubCrawlTool] {sig}")
-                        return CUT_HUB
-                    except Exception as e:
-                        # Lần cuối → dừng
-                        if attempt >= max_retries:
-                            # log ngắn gọn; có thể thêm traceback nếu cần
-                            logger.warning(
-                                f"Parse fail {link}: {e} (exhausted retries)"
-                            )
-                            return []
-                        # Backoff + jitter nhẹ
-                        delay = min(2**attempt, 8) + random.random() * 0.5
-                        logger.info(
-                            f"[retry] parse {link} attempt {attempt + 1}/{max_retries} in {delay:.1f}s: {e}"
-                        )
-                        await asyncio.sleep(delay)
+            tasks = []
+            for link in valid_links[:10]:
 
-            # --- Lọc hợp lệ + dedup GIỮ mapping hub ---
-            items = []
-            for url, hub_idx in zip(all_links, all_link_hubs):
-                netloc = urlparse(url).netloc
-                if (
-                    netloc.endswith(domain)
-                    and "admicro" not in netloc
-                    and "adn" not in netloc
-                ):
-                    items.append((url, hub_idx))
+                async def worker(l=link):
+                    async with sem:
+                        return await _retry_process_link(process_link, l, max_retries=2)
 
-            # dedup theo URL nhưng giữ hub đầu tiên phát hiện
-            seen = set()
-            dedup_items = []
-            for url, hub_idx in items:
-                if url in seen:
-                    continue
-                seen.add(url)
-                dedup_items.append((url, hub_idx))
+                tasks.append(asyncio.create_task(worker()))
 
-            # gom theo hub, có thể giữ thứ tự phát hiện
-            by_hub: "OrderedDict[int, list[str]]" = OrderedDict()
-            for url, hub_idx in dedup_items:
-                by_hub.setdefault(hub_idx, []).append(url)
-
-            # (khuyến nghị) sắp xếp trong từng hub: có ngày trong URL trước, mới → cũ
-            def _infer_date_from_url(u: str):
-                try:
-                    return date_from_url_path(urlparse(u).path)
-                except Exception:
-                    return None
-
-            for h, lst in by_hub.items():
-
-                def key(u: str):
-                    d = _infer_date_from_url(u)
-                    return (0 if d is not None else 1, -(d.toordinal()) if d else 0)
-
-                lst.sort(key=key)
-
-            logger.info(
-                f"[{media_source.name}] 🔗 Tìm được {sum(len(v) for v in by_hub.values())} bài viết từ {len(page_urls)} trang hub"
-            )
-
-            for hub_idx, link_list in by_hub.items():
-                logger.info(
-                    f"[hub {hub_idx}] ▶ start processing {len(link_list)} links"
-                )
-                for link in link_list:
-                    try:
-                        res = await _retry_process_link(
-                            process_link, link, max_retries=2
-                        )
-                        if res is CUT_HUB:
-                            logger.info(
-                                f"[hub {hub_idx}] ⛔ cutoff reached at {link} — stop this hub"
-                            )
-                            break
-                        if res:  # list[Article]
-                            all_articles.extend(res)
-                    except Exception:
-                        pass
+            parsed_lists = await asyncio.gather(*tasks)
+            all_articles = [a for lst in parsed_lists for a in lst]
 
             duration = time.monotonic() - start_t
 
@@ -3468,15 +2279,10 @@ class HubCrawlTool(LLMUserFallbackMixin):
                     return x
                 if isinstance(x, str):
                     # Ưu tiên ISO
-                    s = x.strip()
                     try:
-                        return datetime.fromisoformat(x).date()
-                    except Exception:
-                        pass
-                    try:
-                        return datetime.strptime(s, "%d-%m-%Y").date()
-                    except Exception:
-                        pass
+                        from datetime import datetime as _dt
+
+                        return _dt.fromisoformat(x).date()
                     except Exception:
                         m = _VN_DATE_RE.search(x)
                         if m:
@@ -3485,7 +2291,9 @@ class HubCrawlTool(LLMUserFallbackMixin):
                                 int(m.group("m")),
                                 int(m.group("y")),
                             )
-                            return date(y, mo, d)
+                            from datetime import date as _date
+
+                            return _date(y, mo, d)
                 return None
 
             def in_range(a: Article):
@@ -3497,7 +2305,7 @@ class HubCrawlTool(LLMUserFallbackMixin):
             return CrawlResult(
                 source_name=media_source.name,
                 source_type=media_source.type,
-                url="; ".join(hubs),
+                url=hub_url,
                 articles_found=filtered,
                 crawl_status="success" if filtered else "failed",
                 error_message="" if filtered else "Không có bài hợp lệ trong hub",
@@ -3509,7 +2317,7 @@ class HubCrawlTool(LLMUserFallbackMixin):
             return CrawlResult(
                 source_name=media_source.name,
                 source_type=media_source.type,
-                url="; ".join(hubs) if "hubs" in locals() else "",
+                url=hub_url if "hub_url" in locals() else "",
                 articles_found=[],
                 crawl_status="failed",
                 error_message=str(e),
@@ -3552,7 +2360,7 @@ class HubCrawlTool(LLMUserFallbackMixin):
 
         {{
         "Tiêu đề": "Tiêu đề đầy đủ của bài viết",
-        "Ngày phát hành": "YYYY-MM-DD",
+        "Ngày phát hành": "DD-MM-YYYY",
         "Nguồn trích ngày": "Chuỗi ngày/giờ đúng NGUYÊN VĂN bạn thấy (ví dụ: '31/07/2025 11:00 (GMT+7)')",
         "Ngày cập nhật": "DD-MM-YYYY hoặc null nếu không có",
         "Tóm tắt": "≤ 100 từ, nêu sự kiện chính, các bên liên quan, kết quả/tác động",
@@ -3590,6 +2398,7 @@ class CrawlerAgent(LLMUserFallbackMixin):
         self.session_id = session_id
         self.search_tools = [
             ddgs_search_text,
+            google_cse_search_article,
             # ArxivTools(),
             # BaiduSearchTools(),
             # HackerNewsTools(),
@@ -3619,13 +2428,6 @@ class CrawlerAgent(LLMUserFallbackMixin):
             config=self.config,
             session_id=self.session_id,
             parser=self.parser,
-            check_pause_or_cancel=self.check_pause_or_cancel,
-        )
-        self.cse_agent = CSEArticleAgent(
-            model=self.model,
-            config=self.config,
-            parser=self.parser,
-            session_id=self.session_id,
             check_pause_or_cancel=self.check_pause_or_cancel,
         )
 
@@ -3809,43 +2611,6 @@ class CrawlerAgent(LLMUserFallbackMixin):
                 # ]
 
                 if not found_for_this_keyword:
-                    # Try dedicated CSEArticleAgent first for this keyword group
-                    try:
-                        cse_result = await self.cse_agent.run(
-                            media_source, group, start_date, end_date, industry_name
-                        )
-                        if cse_result and cse_result.articles_found:
-                            self.current_articles = list(cse_result.articles_found)
-                            articles.extend(cse_result.articles_found)
-                            found_for_this_keyword = True
-
-                            if self.on_progress_update:
-                                self.on_progress_update(
-                                    source_name=media_source.name,
-                                    completed=self.status.completed_sources,
-                                    failed=self.status.failed_sources,
-                                    progress=(
-                                        (
-                                            self.status.completed_sources
-                                            + self.status.failed_sources
-                                        )
-                                        / max(1, self.status.total_sources)
-                                    )
-                                    * 100.0,
-                                    current_task=(
-                                        f"Đã tìm {len(self.current_articles)} bài từ CSE → chuyển keyword tiếp theo"
-                                    ),
-                                )
-
-                            # go next keyword
-                            continue
-                    except Exception as e:
-                        logger.warning(
-                            f"[{media_source.name}] CSEArticleAgent error: {e}",
-                            exc_info=True,
-                        )
-
-                if not found_for_this_keyword:
                     for i in range(tool_index0, len(tools_to_try)):
                         await _maybe_await(self.check_pause_or_cancel)
                         tool_index = tools_to_try[i]
@@ -3884,36 +2649,38 @@ class CrawlerAgent(LLMUserFallbackMixin):
                                 # f"Công ty {industry_name} {keywords_str} site:{media_source.domain} tháng {start_date.month} {start_date.year}",
                                 f"{keywords_str} tin tức mới nhất tháng {start_date.month} {start_date.year} site:{media_source.domain}",
                                 f"site:{media_source.domain} {industry_name} {keywords_str} tháng {start_date.month} {start_date.year}",
+                                f"site:{media_source.domain} {keywords_str}",
                             ]
                             query_lines = "\n".join([f"- {q}" for q in query_variants])
 
                             crawl_query = f"""
                             Crawl website: {domain_url or media_source.name}
-                            Điều kiện chấp nhận bài viết:
-                                - Bài báo nằm trên miền {media_source.name}, chứa từ khóa: {keywords_str} trong tiêu đề hoặc bài viết và PHẢI liên quan đến ngành hàng: {industry_name}.
+                            Tìm các bài báo trên {domain_url or media_source.name} có chứa các từ khóa: {keywords_str} trong tiêu đề hoặc trong bài viết và PHẢI liên quan đến ngành hàng: {industry_name}
+                            Lưu ý: Baby Food có thể là "sữa bột", "thực phẩm trẻ em", "thức ăn cho bé", v.v.
                             Thời gian: {date_filter}
-                            Bạn nên thử tất cả các câu truy vấn sau khi sử dụng công cụ {ddgs_search_text}: {query_lines}
-                            Yêu cầu với bài viết tìm được:
-                                - Trích xuất tiêu đề, tóm tắt, ngày phát hành, link gốc.
-                                - Ngày phát hành (ngay_phat_hanh) phải là ngày được ghi trong nội dung bài viết.
-                                - Tuyệt đối KHÔNG được lấy các ngày nằm ở phần **header**, **menu**, **sidebar**, hay **góc trên cùng của trang** (vì đó là ngày hiện tại hiển thị giao diện, KHÔNG phải ngày đăng bài viết).
-                                - Ngày phát hành phải:
-                                    + Xuất hiện bên trong nội dung bài viết.
-                                    + Có thể nằm dưới tiêu đề, gần tên tác giả, hoặc cuối bài viết.
-                                    + Nếu có nhiều ngày trong nội dung, bạn PHẢI chọn ngày:
-                                        - Có định dạng hợp lệ (ví dụ: 31/07/2025, 2025-07-31, hoặc có thêm giờ)
-                                        - Khác với ngày đầu trang
-                                        - Là ngày nhỏ hơn (sớm hơn)
-                                - Các ví dụ:
-                                    ✅ Đúng: "31/07/2025 17:25" nằm gần tác giả hoặc cuối bài viết.
-                                    ❌ Sai: "Thứ Ba, ngày 05/08/2025" nằm ở đầu trang, trong header.
-                                - Chỉ lấy bài viết liên quan đến ngành hàng và từ khóa.
-                                - QUY TẮC NO-RESULT:
-                                    + Nếu danh sách bài === rỗng → trả về JSON mảng rỗng: []
-                                    + Nếu bài nào có "text" < 500 ký tự → bỏ bài đó (không tóm tắt)
-                                    + Tuyệt đối KHÔNG tạo bài khi không có dữ liệu.
-                                - Tạo tóm tắt chi tiết (dưới 100 từ), nêu bật các thông tin chính như: sự kiện chính, các bên liên quan, và kết quả hoặc tác động của sự kiện. Không chỉ lặp lại tiêu đề.
-                                - Format: Tiêu đề | Ngày phát hành | Tóm tắt | Link
+                            Bạn nên thử tất cả các câu truy vấn sau:
+                            {query_lines}
+                            Yêu cầu:
+                            - Trích xuất tiêu đề, tóm tắt, ngày phát hành, link gốc.
+                            - Ngày phát hành (ngay_phat_hanh) phải là ngày được ghi trong nội dung bài viết.
+                            - Tuyệt đối KHÔNG được lấy các ngày nằm ở phần **header**, **menu**, **sidebar**, hay **góc trên cùng của trang** (vì đó là ngày hiện tại hiển thị giao diện, KHÔNG phải ngày đăng bài viết).
+                            - Ngày phát hành phải:
+                                + Xuất hiện bên trong nội dung bài viết.
+                                + Có thể nằm dưới tiêu đề, gần tên tác giả, hoặc cuối bài viết.
+                                + Nếu có nhiều ngày trong nội dung, bạn PHẢI chọn ngày:
+                                    - Có định dạng hợp lệ (ví dụ: 31/07/2025, 2025-07-31, hoặc có thêm giờ)
+                                    - Khác với ngày đầu trang
+                                    - Là ngày nhỏ hơn (sớm hơn)
+                            - Các ví dụ:
+                                ✅ Đúng: "31/07/2025 17:25" nằm gần tác giả hoặc cuối bài viết.
+                                ❌ Sai: "Thứ Ba, ngày 05/08/2025" nằm ở đầu trang, trong header.
+                            - Chỉ lấy bài viết liên quan đến ngành hàng và từ khóa.
+                            - QUY TẮC NO-RESULT:
+                                + Nếu danh sách bài === rỗng → trả về JSON mảng rỗng: []
+                                + Nếu bài nào có "text" < 500 ký tự → bỏ bài đó (không tóm tắt)
+                                + Tuyệt đối KHÔNG tạo bài khi không có dữ liệu.
+                            - Tạo tóm tắt chi tiết (dưới 100 từ), nêu bật các thông tin chính như: sự kiện chính, các bên liên quan, và kết quả hoặc tác động của sự kiện. Không chỉ lặp lại tiêu đề.
+                            - Format: Tiêu đề | Ngày phát hành | Tóm tắt | Link
                             """
                             logger.info(
                                 f"[{media_source.name}] Using {tool_name} for group {group_index + 1}/{len(keyword_groups)}"
@@ -4263,38 +3030,6 @@ class ProcessorAgent(LLMUserFallbackMixin):
                 ContentCluster.OTHER: [],
             }
 
-            # Override with external config if available to keep clusters in sync
-            try:
-                with open(
-                    CONFIG_DIR / "content_cluster_keywords.json",
-                    "r",
-                    encoding="utf-8-sig",
-                ) as f:
-                    _ext_clusters = json.load(f)
-
-                def _norm_key(s: str) -> str:
-                    try:
-                        return unicodedata.normalize("NFKC", s).strip().lower()
-                    except Exception:
-                        return (s or "").strip().lower()
-
-                _value_to_enum = {_norm_key(c.value): c for c in ContentCluster}
-                _mapped = {}
-                for _k, _kws in _ext_clusters.items():
-                    _enum = _value_to_enum.get(_norm_key(_k))
-                    if _enum is not None:
-                        _mapped[_enum] = _kws
-                    else:
-                        logger.warning(f"Unrecognized content cluster in config: {_k}")
-
-                if _mapped:
-                    content_clusters = _mapped
-            except Exception:
-                logger.warning(
-                    "Failed to load content_cluster_keywords.json; using built-in cluster keywords",
-                    exc_info=True,
-                )
-
             # Process articles in batches
             for i in range(0, len(raw_articles), batch_size):
                 batch = raw_articles[i : i + batch_size]
@@ -4318,20 +3053,16 @@ class ProcessorAgent(LLMUserFallbackMixin):
                 Yêu cầu:
                 1. Phân loại chính xác ngành hàng cho từng bài (dựa theo bối cảnh bài và danh sách nhãn hàng ngành hàng tương ứng).
                 2. Trích xuất `nhan_hang`:
-                    - Nếu đã `nhan_hang` đã có nội dung, giữ nguyên. Nếu là `[]` hoặc trống thì tiến hành trích xuất theo quy trình sau:
-                        + Đọc nội dung bài viết và kiểm tra xem có nhãn hàng nào trong danh sách sau xuất hiện hay không: 
-                        {json.dumps(brand_list, ensure_ascii=False, indent=2)}
-                        + Chỉ ghi nhận những nhãn hàng thực sự xuất hiện trong bài viết (bất kể viết hoa hay viết thường).
-                        + Nếu không thấy nhãn hàng nào thì để `nhan_hang` là `[]`. Không tự bịa hoặc tự suy đoán thêm.
+                    - Đọc nội dung bài viết và kiểm tra xem có nhãn hàng nào trong danh sách sau xuất hiện hay không: 
+                    {json.dumps(brand_list, ensure_ascii=False, indent=2)}
+                    - Chỉ ghi nhận những nhãn hàng thực sự xuất hiện trong bài viết (bất kể viết hoa hay viết thường).
+                    - Nếu không thấy nhãn hàng nào thì để `nhan_hang` là `[]`. Không tự bịa hoặc tự suy đoán thêm.
                 3. Phân loại lại cụm nội dung (`cum_noi_dung`). Nếu bài viết có nội dung tương đương, đồng nghĩa hoặc gần giống với các cụm từ khóa: {json.dumps({k.value: v for k, v in content_clusters.items()}, ensure_ascii=False, indent=2)}, hãy phân loại vào cụm đó.
                 4. Nếu không tìm thấy cụm nội dung nào khớp với danh sách từ khóa cụm nội dung, BẮT BUỘC gán trường (`cum_noi_dung`) là '{ContentCluster.OTHER.value}', KHÔNG ĐƯỢC để trống hoặc trả về none hay null.
                 5. Viết lại nội dung chi tiết, ngắn gọn và mang tính mô tả khái quát cho trường `cum_noi_dung_chi_tiet` dựa trên nội dung đã có sẵn:
                     - Là 1 dòng mô tả ngắn (~10–20 từ) cho bài báo, có cấu trúc:  
                     `[Loại thông tin]: [Tóm tắt nội dung nổi bật]`
-                    - [Loại thông tin] sẽ được gán bởi cụm nội dung (`cum_noi_dung`) đã phân loại.
-                    - Ví dụ (lưu ý đây chỉ là 1 ví dụ minh họa, không được áp dụng cho tất cả trường hợp)
-                        +  `cum_noi_dung`: "Hoạt động doanh nghiệp và thông tin sản phẩm"
-                        + `cum_noi_dung_chi_tiet`: "Hoạt động doanh nghiệp và thông tin sản phẩm: Tường An khẳng định vị thế dịp Tết 2025"
+                    - Ví dụ: "Thông tin doanh nghiệp: Tường An khẳng định vị thế dịp Tết 2025"
                 6. Trích xuất và ghi vào `keywords_found`:
                     - Là tất cả các từ khóa ngành liên quan thực sự xuất hiện trong bài viết.
                     - Chỉ được trích xuất từ các từ khóa đã cung cấp trong `keywords_config`.

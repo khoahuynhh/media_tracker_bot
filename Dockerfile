@@ -1,45 +1,65 @@
-# Sử dụng một base image Python gọn nhẹ
-FROM python:3.10-slim
+# Production Dockerfile for Media Tracker Bot
+FROM python:3.11-slim
 
-# Thiết lập biến môi trường để Python không buffer output
-ENV PYTHONUNBUFFERED 1
+# Environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app \
+    PROJECT_ROOT=/app \
+    CONFIG_DIR=/app/config \
+    DATA_DIR=/app/data \
+    CACHE_DIR=/app/cache \
+    LOG_DIR=/app/logs \
+    STATIC_DIR=/app/static \
+    DATABASE_PATH=/app/data/tasks.db
 
-# Tạo và thiết lập thư mục làm việc bên trong container
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# Create app user
+RUN useradd --create-home --shell /bin/bash app
+
+# Set work directory
 WORKDIR /app
 
-# Cài đặt các gói hệ thống cần thiết cho Playwright
-RUN apt-get update && apt-get install -y \
-    libnss3 \
-    libnspr4 \
-    libdbus-1-3 \
-    libatk1.0-0 \
-    libatk-bridge2.0-0 \
-    libcups2 \
-    libdrm2 \
-    libxkbcommon0 \
-    libxcomposite1 \
-    libxdamage1 \
-    libxfixes3 \
-    libxrandr2 \
-    libgbm1 \
-    libasound2 \
-    && rm -rf /var/lib/apt/lists/*
-
-# Sao chép file requirements.txt và cài đặt các thư viện
+# Copy requirements and install Python packages
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
-# Cài đặt trình duyệt cho Playwright bên trong container
-RUN playwright install
+# Create directory structure
+RUN mkdir -p /app/{config,data,cache,logs,static,src} \
+    /app/data/reports \
+    /app/cache/crawl_results && \
+    chown -R app:app /app
 
-# Sao chép toàn bộ mã nguồn và các file cấu hình vào container
-COPY ./src ./src
-COPY ./config ./config
-COPY ./static ./static
+# Switch to app user
+USER app
 
-# Expose cổng mà Uvicorn sẽ chạy
+# Copy application files
+COPY --chown=app:app src/ /app/src/
+COPY --chown=app:app config/ /app/config/
+COPY --chown=app:app static/ /app/static/
+
+# Create default files
+RUN touch /app/data/tasks.db && \
+    echo '{}' > /app/data/task_queue.json
+
+# Create default .env
+RUN echo "OPENAI_API_KEY=your_key_here" > /app/.env && \
+    echo "GROQ_API_KEY=your_key_here" >> /app/.env && \
+    echo "DEFAULT_MODEL_PROVIDER=openai" >> /app/.env
+
+# Expose port
 EXPOSE 8000
 
-# Lệnh để khởi động ứng dụng khi container chạy
-# Sử dụng host 0.0.0.0 để có thể truy cập từ bên ngoài container
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+# Start application
 CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]

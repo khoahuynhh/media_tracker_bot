@@ -21,7 +21,8 @@ import unicodedata
 import contextlib
 
 from datetime import datetime, date
-from typing import List, Dict, Optional, Any, Tuple, Final
+from typing import List, Dict, Optional, Any, Tuple
+from playwright.sync_api import sync_playwright
 from playwright.async_api import async_playwright
 from tenacity import (
     retry,
@@ -43,7 +44,6 @@ from urllib.parse import (
 )
 from bs4 import BeautifulSoup
 from asyncio import Semaphore
-from collections import OrderedDict
 
 # Import Agno
 from agno.agent import Agent
@@ -116,9 +116,7 @@ def get_llm_model(provider: Optional[str], model_id: Optional[str]) -> Any:
 
 
 # API Errors
-def _configured_providers_in_order(
-    settings, preferred: str | None = None
-) -> tuple[list[str], bool]:
+def _configured_providers_in_order(settings, preferred: str | None = None) -> list[str]:
     st = settings.get_api_key_status()
     # hàm bạn đã có
     enabled_ok = {
@@ -515,9 +513,7 @@ class CSEArticleAgent:
                 bool(kn) and re.search(rf"(?<!\w){re.escape(kn)}(?!\w)", tn) is not None
             )
 
-        def _brands_from_snippet(
-            link: str, keywords: list[str]
-        ) -> tuple[list[str], bool]:
+        def _brands_from_snippet(link: str, keywords: list[str]) -> list[str]:
             sn = snippet_map.get(link) or snippet_title_map.get(link) or ""
             matched = [kw for kw in (keywords or []) if _kw_in_text(kw, sn)]
             return list(dict.fromkeys(matched))  # dedup, giữ thứ tự
@@ -858,7 +854,9 @@ class CSEArticleAgent:
                 return x
             if isinstance(x, str):
                 try:
-                    return datetime.fromisoformat(x).date()
+                    from datetime import datetime as _dt
+
+                    return _dt.fromisoformat(x).date()
                 except Exception:
                     m = _VN_DATE_RE.search(x)
                     if m:
@@ -867,7 +865,9 @@ class CSEArticleAgent:
                             int(m.group("m")),
                             int(m.group("y")),
                         )
-                        return date(y, mo, d)
+                        from datetime import date as _date
+
+                        return _date(y, mo, d)
             return None
 
         def in_range(a: Article):
@@ -1244,7 +1244,7 @@ def get_hub_links_for_domain(
     industry_name: str,
     max_results: int = 30,
     limit: int | None = 3,
-) -> tuple[list[str], bool]:
+) -> list[str]:
     """
     Tìm nhiều hub cho 1 domain bằng cách chạy đủ 2 kiểu query ('tag' và 'news'),
     gom & xếp hạng hub giống logic pick_from_rows trong get_first_search_link.
@@ -2677,35 +2677,6 @@ class LLMUserFallbackMixin:
             await asyncio.sleep(5)
 
 
-# Sentinel để _retry_process_link() trả về và vòng lặp theo hub nhận biết để break
-CUT_HUB: Final = object()
-
-
-class _HubCutoff(Exception):
-    """Tín hiệu dừng xử lý HUB hiện tại (ví dụ gặp bài cũ hơn start_date)."""
-
-    __slots__ = ("url", "found_date", "threshold", "reason")
-
-    def __init__(
-        self,
-        url: str,
-        found_date: Optional[date] = None,  # ngày lấy được từ bài
-        threshold: Optional[date] = None,  # mốc cần cắt (start_date.date())
-        reason: str = "older-than-window",
-    ) -> None:
-        super().__init__(url, found_date, threshold, reason)
-        self.url = url
-        self.found_date = found_date
-        self.threshold = threshold
-        self.reason = reason
-
-    def __str__(self) -> str:
-        return (
-            f"_HubCutoff(reason={self.reason}, url={self.url}, "
-            f"found_date={self.found_date}, threshold={self.threshold})"
-        )
-
-
 class HubCrawlTool(LLMUserFallbackMixin):
     def __init__(
         self,
@@ -2959,9 +2930,8 @@ class HubCrawlTool(LLMUserFallbackMixin):
 
         def _extract_article_links_from_soup(
             soup: BeautifulSoup, current_page_url: str, ind_norm: set[str]
-        ) -> tuple[list[str], bool]:
-            links: list[str] = []
-            hit_older_cutoff = False
+        ) -> list[str]:
+            links = []
             start_d = start_date.date()
             end_d = end_date.date()
             for a in soup.select("a"):
@@ -2984,162 +2954,208 @@ class HubCrawlTool(LLMUserFallbackMixin):
                 if p.path in ("", "/") or p.path.startswith(("/tags/", "/video/")):
                     continue
 
-                # khớp theo keywords/industry (keywords lấy từ scope ngoài)
-                kw_norm_list = [k.lower() for k in (keywords or [])]
-                ind_norm_list = [v.lower() for v in (ind_norm or [])]
-                relevant = _context_has_kw(a, p, kw_norm_list, ind_norm_list)
+                # khớp theo keywords/industry
+                # has_kw = any(kw.lower() in (p.path or "").lower() for kw in keywords)
+                # has_ind = (
+                #     any(v in (p.path or "").lower() for v in ind_norm)
+                #     if ind_norm
+                #     else False
+                # )
+                # if not (has_kw or has_ind):
+                #     continue
 
-                # Early date filter if deducible
+                kw_norm = [k.lower() for k in keywords or []]
+                ind_norm = [v.lower() for v in (ind_norm or [])]
+                relevant = _context_has_kw(a, p, kw_norm, ind_norm)
+
+                # lọc sớm theo ngày nếu ước lượng được
                 art_date = date_from_url_path(p.path) or date_from_anchor_context(a)
-                if art_date is not None:
-                    if art_date < start_d:
-                        hit_older_cutoff = True
-                        break  # dừng quét phần còn lại của trang/hub hiện tại
-                    if art_date > end_d:
-                        continue  # quá mới, bỏ qua anchor này
+                if art_date is not None and not (start_d <= art_date <= end_d):
+                    continue
 
                 if relevant:
                     links.append(full_url)
-
-            return links, hit_older_cutoff
+            return links
 
         try:
-            # Lấy danh sách hub, giới hạn theo config nếu có
             hubs = get_hub_links_for_domain(
-                media_source.domain, keywords, industry_name, max_results=30, limit=None
+                media_source.domain, keywords, industry_name, max_results=30, limit=2
             )
-            if not hubs:
+            hub_url = hubs[0] if hubs else None
+            if not hub_url:
                 logger.warning(
                     f"[{media_source.name}] ❌ Không tìm thấy hub phù hợp cho từ khóa: {keywords}"
+                )
+
+            logger.info(f"[{media_source.name}] 🔗 Hub URL: {hub_url}")
+            await _maybe_await(self.check_pause_or_cancel)
+
+            if not (hub_url and hub_url.startswith(("http://", "https://"))):
+                logger.error(
+                    f"[{media_source.name}] ❌ Hub URL trống hoặc không hợp lệ: {hub_url}"
                 )
                 return CrawlResult(
                     source_name=media_source.name,
                     source_type=media_source.type,
-                    url="",
+                    url=hub_url or "",
                     articles_found=[],
                     crawl_status="failed",
-                    error_message="Hub URL not found",
+                    error_message="Hub URL not found or invalid",
                     crawl_duration=0.0,
                 )
 
-            # Giới hạn số hub và số trang/hub nếu muốn
-            # MAX_HUBS = getattr(self.config, "max_hubs", 5)          # ví dụ: tối đa 5 hub
-            MAX_PAGES_PER_HUB = getattr(
-                self.config, "pages_per_hub", 2
-            )  # ví dụ: tối đa 3 trang mỗi hub
-
-            logger.info(f"[{media_source.name}] 🔗 {len(hubs)} hub: {hubs}")
-
-            await _maybe_await(self.check_pause_or_cancel)
             ind_norm = _build_industry_variants(industry_name)
             domain = media_source.domain
 
-            visited_pages_global: set[str] = set()
-            page_urls: list[str] = []  # toàn cục để log
-            all_links: list[str] = []  # toàn cục tất cả link bài
-            all_link_hubs: list[int] = (
-                []
-            )  # mapping link -> hub_idx (song song với all_links)
+            visited_pages: set[str] = set()
+            page_urls: list[str] = []
+            all_links: list[str] = []
 
-            # --- CRAWL THEO TỪNG HUB ---
-            for hub_idx, raw_hub_url in enumerate(hubs):
-                try:
-                    if not raw_hub_url.startswith(("http://", "https://")):
-                        logger.error(
-                            f"[{media_source.name}] ❌ Hub URL không hợp lệ: {raw_hub_url}"
-                        )
-                        continue
-
-                    current_url = raw_hub_url
-
-                    # Nếu là tag hub hoặc đang ở page >1 → reset về trang 1
-                    if is_tag_hub_url(current_url, keywords):
-                        cur_no = _get_current_page_num(current_url)
-                        if cur_no and cur_no > 1:
-                            picked = strip_pagination(current_url)
-                            logger.info(
-                                f"[{media_source.name}][hub {hub_idx}] 🔄 Reset hub về trang 1: {picked} (was {current_url})"
-                            )
-                            current_url = picked
-
-                    current_page_num = _get_current_page_num(current_url)
-                    visited_pages_hub: set[str] = set()
-
-                    for page_idx in range(1, MAX_PAGES_PER_HUB + 1):
-                        if not current_url:
-                            break
-                        if (
-                            current_url in visited_pages_hub
-                            or current_url in visited_pages_global
-                        ):
-                            logger.info(
-                                f"[{media_source.name}][hub {hub_idx}] ⛔ Trang đã visit: {current_url}"
-                            )
-                            break
-
-                        await _maybe_await(self.check_pause_or_cancel)
-                        logger.info(
-                            f"[{media_source.name}] 🌐 Crawling hub {hub_idx} page {page_idx}: {current_url}"
-                        )
-                        html = await crawl_with_playwright(current_url)
-                        soup = BeautifulSoup(html or "", "html.parser")
-
-                        # Thu link từ trang hiện tại
-                        links, hit_old = _extract_article_links_from_soup(
-                            soup, current_url, ind_norm
-                        )
-                        all_links.extend(links)
-                        all_link_hubs.extend([hub_idx] * len(links))
-
-                        visited_pages_hub.add(current_url)
-                        visited_pages_global.add(current_url)
-                        page_urls.append(current_url)
-
-                        if hit_old:
-                            logger.info(
-                                f"[{media_source.name}][hub {hub_idx}] ⛔ reached older-than-window; stop this hub."
-                            )
-                            break
-
-                        if page_idx >= MAX_PAGES_PER_HUB:
-                            break
-
-                        # Tìm trang kế
-                        next_url = _find_next_link(soup, current_url, domain)
-                        if not next_url:
-                            # Đoán URL theo mẫu phổ biến
-                            next_no = current_page_num + 1
-                            candidates = _make_url_with_page(current_url, next_no)
-                            next_url = None
-                            for cand in candidates:
-                                if (
-                                    (domain in urlparse(cand).netloc)
-                                    and (cand not in visited_pages_hub)
-                                    and (cand not in visited_pages_global)
-                                ):
-                                    next_url = cand
-                                    break
-
-                        if not next_url:
-                            logger.info(
-                                f"[{media_source.name}][hub {hub_idx}] ⛔ Không tìm thấy trang kế tiếp từ {current_url}"
-                            )
-                            break
-
-                        current_page_num += 1
-                        current_url = next_url
-
-                except Exception as e:
-                    logger.warning(
-                        f"[{media_source.name}] ⚠️ Lỗi khi crawl hub {hub_idx}: {e}"
+            # ---- Crawl tối đa 2 trang hub ----
+            current_url = hub_url
+            if is_tag_hub_url(current_url, keywords):
+                cur_no = _get_current_page_num(current_url)
+                if cur_no and cur_no > 1:
+                    picked = strip_pagination(
+                        current_url
+                    )  # ✅ quay về base hub (trang 1)
+                    logger.info(
+                        f"[{media_source.name}] 🔄 Reset hub về trang 1: {picked} (was {current_url})"
                     )
-                    continue
+                    current_url = picked
+
+            current_page_num = _get_current_page_num(current_url)
+
+            for page_idx in range(1, 3):  # 1..5
+                if not current_url or current_url in visited_pages:
+                    break
+
+                await _maybe_await(self.check_pause_or_cancel)
+                logger.info(
+                    f"[{media_source.name}] 🌐 Crawling hub page {page_idx}: {current_url}"
+                )
+                html = await crawl_with_playwright(current_url)
+                soup = BeautifulSoup(html or "", "html.parser")
+
+                # Thu link từ trang hiện tại
+                links, hit_old_cutoff = _extract_article_links_from_soup(
+                    soup, current_url, ind_norm
+                )
+                all_links.extend(links)
+                visited_pages.add(current_url)
+                page_urls.append(current_url)
+                if hit_old_cutoff:
+                    logger.info(
+                        f"[{media_source.name}] Reached older-than-window article on this hub page; stopping."
+                    )
+                    break
+
+                # Xác định trang kế tiếp
+                if page_idx >= 3:
+                    break
+
+                next_url = _find_next_link(soup, current_url, domain)
+                if not next_url:
+                    # Đoán URL theo mẫu phổ biến
+                    next_no = current_page_num + 1
+                    candidates = _make_url_with_page(current_url, next_no)
+                    # chọn candidate đầu tiên cùng domain, chưa visit
+                    next_url = None
+                    for cand in candidates:
+                        if (
+                            domain in urlparse(cand).netloc
+                            and cand not in visited_pages
+                        ):
+                            next_url = cand
+                            break
+
+                if not next_url or next_url in visited_pages:
+                    logger.info(
+                        f"[{media_source.name}] ⛔ Không tìm thấy trang kế tiếp từ {current_url}"
+                    )
+                    break
+
+                current_page_num += 1
+                current_url = next_url
+
+            # --- Lọc hợp lệ + dedup ---
+            valid_links = list(
+                dict.fromkeys(
+                    link
+                    for link in all_links
+                    if domain in link and "admicro" not in link and "adn" not in link
+                )
+            )
+
+            logger.info(
+                f"[{media_source.name}] 🔗 Tìm được {len(valid_links)} bài viết từ {len(page_urls)} trang hub (tối đa 2)"
+            )
 
             sem = Semaphore(4)  # tuỳ quota
+            # Top-down cut-off over hub links
+            try:
+                start_d = start_date.date()
+                end_d = end_date.date()
+                pruned_links: list[str] = []
+                for lk in valid_links:
+                    try:
+                        pth = urlparse(lk).path
+                    except Exception:
+                        pth = ""
+                    d = date_from_url_path(pth)
+                    if d is not None:
+                        if d < start_d:
+                            logger.info(
+                                f"[{media_source.name}] Cut-off at {lk} | {d} < {start_d}"
+                            )
+                            break
+                        if d > end_d:
+                            # Too new: skip and continue
+                            continue
+                    pruned_links.append(lk)
+                valid_links = pruned_links
+            except Exception:
+                pass
+
             start_t = time.monotonic()
             all_articles = []
+            stop_due_to_old = False
+
+            async def _retry_process_link(
+                process_link, link: str, max_retries: int = 2
+            ) -> list:
+                """
+                Gọi process_link(link) với retry + exponential backoff.
+                - Thành công khi trả về list không rỗng.
+                - Nếu parse trả [] hoặc ném exception → retry (tối đa max_retries).
+                - Hết retry → trả [] để pipeline tiếp tục.
+                """
+                for attempt in range(max_retries + 1):  # 0..max_retries
+                    try:
+                        parsed = await process_link(link)
+                        if parsed:  # list có phần tử
+                            return parsed
+                        # treat empty as failure để thử lại
+                        raise RuntimeError("Parser returned empty list")
+                    except Exception as e:
+                        # Lần cuối → dừng
+                        if attempt >= max_retries:
+                            # log ngắn gọn; có thể thêm traceback nếu cần
+                            logger.warning(
+                                f"Parse fail {link}: {e} (exhausted retries)"
+                            )
+                            return []
+
+                        # Backoff + jitter nhẹ
+                        delay = min(2**attempt, 8) + random.random() * 0.5
+                        logger.info(
+                            f"[retry] parse {link} attempt {attempt + 1}/{max_retries} in {delay:.1f}s: {e}"
+                        )
+                        await asyncio.sleep(delay)
+                        # loop tiếp
 
             async def process_link(link):
+                nonlocal stop_due_to_old
                 await _maybe_await(self.check_pause_or_cancel)
 
                 # 1) HTTP trước
@@ -3178,22 +3194,24 @@ class HubCrawlTool(LLMUserFallbackMixin):
                 meta = extract_dates_rule_based(art_html, link)
                 title_rb = extract_title_rule_based(art_html)
                 # Quick window check before any heavy parsing
-                iso = (meta or {}).get("published_iso")
-                if iso:
-                    d = _parse_date_soft(str(iso))
-                    if d is not None:
-                        if d < start_date.date():
-                            raise _HubCutoff(
-                                url=link,
-                                found_date=d,
-                                threshold=start_date.date(),
-                                reason="older-than-window",
-                            )
-                        if d > end_date.date():
-                            logger.debug(
-                                f"[HubCrawlTool] Skip too-new {link} | {d} > {end_date.date()}"
-                            )
-                            return []
+                try:
+                    iso = (meta or {}).get("published_iso")
+                    if iso:
+                        d = _parse_date_soft(str(iso))
+                        if d:
+                            if d < start_date.date():
+                                logger.info(
+                                    f"[HubCrawlTool] Cut-off at {link} | {d} < {start_date.date()}"
+                                )
+                                stop_due_to_old = True
+                                return []
+                            if d > end_date.date():
+                                logger.debug(
+                                    f"[HubCrawlTool] Skip too-new {link} | {d} > {end_date.date()}"
+                                )
+                                return []
+                except Exception:
+                    pass
                 # Debug: rule-based signals before deciding fast-path
                 try:
                     logger.info(
@@ -3329,11 +3347,7 @@ class HubCrawlTool(LLMUserFallbackMixin):
 
                 # Nếu fast-path không hợp lệ → fallback LLM
                 if not _is_valid_article(parsed):
-                    if (
-                        (meta or {}).get("published_iso")
-                        and title_rb
-                        and len(art_html) >= MIN_HTML_LEN_HEUR
-                    ):
+                    if meta.get("published_iso"):
                         prompt = self.build_prompt_with_known_date(
                             link=link,
                             known_date_iso=meta["published_iso"],
@@ -3357,107 +3371,16 @@ class HubCrawlTool(LLMUserFallbackMixin):
 
                 return parsed
 
-            async def _retry_process_link(
-                process_link, link: str, max_retries: int = 2
-            ) -> list:
-                """
-                Gọi process_link(link) với retry + exponential backoff.
-                - Thành công khi trả về list KHÔNG RỖNG.
-                - Nếu parse trả [] hoặc None hoặc ném exception → retry (tối đa max_retries).
-                - Hết retry → trả [] để pipeline tiếp tục.
-                """
-                for attempt in range(max_retries + 1):  # 0..max_retries
-                    try:
-                        parsed = await process_link(link)
-                        # Treat [] as a valid outcome (e.g., filtered by date). Retry only on None/exception.
-                        if parsed is None:
-                            raise RuntimeError("Parser returned None")
-                        if isinstance(parsed, list):
-                            return parsed
-                        if parsed:  # list có phần tử
-                            return parsed
-                        # treat empty as failure để thử lại
-                        raise RuntimeError("Parser returned empty list")
-                    except _HubCutoff as sig:
-                        logger.info(f"[HubCrawlTool] {sig}")
-                        return CUT_HUB
-                    except Exception as e:
-                        # Lần cuối → dừng
-                        if attempt >= max_retries:
-                            # log ngắn gọn; có thể thêm traceback nếu cần
-                            logger.warning(
-                                f"Parse fail {link}: {e} (exhausted retries)"
-                            )
-                            return []
-                        # Backoff + jitter nhẹ
-                        delay = min(2**attempt, 8) + random.random() * 0.5
-                        logger.info(
-                            f"[retry] parse {link} attempt {attempt + 1}/{max_retries} in {delay:.1f}s: {e}"
-                        )
-                        await asyncio.sleep(delay)
-
-            # --- Lọc hợp lệ + dedup GIỮ mapping hub ---
-            items = []
-            for url, hub_idx in zip(all_links, all_link_hubs):
-                netloc = urlparse(url).netloc
-                if (
-                    netloc.endswith(domain)
-                    and "admicro" not in netloc
-                    and "adn" not in netloc
-                ):
-                    items.append((url, hub_idx))
-
-            # dedup theo URL nhưng giữ hub đầu tiên phát hiện
-            seen = set()
-            dedup_items = []
-            for url, hub_idx in items:
-                if url in seen:
-                    continue
-                seen.add(url)
-                dedup_items.append((url, hub_idx))
-
-            # gom theo hub, có thể giữ thứ tự phát hiện
-            by_hub: "OrderedDict[int, list[str]]" = OrderedDict()
-            for url, hub_idx in dedup_items:
-                by_hub.setdefault(hub_idx, []).append(url)
-
-            # (khuyến nghị) sắp xếp trong từng hub: có ngày trong URL trước, mới → cũ
-            def _infer_date_from_url(u: str):
+            # Sequential top-down processing to honor quick-date cut-off
+            for link in valid_links:
+                if stop_due_to_old:
+                    break
                 try:
-                    return date_from_url_path(urlparse(u).path)
+                    res = await _retry_process_link(process_link, link, max_retries=2)
+                    if res:
+                        all_articles.extend(res)
                 except Exception:
-                    return None
-
-            for h, lst in by_hub.items():
-
-                def key(u: str):
-                    d = _infer_date_from_url(u)
-                    return (0 if d is not None else 1, -(d.toordinal()) if d else 0)
-
-                lst.sort(key=key)
-
-            logger.info(
-                f"[{media_source.name}] 🔗 Tìm được {sum(len(v) for v in by_hub.values())} bài viết từ {len(page_urls)} trang hub"
-            )
-
-            for hub_idx, link_list in by_hub.items():
-                logger.info(
-                    f"[hub {hub_idx}] ▶ start processing {len(link_list)} links"
-                )
-                for link in link_list:
-                    try:
-                        res = await _retry_process_link(
-                            process_link, link, max_retries=2
-                        )
-                        if res is CUT_HUB:
-                            logger.info(
-                                f"[hub {hub_idx}] ⛔ cutoff reached at {link} — stop this hub"
-                            )
-                            break
-                        if res:  # list[Article]
-                            all_articles.extend(res)
-                    except Exception:
-                        pass
+                    pass
 
             duration = time.monotonic() - start_t
 
@@ -3468,15 +3391,10 @@ class HubCrawlTool(LLMUserFallbackMixin):
                     return x
                 if isinstance(x, str):
                     # Ưu tiên ISO
-                    s = x.strip()
                     try:
-                        return datetime.fromisoformat(x).date()
-                    except Exception:
-                        pass
-                    try:
-                        return datetime.strptime(s, "%d-%m-%Y").date()
-                    except Exception:
-                        pass
+                        from datetime import datetime as _dt
+
+                        return _dt.fromisoformat(x).date()
                     except Exception:
                         m = _VN_DATE_RE.search(x)
                         if m:
@@ -3485,7 +3403,9 @@ class HubCrawlTool(LLMUserFallbackMixin):
                                 int(m.group("m")),
                                 int(m.group("y")),
                             )
-                            return date(y, mo, d)
+                            from datetime import date as _date
+
+                            return _date(y, mo, d)
                 return None
 
             def in_range(a: Article):
@@ -3497,7 +3417,7 @@ class HubCrawlTool(LLMUserFallbackMixin):
             return CrawlResult(
                 source_name=media_source.name,
                 source_type=media_source.type,
-                url="; ".join(hubs),
+                url=hub_url,
                 articles_found=filtered,
                 crawl_status="success" if filtered else "failed",
                 error_message="" if filtered else "Không có bài hợp lệ trong hub",
@@ -3509,7 +3429,7 @@ class HubCrawlTool(LLMUserFallbackMixin):
             return CrawlResult(
                 source_name=media_source.name,
                 source_type=media_source.type,
-                url="; ".join(hubs) if "hubs" in locals() else "",
+                url=hub_url if "hub_url" in locals() else "",
                 articles_found=[],
                 crawl_status="failed",
                 error_message=str(e),
@@ -3552,7 +3472,7 @@ class HubCrawlTool(LLMUserFallbackMixin):
 
         {{
         "Tiêu đề": "Tiêu đề đầy đủ của bài viết",
-        "Ngày phát hành": "YYYY-MM-DD",
+        "Ngày phát hành": "DD-MM-YYYY",
         "Nguồn trích ngày": "Chuỗi ngày/giờ đúng NGUYÊN VĂN bạn thấy (ví dụ: '31/07/2025 11:00 (GMT+7)')",
         "Ngày cập nhật": "DD-MM-YYYY hoặc null nếu không có",
         "Tóm tắt": "≤ 100 từ, nêu sự kiện chính, các bên liên quan, kết quả/tác động",
@@ -5231,3 +5151,4 @@ class MediaTrackerTeam:
         self.processor.close()
         self.reporter.close()
         gc.collect()
+

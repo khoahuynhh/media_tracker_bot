@@ -1,0 +1,85 @@
+# Git files
+.git
+.gitignore
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+.pytest_cache/
+.coverage
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/*.log
+
+# Temporary files
+tmp/
+temp/
+.tmp/
+
+# Docker files
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Documentation
+README.md
+*.md
+docs/
+
+# Test files
+test_*.py
+*_test.py
+tests/
+
+# Development files
+.env.example
+.env.local
+.env.dev
+
+# Cache and temporary data
+cache/crawl_results/*.json
+data/reports/admin/*
+data/reports/report_*.json
+data/reports/report_*.xlsx
+
+# Large data files that should be volumes
+data/tasks.db-*
+data/*.backup
+
+# Development artifacts
+debug.html
+debug_page.html
+
+# Node modules (if any)
+node_modules/
+
+# Coverage reports
+htmlcov/
+.coverage.*
+
+# Backup files
+*.bak
+*.backup
+*.old

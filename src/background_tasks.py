@@ -5,7 +5,6 @@ import threading
 from pathlib import Path
 from typing import Dict, List, Any, Optional
 
-
 class TaskManager:
     """
     A production-ready task manager that persists tasks to a SQLite database.
@@ -14,7 +13,9 @@ class TaskManager:
     is recorded for ordering and for purging old tasks. All methods are thread-safe.
     """
 
-    def __init__(self, db_path: str = "data/tasks.db"):
+    def __init__(self, db_path: str = None):
+        if db_path is None:
+            db_path = os.getenv("DATABASE_PATH", "data/tasks.db")
         self.db_path = Path(db_path)
         self._lock = threading.Lock()
         self._connect()
@@ -26,6 +27,9 @@ class TaskManager:
         # Allow connections across threads
         self.conn = sqlite3.connect(self.db_path, check_same_thread=False)
         self.conn.row_factory = sqlite3.Row
+        self.conn.execute("PRAGMA journal_mode=WAL;")
+        self.conn.execute("PRAGMA synchronous=NORMAL;")
+        self.conn.execute("PRAGMA busy_timeout=3000;")  # 3s
 
     def _init_db(self) -> None:
         """Create the tasks table if it doesn't exist."""
@@ -80,6 +84,14 @@ class TaskManager:
             )
             rows = cur.fetchall()
             return [json.loads(row["data"]) for row in rows]
+
+    def list_users(self) -> List[str]:
+        """Return distinct user emails that have tasks in the store."""
+        with self._lock:
+            cur = self.conn.execute(
+                "SELECT DISTINCT user_email FROM tasks"
+            )
+            return [row["user_email"] for row in cur.fetchall()]
 
     def get_task_status(self, user_email: str, session_id: str) -> Optional[str]:
         """

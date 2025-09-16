@@ -112,7 +112,8 @@ static/build/
 .ipynb_checkpoints/
 
 # Deployments
-DEPLOYMENT_GUIDE
-aws-deploy-complete
-deploy-dockerhub
-deploy-t3micro
+# Deployment docs & scripts
+/DEPLOYMENT_GUIDE.md
+/aws-deploy-complete.sh
+/deploy-dockerhub.sh
+/deploy-t3micro.sh

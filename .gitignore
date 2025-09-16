@@ -110,3 +110,9 @@ static/build/
 
 # Jupyter
 .ipynb_checkpoints/
+
+# Deployments
+DEPLOYMENT_GUIDE
+aws-deploy-complete
+deploy-dockerhub
+deploy-t3micro

@@ -97,6 +97,8 @@
         setText('completionTitle', 'completion_title');
         setText('completionMessage', 'completion_msg');
         setText('okBtnText', 'ok');
+        setText('noArticlesModalTitle', 'noArticlesTitle');
+        setText('noArticlesModalMsg', 'noArticlesMsg');
 
         // Ensure chart titles also respond via data-i18n
         const indTitle = document.getElementById('topIndustryTitle');
@@ -219,7 +221,7 @@
         })();
       }
       function setLang(lang) { localStorage.setItem('lang', lang); applyI18n(); }
-      window.t = t; window.applyI18n = applyI18n; window.setLang = setLang;
+      window.t = t; window.applyI18n = applyI18n; window.setLang = setLang; window.renderI18n = renderI18n;
       document.addEventListener('DOMContentLoaded', function () { pickDefaultLang(); applyI18n(); });
     })();
   </script>
@@ -764,6 +766,7 @@
       let displayedProgress = 0;
       let isLoadSettings = false;
       let completionShownForSessions = new Set();
+      let noArticlesModalShownForSessions = new Set();
       // After finishing a session, avoid auto-attaching to other running tasks
       let suppressAutoAttach = false;
 
@@ -1152,6 +1155,29 @@
         return { total, latestKey };
       }
 
+      async function hasNewReportSinceBaseline() {
+        const baseline = getReportBaseline();   // { total, latestKey } | null
+        const nowStats = await fetchReportStats(); // { total, latestKey }
+
+        if (baseline && baseline.total != null && nowStats.total != null) {
+          return nowStats.total > baseline.total;
+        }
+        if (baseline && baseline.latestKey && nowStats.latestKey) {
+          return baseline.latestKey !== nowStats.latestKey;
+        }
+
+        // Fallback: tải latest report và xem có articles không
+        try {
+          const resp = await fetch("/api/reports/latest", {
+            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+          });
+          if (!resp.ok) return false;
+          const data = await resp.json();
+          return Array.isArray(data?.articles) && data.articles.length > 0;
+        } catch {
+          return false;
+        }
+      }
 
       function showSampleData() {
         // Show sample data for demo
@@ -1282,38 +1308,18 @@
               closeTasksSSE?.(); closeEventStream?.();
 
               if (activeTask.status === "completed") {
-                // So sánh baseline với hiện tại
-                const baseline = getReportBaseline();      // { total, latestKey } hoặc null
-                const nowStats = await fetchReportStats(); // { total, latestKey }
-
-                let increased = false;
-                if (baseline && baseline.total != null && nowStats.total != null) {
-                  increased = nowStats.total > baseline.total;
-                } else if (baseline && baseline.latestKey && nowStats.latestKey) {
-                  increased = nowStats.latestKey !== baseline.latestKey;
-                } else {
-                  // Fallback nếu không đủ dữ kiện (BE không có total/list rõ ràng)
-                  const r = await loadLatestReport();
-                  increased = !!r.ok;
-                }
-
-                // Xóa baseline cho sạch
+                const increased = await hasNewReportSinceBaseline(); // <- tách ra hàm riêng
                 localStorage.removeItem("reportBaseline");
 
                 if (increased) {
-                  // Có báo cáo mới -> show modal thành công + render báo cáo
-                  if (typeof showCompletionModalOnce === "function") {
-                    showCompletionModalOnce(activeTask.session_id);
-                  }
-                  await loadLatestReport();
+                  showCompletionModalOnce(activeTask.session_id);
+                  await loadLatestReport(); // render bảng/lược đồ ngay
                 } else {
-                  // Không hiện thông báo "Hoàn tất nhưng không có bài báo"
-                  if (typeof showNoArticlesToastOnce === "function") {
-                    showNoArticlesToastOnce(activeTask.session_id); // hoặc showNoArticlesModalOnce(...)
-                  }
+                  showNoArticlesModalOnce(activeTask.session_id); // <- gọi modal B
                 }
                 suppressAutoAttach = true;
               }
+
 
               return;
             }
@@ -1338,14 +1344,12 @@
         modal.show();
       }
 
-      let noArticlesModalShownForSessions = new Set();
       function showNoArticlesModalOnce(sessionId) {
         const key = sessionId || "global";
         if (noArticlesModalShownForSessions.has(key)) return;
-        noArticlesModalShownForSessions.add(key);
 
+        noArticlesModalShownForSessions.add(key);
         const el = document.getElementById("noArticlesModal");
-        if (!el) return;
         const modal = bootstrap.Modal.getOrCreateInstance(el);
         modal.show();
       }
@@ -3996,28 +4000,25 @@
     </div>
 
     <!-- Modal thông báo hoàn thành process nhưng không có report -->
-    <div class="modal fade" id="noArticlesModal" tabindex="-1" aria-hidden="true">
+    <div class="modal fade" id="noArticlesModal" tabindex="-1">
       <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content rounded-3">
-          <div class="modal-header">
-            <h5 class="modal-title">Không có báo cáo mới</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+        <div class="modal-content text-center">
+          <div class="modal-header bg-success text-white">
+            <h5 class="modal-title"><span id="noArticlesModalTitle">Không có bài viết</span></h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
           </div>
-          <div class="modal-body d-flex align-items-start gap-2">
-            <i class="fas fa-info-circle fs-4 text-info mt-1" aria-hidden="true"></i>
-            <div>
-              <span class="visually-hidden">Thông tin: </span>
-              Quá trình xử lý đã hoàn tất, nhưng không có bài báo mới nên không tạo báo cáo nào.
-            </div>
+          <div class="modal-body">
+            <p class="mb-0"><span id="noArticlesModalMsg">Quá trình xử lý đã hoàn tất nhưng không tạo báo cáo.</span>
+            </p>
           </div>
           <div class="modal-footer">
-            <!-- Tùy chọn: nút hành động -->
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-            <!-- <button class="btn btn-primary" onclick="openKeywordModal()">Điều chỉnh từ khóa</button> -->
+            <button type="button" class="btn btn-outline-success" data-bs-dismiss="modal"><span id="okBtnText">Đóng
+              </span></button>
           </div>
         </div>
       </div>
     </div>
+
 
     <script>
       document.querySelectorAll(".modal").forEach((modal) => {

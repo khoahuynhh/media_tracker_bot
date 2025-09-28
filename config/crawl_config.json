@@ -1,7 +1,7 @@
 {
   "keywords": {
-    "Baby Food": [
-      "Hipp"
+    "Sữa (UHT)": [
+      "Vinamilk"
     ]
   },
   "media_sources": [
@@ -49,325 +49,346 @@
     },
     {
       "stt": 7,
-      "name": "ZINGNEWS",
-      "type": "Website",
-      "domain": "zingnews.vn",
-      "reference_name": "zingnews"
-    },
-    {
-      "stt": 8,
       "name": "PHAPLUAT",
       "type": "Website",
       "domain": "plo.vn",
       "reference_name": "plo"
     },
     {
-      "stt": 9,
+      "stt": 8,
       "name": "TIENPHONG",
       "type": "Website",
       "domain": "tienphong.vn",
       "reference_name": "tienphong"
     },
     {
-      "stt": 10,
+      "stt": 9,
       "name": "NGUOILAODONG",
       "type": "Website",
       "domain": "nld.com.vn",
       "reference_name": "nld"
     },
     {
-      "stt": 11,
+      "stt": 10,
       "name": "VTCNEWS",
       "type": "Website",
-      "domain": "vtc.vn",
+      "domain": "vtcnews.vn",
       "reference_name": "vtc"
     },
     {
-      "stt": 12,
+      "stt": 11,
       "name": "BAODAUTU",
       "type": "Website",
       "domain": "baodautu.vn",
       "reference_name": "baodautu"
     },
     {
-      "stt": 13,
+      "stt": 12,
       "name": "CAFEF",
       "type": "Website",
       "domain": "cafef.vn",
       "reference_name": "cafef"
     },
     {
-      "stt": 14,
+      "stt": 13,
       "name": "CAFEBIZ",
       "type": "Website",
       "domain": "cafebiz.vn",
       "reference_name": "cafebiz"
     },
     {
-      "stt": 15,
+      "stt": 14,
       "name": "BAOCONGTHUONG",
       "type": "Website",
       "domain": "congthuong.vn",
       "reference_name": "congthuong"
     },
     {
-      "stt": 16,
+      "stt": 15,
       "name": "SUCKHOE&DOISONG",
       "type": "Website",
       "domain": "suckhoedoisong.vn",
       "reference_name": "suckhoedoisong"
     },
     {
-      "stt": 17,
+      "stt": 16,
       "name": "KENH14",
       "type": "Website",
       "domain": "kenh14.vn",
       "reference_name": "kenh14"
     },
     {
-      "stt": 18,
+      "stt": 17,
       "name": "EVA",
       "type": "Website",
       "domain": "eva.vn",
       "reference_name": "eva"
     },
     {
-      "stt": 19,
+      "stt": 18,
       "name": "GIADINH&XAHOI",
       "type": "Website",
       "domain": "giadinh.suckhoedoisong.vn",
       "reference_name": "giadinh"
     },
     {
-      "stt": 20,
+      "stt": 19,
       "name": "BAOGIAOTHONG",
       "type": "Website",
-      "domain": "baogiaothong.vn",
+      "domain": "baoxaydung.vn",
       "reference_name": "baogiaothong"
     },
     {
-      "stt": 21,
+      "stt": 20,
       "name": "BAOTINTUC(TTXVN)",
       "type": "Website",
       "domain": "baotintuc.vn",
       "reference_name": "baotintuc"
     },
     {
-      "stt": 22,
+      "stt": 21,
       "name": "VOV",
       "type": "Website",
       "domain": "vov.vn",
       "reference_name": "vov"
     },
     {
-      "stt": 23,
+      "stt": 22,
       "name": "QUANDOINHANDAN",
       "type": "Website",
       "domain": "qdnd.vn",
       "reference_name": "qdnd"
     },
     {
-      "stt": 24,
+      "stt": 23,
       "name": "CONGANTPHCM",
       "type": "Website",
       "domain": "congan.com.vn",
       "reference_name": "congan"
     },
     {
-      "stt": 25,
+      "stt": 24,
       "name": "CONGLY",
       "type": "Website",
       "domain": "congly.vn",
       "reference_name": "congly"
     },
     {
-      "stt": 26,
+      "stt": 25,
       "name": "NHIPCAUDAUTU",
       "type": "Website",
       "domain": "nhipcaudautu.vn",
       "reference_name": "nhipcaudautu"
     },
     {
-      "stt": 27,
+      "stt": 26,
       "name": "DIENDANDOANHNGHIEP",
       "type": "Website",
       "domain": "diendandoanhnghiep.vn",
       "reference_name": "diendandoanhnghiep"
     },
     {
-      "stt": 28,
+      "stt": 27,
       "name": "NHADAUTU",
       "type": "Website",
       "domain": "nhadautu.vn",
       "reference_name": "nhadautu"
     },
     {
-      "stt": 29,
+      "stt": 28,
       "name": "REATIMES",
       "type": "Website",
       "domain": "reatimes.vn",
       "reference_name": "reatimes"
     },
     {
-      "stt": 30,
+      "stt": 29,
       "name": "BNEWS",
       "type": "Website",
       "domain": "bnews.vn",
       "reference_name": "bnews"
     },
     {
-      "stt": 31,
+      "stt": 30,
       "name": "BAOCHINHPHU",
       "type": "Website",
       "domain": "baochinhphu.vn",
       "reference_name": "baochinhphu"
     },
     {
-      "stt": 32,
+      "stt": 31,
       "name": "NHANDAN",
       "type": "Website",
       "domain": "nhandan.vn",
       "reference_name": "nhandan"
     },
     {
-      "stt": 33,
+      "stt": 32,
       "name": "VTVNEWS",
       "type": "Website",
       "domain": "vtv.vn",
       "reference_name": "vtv"
     },
     {
-      "stt": 34,
+      "stt": 33,
       "name": "HANOIMOI",
       "type": "Website",
       "domain": "hanoimoi.vn",
       "reference_name": "hanoimoi"
     },
     {
-      "stt": 35,
+      "stt": 34,
       "name": "HAIQUAN",
       "type": "Website",
       "domain": "thuehaiquan.tapchikinhtetaichinh.vn",
       "reference_name": "haiquanonline"
     },
     {
-      "stt": 36,
+      "stt": 35,
       "name": "BAODAKLAK",
       "type": "Website",
       "domain": "baodaklak.vn",
       "reference_name": "baodaklak"
     },
     {
-      "stt": 37,
+      "stt": 36,
       "name": "BINHDUONG",
       "type": "Website",
       "domain": "baobinhduong.vn",
       "reference_name": "baobinhduong"
     },
     {
-      "stt": 38,
+      "stt": 37,
       "name": "SGGP",
       "type": "Website",
       "domain": "www.sggp.org.vn",
       "reference_name": "sggp"
     },
     {
-      "stt": 39,
+      "stt": 38,
       "name": "TAINGUYEN&MOITRUONG",
       "type": "Website",
       "domain": "baotainguyenmoitruong.vn",
       "reference_name": "baotainguyenmoitruong"
     },
     {
-      "stt": 40,
+      "stt": 39,
       "name": "XAYDUNG",
       "type": "Website",
       "domain": "baoxaydung.com.vn",
       "reference_name": "baoxaydung"
     },
     {
-      "stt": 41,
+      "stt": 40,
       "name": "VIETNAMFINANCE",
       "type": "Website",
       "domain": "vietnamfinance.vn",
       "reference_name": "vietnamfinance"
     },
     {
-      "stt": 42,
+      "stt": 41,
       "name": "THELEADER",
       "type": "Website",
       "domain": "theleader.vn",
       "reference_name": "theleader"
     },
     {
-      "stt": 43,
+      "stt": 42,
       "name": "DOISONG&PHAPLUAT",
       "type": "Website",
       "domain": "www.doisongphapluat.com",
       "reference_name": "doisongphapluat"
     },
     {
-      "stt": 44,
+      "stt": 43,
       "name": "VIETNAMPLUS",
       "type": "Website",
       "domain": "www.vietnamplus.vn",
       "reference_name": "vietnamplus"
     },
     {
-      "stt": 45,
+      "stt": 44,
       "name": "TOQUOC",
       "type": "Website",
       "domain": "toquoc.vn",
       "reference_name": "toquoc"
     },
     {
-      "stt": 46,
+      "stt": 45,
       "name": "NONGNGHIEPVN",
       "type": "Website",
       "domain": "nongnghiep.vn",
       "reference_name": "nongnghiep"
     },
     {
-      "stt": 47,
+      "stt": 46,
       "name": "GIAODỤC&THOIĐAI",
       "type": "Website",
       "domain": "giaoducthoidai.vn",
       "reference_name": "giaoducthoidai"
     },
     {
-      "stt": 48,
+      "stt": 47,
       "name": "BARIAVUNGTAU",
       "type": "Website",
       "domain": "baobariavungtau.com.vn",
       "reference_name": "baobariavungtau"
     },
     {
-      "stt": 49,
+      "stt": 48,
       "name": "SAIGONTIEPTHI",
       "type": "Website",
       "domain": "www.sgtiepthi.vn",
       "reference_name": "saigontiepthi"
     },
     {
-      "stt": 50,
+      "stt": 49,
       "name": "VIETNAMINVESTMENTREVIEW",
       "type": "Website",
       "domain": "vir.com.vn",
       "reference_name": "vietnaminvestmentreview"
     },
     {
-      "stt": 51,
+      "stt": 50,
       "name": "ZNEWS",
       "type": "Website",
       "domain": "znews.vn",
       "reference_name": "znews"
     },
     {
-      "stt": 52,
+      "stt": 51,
       "name": "NGUOIQUANSAT",
       "type": "Website",
       "domain": "nguoiquansat.vn",
       "reference_name": "nguoiquansat"
+    },
+    {
+      "stt": 52,
+      "name": "VIETNAMECONOMICTIMES",
+      "type": "Website",
+      "domain": "vneconomy.vn",
+      "reference_name": "vneconomictimes"
+    },
+    {
+      "stt": 53,
+      "name": "DANVIET",
+      "type": "Website",
+      "domain": "danviet.vn",
+      "reference_name": "danviet"
+    },
+    {
+      "stt": 54,
+      "name": "BAOANGIANGONLINE",
+      "type": "Website",
+      "domain": "baoangiang.com.vn",
+      "reference_name": "baoangiangonline"
+    },
+    {
+      "stt": 55,
+      "name": "HANOIONLINE",
+      "type": "Website",
+      "domain": "hanoionline.vn",
+      "reference_name": "hanoionline"
     }
   ],
   "date_range_days": 30,

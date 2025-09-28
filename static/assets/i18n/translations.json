@@ -124,7 +124,9 @@
     "otpInvalid": "Mã OTP không hợp lệ.",
     "otpExpired": "OTP đã hết hạn.",
     "enterOtp": "Nhập OTP",
-    "emailOtp": "Email OTP"
+    "emailOtp": "Email OTP",
+    "noArticlesTitle": "Không tạo báo cáo",
+    "noArticlesMsg": "Quá trình xử lý đã hoàn tất nhưng không phát hiện bài viết."
   },
   "en": {
     "settings": "Settings",
@@ -228,7 +230,7 @@
     "task.crawling_wait": "Preparing to crawl...",
     "task.retrying": "Retrying {attempt}/{max}...",
     "task.crawling_source": "Crawling {source}...",
-    "task.crawling_keywords": "Crawling {source} ? keywords: {keywords}",
+    "task.crawling_keywords": "Crawling {source} with keywords: {keywords}",
     "task.hub_found_then_next": "Found {count} articles from hub ({industry}), moving to next keyword",
     "changePassword": "Change Password",
     "currentPassword": "Current password",
@@ -251,6 +253,8 @@
     "otpInvalid": "Invalid OTP code.",
     "otpExpired": "OTP has expired.",
     "enterOtp": "Enter OTP",
-    "emailOtp": "Email OTP"
+    "emailOtp": "Email OTP",
+    "noArticlesTitle": "No new articles",
+    "noArticlesMsg": "The pipeline finished but found no articles."
   }
 }

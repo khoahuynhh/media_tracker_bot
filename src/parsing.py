@@ -8,11 +8,13 @@ that uses regular expressions to reliably extract data.
 import json
 import logging
 import re
-from typing import List, Dict, Optional
 import unicodedata
+
+from typing import List, Dict, Optional
 from urllib.parse import urljoin, urlparse
 from .models import Article, MediaSource, ContentCluster, IndustryType
 from datetime import datetime
+from unicodedata import normalize as _u_norm
 
 logger = logging.getLogger(__name__)
 
@@ -76,7 +78,9 @@ class ArticleParser:
                             data["articles"], media_source, industry_name
                         )
                     for key, val in data.items():
-                        if isinstance(val, list) and any(isinstance(it, dict) for it in val):
+                        if isinstance(val, list) and any(
+                            isinstance(it, dict) for it in val
+                        ):
                             return self._parse_from_json_list(
                                 [it for it in val if isinstance(it, dict)],
                                 media_source,
@@ -133,6 +137,33 @@ class ArticleParser:
         # 3) Default fallback
         return IndustryType.DAU_AN
 
+    def _clean_text(self, s: str) -> str:
+        if not s:
+            return ""
+        # Chuẩn hoá unicode & loại khoảng trắng đặc biệt
+        s = s.replace("\xa0", " ").replace("\u200b", "")
+        s = _u_norm("NFC", s)
+        # Cắt các ký tự “mở đầu” vô nghĩa
+        return s.strip(" \t\r\n-—–:·•")
+
+    def _get_any(self, item: dict, *keys) -> str:
+        """Lấy giá trị chuỗi theo danh sách khoá (ưu tiên từ trái sang phải)."""
+        for k in keys:
+            v = item.get(k)
+            if isinstance(v, str) and v.strip():
+                return v
+        return ""
+
+    def _looks_garbage_summary(self, s: str) -> bool:
+        # Chỉ coi là rác khi có URL trần dài hoặc dính JSON/XML rõ rệt
+        if "http://" in s or "https://" in s:
+            return True
+        if s.count("{") >= 2 and s.count("}") >= 2:
+            return True
+        if "<" in s and ">" in s and "</" in s:
+            return True
+        return False
+
     def _parse_from_json_list(
         self,
         data: List[Dict],
@@ -167,12 +198,11 @@ class ArticleParser:
                     or item.get("Tóm tắt")
                     or ""
                 )
-                if (
-                    "http" in raw_summary
-                    or "Tiêu đề" in raw_summary
-                    or "Ngày" in raw_summary
-                ):
-                    raw_summary = ""  # loại bỏ nếu có dấu hiệu sai định dạng
+                raw_summary = self._clean_text(raw_summary)
+
+                # Chỉ xoá khi thật sự là rác
+                if self._looks_garbage_summary(raw_summary):
+                    raw_summary = ""
 
                 # Chuẩn hóa ngày phát hành thành chuỗi DD-MM-YYYY
                 raw_date = (

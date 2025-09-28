@@ -5,11 +5,10 @@ TUOITRE,Website,tuoitre.vn,tuoitre
 VIETNAMNET,Website,vietnamnet.vn,vietnamnet
 THANHNIEN,Website,thanhnien.vn,thanhnien
 LAODONG,Website,laodong.vn,laodong
-ZINGNEWS,Website,zingnews.vn,zingnews
 PHAPLUAT,Website,plo.vn,plo
 TIENPHONG,Website,tienphong.vn,tienphong
 NGUOILAODONG,Website,nld.com.vn,nld
-VTCNEWS,Website,vtc.vn,vtc
+VTCNEWS,Website,vtcnews.vn,vtc
 BAODAUTU,Website,baodautu.vn,baodautu
 CAFEF,Website,cafef.vn,cafef
 CAFEBIZ,Website,cafebiz.vn,cafebiz
@@ -18,7 +17,7 @@ SUCKHOE&DOISONG,Website,suckhoedoisong.vn,suckhoedoisong
 KENH14,Website,kenh14.vn,kenh14
 EVA,Website,eva.vn,eva
 GIADINH&XAHOI,Website,giadinh.suckhoedoisong.vn,giadinh
-BAOGIAOTHONG,Website,baogiaothong.vn,baogiaothong
+BAOGIAOTHONG,Website,baoxaydung.vn,baogiaothong
 BAOTINTUC(TTXVN),Website,baotintuc.vn,baotintuc
 VOV,Website,vov.vn,vov
 QUANDOINHANDAN,Website,qdnd.vn,qdnd
@@ -51,3 +50,7 @@ SAIGONTIEPTHI,Website,www.sgtiepthi.vn,saigontiepthi
 VIETNAMINVESTMENTREVIEW,Website,vir.com.vn,vietnaminvestmentreview
 ZNEWS,Website,znews.vn,znews
 NGUOIQUANSAT,Website,nguoiquansat.vn,nguoiquansat
+VIETNAMECONOMICTIMES,Website,vneconomy.vn,vneconomictimes
+DANVIET,Website,danviet.vn,danviet
+BAOANGIANGONLINE,Website,baoangiang.com.vn,baoangiangonline
+HANOIONLINE,Website,hanoionline.vn,hanoionline

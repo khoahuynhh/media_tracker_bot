@@ -280,6 +280,9 @@ class CrawlConfig(BaseModel):
                 "crawl_timeout": 30,
                 "enable_parallel_crawling": True,
                 "max_concurrent_sources": 3,
+                "max_parallel_domains": 2,
+                "max_jobs_per_domain": 1,
+                "domain_cooldown_seconds": 10.0,
             }
         }
     )
@@ -304,6 +307,15 @@ class CrawlConfig(BaseModel):
     )
     max_concurrent_sources: int = Field(
         default=2, description="Max concurrent sources to crawl"
+    )
+    max_parallel_domains: int = Field(
+        default=2, description="Max distinct domains to crawl in parallel"
+    )
+    max_jobs_per_domain: int = Field(
+        default=1, description="Max concurrent crawl jobs per domain"
+    )
+    domain_cooldown_seconds: float = Field(
+        default=10.0, description="Cooldown between domain batches in seconds"
     )
     retry_failed_sources: bool = Field(default=True, description="Retry failed sources")
     max_retries: int = Field(default=2, description="Max retries for failed sources")

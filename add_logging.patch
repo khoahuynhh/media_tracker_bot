@@ -1,0 +1,27 @@
+diff --git a/src/agents.py b/src/agents.py
+--- a/src/agents.py
++++ b/src/agents.py
+@@
+                 batch = all_articles[i : i + batch_size]
+                 batch_processed = await self.processor.process_articles(
+                     batch, self.config.keywords
+                 )
++                if len'(batch_processed') '< len'(batch'):
++                    lost_refs = [
++                        {
++                        {
++                            'stt': art.stt,
++                            'dau_bao': art.dau_bao,
++                            'link': art.link_bai_bao,
++                        }
++                        for art in batch
++                    ][:3]
++                    logger.warning'(
++                        'Batch %%s returned %%s/%%s articles after processing. Sample refs: %%s',
++                        i // batch_size + 1,
++                        len'(batch_processed'),
++                        len'(batch'),
++                        lost_refs,
++                    )
+                 processed_articles.extend(batch_processed)
+                 logger.info(

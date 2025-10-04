@@ -22,8 +22,8 @@ import contextlib
 import urllib.parse
 
 from datetime import datetime, date
-from typing import List, Dict, Optional, Any, Tuple, Final, Sequence
-from playwright.async_api import async_playwright
+from typing import List, Dict, Optional, Any, Tuple, Final, Sequence, Iterable
+from playwright.async_api import async_playwright, TimeoutError as PWTimeout
 from tenacity import (
     retry,
     stop_after_attempt,
@@ -46,7 +46,8 @@ from urllib.parse import (
 )
 from bs4 import BeautifulSoup
 from asyncio import Semaphore
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
+from itertools import islice
 
 # Import Agno
 from agno.agent import Agent
@@ -349,13 +350,13 @@ def google_cse_search_article(
                         return True
                 return False
 
-            filtered = [
-                it
-                for it in normalized
-                if _contains_any(
-                    it.get("title") or "", it.get("snippet") or "", kw_norm
-                )
-            ]
+            # filtered = [
+            #     it
+            #     for it in normalized
+            #     if _contains_any(
+            #         it.get("title") or "", it.get("snippet") or "", kw_norm
+            #     )
+            # ]
         except Exception:
             logger.warning(
                 "[CSE] snippet filter failed; returning unfiltered results.",
@@ -446,7 +447,9 @@ class CSEArticleAgent:
         keywords_str = ", ".join([k for k in (keywords or []) if k])
         query = f"site:{media_source.domain} {keywords_str}".strip()
 
-        logger.info(f"[CSEArticleAgent] Query: {query} | domain={media_source.domain}")
+        logger.info(
+            f"[CSEArticleAgent] Query: {query} | domain={media_source.domain} mới nhất"
+        )
 
         try:
             items = google_cse_search_article(query, num=20, keywords=keywords)
@@ -1116,7 +1119,7 @@ def _random_ua() -> dict:
 
 
 class DomainPolicy:
-    def __init__(self, max_concurrent: int = 2, min_gap_sec: float = 0.8):
+    def __init__(self, max_concurrent: int = 2, min_gap_sec: float = 1.2):
         self.sem = asyncio.Semaphore(max_concurrent)
         self.min_gap = float(min_gap_sec)
         self.last_t = 0.0
@@ -1539,10 +1542,6 @@ def get_first_search_link(
         return google_cse_search(domain, industry_name, keywords)
 
 
-# Semaphore để limit concurrent playwright instances
-_playwright_sem = Semaphore(2)
-
-
 class PlaywrightPool:
     _instance = None
 
@@ -1566,7 +1565,7 @@ class PlaywrightPool:
         # Bind to current running loop
         self._loop = asyncio.get_running_loop()
         # Recreate per-loop semaphores to avoid cross-loop binding
-        self._sem = asyncio.Semaphore(3)
+        self._sem = asyncio.Semaphore(2)
         self._pw = await async_playwright().start()
         self._browser = await self._pw.chromium.launch(
             headless=True,
@@ -1664,7 +1663,7 @@ class PlaywrightPool:
                 html = ""
 
                 try:
-                    # Attempt nhanh: DOMContentLoaded
+                    # 1) Lần 1: DOMContentLoaded (+ nhịp chờ ngẫu nhiên ngắn)
                     resp = await page.goto(
                         url, timeout=timeout_ms, wait_until="domcontentloaded"
                     )
@@ -1677,7 +1676,28 @@ class PlaywrightPool:
                     )
                     await page.wait_for_timeout(300 + int(200 * random.random()))
 
-                    # CF / captcha?
+                    # Heuristic: cố gắng chờ thấy ≥3 anchor ứng viên bài viết
+                    try:
+                        await page.wait_for_function(
+                            """() => {
+                            const sels = [
+                                'article a[href]', '.story a[href]', '.post a[href]',
+                                'a[href*="/tin-"]', 'a[href*="/news"]'
+                            ];
+                            const hrefs = new Set();
+                            for (const s of sels) {
+                                for (const a of Array.from(document.querySelectorAll(s))) {
+                                if (a.href && a.href.startsWith('http')) hrefs.add(a.href);
+                                }
+                            }
+                            return hrefs.size >= 3;
+                            }""",
+                            timeout=1200,
+                        )
+                    except Exception:
+                        pass
+
+                    # CF/captcha?
                     if (
                         await page.locator(
                             "div#challenge-form, div#challenge-container, iframe[title*=captcha]"
@@ -1686,18 +1706,43 @@ class PlaywrightPool:
                     ):
                         blocked = True
 
+                    # LẦN ĐỌC 1
                     html = await page.content()
+
+                    anchors_count = await page.evaluate(
+                        """
+                        () => {
+                            const sels = [
+                            'article a[href]', '.story a[href]', '.post a[href]',
+                            'a[href*="/tin-"]', 'a[href*="/news"]',
+                            'a[href*="/bai-"]', 'a[href*="/post-"]', 'a[href*="/202"]'
+                            ];
+                            const hrefs = new Set();
+                            for (const s of sels) {
+                            for (const a of Array.from(document.querySelectorAll(s))) {
+                                if (a.href && a.href.startsWith('http')) hrefs.add(a.href);
+                            }
+                            }
+                            return hrefs.size;
+                        }
+                        """
+                    )
+                    if anchors_count < 3:
+                        await page.wait_for_timeout(500)
+                        html = await page.content()
+
+                    # 2) Opportunistic wait → nhớ ĐỌC LẠI
                     if len(html) < MIN_HTML_LEN_OPPORT:
-                        # Thử “opportunistic wait” ngắn
                         try:
                             await page.wait_for_load_state(
                                 "networkidle", timeout=NETWORKIDLE_MS
                             )
                         except Exception:
                             pass
+                        # LẦN ĐỌC 2 (SAU networkidle)
                         html = await page.content()
 
-                    # Nếu vẫn quá ngắn → thử điều hướng lại với wait_until=networkidle (lần 2)
+                    # 3) Nếu vẫn ngắn → điều hướng lại với networkidle → ĐỌC LẠI
                     if len(html) < MIN_HTML_LEN_HEUR:
                         try:
                             resp2 = await page.goto(
@@ -1708,14 +1753,20 @@ class PlaywrightPool:
                             status2 = resp2.status if resp2 else None
                             if status2 and status2 >= 400:
                                 raise RuntimeError(f"HTTP {status2}")
+
                             await page.wait_for_selector(
                                 "body", timeout=BODY_SELECTOR_TIMEOUT_MS
                             )
+                            # thêm một nhịp rất ngắn để top-story JS hoàn tất
+                            await page.wait_for_timeout(400)
+
+                            # LẦN ĐỌC 3 (SAU lần goto thứ 2)
+                            html = await page.content()
                         except Exception:
                             # giữ nguyên html hiện có để các khâu sau quyết định
                             pass
 
-                    # Heuristic bị chặn
+                    # Heuristic blocked
                     if len(html) < MIN_HTML_LEN_HEUR:
                         body_text = await page.text_content("body") or ""
                         if _looks_blocked(body_text):
@@ -1749,7 +1800,7 @@ class PlaywrightPool:
 OVERALL_BUDGET_MS = int(os.getenv("PLAYWRIGHT_OVERALL_BUDGET_MS", "35000"))
 ATTEMPT_NAV_MS = int(os.getenv("PLAYWRIGHT_NAV_TIMEOUT_MS", "12000"))
 BODY_SELECTOR_TIMEOUT_MS = int(os.getenv("PLAYWRIGHT_BODY_WAIT_MS", "2000"))
-NETWORKIDLE_MS = int(os.getenv("PLAYWRIGHT_NETWORKIDLE_MS", "3000"))
+NETWORKIDLE_MS = int(os.getenv("PLAYWRIGHT_NETWORKIDLE_MS", "4000"))
 MIN_HTML_LEN_OPPORT = int(os.getenv("PLAYWRIGHT_MIN_HTML_LEN_OPPORT", "1200"))
 MIN_HTML_LEN_HEUR = int(os.getenv("PLAYWRIGHT_MIN_HTML_LEN_BLOCK_HEUR", "800"))
 MIN_HTML_LEN_RESULT = int(os.getenv("PLAYWRIGHT_MIN_HTML_LEN_RESULT", "1000"))
@@ -1782,67 +1833,299 @@ async def crawl_with_playwright(url: str, referer: str | None = None) -> str:
 
 
 # ---- Infinite scroll helper cho listing ----
+LOAD_MORE_TEXTS = [
+    "Xem thêm",
+    "Hiển thị thêm",
+    "Tải thêm",
+    "Xem thêm tin tức",
+    "Xem tiếp",
+    "Tải thêm bài viết",
+    "Hiển thị bài viết khác",
+    "Load more",
+    "See more",
+]
+
+LOAD_MORE_SELECTORS = (
+    [f"button:has-text('{t}')" for t in LOAD_MORE_TEXTS]
+    + [f"a:has-text('{t}')" for t in LOAD_MORE_TEXTS]
+    + [
+        ".btn-more",
+        ".load-more",
+        ".btn-load-more",
+        ".view-more",
+        "button.view-more",
+        "a.view-more",
+        "button.load-more",
+        "a.load-more",
+        "div.view-more button",
+        "[data-test=load-more]",
+        "[aria-label='Xem thêm']",
+    ]
+)
+
+# Một vài selector item phổ biến (có thể override)
+DEFAULT_ITEM_SELECTORS = [
+    "article a[href]",
+    ".article a[href]",
+    ".story a[href]",
+    ".post a[href]",
+    "li a[href]",
+    ".list a[href]",
+    ".card a[href]",
+    "a[href*='/tin-']",
+    "a[href*='/news']",
+    "a[href*='-post']",
+]
+
+
+async def _close_common_overlays(page):
+    # đóng cookie banner / modal nếu có
+    candidates = page.locator(
+        ".cookie-banner, .cc-window, .modal-backdrop, .popup, .overlay"
+    )
+    try:
+        if await candidates.count() > 0 and await candidates.first.is_visible():
+            # thử nút close
+            close_btn = candidates.locator(
+                "button:has-text('OK'), button:has-text('Đồng ý'), .close, [aria-label='Close']"
+            )
+            if await close_btn.count() > 0 and await close_btn.first.is_visible():
+                await close_btn.first.click(force=True)
+            else:
+                # ẩn overlay bằng JS như biện pháp cuối
+                await candidates.evaluate_all(
+                    "els => els.forEach(el => el.style.display='none')"
+                )
+    except Exception:
+        pass
+
+
+async def _scroll_by_mouse(
+    page, container_selector: Optional[str] = None, px: int = 1600
+):
+    # lăn chuột để kích hoạt lazy-load (độ tin cậy cao hơn scrollTo)
+    if container_selector:
+        await page.locator(container_selector).hover(timeout=2000)
+    await page.mouse.wheel(0, px)
+
+
+async def _scroll_to_bottom(page, container_selector: Optional[str] = None):
+    if container_selector:
+        await page.evaluate(
+            """
+            (sel) => {
+              const el = document.querySelector(sel);
+              if (!el) return;
+              el.scrollTop = el.scrollHeight;
+            }
+        """,
+            container_selector,
+        )
+    else:
+        await page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+
+
+async def _activate_parent_tab_or_expand(page, btn):
+    # thử click các header/tab/accordion gần đó nếu tồn tại
+    try:
+        parent = await btn.element_handle()
+        if not parent:
+            return
+        await page.evaluate(
+            """
+        (el) => {
+          function findClickableAncestor(n, depth=5){
+            let cur = n; let d=0;
+            while (cur && d<depth){
+              if (cur.matches?.('[role="tab"], .tab, .accordion-header, .collapse-toggle, [aria-controls]')) return cur;
+              cur = cur.parentElement; d++;
+            }
+            return null;
+          }
+          const anc = findClickableAncestor(el);
+          if (anc){ anc.click(); }
+        }
+        """,
+            parent,
+        )
+    except Exception:
+        pass
+
+
+async def _try_click_load_more(page, selectors: Iterable[str], idle_ms: int) -> bool:
+    for sel in selectors:
+        btn = page.locator(sel).first
+        try:
+            if await btn.count() == 0:
+                continue
+
+            await btn.wait_for(state="attached", timeout=1200)
+
+            # 1) cuộn vào giữa viewport (không chờ dài)
+            try:
+                await btn.scroll_into_view_if_needed(timeout=1200)
+            except PWTimeout:
+                # kích tab/accordion rồi cuộn lại
+                await _activate_parent_tab_or_expand(page, btn)
+                try:
+                    await btn.scroll_into_view_if_needed(timeout=800)
+                except Exception:
+                    pass
+
+            # 2) nếu vẫn chưa visible → tự cuộn container + hover
+            visible = await btn.is_visible()
+            if not visible:
+                # tìm container có thể cuộn gần nhất
+                try:
+                    h = await btn.element_handle()
+                    if h:
+                        await page.evaluate(
+                            """
+                        (el) => {
+                          function getScrollableAncestor(n){
+                            let cur = el = n; let i=0;
+                            while (cur && i<6){
+                              const s = getComputedStyle(cur);
+                              if (/(auto|scroll)/.test(s.overflowY) && cur.scrollHeight > cur.clientHeight) return cur;
+                              cur = cur.parentElement; i++;
+                            }
+                            return document.scrollingElement || document.documentElement;
+                          }
+                          const sc = getScrollableAncestor(el);
+                          el.scrollIntoView({block:'center', inline:'nearest'});
+                        }
+                        """,
+                            h,
+                        )
+                        await page.wait_for_timeout(200)
+                        visible = await btn.is_visible()
+                except Exception:
+                    pass
+
+            # 3) click: chuẩn → force → JS
+            try:
+                if visible:
+                    await btn.click(timeout=1200)
+                else:
+                    await btn.click(force=True, timeout=1200)
+            except Exception:
+                try:
+                    handle = await btn.element_handle()
+                    if handle:
+                        await handle.evaluate("el => el.click()")
+                    else:
+                        continue
+                except Exception:
+                    continue
+
+            await page.wait_for_timeout(idle_ms)
+            return True
+
+        except Exception:
+            continue
+    return False
+
+
+async def _count_unique_links(
+    page, item_selectors: list[str], same_host_of: Optional[str]
+) -> int:
+    hrefs: set[str] = set()
+    for css in item_selectors:
+        try:
+            links = await page.eval_on_selector_all(
+                css, "els => els.map(e => e.href).filter(Boolean)"
+            )
+        except Exception:
+            links = []
+        for h in links or []:
+            h = h.strip()
+            if not h.startswith(("http://", "https://")):
+                continue
+            if same_host_of:
+                host0 = urllib.parse.urlparse(same_host_of).netloc
+                hostx = urllib.parse.urlparse(h).netloc
+                if hostx and hostx != host0:
+                    continue
+            hrefs.add(h)
+    # Nếu không match gì, fallback a[href]
+    if not hrefs:
+        links = await page.eval_on_selector_all(
+            "a[href]", "els => els.map(e => e.href).filter(Boolean)"
+        )
+        for h in links or []:
+            h = h.strip()
+            if h.startswith(("http://", "https://")):
+                if same_host_of:
+                    host0 = urllib.parse.urlparse(same_host_of).netloc
+                    hostx = urllib.parse.urlparse(h).netloc
+                    if hostx and hostx != host0:
+                        continue
+                hrefs.add(h)
+    return len(hrefs)
+
+
 async def crawl_infinite_listing(
-    url: str, max_rounds: int = 12, idle_ms: int = 700
+    url: str,
+    max_rounds: int = 12,
+    idle_ms: int = 700,
+    container_selector: Optional[
+        str
+    ] = None,  # nếu trang cuộn trong panel riêng, truyền vào đây
+    item_selectors: Optional[
+        list[str]
+    ] = None,  # danh sách selector để đếm bài viết mới
+    extra_load_more_selectors: Optional[
+        list[str]
+    ] = None,  # nếu bạn có selector riêng cho site
 ) -> str:
+    item_selectors = item_selectors or DEFAULT_ITEM_SELECTORS
+    load_more_selectors = list(LOAD_MORE_SELECTORS)
+    if extra_load_more_selectors:
+        load_more_selectors = extra_load_more_selectors + load_more_selectors
 
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True, args=["--no-sandbox"])
         page = await browser.new_page()
-        await page.goto(url, wait_until="domcontentloaded", timeout=25000)
+        await page.goto(url, wait_until="domcontentloaded", timeout=30000)
 
-        last_count = 0
-        button_texts = [
-            "Xem thêm",
-            "Hiển thị thêm",
-            "Tải thêm",
-            "Xem thêm tin tức",
-            "Xem tiếp",
-            "Tải thêm bài viết",
-            "Hiển thị bài viết khác",
-        ]
-        selectors = (
-            [f"button:has-text('{text}')" for text in button_texts]
-            + [f"a:has-text('{text}')" for text in button_texts]
-            + [
-                ".btn-more",
-                ".load-more",
-                ".btn-load-more",
-                ".view-more",
-                "button.view-more",
-                "a.view-more",
-                "button.load-more",
-                "a.load-more",
-                "div.view-more button",
-            ]
-        )
+        await _close_common_overlays(page)
 
-        for _ in range(max_rounds):
-            # 1) Thử click tất cả nút "Xem thêm" nếu có
-            clicked = False
-            for sel in selectors:
-                btn = await page.query_selector(sel)
-                if btn:
-                    try:
-                        await btn.scroll_into_view_if_needed()
-                        await btn.click(force=True)
-                        await page.wait_for_timeout(idle_ms)
-                        clicked = True
-                        print(f"Clicked selector: {sel}")
-                    except Exception as e:
-                        print(f"Failed to click {sel}: {e}")
+        last_count = await _count_unique_links(page, item_selectors, same_host_of=url)
+
+        for round_idx in range(max_rounds):
+            clicked = await _try_click_load_more(page, load_more_selectors, idle_ms)
             if not clicked:
-                print("Không tìm thấy nút 'Xem thêm' nào để bấm.")
-                break
+                # không có nút → thử kịch bản infinite scroll (mouse wheel + scrollTo)
+                await _scroll_by_mouse(page, container_selector, px=1600)
+                await page.wait_for_timeout(idle_ms)
+                await _scroll_to_bottom(page, container_selector)
+                await page.wait_for_timeout(idle_ms)
 
-            # 2) Cuộn xuống đáy
-            await page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
-            await page.wait_for_timeout(idle_ms)
+            # Chờ mạng “dịu” một chút nhưng không phụ thuộc networkidle
+            try:
+                await page.wait_for_load_state("networkidle", timeout=2500)
+            except PWTimeout:
+                # nhiều site dùng long-polling → bỏ qua
+                pass
 
-            # 3) Kiểm tra số anchor bài viết đã xuất hiện
-            count = await page.eval_on_selector_all("a[href]", "els => els.length")
+            # cuộn thêm vài nhịp nhỏ để kích lazy-load (IntersectionObserver)
+            for _ in range(2):
+                await _scroll_by_mouse(page, container_selector, px=1000)
+                await page.wait_for_timeout(min(idle_ms, 500))
+
+            # Đếm xem có thêm bài mới không
+            count = await _count_unique_links(page, item_selectors, same_host_of=url)
             if count <= last_count:
-                print("Không có thêm bài viết mới, dừng lại.")
+                # thử thêm 1 vòng “lăn chuột” nữa trước khi dừng
+                await _scroll_by_mouse(page, container_selector, px=2000)
+                await page.wait_for_timeout(idle_ms)
+                count = await _count_unique_links(
+                    page, item_selectors, same_host_of=url
+                )
+
+            print(f"[round {round_idx+1}] items: {count} (was {last_count})")
+            if count <= last_count:
+                print("Không thấy item mới → dừng.")
                 break
             last_count = count
 
@@ -3142,7 +3425,85 @@ class HubCrawlTool(LLMUserFallbackMixin):
                     (a.get("data-title") or ""),
                 ]
             ).lower()
-            ctx = " ".join([path_l, a_txt, h_txt, attr_txt])
+
+            should_expand = any(ch.isdigit() for ch in path_l) or any(
+                (a.get(attr) or "").strip()
+                for attr in (
+                    "data-id",
+                    "data-newsid",
+                    "data-article-id",
+                    "data-linkid",
+                    "data-linktype",
+                )
+            )
+
+            ctx_parts: list[str] = [path_l, a_txt, h_txt, attr_txt]
+
+            def _append_text(tag) -> None:
+                if not tag or not hasattr(tag, "get_text"):
+                    return
+                try:
+                    text = tag.get_text(" ", strip=True)
+                except Exception:
+                    return
+                if text:
+                    ctx_parts.append(text.lower()[:600])
+
+            if should_expand:
+                parent = a if hasattr(a, "parent") else None
+                seen_container = False
+                steps = 0
+                container_hints = (
+                    "item",
+                    "result",
+                    "entry",
+                    "story",
+                    "article",
+                    "post",
+                    "card",
+                    "search",
+                    "box-category",
+                    "listing",
+                    "content",
+                )
+                while parent is not None and steps < 4:
+                    parent = getattr(parent, "parent", None)
+                    if not hasattr(parent, "get"):
+                        break
+                    classes = " ".join(parent.get("class") or ()).lower()
+                    if parent.name in {"article", "li", "section", "div"} and any(
+                        hint in classes for hint in container_hints
+                    ):
+                        _append_text(parent)
+                        seen_container = True
+                        break
+                    steps += 1
+
+                if (
+                    not seen_container
+                    and hasattr(a, "parent")
+                    and hasattr(a.parent, "find_all")
+                ):
+                    for tag in a.parent.find_all(
+                        ["p", "div", "span"],
+                        limit=2,
+                        recursive=False,
+                    ):
+                        classes = " ".join(tag.get("class") or ()).lower()
+                        if any(
+                            key in classes
+                            for key in (
+                                "sapo",
+                                "summary",
+                                "synopsis",
+                                "desc",
+                                "description",
+                                "lead",
+                            )
+                        ):
+                            _append_text(tag)
+                            break
+            ctx = " ".join(filter(None, ctx_parts))
 
             has_kw = any(k in ctx for k in (keywords_norm or []))
             has_ind = any(v in ctx for v in (ind_norm or []))
@@ -3249,6 +3610,8 @@ class HubCrawlTool(LLMUserFallbackMixin):
                 "congly.vn": "https://congly.vn/search?q={kw}",
                 "reatimes.vn": "https://reatimes.vn/tim-kiem.htm?keyword={kw}",
                 "bnews.vn": "https://bnews.vn/tim-kiem/{kw}/trang-1.html",
+                "baochinhphu.vn": "https://baochinhphu.vn/tim-kiem.htm?keywords={kw}",
+                "nhandan.vn": "https://nhandan.vn/tim-kiem/?q={kw}",
                 "nld.com.vn": "https://nld.com.vn/search.chn?keywords={kw}",
                 "vneconomy.vn": "https://vneconomy.vn/tim-kiem.html?Text={kw}",
                 "diendandoanhnghiep.vn": "https://diendandoanhnghiep.vn/search?q={kw}",
@@ -3280,6 +3643,8 @@ class HubCrawlTool(LLMUserFallbackMixin):
                         "congan.com.vn",
                         "congly.vn",
                         "reatimes.vn",
+                        "baochinhphu.vn",
+                        "nhandan.vn",
                     }:
                         q = quote_plus(
                             kw_pref, safe=""
@@ -3386,6 +3751,9 @@ class HubCrawlTool(LLMUserFallbackMixin):
                             "congan.com.vn",
                             "congly.vn",
                             "reatimes.vn",
+                            "baochinhphu.vn",
+                            "nhandan.vn",
+                            "tuoitre.vn",
                         ):
                             html = await crawl_infinite_listing(
                                 current_url, max_rounds=7, idle_ms=700
@@ -3435,6 +3803,8 @@ class HubCrawlTool(LLMUserFallbackMixin):
                                 "congan.com.vn",
                                 "congly.vn",
                                 "reatimes.vn",
+                                "baochinhphu.vn",
+                                "nhandan.vn",
                             ):
                                 next_url = None
                             else:
@@ -3793,6 +4163,23 @@ class HubCrawlTool(LLMUserFallbackMixin):
 
                 lst.sort(key=key)
 
+            _flattened = [u for lst in by_hub.values() for u in lst]
+            _sample = list(islice(_flattened, 5))
+
+            if _sample:
+                lines = []
+                for i, u in enumerate(_sample, 1):
+                    d = _infer_date_from_url(u)
+                    lines.append(
+                        f"{i}. {u}" + (f"  (date={d.isoformat()})" if d else "")
+                    )
+                logger.info(
+                    "[%s] 🔍 Top %d link sau sort:\n%s",
+                    media_source.name,
+                    len(_sample),
+                    "\n".join(lines),
+                )
+
             logger.info(
                 f"[{media_source.name}] 🔗 Tìm được {sum(len(v) for v in by_hub.values())} bài viết từ {len(page_urls)} trang hub"
             )
@@ -3943,6 +4330,56 @@ class HubCrawlTool(LLMUserFallbackMixin):
         4) Chỉ nhận bài trong khoảng {date_filter}. Nếu ngày phát hành ngoài khoảng, trả JSON nhưng ngày phát hành phải là ngày đúng bạn tìm thấy (đừng tự đổi).
         5) Định dạng ngày bắt buộc: YYYY-MM-DD.
         """
+
+
+async def run_in_domain_batches(
+    jobs: list,  # list các “job” (bạn tự định nghĩa)
+    get_domain,  # fn: job -> domain string
+    run_job,  # fn async: job -> result
+    max_domains_parallel: int = 2,  # tối đa 2 domain chạy cùng lúc
+    max_per_domain: int = 2,  # tối đa 2 job/kw song song / domain
+    domain_cooldown_s: float = 15.0,  # nghỉ giữa 2 domain
+):
+    """
+    Ví dụ:
+      jobs = [{'url': hub_url, 'kw': kw, ...}, ...]
+      get_domain = lambda j: urlparse(j['url']).netloc
+      run_job = crawl_one_keyword_on_hub
+    """
+    # group theo domain
+    buckets = defaultdict(list)
+    for j in jobs:
+        buckets[get_domain(j)].append(j)
+
+    domains = list(buckets.keys())
+
+    # Semaphore để giới hạn số domain chạy đồng thời
+    dom_sem = asyncio.Semaphore(max_domains_parallel)
+    results = {}
+
+    async def process_one_domain(dom):
+        async with dom_sem:
+            # giới hạn song song trong domain
+            sem = asyncio.Semaphore(max_per_domain)
+
+            async def _worker(j):
+                async with sem:
+                    return await run_job(j)
+
+            # chạy tuần tự theo “đợt nhỏ” để không nổ tải ngay
+            dom_jobs = buckets[dom]
+            # nếu muốn thực sự tuần tự 1-1, set max_per_domain=1
+            try:
+                results[dom] = await asyncio.gather(
+                    *[_worker(j) for j in dom_jobs], return_exceptions=True
+                )
+            finally:
+                # cooldown nhẹ giữa các domain
+                await asyncio.sleep(domain_cooldown_s)
+
+    # chạy các domain (tối đa max_domains_parallel domain song song)
+    await asyncio.gather(*[process_one_domain(dom) for dom in domains])
+    return results
 
 
 # <--- Agent Class -->
@@ -4985,6 +5422,53 @@ class ReportAgent(LLMUserFallbackMixin):
     def _sanitize_report_payload(self, d: dict, articles, date_range: str) -> dict:
         d = dict(d or {})
 
+        def _normalize_industry_name(value: Any) -> str:
+            if value is None:
+                return ""
+            if hasattr(value, "value"):
+                value = value.value
+            return str(value).strip().lower()
+
+        def _extract_article_field(article, attr, default=None):
+            if isinstance(article, dict):
+                return article.get(attr, default)
+            return getattr(article, attr, default)
+
+        def _article_industry(article):
+            for key in ("nganh_hang", "nganh", "industry"):
+                value = _extract_article_field(article, key)
+                if value:
+                    return value
+            return None
+
+        def _article_brands(article) -> List[str]:
+            brands = _extract_article_field(article, "nhan_hang")
+            if brands is None:
+                brands = _extract_article_field(article, "brands")
+            if brands is None:
+                return []
+            if isinstance(brands, list):
+                return [b for b in brands if b]
+            if isinstance(brands, str) and brands.strip():
+                return [brands.strip()]
+            return []
+
+        industries_with_brandless = {
+            _normalize_industry_name(_article_industry(article))
+            for article in (articles or [])
+            if article is not None and not _article_brands(article)
+        }
+
+        def _ensure_brand_placeholder(target: dict):
+            key = _normalize_industry_name(target.get("nganh_hang"))
+            if key and key in industries_with_brandless:
+                brands = target.setdefault("nhan_hang", [])
+                if not isinstance(brands, list):
+                    brands = [brands]
+                if "Không có" not in brands:
+                    brands.append("Không có")
+                target["nhan_hang"] = brands
+
         # ---- overall_summary ----
         osum = dict(d.get("overall_summary") or {})
         industries = osum.get("industries")
@@ -5028,6 +5512,7 @@ class ReportAgent(LLMUserFallbackMixin):
                 except Exception:
                     it["so_luong_bai"] = 0
 
+            _ensure_brand_placeholder(it)
             fixed_industries.append(it)
 
         osum["industries"] = fixed_industries
@@ -5049,6 +5534,9 @@ class ReportAgent(LLMUserFallbackMixin):
                 it.setdefault("cum_noi_dung", [])
                 it.setdefault("so_luong_bai", 0)
                 it.setdefault("cac_dau_bao", [])
+                if not isinstance(it["nhan_hang"], list):
+                    it["nhan_hang"] = [it["nhan_hang"]]
+                _ensure_brand_placeholder(it)
                 fixed_iss.append(it)
             iss = fixed_iss
         d["industry_summaries"] = iss
@@ -5168,29 +5656,40 @@ class ReportAgent(LLMUserFallbackMixin):
                 industry_groups[industry] = []
             industry_groups[industry].append(article)
 
-        industry_summaries = [
-            IndustrySummary(
-                nganh_hang=industry,
-                nhan_hang=list(
-                    set(
-                        brand
-                        for article in industry_articles
-                        for brand in article.nhan_hang
-                    )
-                ),
-                cum_noi_dung=list(
-                    set(
-                        c
-                        for article in industry_articles
-                        if (c := article.cum_noi_dung) is not None
-                    )
-                )
-                or [ContentCluster.OTHER.value],
-                so_luong_bai=len(industry_articles),
-                cac_dau_bao=list(set(article.dau_bao for article in industry_articles)),
+        industry_summaries = []
+        for industry, industry_articles in industry_groups.items():
+            brand_list: List[str] = []
+            for article in industry_articles:
+                article_brands = [b for b in (article.nhan_hang or []) if b]
+                if article_brands:
+                    for brand in article_brands:
+                        if brand not in brand_list:
+                            brand_list.append(brand)
+                else:
+                    if "Không có" not in brand_list:
+                        brand_list.append("Không có")
+
+            clusters = []
+            for article in industry_articles:
+                cluster = article.cum_noi_dung
+                if cluster is not None and cluster not in clusters:
+                    clusters.append(cluster)
+            if not clusters:
+                clusters = [ContentCluster.OTHER.value]
+
+            dau_bao_list = list(
+                dict.fromkeys(article.dau_bao for article in industry_articles)
             )
-            for industry, industry_articles in industry_groups.items()
-        ]
+
+            industry_summaries.append(
+                IndustrySummary(
+                    nganh_hang=industry,
+                    nhan_hang=brand_list,
+                    cum_noi_dung=clusters,
+                    so_luong_bai=len(industry_articles),
+                    cac_dau_bao=dau_bao_list,
+                )
+            )
 
         overall_summary = OverallSummary(
             thoi_gian_trich_xuat=date_range,
@@ -5417,7 +5916,20 @@ class MediaTrackerTeam:
             # all_keywords = list(
             #     set(kw for kws in self.config.keywords.values() for kw in kws)
             # )
-            tasks = []
+            jobs = []
+            tasks: list[tuple[MediaSource, asyncio.Task]] = []
+
+            def _domain_key(source: MediaSource) -> str:
+                raw = (source.domain or "").strip()
+                if not raw:
+                    return source.name.lower()
+                normalized = raw.lower()
+                if "://" not in normalized:
+                    normalized = f"https://{normalized}"
+                parsed = urlparse(normalized)
+                candidate = parsed.netloc or parsed.path or source.name
+                return (candidate or source.name).lower()
+
             for industry_name, keywords in self.config.keywords.items():
                 for media_source in self.config.media_sources:
                     already_done = next(
@@ -5431,10 +5943,51 @@ class MediaTrackerTeam:
                     if already_done and already_done["status"] == "completed":
                         continue
 
-                    task = asyncio.create_task(
-                        wrapped_crawl(media_source, industry_name, keywords)
+                    domain_value = _domain_key(media_source)
+                    jobs.append(
+                        {
+                            "media_source": media_source,
+                            "industry_name": industry_name,
+                            "keywords": keywords,
+                            "domain": domain_value,
+                            "task": None,
+                        },
                     )
-                    # Register crawl task so global cancel() can stop it immediately
+
+            job_result_pairs = []
+            if jobs:
+                total_cap = max(1, self.config.max_concurrent_sources)
+                desired_domains = max(
+                    1, getattr(self.config, "max_parallel_domains", total_cap)
+                )
+                desired_per_domain = max(
+                    1, getattr(self.config, "max_jobs_per_domain", 1)
+                )
+                max_domains_parallel = min(desired_domains, total_cap)
+                max_per_domain = min(desired_per_domain, total_cap)
+                while max_domains_parallel * max_per_domain > total_cap:
+                    if max_per_domain > 1:
+                        max_per_domain -= 1
+                    elif max_domains_parallel > 1:
+                        max_domains_parallel -= 1
+                    else:
+                        break
+
+                domain_cooldown = max(
+                    0.0, float(getattr(self.config, "domain_cooldown_seconds", 10.0))
+                )
+
+                async def _run_job(job):
+                    media_source = job["media_source"]
+                    task = asyncio.create_task(
+                        wrapped_crawl(
+                            media_source,
+                            job["industry_name"],
+                            job["keywords"],
+                        )
+                    )
+                    job["task"] = task
+                    tasks.append((media_source, task))
                     try:
                         AgentManager.get_instance().register_provider_task(
                             self.session_id,
@@ -5443,13 +5996,56 @@ class MediaTrackerTeam:
                         )
                     except Exception:
                         pass
-                    tasks.append((media_source, task))
+                    return await task
 
-            # Execute crawl tasks
-            tasks_only = [t[1] for t in tasks]
-            results = await asyncio.gather(*tasks_only, return_exceptions=True)
+                domain_results = await run_in_domain_batches(
+                    jobs=jobs,
+                    get_domain=lambda job: job["domain"],
+                    run_job=_run_job,
+                    max_domains_parallel=max_domains_parallel,
+                    max_per_domain=max_per_domain,
+                    domain_cooldown_s=domain_cooldown,
+                )
 
-            for (media_source, _), result in zip(tasks, results):
+                domain_iters = {
+                    dom: iter(results_list)
+                    for dom, results_list in domain_results.items()
+                }
+                for job in jobs:
+                    iterator = domain_iters.get(job["domain"])
+                    if iterator is None:
+                        logger.warning(
+                            f"No crawl results collected for domain {job['domain']}"
+                        )
+                        job_result_pairs.append(
+                            (
+                                job,
+                                RuntimeError(
+                                    f"No crawl results collected for domain {job['domain']}"
+                                ),
+                            )
+                        )
+                        continue
+                    try:
+                        job_result_pairs.append((job, next(iterator)))
+                    except StopIteration:
+                        logger.warning(
+                            f"Result iterator exhausted early for domain {job['domain']}"
+                        )
+                        job_result_pairs.append(
+                            (
+                                job,
+                                RuntimeError(
+                                    f"Result iterator exhausted early for domain {job['domain']}"
+                                ),
+                            )
+                        )
+                        continue
+            else:
+                logger.info("No crawl jobs pending; skipping crawling phase.")
+
+            for job, result in job_result_pairs:
+                media_source = job["media_source"]
                 await _maybe_await(self.check_pause_or_cancel)
 
                 try:
@@ -5462,7 +6058,8 @@ class MediaTrackerTeam:
                         )
                         continue
 
-                    media_source, crawl_result = result
+                    media_source_result, crawl_result = result
+                    media_source = media_source_result or media_source
                     self.status.completed_sources += 1
 
                     crawl_status = (
@@ -5504,8 +6101,10 @@ class MediaTrackerTeam:
 
                 except asyncio.CancelledError:
                     logger.warning(f"Crawl task cancelled.")
-                    for _, t in tasks:
-                        t.cancel()
+                    for job_entry in jobs:
+                        task = job_entry.get("task")
+                        if task and not task.done():
+                            task.cancel()
                     self.status.failed_sources += 1
                     raise
                 except Exception as e:
@@ -5514,7 +6113,6 @@ class MediaTrackerTeam:
                         f"Unexpected error crawling source {media_source.name}: {e}",
                         exc_info=True,
                     )
-
             if not self.articles_so_far:
                 logger.warning("⚠️ No articles found from crawling or cache.")
                 return None

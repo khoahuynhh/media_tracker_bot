@@ -12,6 +12,7 @@ import logging
 import re
 import pandas as pd
 import traceback
+import time
 
 from collections import Counter
 from datetime import datetime, timedelta, timezone
@@ -21,7 +22,6 @@ from jose import jwt, JWTError
 from jose.exceptions import ExpiredSignatureError
 from fastapi.security import OAuth2PasswordBearer
 from fastapi import HTTPException, Request, status
-from openpyxl.utils import get_column_letter
 from openpyxl.styles import Alignment
 
 
@@ -31,17 +31,20 @@ from .configs import AppSettings
 from .task_state import task_manager
 from .tasks import run, complete, mark_cancelled, fail
 
+
 def _get_bool_env(name: str, default: bool = False) -> bool:
     val = os.getenv(name)
     if val is None:
         return default
     return str(val).strip().lower() in {"1", "true", "yes", "on"}
 
+
 # Attempt to import Celery task wrapper. If the `celery` package is not
 # installed or the module cannot be imported, we fall back to using
 # asyncio.create_task for background execution.
 try:
     from .celery_worker import run_pipeline_task  # type: ignore[import]
+
     _celery_import_ok = True
 except Exception:
     run_pipeline_task = None  # type: ignore[assignment]
@@ -398,6 +401,7 @@ class PipelineService:
             # Do not override the status here; it has been set to "running" above.
 
         # Bắt đầu pipeline thực sự
+        t0 = time.perf_counter()
         try:
             logger.info(f"[{session_id}] Starting pipeline execution.")
             params = task["params"]
@@ -449,6 +453,13 @@ class PipelineService:
                 )  # Tự gọi lại để retry
             else:
                 fail(self.user_email, session_id, str(e))
+
+        finally:
+            t1 = time.perf_counter()
+            elapsed = t1 - t0
+            logger.info(
+                f"[{session_id}] Task worker finished in {elapsed:.2f} seconds."
+            )
 
     def run_background_task(
         self,
@@ -630,10 +641,14 @@ class PipelineService:
                     continue
 
                 # brands
+                has_brand = False
                 for b in getattr(a, "nhan_hang", None) or []:
                     b = _clean_one_line(b)
                     if b:
+                        has_brand = True
                         brands_by_ind[ind].append(b)
+                if not has_brand:
+                    brands_by_ind[ind].append("Không có")
 
                 # papers
                 if getattr(a, "dau_bao", None):
@@ -700,14 +715,40 @@ class PipelineService:
                 for s in report.industry_summaries:
                     sheet_name = f"Summary - Ngành {s.nganh_hang[:25]}"
                     rows_ind = []
-                    for brand in s.nhan_hang:
+
+                    brand_candidates = _dedup_preserve_order(list(s.nhan_hang or []))
+                    has_brandless = any(
+                        (not (article.nhan_hang or []))
+                        and article.nganh_hang == s.nganh_hang
+                        for article in report.articles
+                    )
+                    if has_brandless and "Không có" not in brand_candidates:
+                        brand_candidates.append("Không có")
+
+                    for brand in brand_candidates:
                         # Lọc bài theo brand & ngành
-                        related_articles = [
-                            article
-                            for article in report.articles
-                            if brand in (article.nhan_hang or [])
-                            and article.nganh_hang == s.nganh_hang
-                        ]
+                        if brand == "Không có":
+                            related_articles = [
+                                article
+                                for article in report.articles
+                                if not (article.nhan_hang or [])
+                                and article.nganh_hang == s.nganh_hang
+                            ]
+                        else:
+                            brand_clean = _clean_one_line(brand)
+                            related_articles = [
+                                article
+                                for article in report.articles
+                                if article.nganh_hang == s.nganh_hang
+                                and any(
+                                    _clean_one_line(b) == brand_clean
+                                    for b in (article.nhan_hang or [])
+                                )
+                            ]
+
+                        if not related_articles:
+                            continue
+
                         # Cụm nội dung unique, sắp xếp ổn định
                         clusters = sorted(
                             {

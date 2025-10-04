@@ -1843,6 +1843,7 @@ LOAD_MORE_TEXTS = [
     "Hiển thị bài viết khác",
     "Load more",
     "See more",
+    "Trang tiếp",
 ]
 
 LOAD_MORE_SELECTORS = (
@@ -3202,7 +3203,15 @@ class HubCrawlTool(LLMUserFallbackMixin):
 
         def _get_current_page_num(u: str) -> int:
             p = urlparse(u)
-            if p.netloc.endswith("vietnamnet.vn") and p.path.startswith("/tim-kiem"):
+            if (
+                "tapchikinhtetaichinh.vn" in p.netloc
+                and "search_enginer.html" in p.path
+            ):
+                qs = parse_qs(p.query)  # ✅ dùng p.query
+                brsr = int(qs.get("BRSR", ["0"])[0])
+                per = int(qs.get("per_page", ["10"])[0])  # hoặc DEFAULT_PER_PAGE
+                return brsr // per + 1
+            elif p.netloc.endswith("vietnamnet.vn") and p.path.startswith("/tim-kiem"):
                 m = re.search(r"-p(\d+)(?:\.html)?$", p.path, re.IGNORECASE)
                 if m:
                     try:
@@ -3252,10 +3261,10 @@ class HubCrawlTool(LLMUserFallbackMixin):
             """Đoán các biến thể URL phân trang phổ biến cho trang kế tiếp."""
             urls = set()
             p = urlparse(u)
+            q = parse_qs(p.query)
 
             # ✅ Ưu tiên Dân Trí search dùng ?pi=
             if p.netloc.endswith("dantri.com.vn") and p.path.startswith("/tim-kiem/"):
-                q = parse_qs(p.query)
                 q["pi"] = [str(page_no)]
                 new_q = urlencode(q, doseq=True)
                 return [
@@ -3264,7 +3273,7 @@ class HubCrawlTool(LLMUserFallbackMixin):
                     )
                 ]
 
-            if p.netloc.endswith("vietnamnet.vn") and p.path.startswith("/tim-kiem"):
+            elif p.netloc.endswith("vietnamnet.vn") and p.path.startswith("/tim-kiem"):
                 embed_no = max(1, page_no - 1)  # trang 2 -> p1, trang 3 -> p2, ...
                 path = p.path
                 if re.search(r"-p\d+(?:\.html)?$", path, flags=re.IGNORECASE):
@@ -3279,12 +3288,50 @@ class HubCrawlTool(LLMUserFallbackMixin):
                     else:
                         new_path = path.rstrip("/") + f"-p{embed_no}"
 
-                new_q = urlencode(parse_qs(p.query), doseq=True)  # giữ ?q=...
+                new_q = urlencode(q, doseq=True)  # giữ ?q=...
                 return [
                     urlunparse(
                         (p.scheme, p.netloc, new_path, p.params, new_q, p.fragment)
                     )
                 ]
+
+            elif (
+                "thuehaiquan.tapchikinhtetaichinh.vn" in p.netloc
+                and "search_enginer.html" in p.path
+            ):
+                q = parse_qs(p.query or "", keep_blank_values=True)
+
+                # Trang 1: bỏ hẳn BRSR
+                if page_no <= 1:
+                    q.pop("BRSR", None)
+                else:
+                    # Trên site này BRSR là SỐ TRANG (1-based), KHÔNG phải offset
+                    q["BRSR"] = [str(page_no)]
+
+                # Giữ nguyên p=tim-kiem & q=<từ khoá>; đảm bảo ORDER: BRSR -> p -> q -> phần còn lại
+                ordered = []
+
+                if "BRSR" in q:  # chỉ thêm nếu đang ở trang >= 2
+                    ordered.append(("BRSR", q["BRSR"][0]))
+
+                if "p" in q:
+                    for v in q["p"]:
+                        ordered.append(("p", v))
+
+                if "q" in q:
+                    for v in q["q"]:
+                        ordered.append(("q", v))
+
+                # Thêm các param khác (nếu có) mà ta không quan tâm tới thứ tự
+                for k, vs in q.items():
+                    if k in ("BRSR", "p", "q"):
+                        continue
+                    for v in vs or []:
+                        ordered.append((k, v))
+
+                new_q = urlencode(ordered, doseq=True)
+                next_url = urlunparse(p._replace(query=new_q))
+                return [next_url]
 
             # 1) Query params
             q = parse_qs(p.query)
@@ -3380,7 +3427,6 @@ class HubCrawlTool(LLMUserFallbackMixin):
                         u = urljoin(current_url, href)
                         if domain in urlparse(u).netloc:
                             return _normalize_query(u)
-                            return u
             return None
 
         def strip_pagination(u: str) -> str:
@@ -3394,7 +3440,7 @@ class HubCrawlTool(LLMUserFallbackMixin):
             q = parse_qs(p.query or "", keep_blank_values=True)
 
             # Bỏ các key phân trang phổ biến
-            for key in ("page", "p", "trang", "pi"):
+            for key in ("page", "p", "trang", "pi", "BRSR"):
                 q.pop(key, None)
 
             # Gọt các segment phân trang trong path
@@ -3612,6 +3658,9 @@ class HubCrawlTool(LLMUserFallbackMixin):
                 "bnews.vn": "https://bnews.vn/tim-kiem/{kw}/trang-1.html",
                 "baochinhphu.vn": "https://baochinhphu.vn/tim-kiem.htm?keywords={kw}",
                 "nhandan.vn": "https://nhandan.vn/tim-kiem/?q={kw}",
+                "vtv.vn": "https://vtv.vn/tim-kiem.htm?keywords={kw}",
+                "hanoimoi.vn": "https://hanoimoi.vn/search?q={kw}",
+                "thuehaiquan.tapchikinhtetaichinh.vn": "https://thuehaiquan.tapchikinhtetaichinh.vn/search_enginer.html?p=tim-kiem&q={kw}",
                 "nld.com.vn": "https://nld.com.vn/search.chn?keywords={kw}",
                 "vneconomy.vn": "https://vneconomy.vn/tim-kiem.html?Text={kw}",
                 "diendandoanhnghiep.vn": "https://diendandoanhnghiep.vn/search?q={kw}",
@@ -3645,6 +3694,9 @@ class HubCrawlTool(LLMUserFallbackMixin):
                         "reatimes.vn",
                         "baochinhphu.vn",
                         "nhandan.vn",
+                        "vtv.vn",
+                        "hanoimoi.vn",
+                        "thuehaiquan.tapchikinhtetaichinh.vn",
                     }:
                         q = quote_plus(
                             kw_pref, safe=""
@@ -3754,6 +3806,8 @@ class HubCrawlTool(LLMUserFallbackMixin):
                             "baochinhphu.vn",
                             "nhandan.vn",
                             "tuoitre.vn",
+                            "vtv.vn",
+                            "hanoimoi.vn",
                         ):
                             html = await crawl_infinite_listing(
                                 current_url, max_rounds=7, idle_ms=700
@@ -3805,6 +3859,8 @@ class HubCrawlTool(LLMUserFallbackMixin):
                                 "reatimes.vn",
                                 "baochinhphu.vn",
                                 "nhandan.vn",
+                                "vtv.vn",
+                                "hanoimoi.vn",
                             ):
                                 next_url = None
                             else:

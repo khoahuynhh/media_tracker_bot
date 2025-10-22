@@ -1,0 +1,241 @@
+            """
+            p = urlparse(current_url)
+            # match dúng duôi .html/.htm, N?m ? CU?I path
+            m = re.search(
+                r"(.*?/(?:trang|page|p|pi)-)(\d+)(\.html?)$", p.path, re.IGNORECASE
+            )
+            if not m:
+                return None
+            new_path = f"{m.group(1)}{next_no}{m.group(3)}"
+            # GI? nguyên query n?u có? Tu? b?n. Thu?ng d?ng này không c?n query -> xoá cho s?ch:
+            return urlunparse((p.scheme, p.netloc, new_path, p.params, "", p.fragment))
+
+        def _make_url_with_page(u: str, page_no: int) -> list[str]:
+            """Ðoán các bi?n th? URL phân trang ph? bi?n cho trang k? ti?p."""
+            urls = set()
+            p = urlparse(u)
+            q = parse_qs(p.query)
+
+            # ? Uu tiên Dân Trí search dùng ?pi=
+            if p.netloc.endswith("dantri.com.vn") and p.path.startswith("/tim-kiem/"):
+                q["pi"] = [str(page_no)]
+                new_q = urlencode(q, doseq=True)
+                return [
+                    urlunparse(
+                        (p.scheme, p.netloc, p.path, p.params, new_q, p.fragment)
+                    )
+                ]
+
+            elif p.netloc.endswith("vietnamnet.vn") and p.path.startswith("/tim-kiem"):
+                embed_no = max(1, page_no - 1)  # trang 2 -> p1, trang 3 -> p2, ...
+                path = p.path
+                if re.search(r"-p\d+(?:\.html)?$", path, flags=re.IGNORECASE):
+                    new_path = re.sub(
+                        r"-p\d+(?:\.html)?$", f"-p{embed_no}", path, flags=re.IGNORECASE
+                    )
+                else:
+                    if path.endswith(".html"):
+                        new_path = re.sub(
+                            r"\.html$", f"-p{embed_no}.html", path, flags=re.IGNORECASE
+                        )
+                    else:
+                        new_path = path.rstrip("/") + f"-p{embed_no}"
+
+                new_q = urlencode(q, doseq=True)  # gi? ?q=...
+                return [
+                    urlunparse(
+                        (p.scheme, p.netloc, new_path, p.params, new_q, p.fragment)
+                    )
+                ]
+
+            elif (
+                "thuehaiquan.tapchikinhtetaichinh.vn" in p.netloc
+                and "search_enginer.html" in p.path
+            ) or ("vir.com.vn" in p.netloc and "search_enginer.html" in p.path):
+                q = parse_qs(p.query or "", keep_blank_values=True)
+
+                # Trang 1: b? h?n BRSR
+                if page_no <= 1:
+                    q.pop("BRSR", None)
+                else:
+                    # Trên site này BRSR là S? TRANG (1-based), KHÔNG ph?i offset
+                    q["BRSR"] = [str(page_no)]
+
+                # Gi? nguyên p=tim-kiem & q=<t? khoá>; d?m b?o ORDER: BRSR -> p -> q -> ph?n còn l?i
+                ordered = []
+
+                if "BRSR" in q:  # ch? thêm n?u dang ? trang >= 2
+                    ordered.append(("BRSR", q["BRSR"][0]))
+
+                if "p" in q:
+                    for v in q["p"]:
+                        ordered.append(("p", v))
+
+                if "q" in q:
+                    for v in q["q"]:
+                        ordered.append(("q", v))
+
+                # Thêm các param khác (n?u có) mà ta không quan tâm t?i th? t?
+                for k, vs in q.items():
+                    if k in ("BRSR", "p", "q"):
+                        continue
+                    for v in vs or []:
+                        ordered.append((k, v))
+
+                new_q = urlencode(ordered, doseq=True)
+                next_url = urlunparse(p._replace(query=new_q))
+                return [next_url]
+
+            # 1) Query params
+            q = parse_qs(p.query)
+            for key in ("page", "p", "trang", "pi"):
+                qq = q.copy()
+                qq[key] = [str(page_no)]
+                new_q = urlencode(qq, doseq=True)
+                urls.add(
+                    urlunparse(
+                        (p.scheme, p.netloc, p.path, p.params, new_q, p.fragment)
+                    )
+                )
+
+            # 2) Path patterns n?u không có query
+            candidates = [
+                (
+                    re.sub(r"/page/\d+(/|$)", f"/page/{page_no}/", p.path)
+                    if re.search(r"/page/\d+(/|$)", p.path)
+                    else p.path.rstrip("/") + f"/page/{page_no}/"
+                ),
+                (
+                    re.sub(r"/trang/\d+(/|$)", f"/trang/{page_no}/", p.path)
+                    if re.search(r"/trang/\d+(/|$)", p.path)
+                    else p.path.rstrip("/") + f"/trang/{page_no}/"
+                ),
+                (
+                    re.sub(r"/trang-\d+(/|$)", f"/trang-{page_no}/", p.path)
+                    if re.search(r"/trang-\d+(/|$)", p.path)
+                    else p.path.rstrip("/") + f"/trang-{page_no}/"
+                ),
+                (
+                    re.sub(r"/p\d+(/|$)", f"/p{page_no}/", p.path)
+                    if re.search(r"/p\d+(/|$)", p.path)
+                    else p.path.rstrip("/") + f"/p{page_no}/"
+                ),
+                # Support slash-separated pagination like .../p/2 used by qdnd.vn
+                (
+                    re.sub(r"/p/\d+(/|$)", f"/p/{page_no}/", p.path)
+                    if re.search(r"/p/\d+(/|$)", p.path)
+                    else p.path.rstrip("/") + f"/p/{page_no}/"
+                ),
+            ]
+            for path2 in candidates:
+                urls.add(
+                    urlunparse(
+                        (p.scheme, p.netloc, path2, p.params, p.query, p.fragment)
+                    )
+                )
+
+            # Add variants without trailing slash to cover strict routers
+            more = set()
+            for u2 in list(urls):
+                if u2.endswith("/"):
+                    more.add(u2.rstrip("/"))
+            urls |= more
+
+            return list(urls)
+
+        def _find_next_link(
+            soup: BeautifulSoup, current_url: str, domain: str
+        ) -> str | None:
+            def _normalize_query(u: str) -> str:
+                p = urlparse(u)
+                q = parse_qs(p.query or "", keep_blank_values=True)
+                # Re-encode l?i query d? bi?n ' ' ? '+' và encode d?u/UTF-8 an toàn
+                new_q = urlencode(q, doseq=True, quote_via=quote_plus, safe="")
+                return urlunparse(
+                    (p.scheme, p.netloc, p.path, p.params, new_q, p.fragment)
+                )
+
+            # 1) rel="next", aria-label, class có 'next'
+            for sel in [
+                'a[rel="next"]',
+                'a[aria-label*="Next"]',
+                'a[aria-label*="Sau"]',
+                'a[aria-label*="Trang sau"]',
+                'a[class*="next"]',
+            ]:
+                a = soup.select_one(sel)
+                if a and a.get("href"):
+                    u = urljoin(current_url, a["href"])
+                    if domain in urlparse(u).netloc:
+                        return _normalize_query(u)
+                        return u
+
+            # 2) Theo text
+            next_texts = {
+                "next",
+                "older",
+                "sau",
+                "trang sau",
+                "trang k?",
+                "ti?p",
+                "›",
+                "»",
+            }
+            for a in soup.find_all("a"):
+                t = (a.get_text() or "").strip().lower()
+                if (
+                    t in next_texts
+                    or t.startswith("trang ")
+                    and any(ch.isdigit() for ch in t)
+                ):
+                    href = a.get("href")
+                    if href:
+                        u = urljoin(current_url, href)
+                        if domain in urlparse(u).netloc:
+                            return _normalize_query(u)
+            return None
+
+        def strip_pagination(u: str) -> str:
+            """
+            Xoá m?i d?u v?t phân trang kh?i URL:
+            - Query: ?page=..., ?p=..., ?trang=...
+            - Path: /page/2, /trang-3, /trang/4, /p5 ...
+            Tr? v? base hub (tuong duong trang 1).
+            """
+            p = urlparse(u)
+            q = parse_qs(p.query or "", keep_blank_values=True)
+
+            # B? các key phân trang ph? bi?n
+            for key in ("page", "p", "trang", "pi", "BRSR"):
+                q.pop(key, None)
+
+            # G?t các segment phân trang trong path
+            new_path = re.sub(r"/(?:page|trang)(?:-|/)?\d+(?=/|$)", "", p.path or "")
+            new_path = re.sub(r"/p(?:-|/)?\d+(?=/|$)", "", new_path)
+            new_path = re.sub(r"/pi(?:-|/)?\d+(?=/|$)", "", new_path)
+            new_path = re.sub(r"//+", "/", new_path) or "/"
+            new_path = re.sub(r"-p\d+(?:\.html)?$", "", new_path, flags=re.IGNORECASE)
+            new_path = re.sub(r"/tim-kiem/trang-\d+\.chn(?:/|$)", "/tim-kiem", p.path)
+
+            new_q = urlencode(q, doseq=True)
+
+            return urlunparse(
+                (p.scheme, p.netloc, new_path, p.params, new_q, p.fragment)
+            )
+
+        def _context_has_kw(
+            a, p, keywords_norm: list[str], ind_norm: list[str]
+        ) -> bool:
+            path_l = (p.path or "").lower()
+            a_txt = (a.get_text(" ", strip=True) or "").lower()
+            head = a.find(["h2", "h3", "h4"]) or a.find_parent(["h2", "h3", "h4"])
+            h_txt = head.get_text(" ", strip=True).lower() if head else ""
+            attr_txt = " ".join(
+                [
+                    (a.get("title") or ""),
+                    (a.get("aria-label") or ""),
+                    (a.get("data-title") or ""),
+                ]
+            ).lower()
+
+            should_expand = any(ch.isdigit() for ch in path_l) or any(

@@ -106,6 +106,23 @@ class PipelineService:
         self.status_by_source = {}
         self.user_email = user_email
         self.agent_manager = AgentManager.get_instance()
+        # Track per-session local worker tasks to avoid duplicates when resuming
+        self._workers: Dict[str, asyncio.Task] = {}
+
+    def _spawn_worker(self, session_id: str) -> asyncio.Task:
+        """Create and register a worker task for a session (local async mode)."""
+        task = asyncio.create_task(self._task_worker(session_id))
+        self._workers[session_id] = task
+
+        def _cleanup(_t: asyncio.Task):
+            # Remove registry entry when task completes
+            try:
+                self._workers.pop(session_id, None)
+            except Exception:
+                pass
+
+        task.add_done_callback(_cleanup)
+        return task
 
     def cancel_provider(self, session_id: str, provider: str) -> bool:
         try:
@@ -245,8 +262,14 @@ class PipelineService:
                 logger.exception(
                     f"Failed to dispatch Celery resume task for session {session_id}: {exc}"
                 )
-        # Fallback to local async task
-        asyncio.create_task(self._task_worker(session_id))
+        # Fallback to local async task. Only spawn if no active worker.
+        existing = self._workers.get(session_id)
+        if existing and not existing.done():
+            logger.info(
+                f"[{session_id}] Worker already active; resume will unblock existing task."
+            )
+            return
+        self._spawn_worker(session_id)
 
     def _update_task_progress(
         self, source_name, completed, failed, progress, current_task
@@ -569,7 +592,7 @@ class PipelineService:
                     "[%s] Falling back to local background task (CELERY_FALLBACK_LOCAL=1)",
                     session_id,
                 )
-                asyncio.create_task(self._task_worker(session_id))
+                self._spawn_worker(session_id)
         else:
             logger.info(
                 "[%s] Running locally (CELERY_AVAILABLE=%s)",
@@ -577,7 +600,7 @@ class PipelineService:
                 CELERY_AVAILABLE,
             )
             # Fall back to local asynchronous execution
-            asyncio.create_task(self._task_worker(session_id))
+            self._spawn_worker(session_id)
 
         return session_id
 

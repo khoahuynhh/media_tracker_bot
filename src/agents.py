@@ -1671,9 +1671,6 @@ class PlaywrightPool:
                     if status and status >= 400:
                         raise RuntimeError(f"HTTP {status}")
 
-                    await page.wait_for_selector(
-                        "body", timeout=BODY_SELECTOR_TIMEOUT_MS
-                    )
                     await page.wait_for_timeout(300 + int(200 * random.random()))
 
                     # Heuristic: cố gắng chờ thấy ≥3 anchor ứng viên bài viết
@@ -1835,6 +1832,7 @@ async def crawl_with_playwright(url: str, referer: str | None = None) -> str:
 # ---- Infinite scroll helper cho listing ----
 LOAD_MORE_TEXTS = [
     "Xem thêm",
+    "Xem thêm tin tức",
     "Hiển thị thêm",
     "Tải thêm",
     "Xem thêm tin tức",
@@ -1876,6 +1874,7 @@ DEFAULT_ITEM_SELECTORS = [
     "a[href*='/tin-']",
     "a[href*='/news']",
     "a[href*='-post']",
+    "a.box-category-link-with-avatar[href]",
 ]
 
 
@@ -3224,14 +3223,17 @@ class HubCrawlTool(LLMUserFallbackMixin):
                 r"[?&]p=(\d+)",
                 r"[?&]pi=(\d+)",
                 r"[?&]trang=(\d+)",
-                r"/page/(\d+)(?:/|$)",
-                r"/trang/(\d+)(?:/|$)",
-                r"/trang-(\d+)(?:/|$)",
-                r"/trang-(\d+)(?:/|\.html|$)",
-                r"/p(\d+)(?:/|$)",
-                r"-p(\d+)(?:\.html|$)",
-                r"/trang-(\d+)\.chn(?:/|$)",
+                # path styles
+                r"/page/(\d+)(?=[/?#]|$)",
+                r"/trang/(\d+)(?=[/?#]|$)",
+                # trang-<num>.htm(l) with optional query/fragment
+                r"/trang-(\d+)\.html?(?=[/?#]|$)",  # <-- mới: match .htm và .html
+                r"/trang-(\d+)(?=[/?#]|$)",  # cho trường hợp không có đuôi nhưng có ? hoặc #
+                r"/p(\d+)(?=[/?#]|$)",
+                r"-p(\d+)(?=\.html?(?=[/?#]|$)|[/?#]|$)",  # mở rộng cho .htm/.html và query
+                r"/trang-(\d+)\.chn(?=[/?#]|$)",
             ]
+
             for pat in patterns:
                 m = re.search(pat, u, re.IGNORECASE)
                 if m:
@@ -3257,72 +3259,126 @@ class HubCrawlTool(LLMUserFallbackMixin):
             # GIỮ nguyên query nếu có? Tuỳ bạn. Thường dạng này không cần query -> xoá cho sạch:
             return urlunparse((p.scheme, p.netloc, new_path, p.params, "", p.fragment))
 
-        def _make_url_with_page(u: str, page_no: int) -> list[str]:
-            """Đoán các biến thể URL phân trang phổ biến cho trang kế tiếp."""
-            urls = set()
-            p = urlparse(u)
-            q = parse_qs(p.query)
+        PREFERRED_KEYS = ("p", "page", "pi", "trang")
+        PER_DOMAIN_DEFAULT = {
+            "doisongphapluat.com.vn": "p",
+            "giadinh.suckhoedoisong.vn": "trang",
+            # thêm site khác nếu cần...
+        }
 
-            # ✅ Ưu tiên Dân Trí search dùng ?pi=
+        def _normalize_tuple(url: str):
+            p = urlparse(url)
+            # chuẩn hoá thứ tự query để so sánh đúng “nghĩa”
+            qs = parse_qs(p.query, keep_blank_values=True)
+            items = []
+            for k in sorted(qs.keys()):
+                for v in sorted(qs[k]):
+                    items.append((k, v))
+            return (
+                p.scheme,
+                p.netloc,
+                p.path.rstrip("/"),
+                p.params,
+                tuple(items),
+                p.fragment,
+            )
+
+        def _add(urls: list[str], seen: set, p, qdict):
+            new_q = urlencode(qdict, doseq=True)
+            u2 = urlunparse((p.scheme, p.netloc, p.path, p.params, new_q, p.fragment))
+            norm = _normalize_tuple(u2)
+            if norm not in seen:
+                seen.add(norm)
+                urls.append(u2)
+
+        def _add_path(urls: list[str], seen: set, p, path2):
+            u2 = urlunparse((p.scheme, p.netloc, path2, p.params, p.query, p.fragment))
+            norm = _normalize_tuple(u2)
+            if norm not in seen:
+                seen.add(norm)
+                urls.append(u2)
+
+        def _make_url_with_page(u: str, page_no: int) -> list[str]:
+            """Đoán các biến thể URL phân trang phổ biến cho trang kế tiếp (ưu tiên theo domain)."""
+            out: list[str] = []
+            seen: set = set()
+            p = urlparse(u)
+            q_orig = parse_qs(p.query or "", keep_blank_values=True)
+            orig_norm = _normalize_tuple(u)
+
+            def add_if_changed(url_candidate: str):
+                norm = _normalize_tuple(url_candidate)
+                if norm != orig_norm and norm not in seen:
+                    seen.add(norm)
+                    out.append(url_candidate)
+
+            # ===== 0) Các rule đặc thù theo domain =====
+
+            # DanTri: ?pi=
             if p.netloc.endswith("dantri.com.vn") and p.path.startswith("/tim-kiem/"):
+                q = dict(q_orig)
                 q["pi"] = [str(page_no)]
                 new_q = urlencode(q, doseq=True)
-                return [
-                    urlunparse(
-                        (p.scheme, p.netloc, p.path, p.params, new_q, p.fragment)
-                    )
-                ]
+                next_url = urlunparse(
+                    (p.scheme, p.netloc, p.path, p.params, new_q, p.fragment)
+                )
+                add_if_changed(next_url)
+                return out
 
-            elif p.netloc.endswith("vietnamnet.vn") and p.path.startswith("/tim-kiem"):
-                embed_no = max(1, page_no - 1)  # trang 2 -> p1, trang 3 -> p2, ...
+            # QDND: /tim-kiem/.../p/<page_no>
+            if p.netloc.endswith("qdnd.vn") and p.path.startswith("/tim-kiem/"):
+                path = p.path
+                if re.search(r"/p/\d+/?$", path):
+                    new_path = re.sub(r"/p/\d+/?$", f"/p/{page_no}", path)
+                else:
+                    new_path = path.rstrip("/") + f"/p/{page_no}"
+                next_url = urlunparse(
+                    (p.scheme, p.netloc, new_path, p.params, p.query, p.fragment)
+                )
+                add_if_changed(next_url)
+                return out
+
+            # Vietnamnet: -pN nhúng trong path (p2 = trang 3)
+            if p.netloc.endswith("vietnamnet.vn") and p.path.startswith("/tim-kiem"):
+                embed_no = max(1, page_no - 1)
                 path = p.path
                 if re.search(r"-p\d+(?:\.html)?$", path, flags=re.IGNORECASE):
                     new_path = re.sub(
                         r"-p\d+(?:\.html)?$", f"-p{embed_no}", path, flags=re.IGNORECASE
                     )
                 else:
-                    if path.endswith(".html"):
+                    if path.lower().endswith(".html"):
                         new_path = re.sub(
                             r"\.html$", f"-p{embed_no}.html", path, flags=re.IGNORECASE
                         )
                     else:
                         new_path = path.rstrip("/") + f"-p{embed_no}"
+                new_q = urlencode(q_orig, doseq=True)
+                next_url = urlunparse(
+                    (p.scheme, p.netloc, new_path, p.params, new_q, p.fragment)
+                )
+                add_if_changed(next_url)
+                return out
 
-                new_q = urlencode(q, doseq=True)  # giữ ?q=...
-                return [
-                    urlunparse(
-                        (p.scheme, p.netloc, new_path, p.params, new_q, p.fragment)
-                    )
-                ]
-
-            elif (
+            # thuehaiquan/vir: BRSR là số trang (1-based)
+            if (
                 "thuehaiquan.tapchikinhtetaichinh.vn" in p.netloc
                 and "search_enginer.html" in p.path
-            ):
-                q = parse_qs(p.query or "", keep_blank_values=True)
-
-                # Trang 1: bỏ hẳn BRSR
+            ) or ("vir.com.vn" in p.netloc and "search_enginer.html" in p.path):
+                q = dict(parse_qs(p.query or "", keep_blank_values=True))
                 if page_no <= 1:
                     q.pop("BRSR", None)
                 else:
-                    # Trên site này BRSR là SỐ TRANG (1-based), KHÔNG phải offset
                     q["BRSR"] = [str(page_no)]
 
-                # Giữ nguyên p=tim-kiem & q=<từ khoá>; đảm bảo ORDER: BRSR -> p -> q -> phần còn lại
+                # giữ p, q; ưu tiên thứ tự: BRSR → p → q → các param khác
                 ordered = []
-
-                if "BRSR" in q:  # chỉ thêm nếu đang ở trang >= 2
+                if "BRSR" in q:
                     ordered.append(("BRSR", q["BRSR"][0]))
-
-                if "p" in q:
-                    for v in q["p"]:
-                        ordered.append(("p", v))
-
-                if "q" in q:
-                    for v in q["q"]:
-                        ordered.append(("q", v))
-
-                # Thêm các param khác (nếu có) mà ta không quan tâm tới thứ tự
+                for k in ("p", "q"):
+                    if k in q:
+                        for v in q[k]:
+                            ordered.append((k, v))
                 for k, vs in q.items():
                     if k in ("BRSR", "p", "q"):
                         continue
@@ -3331,51 +3387,72 @@ class HubCrawlTool(LLMUserFallbackMixin):
 
                 new_q = urlencode(ordered, doseq=True)
                 next_url = urlunparse(p._replace(query=new_q))
-                return [next_url]
+                add_if_changed(next_url)
+                return out
 
-            # 1) Query params
-            q = parse_qs(p.query)
-            for key in ("page", "p", "trang", "pi"):
-                qq = q.copy()
-                qq[key] = [str(page_no)]
-                new_q = urlencode(qq, doseq=True)
-                urls.add(
-                    urlunparse(
-                        (p.scheme, p.netloc, p.path, p.params, new_q, p.fragment)
-                    )
+            # ===== 1) Query params (giữ key hiện có; nếu không có, dùng default theo domain) =====
+
+            q = dict(q_orig)
+
+            # 1a) Nếu đã có sẵn 1 trong các key phân trang → tôn trọng key đó
+            existing = [k for k in PREFERRED_KEYS if k in q]
+            if existing:
+                key = existing[0]
+                q1 = dict(q)
+                q1[key] = [str(page_no)]
+                _add(out, seen, p, q1)
+            else:
+                # 1b) Chọn default theo domain; ví dụ doisongphapluat → 'p'
+                host = p.netloc.lower()
+                key = PER_DOMAIN_DEFAULT.get(host, "page")
+                q1 = dict(q)
+                q1[key] = [str(page_no)]
+                _add(out, seen, p, q1)
+
+                # 1c) Thêm vài biến thể khác (fallback), nhưng ưu tiên đặt 'p' trước 'page'
+                for alt in PREFERRED_KEYS:
+                    if alt == key:
+                        continue
+                    qx = dict(q)
+                    qx[alt] = [str(page_no)]
+                    _add(out, seen, p, qx)
+
+            # ===== 2) Path patterns (fallback thêm) =====
+            path = p.path
+            candidates = []
+
+            # /page/<n>/
+            if re.search(r"/page/\d+(/|$)", path):
+                candidates.append(re.sub(r"/page/\d+(/|$)", f"/page/{page_no}/", path))
+            else:
+                candidates.append(path.rstrip("/") + f"/page/{page_no}/")
+
+            # /trang/<n>/, /trang-<n>/, /p<n>/
+            if re.search(r"/trang/\d+(/|$)", path):
+                candidates.append(
+                    re.sub(r"/trang/\d+(/|$)", f"/trang/{page_no}/", path)
                 )
+            else:
+                candidates.append(path.rstrip("/") + f"/trang/{page_no}/")
 
-            # 2) Path patterns nếu không có query
-            candidates = [
-                (
-                    re.sub(r"/page/\d+(/|$)", f"/page/{page_no}/", p.path)
-                    if re.search(r"/page/\d+(/|$)", p.path)
-                    else p.path.rstrip("/") + f"/page/{page_no}/"
-                ),
-                (
-                    re.sub(r"/trang/\d+(/|$)", f"/trang/{page_no}/", p.path)
-                    if re.search(r"/trang/\d+(/|$)", p.path)
-                    else p.path.rstrip("/") + f"/trang/{page_no}/"
-                ),
-                (
-                    re.sub(r"/trang-\d+(/|$)", f"/trang-{page_no}/", p.path)
-                    if re.search(r"/trang-\d+(/|$)", p.path)
-                    else p.path.rstrip("/") + f"/trang-{page_no}/"
-                ),
-                (
-                    re.sub(r"/p\d+(/|$)", f"/p{page_no}/", p.path)
-                    if re.search(r"/p\d+(/|$)", p.path)
-                    else p.path.rstrip("/") + f"/p{page_no}/"
-                ),
-            ]
+            if re.search(r"/trang-\d+(/|$)", path):
+                candidates.append(
+                    re.sub(r"/trang-\d+(/|$)", f"/trang-{page_no}/", path)
+                )
+            else:
+                candidates.append(path.rstrip("/") + f"/trang-{page_no}/")
+
+            if re.search(r"/p\d+(/|$)", path):
+                candidates.append(re.sub(r"/p\d+(/|$)", f"/p{page_no}/", path))
+            else:
+                candidates.append(path.rstrip("/") + f"/p{page_no}/")
+
             for path2 in candidates:
-                urls.add(
-                    urlunparse(
-                        (p.scheme, p.netloc, path2, p.params, p.query, p.fragment)
-                    )
-                )
+                _add_path(out, seen, p, path2)
 
-            return list(urls)
+            # lọc bỏ bản gốc (đề phòng trường hợp không đổi)
+            out = [u2 for u2 in out if _normalize_tuple(u2) != orig_norm]
+            return out
 
         def _find_next_link(
             soup: BeautifulSoup, current_url: str, domain: str
@@ -3443,13 +3520,44 @@ class HubCrawlTool(LLMUserFallbackMixin):
             for key in ("page", "p", "trang", "pi", "BRSR"):
                 q.pop(key, None)
 
-            # Gọt các segment phân trang trong path
-            new_path = re.sub(r"/(?:page|trang)(?:-|/)?\d+(?=/|$)", "", p.path or "")
-            new_path = re.sub(r"/p(?:-|/)?\d+(?=/|$)", "", new_path)
-            new_path = re.sub(r"/pi(?:-|/)?\d+(?=/|$)", "", new_path)
+            new_path = p.path or ""
+
+            # /page-2, /page/2, /trang-2, /trang/2 (+ .htm/.html) ở bất kỳ đâu trong path
+            new_path = re.sub(
+                r"/(?:page|trang)(?:-|/)?\d+(?:\.html?)?(?=[/?#]|$)",
+                "",
+                new_path,
+                flags=re.IGNORECASE,
+            )
+
+            # /p/2, /p-2, /pi/2, /pi-2 (+ .htm/.html)
+            new_path = re.sub(
+                r"/p(?:i)?(?:-|/)?\d+(?:\.html?)?(?=[/?#]|$)",
+                "",
+                new_path,
+                flags=re.IGNORECASE,
+            )
+
+            # hậu tố -p2(.htm/.html) ngay trước ?, #, hoặc hết chuỗi
+            new_path = re.sub(
+                r"-p\d+(?:\.html?)?(?=(?:[?#]|$))",
+                "",
+                new_path,
+                flags=re.IGNORECASE,
+            )
+
+            # case đặc thù cũ (nếu còn cần)
+            new_path = re.sub(
+                r"/tim-kiem/trang-\d+\.chn(?=[/?#]|$)",
+                "/tim-kiem",
+                new_path,
+                flags=re.IGNORECASE,
+            )
+
+            # chuẩn hoá dấu gạch chéo + bỏ đuôi '/'
             new_path = re.sub(r"//+", "/", new_path) or "/"
-            new_path = re.sub(r"-p\d+(?:\.html)?$", "", new_path, flags=re.IGNORECASE)
-            new_path = re.sub(r"/tim-kiem/trang-\d+\.chn(?:/|$)", "/tim-kiem", p.path)
+            if len(new_path) > 1 and new_path.endswith("/"):
+                new_path = new_path[:-1]
 
             new_q = urlencode(q, doseq=True)
 
@@ -3651,7 +3759,7 @@ class HubCrawlTool(LLMUserFallbackMixin):
                 "kenh14.vn": "https://kenh14.vn/tim-kiem.chn?keywords={kw}",
                 "baoxaydung.vn": "https://baoxaydung.vn/tim-kiem.htm?keywords={kw}",
                 "baotintuc.vn": "https://baotintuc.vn/Search.aspx?KeySearch={kw}&ar=1&op=1&dateF=&dateT=",
-                "qdnd.vn": "https://www.qdnd.vn/tim-kiem/pid/0/ad/1/f/28-09-2024/t/29-07-2025/q/{kw}",
+                "qdnd.vn": "https://www.qdnd.vn/tim-kiem/q/{kw}",
                 "congan.com.vn": "https://congan.com.vn/tim-kiem?q={kw}&type=0&cid=&fromtime=",
                 "congly.vn": "https://congly.vn/search?q={kw}",
                 "reatimes.vn": "https://reatimes.vn/tim-kiem.htm?keyword={kw}",
@@ -3665,6 +3773,17 @@ class HubCrawlTool(LLMUserFallbackMixin):
                 "vneconomy.vn": "https://vneconomy.vn/tim-kiem.html?Text={kw}",
                 "diendandoanhnghiep.vn": "https://diendandoanhnghiep.vn/search?q={kw}",
                 "hanoionline.vn": "https://hanoionline.vn/tim-kiem?search={kw}",
+                "baodaklak.vn": "https://baodaklak.vn/tim-kiem/?key={kw}&searchmore=0&fromdate=4&cate=",
+                "sggp.org.vn": "https://www.sggp.org.vn/tim-kiem/?q={kw}",
+                "theleader.vn": "https://theleader.vn/{kw}-search/",
+                "vietnamplus.vn": "https://www.vietnamplus.vn/tim-kiem/?q={kw}",
+                "nongnghiepmoitruong.vn": "https://nongnghiepmoitruong.vn/{kw}-search/from-to-sign-/",
+                "vir.com.vn": "https://vir.com.vn/search_enginer.html?p=search&q={kw}",
+                "giadinh.suckhoedoisong.vn": "https://giadinh.suckhoedoisong.vn/tim-kiem.htm?keywords={kw}",
+                "doisongphapluat.com.vn": "https://doisongphapluat.com.vn/tim-kiem?q={kw}",
+                "toquoc.vn": "https://toquoc.vn/tim-kiem.htm?keywords={kw}",
+                "giaoducthoidai.vn": "https://giaoducthoidai.vn/tim-kiem/?q={kw}",
+                "sgtt.thesaigontimes.vn": "https://sgtt.thesaigontimes.vn/tim-kiem-sgtt/#gsc.tab=0&gsc.q={kw}&gsc.sort=",
             }
 
             # 1) Rule đặc biệt cho bnews.vn (phải xử lý trước khi tra TEMPLATES)
@@ -3678,7 +3797,9 @@ class HubCrawlTool(LLMUserFallbackMixin):
                 # có thể bổ sung mặc định khác ở đây nếu cần
 
             # 2) Rule mặc định theo template
-            for suffix, tpl in TEMPLATES.items():
+            for suffix, tpl in sorted(
+                TEMPLATES.items(), key=lambda kv: len(kv[0]), reverse=True
+            ):
                 if domain.endswith(suffix):
                     # Với một số domain (như baotintuc, tuoitre, vneconomy, v.v.) nên GIỮ DẤU để search chính xác
                     if suffix in {
@@ -3697,6 +3818,18 @@ class HubCrawlTool(LLMUserFallbackMixin):
                         "vtv.vn",
                         "hanoimoi.vn",
                         "thuehaiquan.tapchikinhtetaichinh.vn",
+                        "baodaklak.vn",
+                        "sggp.org.vn",
+                        "baoxaydung.vn",
+                        "theleader.vn",
+                        "vietnamplus.vn",
+                        "nongnghiep.vn",
+                        "vir.com.vn",
+                        "giadinh.suckhoedoisong.vn",
+                        "doisongphapluat.com.vn",
+                        "toquoc.vn",
+                        "giaoducthoidai.vn",
+                        "sgtiepthi",
                     }:
                         q = quote_plus(
                             kw_pref, safe=""
@@ -3734,10 +3867,8 @@ class HubCrawlTool(LLMUserFallbackMixin):
 
             # Giới hạn số hub và số trang/hub nếu muốn
             # MAX_HUBS = getattr(self.config, "max_hubs", 5)          # ví dụ: tối đa 5 hub
-            MAX_PAGES_PER_HUB = getattr(
-                self.config, "pages_per_hub", 2
-            )  # ví dụ: tối đa 3 trang mỗi hub
-            pages_per_hub = 5 if hubs_override else MAX_PAGES_PER_HUB
+            MAX_PAGES_PER_HUB = 3  # ví dụ: tối đa 3 trang mỗi hub
+            pages_per_hub = 3 if hubs_override else MAX_PAGES_PER_HUB
 
             logger.info(f"[{media_source.name}] 🔗 {len(hubs)} hub: {hubs}")
 
@@ -3792,7 +3923,6 @@ class HubCrawlTool(LLMUserFallbackMixin):
                         logger.info(
                             f"[{media_source.name}] 🌐 Crawling hub {hub_idx} page {page_idx}: {current_url}"
                         )
-                        html = await crawl_with_playwright(current_url)
                         if domain in (
                             "tienphong.vn",
                             "nld.com.vn",
@@ -3808,6 +3938,12 @@ class HubCrawlTool(LLMUserFallbackMixin):
                             "tuoitre.vn",
                             "vtv.vn",
                             "hanoimoi.vn",
+                            "sggp.org.vn",
+                            "theleader.vn",
+                            "vietnamplus.vn",
+                            "nongnghiep.vn",
+                            "toquoc.vn",
+                            "giaoducthoidai.vn",
                         ):
                             html = await crawl_infinite_listing(
                                 current_url, max_rounds=7, idle_ms=700
@@ -3861,6 +3997,14 @@ class HubCrawlTool(LLMUserFallbackMixin):
                                 "nhandan.vn",
                                 "vtv.vn",
                                 "hanoimoi.vn",
+                                "baodaklak.vn",
+                                "sggp.org.vn",
+                                "theleader.vn",
+                                "vietnamplus.vn",
+                                "nongnghiep.vn",
+                                "toquoc.vn",
+                                "giaoducthoidai.vn",
+                                "sgtiepthi",
                             ):
                                 next_url = None
                             else:
@@ -4715,7 +4859,10 @@ class CrawlerAgent(LLMUserFallbackMixin):
                         )
 
                 if not found_for_this_keyword:
-                    break
+                    logger.info(
+                        f"[{media_source}] ⏭️ Bỏ qua fallback search_tools, chuyển keyword kế tiếp"
+                    )
+                    continue
                     for i in range(tool_index0, len(tools_to_try)):
                         await _maybe_await(self.check_pause_or_cancel)
                         tool_index = tools_to_try[i]
@@ -5342,9 +5489,58 @@ class ProcessorAgent(LLMUserFallbackMixin):
                                     # Loại trùng
                                     item["nhan_hang"] = list(set(item["nhan_hang"]))
 
-                            processed_articles.extend(
-                                [Article(**item) for item in articles_data]
-                            )
+                            # Build quick lookups from original batch to restore required fields
+                            try:
+                                _orig_by_stt = {a.stt: a for a in batch}
+                            except Exception:
+                                _orig_by_stt = {}
+                            _orig_by_link = {}
+                            try:
+                                for a in batch:
+                                    try:
+                                        _k = (a.link_bai_bao or "").strip().lower()
+                                        if _k:
+                                            _orig_by_link[_k] = a
+                                    except Exception:
+                                        continue
+                            except Exception:
+                                pass
+
+                            # Ensure required field 'tom_tat_noi_dung' exists; recover from original batch when missing
+                            for item in articles_data:
+                                need_restore = (
+                                    "tom_tat_noi_dung" not in item
+                                    or not isinstance(item.get("tom_tat_noi_dung"), str)
+                                    or not item.get("tom_tat_noi_dung", "").strip()
+                                )
+                                if need_restore:
+                                    orig = None
+                                    stt_val = item.get("stt")
+                                    if stt_val in _orig_by_stt:
+                                        orig = _orig_by_stt.get(stt_val)
+                                    else:
+                                        link_val = item.get("link_bai_bao")
+                                        if isinstance(link_val, str):
+                                            orig = _orig_by_link.get(
+                                                link_val.strip().lower()
+                                            )
+                                    if orig and getattr(orig, "tom_tat_noi_dung", None):
+                                        item["tom_tat_noi_dung"] = orig.tom_tat_noi_dung
+                                    else:
+                                        # As a last resort, set to empty string to satisfy schema
+                                        item["tom_tat_noi_dung"] = ""
+
+                            # Safely instantiate Article models; skip invalid items with a warning
+                            _safe_models = []
+                            for item in articles_data:
+                                try:
+                                    _safe_models.append(Article(**item))
+                                except Exception as _e:
+                                    logger.warning(
+                                        f"Skipping invalid article (stt={item.get('stt')} link={item.get('link_bai_bao')}): {_e}"
+                                    )
+
+                            processed_articles.extend(_safe_models)
                             logger.info(
                                 f"Batch {i // batch_size + 1} processed: {len(articles_data)} articles"
                             )
